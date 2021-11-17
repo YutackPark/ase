@@ -3,7 +3,11 @@ from collections.abc import Iterable
 def write_incar(parameters):
     incar_lines = []
     for key, value in parameters.items():
-        if isinstance(value,Iterable) and not isinstance(value,str):
+        if isinstance(value,str):
+            if value.find("\n") != -1:
+                value = '"' + value + '"'
+            incar_lines.append(f"{key} = {value}")
+        elif isinstance(value,Iterable):
             incar_lines.append(f"{key} = {' '.join(str(x) for x in value)}")
         else:
             incar_lines.append(f"{key} = {value}")
