@@ -30,3 +30,12 @@ def test_write_bool_to_incar():
     parameters = {"INCAR_TAG": False}
     expected_output = "INCAR_TAG = False"
     check_write_incar_file(parameters, expected_output)
+
+
+def test_write_float_to_incar():
+    parameters = {"INCAR_TAG": 1.234}
+    expected_output = "INCAR_TAG = 1.234"
+    check_write_incar_file(parameters, expected_output)
+    parameters = {"INCAR_TAG": 1e-15}
+    expected_output = "INCAR_TAG = 1e-15"
+    check_write_incar_file(parameters, expected_output)
