@@ -63,3 +63,8 @@ def test_write_multiple_text_to_incar():
     parameters = {"INCAR_TAG": "hello", "INCAR_TAG2" : "world"}
     expected_output = "INCAR_TAG = hello\nINCAR_TAG2 = world"
     check_write_incar_file(parameters, expected_output)
+
+def test_write_multiline_string_to_incar():
+    parameters = {"INCAR_TAG": "hello\nworld"}
+    expected_output = "INCAR_TAG = \"hello\nworld\""
+    check_write_incar_file(parameters, expected_output)
