@@ -59,12 +59,35 @@ def test_write_array_to_incar():
     expected_output = "INCAR_TAG = 0 1 2"
     check_write_incar_file(parameters, expected_output)
 
+
 def test_write_multiple_text_to_incar():
-    parameters = {"INCAR_TAG": "hello", "INCAR_TAG2" : "world"}
+    parameters = {"INCAR_TAG": "hello", "INCAR_TAG2": "world"}
     expected_output = "INCAR_TAG = hello\nINCAR_TAG2 = world"
     check_write_incar_file(parameters, expected_output)
 
+
 def test_write_multiline_string_to_incar():
     parameters = {"INCAR_TAG": "hello\nworld"}
-    expected_output = "INCAR_TAG = \"hello\nworld\""
+    expected_output = 'INCAR_TAG = "hello\nworld"'
     check_write_incar_file(parameters, expected_output)
+
+
+def test_write_dictionary_to_incar():
+    parameters = {"OUTER": {"INNER": "value"}}
+    expected_output = """OUTER {
+    INNER = value
+}"""
+    check_write_incar_file(parameters, expected_output)
+
+
+def test_write_complex_dictionary_to_incar():
+    parameters = {"one": {"two": {"integer": 1, "list": [2, 3, 4]}, "string": "value"}}
+    expected_output = """one {
+    two {
+        integer = 1
+        list = 2 3 4
+    }
+    string = value
+}"""
+    check_write_incar_file(parameters, expected_output)
+
