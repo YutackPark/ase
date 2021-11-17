@@ -39,3 +39,9 @@ def test_write_float_to_incar():
     parameters = {"INCAR_TAG": 1e-15}
     expected_output = "INCAR_TAG = 1e-15"
     check_write_incar_file(parameters, expected_output)
+
+
+def test_write_list_to_incar():
+    parameters = {"INCAR_TAG": [1, 2, 3]}
+    expected_output = "INCAR_TAG = 1 2 3"
+    check_write_incar_file(parameters, expected_output)
