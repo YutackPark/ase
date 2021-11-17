@@ -1,5 +1,6 @@
 from ase.io.vasp_parsers.incar_writer import write_incar
 from unittest.mock import mock_open, patch
+import numpy as np
 
 
 def test_write_string_to_incar():
@@ -44,4 +45,16 @@ def test_write_float_to_incar():
 def test_write_list_to_incar():
     parameters = {"INCAR_TAG": [1, 2, 3]}
     expected_output = "INCAR_TAG = 1 2 3"
+    check_write_incar_file(parameters, expected_output)
+
+
+def test_write_tuple_to_incar():
+    parameters = {"INCAR_TAG": (1, 2, 3)}
+    expected_output = "INCAR_TAG = 1 2 3"
+    check_write_incar_file(parameters, expected_output)
+
+
+def test_write_array_to_incar():
+    parameters = {"INCAR_TAG": np.arange(3)}
+    expected_output = "INCAR_TAG = 0 1 2"
     check_write_incar_file(parameters, expected_output)
