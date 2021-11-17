@@ -58,3 +58,8 @@ def test_write_array_to_incar():
     parameters = {"INCAR_TAG": np.arange(3)}
     expected_output = "INCAR_TAG = 0 1 2"
     check_write_incar_file(parameters, expected_output)
+
+def test_write_multiple_text_to_incar():
+    parameters = {"INCAR_TAG": "hello", "INCAR_TAG2" : "world"}
+    expected_output = "INCAR_TAG = hello\nINCAR_TAG2 = world"
+    check_write_incar_file(parameters, expected_output)
