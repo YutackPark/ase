@@ -91,3 +91,14 @@ def test_write_complex_dictionary_to_incar():
 }"""
     check_write_incar_file(parameters, expected_output)
 
+
+def test_write_incar_directly():
+    expected_output = """SYSTEM = test INCAR file
+ENCUT = 600
+ISMEAR = 0
+SIGMA = 0.05
+"""
+    parameters = {"incar": expected_output}
+    check_write_incar_file(parameters, expected_output)
+    parameters = {"INCAR": expected_output}
+    check_write_incar_file(parameters, expected_output)
