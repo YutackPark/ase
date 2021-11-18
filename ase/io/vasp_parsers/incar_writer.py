@@ -8,10 +8,8 @@ def write_incar(parameters):
 
 
 def generate_incar_file(parameters):
-    if "incar" in parameters:
-        return parameters["incar"]
-    elif "INCAR" in parameters:
-        return parameters["INCAR"]
+    if isinstance(parameters, str):
+        return parameters
     else:
         incar_lines = []
         for item in parameters.items():
