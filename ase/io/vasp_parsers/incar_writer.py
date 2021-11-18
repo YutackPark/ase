@@ -2,11 +2,21 @@ from collections.abc import Iterable
 
 
 def write_incar(parameters):
-    incar_lines = []
-    for item in parameters.items():
-        incar_lines += list(generate_line(*item))
+    incar_string = generate_incar_file(parameters)
     with open("INCAR", "w") as incar:
-        incar.write("\n".join(incar_lines))
+        incar.write(incar_string)
+
+
+def generate_incar_file(parameters):
+    if "incar" in parameters:
+        return parameters["incar"]
+    elif "INCAR" in parameters:
+        return parameters["INCAR"]
+    else:
+        incar_lines = []
+        for item in parameters.items():
+            incar_lines += list(generate_line(*item))
+        return "\n".join(incar_lines)
 
 
 def generate_line(key, value, num_spaces=0):
