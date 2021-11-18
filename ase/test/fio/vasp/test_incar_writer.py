@@ -12,8 +12,8 @@ def test_write_string_to_incar():
 def check_write_incar_file(parameters, expected_output):
     mock = mock_open()
     with patch("ase.io.vasp_parsers.incar_writer.open", mock):
-        write_incar(parameters)
-        mock.assert_called_once_with("INCAR", "w")
+        write_incar("directory", parameters)
+        mock.assert_called_once_with("directory/INCAR", "w")
         incar = mock()
         incar.write.assert_called_once_with(expected_output)
 
