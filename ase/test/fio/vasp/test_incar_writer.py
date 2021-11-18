@@ -98,7 +98,4 @@ ENCUT = 600
 ISMEAR = 0
 SIGMA = 0.05
 """
-    parameters = {"incar": expected_output}
-    check_write_incar_file(parameters, expected_output)
-    parameters = {"INCAR": expected_output}
-    check_write_incar_file(parameters, expected_output)
+    check_write_incar_file(expected_output,expected_output)
