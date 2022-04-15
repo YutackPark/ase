@@ -201,7 +201,7 @@ class Dftb(FileIOCalculator):
         for key in params:
             if key.startswith(s) and len(key) > len(s):
                 break
-        else:
+        elif params.get("Hamiltonian_", "DFTB") != "xTB"
             # User didn't specify max angular mometa.  Get them from
             # the .skf files:
             symbols = set(self.atoms.get_chemical_symbols())
