@@ -3,6 +3,7 @@ import pytest
 from ase.build import molecule
 from ase.calculators.dftb import Dftb
 
+
 @pytest.mark.calculator_lite
 @pytest.mark.calculator('dftb')
 def test_xtb_static(factory):
