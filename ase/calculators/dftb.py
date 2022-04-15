@@ -92,15 +92,20 @@ class Dftb(FileIOCalculator):
 
         self.slako_dir = slako_dir
 
-        self.default_parameters = dict(
-            Hamiltonian_='DFTB',
-            Hamiltonian_SlaterKosterFiles_='Type2FileNames',
-            Hamiltonian_SlaterKosterFiles_Prefix=self.slako_dir,
-            Hamiltonian_SlaterKosterFiles_Separator='"-"',
-            Hamiltonian_SlaterKosterFiles_Suffix='".skf"',
-            Hamiltonian_MaxAngularMomentum_='',
-            Options_='',
-            Options_WriteResultsTag='Yes')
+        if kwargs.get("Hamiltonian_", "DFTB") =="xTB":
+            self.default_parameters = dict(
+                Options_='',
+                Options_WriteResultsTag='Yes')
+        else:
+            self.default_parameters = dict(
+                Hamiltonian_='DFTB',
+                Hamiltonian_SlaterKosterFiles_='Type2FileNames',
+                Hamiltonian_SlaterKosterFiles_Prefix=self.slako_dir,
+                Hamiltonian_SlaterKosterFiles_Separator='"-"',
+                Hamiltonian_SlaterKosterFiles_Suffix='".skf"',
+                Hamiltonian_MaxAngularMomentum_='',
+                Options_='',
+                Options_WriteResultsTag='Yes')
 
         self.pcpot = None
         self.lines = None
