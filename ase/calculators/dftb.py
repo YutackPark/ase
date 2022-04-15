@@ -92,11 +92,7 @@ class Dftb(FileIOCalculator):
 
         self.slako_dir = slako_dir
 
-        if kwargs.get("Hamiltonian_", "DFTB") =="xTB":
-            self.default_parameters = dict(
-                Options_='',
-                Options_WriteResultsTag='Yes')
-        else:
+        if kwargs.get("Hamiltonian_", "DFTB") == "DFTB":
             self.default_parameters = dict(
                 Hamiltonian_='DFTB',
                 Hamiltonian_SlaterKosterFiles_='Type2FileNames',
@@ -104,6 +100,10 @@ class Dftb(FileIOCalculator):
                 Hamiltonian_SlaterKosterFiles_Separator='"-"',
                 Hamiltonian_SlaterKosterFiles_Suffix='".skf"',
                 Hamiltonian_MaxAngularMomentum_='',
+                Options_='',
+                Options_WriteResultsTag='Yes')
+        else:
+            self.default_parameters = dict(
                 Options_='',
                 Options_WriteResultsTag='Yes')
 
@@ -202,7 +202,7 @@ class Dftb(FileIOCalculator):
             if key.startswith(s) and len(key) > len(s):
                 break
         else:
-            if params.get("Hamiltonian_", "DFTB") != "xTB"
+            if params.get("Hamiltonian_", "DFTB") == "DFTB"
                 # User didn't specify max angular mometa.  Get them from
                 # the .skf files:
                 symbols = set(self.atoms.get_chemical_symbols())
