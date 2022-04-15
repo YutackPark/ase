@@ -201,15 +201,16 @@ class Dftb(FileIOCalculator):
         for key in params:
             if key.startswith(s) and len(key) > len(s):
                 break
-        elif params.get("Hamiltonian_", "DFTB") != "xTB"
-            # User didn't specify max angular mometa.  Get them from
-            # the .skf files:
-            symbols = set(self.atoms.get_chemical_symbols())
-            for symbol in symbols:
-                path = os.path.join(self.slako_dir,
-                                    '{0}-{0}.skf'.format(symbol))
-                l = read_max_angular_momentum(path)
-                params[s + symbol] = '"{}"'.format('spdf'[l])
+        else:
+            if params.get("Hamiltonian_", "DFTB") != "xTB"
+                # User didn't specify max angular mometa.  Get them from
+                # the .skf files:
+                symbols = set(self.atoms.get_chemical_symbols())
+                for symbol in symbols:
+                    path = os.path.join(self.slako_dir,
+                                        '{0}-{0}.skf'.format(symbol))
+                    l = read_max_angular_momentum(path)
+                    params[s + symbol] = '"{}"'.format('spdf'[l])
 
         # --------MAIN KEYWORDS-------
         previous_key = 'dummy_'
