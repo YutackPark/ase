@@ -132,6 +132,7 @@ def read_cube(fileobj, read_data=True, program=None, verbose=False):
             n -= 1
         cell[i] = n * Bohr * np.array([x, y, z])
         spacing[i] = np.array([x, y, z]) * Bohr
+    pbc = [(v != 0).any() for v in cell]
 
     numbers = np.empty(natoms, int)
     positions = np.empty((natoms, 3))
@@ -142,7 +143,7 @@ def read_cube(fileobj, read_data=True, program=None, verbose=False):
 
     positions *= Bohr
 
-    atoms = Atoms(numbers=numbers, positions=positions, cell=cell)
+    atoms = Atoms(numbers=numbers, positions=positions, cell=cell, pbc=pbc)
 
     # CASTEP will always have PBC, although the cube format does not
     # contain this kind of information

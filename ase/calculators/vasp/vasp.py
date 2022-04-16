@@ -381,7 +381,8 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore
             list_int_params=self.list_int_params.copy(),
             list_bool_params=self.list_bool_params.copy(),
             list_float_params=self.list_float_params.copy(),
-            dict_params=self.dict_params.copy())
+            dict_params=self.dict_params.copy(),
+            special_params=self.special_params.copy())
 
     def asdict(self):
         """Return a dictionary representation of the calculator state.

@@ -64,7 +64,7 @@ Parameters
 ==========
 
 The list of possible parameters and their defaults is shown below.
-See the NWChem documentation for full explanations of these different options.
+See the Psi4 documentation for full explanations of these different options.
 
 ================  ======== ======================== ============================
 keyword           type     default value            description

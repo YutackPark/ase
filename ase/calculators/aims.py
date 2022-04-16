@@ -116,7 +116,7 @@ class AimsTemplate(CalculatorTemplate):
             geo_constrain = scaled and "relax_geometry" in parameters
 
         have_lattice_vectors = atoms.pbc.any()
-        have_k_grid = "k_grid" in parameters or "kpts" in parameters
+        have_k_grid = "k_grid" in parameters or "kpts" in parameters or "k_grid_density" in parameters
         if have_lattice_vectors and not have_k_grid:
             raise RuntimeError("Found lattice vectors but no k-grid!")
         if not have_lattice_vectors and have_k_grid:

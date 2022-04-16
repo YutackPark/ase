@@ -181,7 +181,7 @@ class Runner:
         v1 = atoms.get_volume()
         volumes = strains**3 * v1
         energies = []
-        cell1 = atoms.cell
+        cell1 = atoms.cell.copy()
         for s in strains:
             atoms.set_cell(cell1 * s, scale_atoms=True)
             energies.append(atoms.get_potential_energy())

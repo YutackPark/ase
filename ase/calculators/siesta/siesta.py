@@ -552,7 +552,7 @@ class Siesta(FileIOCalculator):
             if self['spin'] == 'collinear':
                 fd.write(format_fdf('SpinPolarized', (True, "# Backwards compatibility.")))
             elif self['spin'] == 'non-collinear':
-                fd.write(format_fdf('NonCollinear', (True, "# Backwards compatibility.")))
+                fd.write(format_fdf('NonCollinearSpin', (True, "# Backwards compatibility.")))
 
             # Write functional.
             functional, authors = self['xc']
@@ -748,7 +748,7 @@ class Siesta(FileIOCalculator):
           1 -- means that the coordinate will be updated during relaxation
           0 -- mains that the coordinate will be fixed during relaxation
         """
-        from ase.constraints import FixAtoms, FixedLine, FixedPlane
+        from ase.constraints import FixAtoms, FixedLine, FixedPlane, FixCartesian
         import sys
         import warnings
 
@@ -763,14 +763,16 @@ class Siesta(FileIOCalculator):
                     raise RuntimeError(
                         'norm_dir: {} -- must be one of the Cartesian axes...'
                         .format(norm_dir))
-                a2c[c.a] = norm_dir.round().astype(int)
+                a2c[c.get_indices()] = norm_dir.round().astype(int)
             elif isinstance(c, FixedPlane):
                 norm_dir = c.dir / np.linalg.norm(c.dir)
                 if (max(norm_dir) - 1.0) > 1e-6:
                     raise RuntimeError(
                         'norm_dir: {} -- must be one of the Cartesian axes...'
                         .format(norm_dir))
-                a2c[c.a] = abs(1 - norm_dir.round().astype(int))
+                a2c[c.get_indices()] = abs(1 - norm_dir.round().astype(int))
+            elif isinstance(c, FixCartesian):
+                a2c[c.get_indices()] = c.mask.astype(int)
             else:
                 warnings.warn('Constraint {} is ignored at {}'
                               .format(str(c), sys._getframe().f_code))
@@ -1150,28 +1152,29 @@ class Siesta(FileIOCalculator):
     def read_eigenvalues(self):
         """ A robust procedure using the suggestion by Federico Marchesin """
 
-        fname = self.getpath(ext='EIG')
+        file_name = self.getpath(ext='EIG')
         try:
-            with open(fname, "r") as fd:
+            with open(file_name, "r") as fd:
                 self.results['fermi_energy'] = float(fd.readline())
-                n, nspin, nkp = map(int, fd.readline().split())
+                n, num_hamilton_dim, nkp = map(int, fd.readline().split())
                 _ee = np.split(
                     np.array(fd.read().split()).astype(float), nkp)
-        except (IOError):
+        except IOError:
             return 1
 
-        ksn2e = np.delete(_ee, 0, 1).reshape([nkp, nspin, n])
+        n_spin = 1 if num_hamilton_dim > 2 else num_hamilton_dim
+        ksn2e = np.delete(_ee, 0, 1).reshape([nkp, n_spin, n])
 
-        eigarray = np.empty((nspin, nkp, n))
-        eigarray[:] = np.inf
+        eig_array = np.empty((n_spin, nkp, n))
+        eig_array[:] = np.inf
 
         for k, sn2e in enumerate(ksn2e):
             for s, n2e in enumerate(sn2e):
-                eigarray[s, k, :] = n2e
+                eig_array[s, k, :] = n2e
 
-        assert np.isfinite(eigarray).all()
+        assert np.isfinite(eig_array).all()
 
-        self.results['eigenvalues'] = eigarray
+        self.results['eigenvalues'] = eig_array
         return 0
 
     def read_kpoints(self):

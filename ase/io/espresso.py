@@ -1335,7 +1335,7 @@ def construct_namelist(parameters=None, warn=False, **kwargs):
                 sec_list[key] = kwargs.pop(key)
 
             # Check if there is a key(i) version (no extra parsing)
-            for arg_key in parameters.get(section, {}):
+            for arg_key in list(parameters.get(section, {})):
                 if arg_key.split('(')[0].strip().lower() == key.lower():
                     sec_list[arg_key] = parameters[section].pop(arg_key)
             cp_parameters = parameters.copy()

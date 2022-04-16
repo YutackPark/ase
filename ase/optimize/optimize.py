@@ -307,7 +307,7 @@ class Optimizer(Dynamics):
             # ast = {1: "*", 0: ""}[self.force_consistent]
             ast = ''
             args = (name, self.nsteps, T[3], T[4], T[5], e, ast, fmax)
-            msg = "%s:  %3d %02d:%02d:%02d %15.6f%1s %12.5e\n" % args
+            msg = "%s:  %3d %02d:%02d:%02d %15.6f%1s %15.6f\n" % args
             self.logfile.write(msg)
 
             self.logfile.flush()

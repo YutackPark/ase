@@ -1094,6 +1094,8 @@ class Atoms:
             return Atom(atoms=self, index=i)
         elif not isinstance(i, slice):
             i = np.array(i)
+            if len(i) == 0:
+                i = np.array([], dtype=int)
             # if i is a mask
             if i.dtype == bool:
                 if len(i) != len(self):
@@ -1614,8 +1616,7 @@ class Atoms:
         center = self.positions[a3]
         self._masked_rotate(center, axis, diff, mask)
 
-    def rotate_dihedral(self, a1, a2, a3, a4,
-                        angle=None, mask=None, indices=None):
+    def rotate_dihedral(self, a1, a2, a3, a4, angle, mask=None, indices=None):
         """Rotate dihedral angle.
 
         Same usage as in :meth:`ase.Atoms.set_dihedral`: Rotate a group by a

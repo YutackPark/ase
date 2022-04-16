@@ -32,7 +32,7 @@ class MDLogger(IOContext):
             self.dyn = None
         self.atoms = atoms
         global_natoms = atoms.get_global_number_of_atoms()
-        self.logfile = self.openfile(logfile, comm=world, mode='a')
+        self.logfile = self.openfile(logfile, comm=world, mode=mode)
         self.stress = stress
         self.peratom = peratom
         if self.dyn is not None:

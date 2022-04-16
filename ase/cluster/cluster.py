@@ -53,11 +53,12 @@ class Cluster(Atoms, ClusterBase):
         """Returns an estimate of the cluster diameter based on two different
         methods.
 
-        method = 'volume': Returns the diameter of a sphere with the
-                           same volume as the atoms. (Default)
-        
-        method = 'shape': Returns the averaged diameter calculated from the
-                          directions given by the defined surfaces.
+        Parameters
+        ----------
+        method : {'volume', 'shape'}
+            'volume' (default) returns the diameter of a sphere with the same
+            volume as the atoms. 'shape' returns the averaged diameter
+            calculated from the directions given by the defined surfaces.
         """
 
         if method == 'shape':

@@ -15,7 +15,7 @@ def test_CO2linear_Au111_langevin(testdir):
     triatomic molecules"""
 
     rng = np.random.RandomState(0)
-    eref = 3.133030
+    eref = 3.131939
 
     zpos = cos(134.3 / 2.0 * pi / 180.0) * 1.197
     xpos = sin(134.3 / 2.0 * pi / 180.0) * 1.19
@@ -56,5 +56,7 @@ def test_CO2linear_Au111_langevin(testdir):
 
     # If the energy differs from the reference energy
     # it is most probable that the redistribution of
-    # random forces in Langevin is not working properly
+    # random forces in Langevin is not working properly.
+    # This is an AWFUL test, as it depends on the randomness
+    # in Langevin being bitwise reproducible.
     assert abs(slab.get_potential_energy() - eref) < 1e-4

@@ -24,7 +24,7 @@ The :class:`ORCA` ASE-interface is very simple. Two keywords are defined::
   orcasimpleinput: str
       What you'd put after the "!" in an orca input file.
 
-  orcablock: str
+  orcablocks: str
       What you'd put in the "% ... end"-blocks.
 
 

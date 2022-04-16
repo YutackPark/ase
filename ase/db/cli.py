@@ -2,6 +2,7 @@ import json
 import sys
 from collections import defaultdict
 from contextlib import contextmanager
+from pathlib import Path
 from typing import Iterable, Iterator
 
 import ase.io
@@ -433,8 +434,7 @@ def no_progressbar(iterable: Iterable,
 
 
 def check_jsmol():
-    from ase.db.app import root
-    static = root / 'ase/db/static'
+    static = Path(__file__).parent / 'static'
     if not (static / 'jsmol/JSmol.min.js').is_file():
         print(f"""
     WARNING:

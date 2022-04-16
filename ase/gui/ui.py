@@ -40,7 +40,7 @@ def about(name, version, webpage):
             _('Version') + ': ' + version,
             _('Web-page') + ': ' + webpage]
     win = Window(_('About'))
-    set_windowtype(win, 'dialog')
+    set_windowtype(win.win, 'dialog')
     win.add(Text('\n'.join(text)))
 
 
@@ -50,7 +50,7 @@ def helpbutton(text):
 
 def helpwindow(text):
     win = Window(_('Help'))
-    set_windowtype(win, 'dialog')
+    set_windowtype(win.win, 'dialog')
     win.add(Text(text))
 
 

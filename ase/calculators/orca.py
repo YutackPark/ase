@@ -36,7 +36,7 @@ class ORCA(FileIOCalculator):
             orcasimpleinput: str
                 What you'd put after the "!" in an orca input file.
 
-            orcablock: str
+            orcablocks: str
                 What you'd put in the "% ... end"-blocks.
 
         are used to define the ORCA simple-inputline and the ORCA-block input.

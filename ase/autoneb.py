@@ -601,8 +601,8 @@ def store_E_and_F_in_spc(self):
             root = (i - 1) * self.world.size // (self.nimages - 2)
             # If on this node, extract the calculated numbers
             if self.world.rank == root:
-                energy[0] = images[i].get_potential_energy()
                 forces = images[i].get_forces()
+                energy[0] = images[i].get_potential_energy()
             # Distribute these numbers to other nodes
             self.world.broadcast(energy, root)
             self.world.broadcast(forces, root)

@@ -393,9 +393,12 @@ class CP2K(Calculator):
                 # libxc input section changed over time
                 if functional.startswith("XC_") and self._shell.version < 3.0:
                     legacy_libxc += " " + functional  # handled later
-                elif functional.startswith("XC_"):
+                elif functional.startswith("XC_") and self._shell.version < 5.0:
                     s = InputSection(name='LIBXC')
                     s.keywords.append('FUNCTIONAL ' + functional)
+                    xc_sec.subsections.append(s)
+                elif functional.startswith("XC_"):
+                    s = InputSection(name=functional[3:])
                     xc_sec.subsections.append(s)
                 else:
                     s = InputSection(name=functional.upper())

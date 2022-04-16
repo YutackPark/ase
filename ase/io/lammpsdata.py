@@ -305,11 +305,11 @@ def read_lammps_data(fileobj, Z_of_type=None, style="full",
     # copy per-atom quantities from read-in values
     for (i, id) in enumerate(pos_in.keys()):
         # by id
-        ind_of_id[id] = i
         if sort_by_id:
             ind = id - 1
         else:
             ind = i
+        ind_of_id[id] = ind
         type = pos_in[id][0]
         positions[ind, :] = [pos_in[id][1], pos_in[id][2], pos_in[id][3]]
         if velocities is not None:

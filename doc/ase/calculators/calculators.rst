@@ -40,7 +40,7 @@ Supported calculators
 
 The calculators can be divided in four groups:
 
-1) Asap_, BigDFT_, DFTK_, GPAW_, and Hotbit_ have their own native ASE
+1) Asap_, BigDFT_, DeePMD-kit_, DFTK_, GPAW_, and Hotbit_ have their own native ASE
 interfaces.
 
 2) ABINIT, AMBER, CP2K, CASTEP, deMon2k, DFTB+, ELK, EXCITING, FHI-aims, FLEUR, GAUSSIAN,
@@ -67,6 +67,7 @@ name                                      description
 ========================================= ===========================================
 Asap_                                     Highly efficient EMT code
 BigDFT_                                   Wavelet based code for DFT
+DeePMD-kit_                               A deep learning package for many-body potential energy representation
 DFTK_                                     Plane-wave code for DFT and related models
 GPAW_                                     Real-space/plane-wave/LCAO PAW code
 Hotbit_                                   DFT based tight binding
@@ -137,6 +138,7 @@ where ``abc`` is the module name and ``ABC`` is the class name.
 .. _GPAW: https://wiki.fysik.dtu.dk/gpaw
 .. _Hotbit: https://github.com/pekkosk/hotbit
 .. _DFTK: https://dftk.org
+.. _DeePMD-kit: https://github.com/deepmodeling/deepmd-kit
 
 Calculator keywords
 ===================

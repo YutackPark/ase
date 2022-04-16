@@ -1,9 +1,9 @@
 import pytest
-
 from ase import Atoms
-from ase.db import connect
-from ase.db.web import Session
 from ase.calculators.calculator import compare_atoms
+from ase.db import connect
+from ase.db.cli import check_jsmol
+from ase.db.web import Session
 
 
 def get_atoms():
@@ -72,6 +72,7 @@ def test_favicon(client):
 
 def test_db_web(client):
     import io
+
     from ase.db.web import Session
     from ase.io import read
     c = client
@@ -123,3 +124,7 @@ def test_paging(database):
     session.update('query', '', {'query': 'id=1'}, project)
     table = session.create_table(database, 'id', ['foo'])
     assert len(table.rows) == 1
+
+
+def test_check_jsmol():
+    check_jsmol()

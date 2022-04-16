@@ -161,3 +161,11 @@ def test_make_command_explicit(monkeypatch):
     my_cmd = 'my command'
     cmd = calc.make_command(my_cmd)
     assert cmd == my_cmd
+
+
+def test_as_dict():
+    calc = Vasp(lreal=False, xc="pbe")
+    dct = calc.asdict()
+    inputs = dct["inputs"]
+    assert inputs["lreal"] is False
+    assert inputs["xc"] == "pbe"

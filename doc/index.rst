@@ -45,6 +45,7 @@ Supported :mod:`Calculators <ase.calculators>`
 |xtb| |orca|
 :mod:`ACE-Molecule <ase.calculators.acemolecule>`
 :mod:`~ase.calculators.amber`
+DeePMD-kit_
 :mod:`DMol³ <ase.calculators.dmol>`
 :mod:`Gaussian <ase.calculators.gaussian>`
 :mod:`Grimme DFT-D3 <ase.calculators.dftd3>`
@@ -308,3 +309,4 @@ Contents
 .. _Sphinx: http://sphinx.pocoo.org
 .. _Asap: https://wiki.fysik.dtu.dk/asap
 .. _CAMd: https://www.fysik.dtu.dk/english/research/camd/
+.. _DeePMD-kit: https://github.com/deepmodeling/deepmd-kit

@@ -278,10 +278,12 @@ class IonsPerSpecies(SimpleVaspHeaderParser):
         return {'ion_types': ion_types}
 
 
-class KpointHeader(SimpleVaspHeaderParser):
+class KpointHeader(VaspHeaderPropertyParser):
     """Reads nkpts and nbands from the line delimiter.
     Then it also searches for the ibzkpts and kpt_weights"""
-    LINE_DELIMITER = 'NKPTS'
+    def has_property(self, cursor: _CURSOR, lines: _CHUNK) -> bool:
+        line = lines[cursor]
+        return "NKPTS" in line and "NBANDS" in line
 
     def parse(self, cursor: _CURSOR, lines: _CHUNK) -> _RESULT:
         line = lines[cursor].strip()

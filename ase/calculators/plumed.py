@@ -7,17 +7,29 @@ from os.path import exists
 from ase.units import fs, mol, kJ, nm
 
 
-def restart_from_trajectory(prev_traj, *args, prev_steps=None, atoms=None, **kwargs):
-    """ This function helps the user to restart a plumed simulation 
-    from a trajectory file. 
+def restart_from_trajectory(prev_traj, *args, prev_steps=None, atoms=None,
+                            **kwargs):
+    """This function helps the user to restart a plumed simulation
+    from a trajectory file.
 
     Parameters
-        ----------  
-        calc: Calculator object
-            It  computes the unbiased forces
-    
-    .. note:: As alternative for restarting a plumed simulation, the user
-            has to fix the positions, momenta and Plumed.istep
+    ----------
+    prev_traj : Trajectory object
+        previous simulated trajectory
+
+    prev_steps : int. Default steps in prev_traj.
+        number of previous steps
+
+    others :
+       Same parameters of :mod:`~ase.calculators.plumed` calculator
+
+    Returns
+    -------
+    Plumed calculator
+
+
+    .. note:: prev_steps is crucial when trajectory does not contain
+        all the previous steps.
     """
     atoms.calc = Plumed(*args, atoms=atoms, restart=True, **kwargs)
 
@@ -33,70 +45,73 @@ def restart_from_trajectory(prev_traj, *args, prev_steps=None, atoms=None, **kwa
 
 class Plumed(Calculator):
     implemented_properties = ['energy', 'forces']
-    
-    def __init__(self, calc, input, timestep, atoms=None, kT=1., log='', 
+
+    def __init__(self, calc, input, timestep, atoms=None, kT=1., log='',
                  restart=False, use_charge=False, update_charge=False):
         """
         Plumed calculator is used for simulations of enhanced sampling methods
         with the open-source code PLUMED (plumed.org).
-        
+
         [1] The PLUMED consortium, Nat. Methods 16, 670 (2019)
-        [2] Tribello, Bonomi, Branduardi, Camilloni, and Bussi, 
+        [2] Tribello, Bonomi, Branduardi, Camilloni, and Bussi,
         Comput. Phys. Commun. 185, 604 (2014)
 
         Parameters
-        ----------  
+        ----------
         calc: Calculator object
             It  computes the unbiased forces
-        
+
         input: List of strings
             It contains the setup of plumed actions
 
         timestep: float
-            Timestep of the simulated dynamics
-        
+            Time step of the simulated dynamics
+
         atoms: Atoms
             Atoms object to be attached
 
-
-        .. note:: For this case, the calculator is defined strictly with the
-            object atoms inside. This is necessary for initializing the
-            Plumed object. For conserving ASE convention, it can be initialized as
-            atoms.calc = (..., atoms=atoms, ...)
-
         kT: float. Default 1.
             Value of the thermal energy in eV units. It is important for
-            some of the methods of plumed like Well-Tempered Metadynamics.
-        
+            some methods of plumed like Well-Tempered Metadynamics.
+
         log: string
             Log file of the plumed calculations
-        
+
         restart: boolean. Default False
             True if the simulation is restarted.
 
         use_charge: boolean. Default False
-            True if you use some collective variable which needs charges. If 
-            use_charges is True and update_charge is False, you have to define 
-            initial charges and then this charge will be used during all simulation.
+            True if you use some collective variable which needs charges. If
+            use_charges is True and update_charge is False, you have to define
+            initial charges and then this charge will be used during all
+            simulation.
 
         update_charge: boolean. Default False
-            True if you want the carges to be updated each time step. This will
-            fail in case that calc does not have 'charges' in its properties. 
+            True if you want the charges to be updated each time step. This
+            will fail in case that calc does not have 'charges' in its
+            properties.
 
 
-        .. note:: In order to guarantee a well restart, the user has to fix momenta,
-            positions and Plumed.istep, where the positions and momenta corresponds
-            to the last coniguration in the previous simulation, while Plumed.istep 
-            is the number of timesteps performed previously. This can be done 
-            using ase.calculators.plumed.restart_from_trajectory.
-        
+        .. note:: For this case, the calculator is defined strictly with the
+            object atoms inside. This is necessary for initializing the
+            Plumed object. For conserving ASE convention, it can be initialized
+            as atoms.calc = (..., atoms=atoms, ...)
+
+
+        .. note:: In order to guarantee a proper restart, the user has to fix
+            momenta, positions and Plumed.istep, where the positions and
+            momenta corresponds to the last configuration in the previous
+            simulation, while Plumed.istep is the number of timesteps
+            performed previously. This can be done using
+            ase.calculators.plumed.restart_from_trajectory.
         """
 
         from plumed import Plumed as pl
 
         if atoms is None:
-            raise TypeError('plumed calculator has to be defined with the object atoms inside.')
-        
+            raise TypeError('plumed calculator has to be defined with the \
+                             object atoms inside.')
+
         self.istep = 0
         Calculator.__init__(self, atoms=atoms)
 
@@ -104,20 +119,28 @@ class Plumed(Calculator):
         self.calc = calc
         self.use_charge = use_charge
         self.update_charge = update_charge
-        
+
         if world.rank == 0:
             natoms = len(atoms.get_positions())
             self.plumed = pl()
-            
-            # Units setup
-            # warning: outputs from plumed will still be in plumed units.
+
+            ''' Units setup
+            warning: inputs and outputs of plumed will still be in
+            plumed units.
+
+            The change of Plumed units to ASE units is:
+            kjoule/mol to eV
+            nm to Angstrom
+            ps to ASE time units
+            ASE and plumed - charge unit is in e units
+            ASE and plumed - mass unit is in a.m.u units '''
 
             ps = 1000 * fs
-            self.plumed.cmd("setMDEnergyUnits", mol/kJ)  # kjoule/mol to eV
-            self.plumed.cmd("setMDLengthUnits", 1/nm)    # nm to Angstrom
-            self.plumed.cmd("setMDTimeUnits", 1/ps)      # ps to ASE time units 
-            self.plumed.cmd("setMDChargeUnits", 1.)      # ASE and plumed - charge unit is in e units
-            self.plumed.cmd("setMDMassUnits", 1.)        # ASE and plumed - mass unit is in e units
+            self.plumed.cmd("setMDEnergyUnits", mol/kJ)
+            self.plumed.cmd("setMDLengthUnits", 1/nm)
+            self.plumed.cmd("setMDTimeUnits", 1/ps)
+            self.plumed.cmd("setMDChargeUnits", 1.)
+            self.plumed.cmd("setMDMassUnits", 1.)
 
             self.plumed.cmd("setNatoms", natoms)
             self.plumed.cmd("setMDEngine", "ASE")
@@ -133,9 +156,13 @@ class Plumed(Calculator):
     def _get_name(self):
         return f'{self.calc.name}+Plumed'
 
-    def calculate(self, atoms=None, properties=['energy', 'forces'], system_changes=all_changes):
+    def calculate(self, atoms=None, properties=['energy', 'forces'],
+                  system_changes=all_changes):
         Calculator.calculate(self, atoms, properties, system_changes)
-        energy, forces = self.compute_energy_and_forces(self.atoms.get_positions(), self.istep)
+
+        comp = self.compute_energy_and_forces(self.atoms.get_positions(),
+                                              self.istep)
+        energy, forces = comp
         self.istep += 1
         self.results['energy'], self. results['forces'] = energy, forces
 
@@ -156,8 +183,9 @@ class Plumed(Calculator):
         self.plumed.cmd("setStep", istep)
 
         if self.use_charge:
-            if 'charges' in self.calc.implemented_properties and self.update_charge:
-                charges = self.calc.get_charges(atoms=self.atoms.copy()) 
+            if 'charges' in self.calc.implemented_properties and \
+                                             self.update_charge:
+                charges = self.calc.get_charges(atoms=self.atoms.copy())
 
             elif self.atoms.has('initial_charges') and not self.update_charge:
                 charges = self.atoms.get_initial_charges()
@@ -167,7 +195,12 @@ class Plumed(Calculator):
                 assert self.update_charge, "Not initial charges in Atoms"
 
             self.plumed.cmd("setCharges", charges)
-        
+
+        # Box for functions with PBC in plumed
+        if self.atoms.cell:
+            cell = np.asarray(self.atoms.get_cell())
+            self.plumed.cmd("setBox", cell)
+
         self.plumed.cmd("setPositions", pos)
         self.plumed.cmd("setEnergy", unbiased_energy)
         self.plumed.cmd("setMasses", self.atoms.get_masses())
@@ -180,11 +213,11 @@ class Plumed(Calculator):
         energy_bias = np.zeros((1,))
         self.plumed.cmd("getBias", energy_bias)
         return [energy_bias, forces_bias]
-    
+
     def write_plumed_files(self, images):
         """ This function computes what is required in
         plumed input for some trajectory.
-        
+
         The outputs are saved in the typical files of
         plumed such as COLVAR, HILLS """
         for i, image in enumerate(images):
@@ -206,7 +239,7 @@ class Plumed(Calculator):
                     else:
                         file_name = line[ini+5:end]
                     read_files[file_name] = np.loadtxt(file_name, unpack=True)
-    
+
             if len(read_files) == 0:
                 if exists('COLVAR'):
                     read_files['COLVAR'] = np.loadtxt('COLVAR', unpack=True)
