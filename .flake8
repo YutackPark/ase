@@ -1,5 +1,9 @@
 [flake8]
-ignore = E129,W293,W503,W504,E741,E501,E226,E265,W291,E741,E127,E128,E126
+ignore =
+    E741, # bad variable names like 'l' and 'I'
+    E226, # missing whitespace around arithmetic operator
+    W503  # line break before binary operator
+    W504  # line break after binary operator
 max-line-length = 80
 
 exclude =

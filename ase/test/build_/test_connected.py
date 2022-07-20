@@ -43,7 +43,7 @@ def test_connected_atoms():
 
     dimerdata = data['2-pyridoxine_2-aminopyridine_complex']
     dimer = Atoms(dimerdata['symbols'], dimerdata['positions'])
-    
+
     atoms1 = connected_atoms(dimer, 0)
     atoms2 = connected_atoms(dimer, -1)
     assert len(dimer) == len(atoms1) + len(atoms2)

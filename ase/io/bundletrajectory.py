@@ -758,7 +758,7 @@ class UlmBundleBackend:
                     for typ in self.integral_dtypes:
                         if (minval >= self.int_minval[typ] and
                             maxval <= self.int_maxval[typ] and
-                            data.itemsize > self.int_itemsize[typ]):
+                                data.itemsize > self.int_itemsize[typ]):
 
                             # Convert to smaller type
                             stored_as = typ
@@ -828,7 +828,8 @@ class UlmBundleBackend:
                     else:
                         info['shape'][0] += fd.shape[0]
                         assert info['type'] == fd.dtype
-                        info['identical'] = info['identical'] and fd.all_identical
+                        info['identical'] = (info['identical']
+                                             and fd.all_identical)
             info['shape'] = tuple(info['shape'])
             return info
 

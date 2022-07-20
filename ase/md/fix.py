@@ -3,17 +3,18 @@ import numpy as np
 
 class FixRotation:
     """Remove rotation from an atoms object.
-    
+
     This class is intended as an observer on an atoms class during
     a molecular dynamics simulation.  When it is called, it removes
     any rotation around the center of mass.
-    
+
     It assumes that the system is a (nano)particle with free boundary
     conditions.
-    
+
     Bugs:
     Should check that the boundary conditions make sense.
     """
+
     def __init__(self, atoms):
         self.atoms = atoms
 

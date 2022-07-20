@@ -8,6 +8,7 @@ from ase.calculators.excitation_list import polarizability
 
 class Placzek(ResonantRaman):
     """Raman spectra within the Placzek approximation."""
+
     def __init__(self, *args, **kwargs):
         self._approx = 'PlaczekAlpha'
         ResonantRaman.__init__(self, *args, **kwargs)
@@ -87,6 +88,7 @@ class Profeta(ResonantRaman):
     Mickael Profeta and Francesco Mauri
     Phys. Rev. B 63 (2000) 245415
     """
+
     def __init__(self, *args, **kwargs):
         self.set_approximation(kwargs.pop('approximation', 'Profeta'))
         self.nonresonant = kwargs.pop('nonresonant', True)

@@ -11,7 +11,7 @@ def test_read_gpaw_out(datadir):
     atoms = io.read(output_file_name)
 
     # test calculator
-    
+
     calc = atoms.calc
     assert isinstance(calc, SinglePointDFTCalculator)
     assert calc.name == 'vdwtkatchenko09prl'
@@ -37,7 +37,7 @@ if 1:
 
     atoms = Cluster(molecule('H2'))
     atoms.minimal_box(3)
-    
+
     calc = GPAW(xc='PBE', occupations=FermiDirac(0.1))
     atoms.calc = vdWTkatchenko09prl(
         HirshfeldPartitioning(calc),

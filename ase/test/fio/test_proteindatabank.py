@@ -1,3 +1,4 @@
+# flake8: noqa
 import pytest
 from io import StringIO
 import numpy as np
@@ -27,7 +28,7 @@ ATOM      2    O                 1.837   1.409   1.373  1.00  0.00           O
 
 body3 = """
 ATOM                             0.443   1.409   1.905                       C  
-ATOM                             1.837   1.409   1.373                       O   
+ATOM                             1.837   1.409   1.373                       O 
 """
 
 cellref = pytest.approx(np.array([[2., 0., 0.], [0., 2., 0.], [0., 0., 2.]]))

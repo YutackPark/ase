@@ -128,10 +128,11 @@ all_changes = ['positions', 'numbers', 'cell', 'pbc',
 # Recognized names of calculators sorted alphabetically:
 names = ['abinit', 'ace', 'aims', 'amber', 'asap', 'castep', 'cp2k',
          'crystal', 'demon', 'demonnano', 'dftb', 'dftd3', 'dmol', 'eam',
-         'elk', 'emt', 'espresso', 'exciting', 'ff', 'fleur', 'gamess_us',
+         'elk', 'emt', 'espresso', 'exciting', 'ff', 'gamess_us',
          'gaussian', 'gpaw', 'gromacs', 'gulp', 'hotbit', 'kim',
          'lammpslib', 'lammpsrun', 'lj', 'mopac', 'morse', 'nwchem',
-         'octopus', 'onetep', 'openmx', 'orca', 'plumed', 'psi4', 'qchem', 'siesta',
+         'octopus', 'onetep', 'openmx', 'orca',
+         'plumed', 'psi4', 'qchem', 'siesta',
          'tip3p', 'tip4p', 'turbomole', 'vasp']
 
 
@@ -144,7 +145,6 @@ special = {'cp2k': 'CP2K',
            'emt': 'EMT',
            'crystal': 'CRYSTAL',
            'ff': 'ForceField',
-           'fleur': 'FLEUR',
            'gamess_us': 'GAMESSUS',
            'gulp': 'GULP',
            'kim': 'KIM',
@@ -621,7 +621,8 @@ class Calculator(BaseCalculator):
         self.prefix = None
         if label is not None:
             if self.directory == '.' and '/' in label:
-                # We specified directory in label, and nothing in the diretory key
+                # We specified directory in label, and nothing in the diretory
+                # key
                 self.label = label
             elif '/' not in label:
                 # We specified our directory in the directory keyword

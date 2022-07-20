@@ -7,7 +7,8 @@ def test_mpi_unused_on_import():
     been used.  We want to delay use of world until after MPI4PY has been
     imported.
 
-    We run the test in a subprocess so that we have a clean Python interpreter."""
+    We run the test in a subprocess so that we have a clean Python
+    interpreter."""
 
     # Should cover most of ASE:
     modules = ['ase.optimize',

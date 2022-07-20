@@ -107,10 +107,11 @@ def crystal(symbols=None, basis=None, occupancies=None, spacegroup=1, setting=1,
     32
     """
     sg = Spacegroup(spacegroup, setting)
-    if (not isinstance(symbols, str) and
-        hasattr(symbols, '__getitem__') and
-        len(symbols) > 0 and
-        isinstance(symbols[0], ase.Atom)):
+    if (
+            not isinstance(symbols, str) and
+            hasattr(symbols, '__getitem__') and
+            len(symbols) > 0 and
+            isinstance(symbols[0], ase.Atom)):
         symbols = ase.Atoms(symbols)
     if isinstance(symbols, ase.Atoms):
         basis = symbols
@@ -126,21 +127,21 @@ def crystal(symbols=None, basis=None, occupancies=None, spacegroup=1, setting=1,
 
     if occupancies is not None:
         occupancies_dict = {}
-    
+
         for index, coord in enumerate(basis_coords):
             # Compute all distances and get indices of nearest atoms
             dist = spatial.distance.cdist(coord.reshape(1, 3), basis_coords)
             indices_dist = np.flatnonzero(dist < symprec)
-            
+
             occ = {symbols[index]: occupancies[index]}
-            
+
             # Check nearest and update occupancy
             for index_dist in indices_dist:
                 if index == index_dist:
                     continue
                 else:
                     occ.update({symbols[index_dist]: occupancies[index_dist]})
-            
+
             occupancies_dict[str(index)] = occ.copy()
 
     sites, kinds = sg.equivalent_sites(basis_coords,
@@ -159,7 +160,8 @@ def crystal(symbols=None, basis=None, occupancies=None, spacegroup=1, setting=1,
         symbols = [symbols[i] for i in kinds]
     else:
         # make sure that we put the dominant species there
-        symbols = [sorted(occupancies_dict[str(i)].items(), key=lambda x: x[1])[-1][0] for i in kinds]
+        symbols = [sorted(occupancies_dict[str(i)].items(),
+                          key=lambda x: x[1])[-1][0] for i in kinds]
 
     if cell is None:
         cell = cellpar_to_cell(cellpar, ab_normal, a_direction)
@@ -192,7 +194,7 @@ def crystal(symbols=None, basis=None, occupancies=None, spacegroup=1, setting=1,
                 array = basis.get_array(name)
                 atoms.new_array(name, [array[i] for i in kinds],
                                 dtype=array.dtype, shape=array.shape[1:])
-                
+
     if kinds:
         atoms.new_array('spacegroup_kinds', np.asarray(kinds, dtype=int))
 

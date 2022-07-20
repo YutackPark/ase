@@ -6,13 +6,15 @@ def test_hookean_pbc():
     L = 8.  # length of the cubic box
     d = 2.3  # Au-Au distance
     cell = [L] * 3
-    positions = [[(L - d/2) % L, L/2, L/2], [(L + d/2) % L, L/2, L/2]]
+    positions = [[(L - d / 2) %
+                  L, L / 2, L / 2], [(L + d / 2) %
+                                     L, L / 2, L / 2]]
     a = Atoms('AuAu', cell=cell, positions=positions, pbc=True)
 
     a.calc = EMT()
     e1 = a.get_potential_energy()
 
-    constraint = Hookean(a1=0, a2=1, rt=1.1*d, k=10.)
+    constraint = Hookean(a1=0, a2=1, rt=1.1 * d, k=10.)
     a.set_constraint(constraint)
     e2 = a.get_potential_energy()
 

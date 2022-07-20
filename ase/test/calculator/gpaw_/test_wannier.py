@@ -688,7 +688,7 @@ def test_init_orbitals_h2(rng):
     ntot = 2
     orbs = init_orbitals(atoms=atoms, ntot=ntot, rng=rng)
     angular_momenta = [orb[1] for orb in orbs]
-    assert sum([l * 2 + 1 for l in angular_momenta]) == ntot
+    assert sum([l_ * 2 + 1 for l_ in angular_momenta]) == ntot
     assert angular_momenta == [0] * ntot
 
 
@@ -699,7 +699,7 @@ def test_init_orbitals_ti(rng):
     ntot = 14
     orbs = init_orbitals(atoms=atoms, ntot=ntot, rng=rng)
     angular_momenta = [orb[1] for orb in orbs]
-    assert sum([l * 2 + 1 for l in angular_momenta]) == ntot
+    assert sum([l_ * 2 + 1 for l_ in angular_momenta]) == ntot
     assert 0 in angular_momenta
     assert 2 in angular_momenta
 

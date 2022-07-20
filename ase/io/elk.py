@@ -58,10 +58,11 @@ def read_elk(fd):
                     natoms.append(natomsnow)
                     atposnow = []
                     bfcmtnow = []
-                    for l in lines1[n1 + 2:n1 + 2 + natomsnow]:
-                        atposnow.append([float(v) for v in l.split()[0:3]])
-                        if len(l.split()) == 6:  # bfcmt present
-                            bfcmtnow.append([float(v) for v in l.split()[3:]])
+                    for line in lines1[n1 + 2:n1 + 2 + natomsnow]:
+                        atposnow.append([float(v) for v in line.split()[0:3]])
+                        if len(line.split()) == 6:  # bfcmt present
+                            bfcmtnow.append(
+                                [float(v) for v in line.split()[3:]])
                     atpos.append(atposnow)
                     bfcmt.append(bfcmtnow)
     # symbols, positions, magmoms based on ELK spfname, atpos, and bfcmt

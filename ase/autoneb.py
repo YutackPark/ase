@@ -191,7 +191,7 @@ class AutoNEB:
 
         # Do the actual NEB calculation
         logpath = (self.iter_folder
-            / f'{self.prefix.name}_log_iter{self.iteration:03d}.log')
+                   / f'{self.prefix.name}_log_iter{self.iteration:03d}.log')
         qn = closelater(self.optimizer(neb, logfile=logpath))
 
         # Find the ranks which are masters for each their calculation

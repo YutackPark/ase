@@ -17,10 +17,11 @@ def test_tip4p():
                    (0, 0, 0)])
 
     # tip4p sequence OHH, OHH, ..
-    dimer = dimer[[2]]+dimer[:2]+dimer[[-1]]+dimer[3:5]
+    dimer = dimer[[2]] + dimer[:2] + dimer[[-1]] + dimer[3:5]
     dimer.positions[3:, 0] += 2.8
 
-    dimer.calc = TIP4P(rc=4.0, width=2.0)  # put O-O distance in the cutoff range
+    # put O-O distance in the cutoff range
+    dimer.calc = TIP4P(rc=4.0, width=2.0)
     F = dimer.get_forces()
     print(F)
     dF = dimer.calc.calculate_numerical_forces(dimer) - F

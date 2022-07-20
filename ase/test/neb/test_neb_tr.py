@@ -43,8 +43,9 @@ def test_neb_tr(testdir):
         # Define the NEB and make a linear interpolation
         # with removing translational
         # and rotational degrees of freedom
-        neb = NEB(images,
-                  remove_rotation_and_translation=remove_rotation_and_translation)
+        neb = NEB(
+            images,
+            remove_rotation_and_translation=remove_rotation_and_translation)
         neb.interpolate()
         # Test used these old defaults which are not optimial, but work
         # in this particular system
@@ -55,8 +56,9 @@ def test_neb_tr(testdir):
 
         # Switch to CI-NEB, still removing the external degrees of freedom
         # Also specify the linearly varying spring constants
-        neb = NEB(images, climb=True,
-                  remove_rotation_and_translation=remove_rotation_and_translation)
+        neb = NEB(
+            images, climb=True,
+            remove_rotation_and_translation=remove_rotation_and_translation)
         qn = FIRE(neb, dt=0.005, maxstep=0.05, dtmax=0.1)
         qn.run(fmax=fmax)
 

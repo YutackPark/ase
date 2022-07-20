@@ -32,7 +32,7 @@ class LippincottStuttman:
         'Al': 0.533,
         'Si': 0.583,
     }
-    
+
     def __call__(self, el1: str, el2: str,
                  length: float) -> Tuple[float, float]:
         """Bond polarizability
@@ -106,12 +106,12 @@ class Linearized:
         length0, al, ald, ap, apd = self._data[bond]
 
         return al + ald * (length - length0), ap + apd * (length - length0)
-        
+
 
 class BondPolarizability(StaticPolarizabilityCalculator):
     def __init__(self, model=LippincottStuttman()):
         self.model = model
-    
+
     def __call__(self, atoms, radiicut=1.5):
         """Sum up the bond polarizability from all bonds
 

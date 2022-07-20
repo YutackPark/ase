@@ -112,8 +112,8 @@ def parse_tuples(atoms, regex, permutation, label):
         ])
 
         all_tuples = np.append(all_tuples,
-                                new_tuples[permutation, :].T,
-                                axis=0)
+                               new_tuples[permutation, :].T,
+                               axis=0)
         types = np.append(types, per_atom[:, -1])
 
     return all_tuples, types

@@ -30,7 +30,8 @@ def check(name, xsf_text, check_data):
     # Now write the same system back out:
     outfname = 'out.%s' % fname
     if check_data:
-        write(outfname, images, data=array, origin=origin, span_vectors=span_vectors)
+        write(outfname, images, data=array,
+              origin=origin, span_vectors=span_vectors)
     else:
         write(outfname, images)
 
@@ -53,7 +54,8 @@ def check(name, xsf_text, check_data):
     # So do that:
     outfname2 = 'doubleout.%s' % fname
     if check_data:
-        write(outfname2, images2, data=array2, origin=origin2, span_vectors=span_vectors2)
+        write(outfname2, images2, data=array2,
+              origin=origin2, span_vectors=span_vectors2)
     else:
         write(outfname2, images2)
     assert Path(outfname).read_text() == Path(outfname2).read_text()
@@ -80,7 +82,7 @@ def test_xsf_spec():
 
 
 f1 = """
- # this is a specification 
+ # this is a specification
  # of ZnS crystal structure
 
  CRYSTAL
@@ -99,7 +101,7 @@ f1 = """
     0.0000000000    5.4200000000    0.0000000000
     0.0000000000    0.0000000000    5.4200000000
 
- # these are atomic coordinates in a primitive unit cell 
+ # these are atomic coordinates in a primitive unit cell
  # (in Angstroms)
 
  PRIMCOORD
@@ -235,43 +237,43 @@ PRIMCOORD 2
    30      1.5905000    -1.5905000    -1.59050000
 """
 
-datagrid = """BEGIN_BLOCK_DATAGRID_3D                        
-   my_first_example_of_3D_datagrid      
-   BEGIN_DATAGRID_3D_this_is_3Dgrid#1           
-     5  5  5                              
-     0.0 0.0 0.0                          
-     1.0 0.0 0.0                          
-     0.0 1.0 0.0                                
-     0.0 0.0 1.0                          
-       0.000  1.000  2.000  5.196  8.000        
-       1.000  1.414  2.236  5.292  8.062        
-       2.000  2.236  2.828  5.568  8.246        
-       3.000  3.162  3.606  6.000  8.544        
-       4.000  4.123  4.472  6.557  8.944        
-                                        
-       1.000  1.414  2.236  5.292  8.062        
-       1.414  1.732  2.449  5.385  8.124        
-       2.236  2.449  3.000  5.657  8.307        
-       3.162  3.317  3.742  6.083  8.602        
-       4.123  4.243  4.583  6.633  9.000        
-                                        
-       2.000  2.236  2.828  5.568  8.246        
-       2.236  2.449  3.000  5.657  8.307        
-       2.828  3.000  3.464  5.916  8.485        
-       3.606  3.742  4.123  6.325  8.775        
-       4.472  4.583  4.899  6.856  9.165        
-                                        
-       3.000  3.162  3.606  6.000  8.544        
-       3.162  3.317  3.742  6.083  8.602        
-       3.606  3.742  4.123  6.325  8.775        
-       4.243  4.359  4.690  6.708  9.055        
-       5.000  5.099  5.385  7.211  9.434        
-                                        
-       4.000  4.123  4.472  6.557  8.944        
-       4.123  4.243  4.583  6.633  9.000        
-       4.472  4.583  4.899  6.856  9.165        
-       5.000  5.099  5.385  7.211  9.434        
-       5.657  5.745  6.000  7.681  9.798        
-   END_DATAGRID_3D                      
- END_BLOCK_DATAGRID_3D          
+datagrid = """BEGIN_BLOCK_DATAGRID_3D
+   my_first_example_of_3D_datagrid
+   BEGIN_DATAGRID_3D_this_is_3Dgrid#1
+     5  5  5
+     0.0 0.0 0.0
+     1.0 0.0 0.0
+     0.0 1.0 0.0
+     0.0 0.0 1.0
+       0.000  1.000  2.000  5.196  8.000
+       1.000  1.414  2.236  5.292  8.062
+       2.000  2.236  2.828  5.568  8.246
+       3.000  3.162  3.606  6.000  8.544
+       4.000  4.123  4.472  6.557  8.944
+
+       1.000  1.414  2.236  5.292  8.062
+       1.414  1.732  2.449  5.385  8.124
+       2.236  2.449  3.000  5.657  8.307
+       3.162  3.317  3.742  6.083  8.602
+       4.123  4.243  4.583  6.633  9.000
+
+       2.000  2.236  2.828  5.568  8.246
+       2.236  2.449  3.000  5.657  8.307
+       2.828  3.000  3.464  5.916  8.485
+       3.606  3.742  4.123  6.325  8.775
+       4.472  4.583  4.899  6.856  9.165
+
+       3.000  3.162  3.606  6.000  8.544
+       3.162  3.317  3.742  6.083  8.602
+       3.606  3.742  4.123  6.325  8.775
+       4.243  4.359  4.690  6.708  9.055
+       5.000  5.099  5.385  7.211  9.434
+
+       4.000  4.123  4.472  6.557  8.944
+       4.123  4.243  4.583  6.633  9.000
+       4.472  4.583  4.899  6.856  9.165
+       5.000  5.099  5.385  7.211  9.434
+       5.657  5.745  6.000  7.681  9.798
+   END_DATAGRID_3D
+ END_BLOCK_DATAGRID_3D
 """

@@ -24,7 +24,7 @@ def test_Pt_md_constraints_multistep(factory, pt_eam_potential_file):
                         atol=1e-4, rtol=1e-4)
 
         params['group'] = ['lower_atoms id '
-                           + ' '.join([str(i+1) for i,
+                           + ' '.join([str(i + 1) for i,
                                       tag in enumerate(slab.get_tags())
                                        if tag >= 4])]
         params['fix'] = ['freeze_lower_atoms lower_atoms setforce 0.0 0.0 0.0']

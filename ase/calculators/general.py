@@ -3,6 +3,7 @@ from ase.calculators.calculator import PropertyNotImplementedError
 
 class Calculator:
     "Deprecated!!!!"
+
     def __init__(self):
         return
 

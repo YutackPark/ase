@@ -1236,7 +1236,7 @@ def read_gaussian_out(fd, index=-1):
             break
 
         if (line == 'Input orientation:'
-                or line == 'Z-Matrix orientation:' 
+                or line == 'Z-Matrix orientation:'
                 or line == "Standard orientation:"):
             if atoms is not None:
                 atoms.calc = SinglePointCalculator(

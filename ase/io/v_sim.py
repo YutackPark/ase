@@ -52,7 +52,7 @@ def read_v_sim(fd):
             unit = 1.0
             if not ("reduced" in keywords):
                 if (("bohr" in keywords) or ("bohrd0" in keywords) or
-                    ("atomic" in keywords) or ("atomicd0" in keywords)):
+                        ("atomic" in keywords) or ("atomicd0" in keywords)):
                     unit = units.Bohr
 
             fields = line.split()
@@ -70,7 +70,7 @@ def read_v_sim(fd):
     else:
         unit = 1.0
         if (("bohr" in keywords) or ("bohrd0" in keywords) or
-            ("atomic" in keywords) or ("atomicd0" in keywords)):
+                ("atomic" in keywords) or ("atomicd0" in keywords)):
             unit = units.Bohr
         cell = np.zeros((3, 3))
         cell.flat[[0, 3, 4, 6, 7, 8]] = box[:6]

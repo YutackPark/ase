@@ -12,16 +12,17 @@ class MultiprocessingRun:
     calculation is too small for using a queueing system.
 
     Parameters:
-    
+
     data_connection: DataConnection object.
-    
+
     tmp_folder: Folder for temporary files.
-    
+
     n_simul: The number of simultaneous relaxations.
-    
+
     relax_function: The relaxation function. This needs to return
     the filename of the relaxed structure.
     """
+
     def __init__(self, data_connection, relax_function,
                  tmp_folder, n_simul=None):
         self.dc = data_connection
@@ -40,7 +41,7 @@ class MultiprocessingRun:
         self.results.append(self.pool.apply_async(self.relax_function,
                                                   [fname]))
         self._cleanup()
-        
+
     def _cleanup(self):
         for r in self.results:
             if r.ready() and r.successful():
@@ -48,7 +49,7 @@ class MultiprocessingRun:
                 a = read(fname)
                 self.dc.add_relaxed_step(a)
                 self.results.remove(r)
-                
+
     def finish_all(self):
         """Checks that all calculations are finished, if not
         wait and check again. Return when all are finished."""

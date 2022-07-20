@@ -69,7 +69,8 @@ class SwitchLangevin(Langevin):
 
         # run switch from calc1 to calc2
         self.path_data.append(
-            [0, self.lam, *self.atoms.calc.get_energy_contributions(self.atoms)])
+            [0, self.lam,
+             *self.atoms.calc.get_energy_contributions(self.atoms)])
         for step in range(1, self.n_switch):
             # update calculator
             self.lam = get_lambda(step, self.n_switch)
@@ -82,7 +83,8 @@ class SwitchLangevin(Langevin):
             # collect data
             self.call_observers()
             self.path_data.append(
-                [step, self.lam, *self.atoms.calc.get_energy_contributions(self.atoms)])
+                [step, self.lam,
+                 *self.atoms.calc.get_energy_contributions(self.atoms)])
 
         self.path_data = np.array(self.path_data)
 

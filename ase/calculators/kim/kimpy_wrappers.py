@@ -43,17 +43,18 @@ def c_int_args(func):
 
 
 def check_call(f, *args, **kwargs):
-    """
-    Call a kimpy function using its arguments and, if a RuntimeError is raised,
-    catch it and raise a KimpyError with the exception's message.
+    """Call a kimpy function using its arguments and, if a RuntimeError is
+    raised, catch it and raise a KimpyError with the exception's
+    message.
 
-    (Starting with kimpy 2.0.0, a RuntimeError is the only exception type raised
-    when something goes wrong.)
-    """
+    (Starting with kimpy 2.0.0, a RuntimeError is the only exception
+    type raised when something goes wrong.)"""
+
     try:
         return f(*args, **kwargs)
     except RuntimeError as e:
-        raise KimpyError(f'Calling kimpy function "{f.__name__}" failed:\n  {str(e)}')
+        raise KimpyError(
+            f'Calling kimpy function "{f.__name__}" failed:\n  {str(e)}')
 
 
 def check_call_wrapper(func):
@@ -67,8 +68,10 @@ def check_call_wrapper(func):
 # kimpy methods
 collections_create = functools.partial(check_call, kimpy.collections.create)
 model_create = functools.partial(check_call, kimpy.model.create)
-simulator_model_create = functools.partial(check_call, kimpy.simulator_model.create)
-get_species_name = functools.partial(check_call, kimpy.species_name.get_species_name)
+simulator_model_create = functools.partial(
+    check_call, kimpy.simulator_model.create)
+get_species_name = functools.partial(
+    check_call, kimpy.species_name.get_species_name)
 get_number_of_species_names = functools.partial(
     check_call, kimpy.species_name.get_number_of_species_names
 )
@@ -116,7 +119,8 @@ class ModelCollections:
 
 
 class PortableModel:
-    """Creates a KIM API Portable Model object and provides a minimal interface to it"""
+    """Creates a KIM API Portable Model object and provides a minimal
+    interface to it"""
 
     def __init__(self, model_name, debug):
         self.model_name = model_name
@@ -211,7 +215,8 @@ class PortableModel:
         for i in range(num_kim_species):
             species_name = get_species_name(i)
 
-            species_is_supported, code = self.get_species_support_and_code(species_name)
+            species_is_supported, code = self.get_species_support_and_code(
+                species_name)
 
             if species_is_supported:
                 species.append(str(species_name))
@@ -246,7 +251,8 @@ class PortableModel:
             Metadata associated with all model parameters.
         """
         return {
-            param_name: param.metadata for param_name, param in self._parameters.items()
+            param_name: param.metadata
+            for param_name, param in self._parameters.items()
         }
 
     def parameter_names(self):
@@ -299,7 +305,10 @@ class PortableModel:
         """
         parameters = {}
         for parameter_name, index_range in kwargs.items():
-            parameters.update(self._get_one_parameter(parameter_name, index_range))
+            parameters.update(
+                self._get_one_parameter(
+                    parameter_name,
+                    index_range))
         return parameters
 
     def set_parameters(self, **kwargs):
@@ -345,7 +354,7 @@ class PortableModel:
 
     def _get_one_parameter(self, parameter_name, index_range):
         """
-        Retrieve the value of one or more components of a model parameter array.
+        Retrieve value of one or more components of a model parameter array.
 
         Parameters
         ----------
@@ -364,7 +373,8 @@ class PortableModel:
         """
         if parameter_name not in self._parameters:
             raise KIMModelParameterError(
-                f"Parameter '{parameter_name}' is not supported by this model. "
+                f"Parameter '{parameter_name}' is not "
+                "supported by this model. "
                 "Please check that the parameter name is spelled correctly."
             )
 
@@ -388,7 +398,8 @@ class PortableModel:
         """
         if parameter_name not in self._parameters:
             raise KIMModelParameterError(
-                f"Parameter '{parameter_name}' is not supported by this model. "
+                f"Parameter '{parameter_name}' is not "
+                "supported by this model. "
                 "Please check that the parameter name is spelled correctly."
             )
 
@@ -409,7 +420,8 @@ class PortableModel:
         dict
             Metadata associated with the requested model parameter.
         """
-        dtype, extent, name, description = self._get_parameter_metadata(index_parameter)
+        dtype, extent, name, description = self._get_parameter_metadata(
+            index_parameter)
         parameter_metadata = {
             "name": name,
             "dtype": repr(dtype),
@@ -420,7 +432,8 @@ class PortableModel:
 
     @check_call_wrapper
     def compute(self, compute_args_wrapped, release_GIL):
-        return self.kim_model.compute(compute_args_wrapped.compute_args, release_GIL)
+        return self.kim_model.compute(
+            compute_args_wrapped.compute_args, release_GIL)
 
     @check_call_wrapper
     def get_species_support_and_code(self, species_name):
@@ -443,7 +456,8 @@ class PortableModel:
 
 
 class KIMModelParameter(ABC):
-    def __init__(self, kim_model, dtype, extent, name, description, parameter_index):
+    def __init__(self, kim_model, dtype, extent,
+                 name, description, parameter_index):
         self._kim_model = kim_model
         self._dtype = dtype
         self._extent = extent
@@ -467,7 +481,8 @@ class KIMModelParameter(ABC):
     def _get_one_value(self, index_extent):
         get_parameter = getattr(self._kim_model, self._dtype_accessor)
         try:
-            return check_call(get_parameter, self._parameter_index, index_extent)
+            return check_call(
+                get_parameter, self._parameter_index, index_extent)
         except KimpyError as exception:
             raise KIMModelParameterError(
                 f"Failed to access component {index_extent} of model "
@@ -538,13 +553,13 @@ class KIMModelParameterDouble(KIMModelParameter):
 
 
 class ComputeArguments:
-    """
-    Creates a KIM API ComputeArguments object from a KIM Portable Model object and
-    configures it for ASE.  A ComputeArguments object is associated with a KIM Portable
-    Model and is used to inform the KIM API of what the model can compute.  It is also
-    used to register the data arrays that allow the KIM API to pass the atomic
-    coordinates to the model and retrieve the corresponding energy and forces, etc.
-    """
+    """Creates a KIM API ComputeArguments object from a KIM Portable
+    Model object and configures it for ASE.  A ComputeArguments object
+    is associated with a KIM Portable Model and is used to inform the
+    KIM API of what the model can compute.  It is also used to
+    register the data arrays that allow the KIM API to pass the atomic
+    coordinates to the model and retrieve the corresponding energy and
+    forces, etc."""
 
     def __init__(self, kim_model_wrapped, debug):
         self.kim_model_wrapped = kim_model_wrapped
@@ -563,18 +578,22 @@ class ComputeArguments:
 
         for i in range(num_arguments):
             name = check_call(kimpy_arg_name.get_compute_argument_name, i)
-            dtype = check_call(kimpy_arg_name.get_compute_argument_data_type, name)
+            dtype = check_call(
+                kimpy_arg_name.get_compute_argument_data_type, name)
 
             arg_support = self.get_argument_support_status(name)
 
             if self.debug:
                 print(
-                    "Compute Argument name {:21} is of type {:7} and has support "
-                    "status {}".format(*[str(x) for x in [name, dtype, arg_support]])
+                    "Compute Argument name {:21} is of type {:7} "
+                    "and has support "
+                    "status {}".format(*[str(x)
+                                       for x in [name, dtype, arg_support]])
                 )
 
-            # See if the model demands that we ask it for anything other than energy and
-            # forces.  If so, raise an exception.
+            # See if the model demands that we ask it for anything
+            # other than energy and forces.  If so, raise an
+            # exception.
             if arg_support == kimpy.support_status.required:
                 if (
                     name != kimpy.compute_argument_name.partialEnergy
@@ -611,7 +630,8 @@ class ComputeArguments:
 
     @check_call_wrapper
     def set_argument_pointer(self, compute_arg_name, data_object):
-        return self.compute_args.set_argument_pointer(compute_arg_name, data_object)
+        return self.compute_args.set_argument_pointer(
+            compute_arg_name, data_object)
 
     @check_call_wrapper
     def get_argument_support_status(self, name):
@@ -622,26 +642,31 @@ class ComputeArguments:
         return self.compute_args.get_callback_support_status(name)
 
     @check_call_wrapper
-    def set_callback(self, compute_callback_name, callback_function, data_object):
+    def set_callback(self, compute_callback_name,
+                     callback_function, data_object):
         return self.compute_args.set_callback(
             compute_callback_name, callback_function, data_object
         )
 
     @check_call_wrapper
-    def set_callback_pointer(self, compute_callback_name, callback, data_object):
+    def set_callback_pointer(
+            self, compute_callback_name, callback, data_object):
         return self.compute_args.set_callback_pointer(
             compute_callback_name, callback, data_object
         )
 
     def update(
-        self, num_particles, species_code, particle_contributing, coords, energy, forces
+        self, num_particles, species_code, particle_contributing,
+            coords, energy, forces
     ):
         """Register model input and output in the kim_model object."""
         compute_arg_name = kimpy.compute_argument_name
         set_argument_pointer = self.set_argument_pointer
 
         set_argument_pointer(compute_arg_name.numberOfParticles, num_particles)
-        set_argument_pointer(compute_arg_name.particleSpeciesCodes, species_code)
+        set_argument_pointer(
+            compute_arg_name.particleSpeciesCodes,
+            species_code)
         set_argument_pointer(
             compute_arg_name.particleContributing, particle_contributing
         )
@@ -666,7 +691,8 @@ class SimulatorModel:
         self.model_name = model_name
         self.simulator_model = simulator_model_create(self.model_name)
 
-        # Need to close template map in order to access simulator model metadata
+        # Need to close template map in order to access simulator
+        # model metadata
         self.simulator_model.close_template_map()
 
     def __enter__(self):
@@ -677,12 +703,14 @@ class SimulatorModel:
 
     @property
     def simulator_name(self):
-        simulator_name, _ = self.simulator_model.get_simulator_name_and_version()
+        simulator_name, _ = self.simulator_model.\
+            get_simulator_name_and_version()
         return simulator_name
 
     @property
     def num_supported_species(self):
-        num_supported_species = self.simulator_model.get_number_of_supported_species()
+        num_supported_species = self.simulator_model.\
+            get_number_of_supported_species()
         if num_supported_species == 0:
             raise KIMModelInitializationError(
                 "Unable to determine supported species of "
@@ -694,7 +722,8 @@ class SimulatorModel:
     def supported_species(self):
         supported_species = []
         for spec_code in range(self.num_supported_species):
-            species = check_call(self.simulator_model.get_supported_species, spec_code)
+            species = check_call(
+                self.simulator_model.get_supported_species, spec_code)
             supported_species.append(species)
 
         return tuple(supported_species)

@@ -35,6 +35,7 @@ class InteratomicDistanceComparator:
         mic: Determines if distances are calculated
         using the minimum image convention
     """
+
     def __init__(self, n_top=None, pair_cor_cum_diff=0.015,
                  pair_cor_max=0.7, dE=0.02, mic=False):
         self.pair_cor_cum_diff = pair_cor_cum_diff
@@ -95,6 +96,7 @@ class SequentialComparator:
     if b and c are positive -> return True
     if b and not c are positive (or vice versa) -> return False
     """
+
     def __init__(self, methods, logics=None):
         if not isinstance(methods, list):
             methods = [methods]
@@ -112,9 +114,9 @@ class SequentialComparator:
                 self.logics.append(l)
 
     def looks_like(self, a1, a2):
-        mdct = dict((l, []) for l in self.logics)
-        for m, l in zip(self.methods, self.logics):
-            mdct[l].append(m)
+        mdct = dict((logic, []) for logic in self.logics)
+        for m, logic in zip(self.methods, self.logics):
+            mdct[logic].append(m)
 
         for methods in mdct.values():
             for m in methods:
@@ -132,6 +134,7 @@ class StringComparator:
        where the keys should be supplied as parameters i.e.
        StringComparator(key1, key2, ...)
     """
+
     def __init__(self, *keys):
         self.keys = keys
 
@@ -151,6 +154,7 @@ class EnergyComparator:
        dE: the difference in energy below which two energies are
        deemed equal.
     """
+
     def __init__(self, dE=0.02):
         self.dE = dE
 
@@ -171,6 +175,7 @@ class RawScoreComparator:
        dist: the difference in raw_score below which two
        scores are deemed equal.
     """
+
     def __init__(self, dist=0.02):
         self.dist = dist
 
@@ -184,17 +189,20 @@ class RawScoreComparator:
 
 class NoComparator:
     """Returns False always. If you don't want any comparator."""
+
     def looks_like(self, *args):
         return False
 
 
 class AtomsComparator:
     """Compares the Atoms objects directly."""
+
     def looks_like(self, a1, a2):
         return a1 == a2
 
 
 class CompositionComparator:
     """Compares the composition of the Atoms objects."""
+
     def looks_like(self, a1, a2):
         return a1.get_chemical_formula() == a2.get_chemical_formula()

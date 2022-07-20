@@ -53,7 +53,7 @@ class Exciting:
     def update(self, atoms):
         if (not self.converged or
             len(self.numbers) != len(atoms) or
-            (self.numbers != atoms.get_atomic_numbers()).any()):
+                (self.numbers != atoms.get_atomic_numbers()).any()):
             self.initialize(atoms)
             self.calculate(atoms)
         elif ((self.positions != atoms.get_positions()).any() or
@@ -96,10 +96,10 @@ class Exciting:
         assert (Path(self.dir) / 'INFO.OUT').is_file()
         assert (Path(self.dir) / 'info.xml').exists()
 
-        #syscall = ('cd %(dir)s; %(bin)s;' %
+        # syscall = ('cd %(dir)s; %(bin)s;' %
         #           {'dir': self.dir, 'bin': self.excitingbinary})
-        #print(syscall)
-        #assert os.system(syscall) == 0
+        # print(syscall)
+        # assert os.system(syscall) == 0
         self.read()
 
     def write(self, atoms):
@@ -160,10 +160,12 @@ class Exciting:
             raise RuntimeError("output doesn't exist")
         info = ET.parse(fd)
         self.energy = float(info.findall(
-            'groundstate/scl/iter/energies')[-1].attrib['totalEnergy']) * Hartree
+            'groundstate/scl/iter/energies')[-1].attrib[
+                'totalEnergy']) * Hartree
         forces = []
         forcesnodes = info.findall(
-            'groundstate/scl/structure')[-1].findall('species/atom/forces/totalforce')
+            'groundstate/scl/structure')[-1].findall(
+                'species/atom/forces/totalforce')
         for force in forcesnodes:
             forces.append(np.array(list(force.attrib.values())).astype(float))
         self.forces = np.reshape(forces, (-1, 3)) * Hartree / Bohr

@@ -154,9 +154,6 @@ class Gromacs(FileIOCalculator):
 
         self.positions = None
         self.atoms = None
-        # storage for energy and forces
-        #self.energy = None
-        #self.forces = None
 
         FileIOCalculator.__init__(self, restart, ignore_bad_restart_file,
                                   label, atoms, **kwargs)
@@ -279,7 +276,7 @@ class Gromacs(FileIOCalculator):
             generate topology (self.label+'top')
             and structure file in .g96 format (self.label + '.g96')
         """
-        #generate structure and topology files
+        # generate structure and topology files
         # In case of predefinded topology file this is not done
         subcmd = 'pdb2gmx'
         command = ' '.join([
@@ -302,7 +299,7 @@ class Gromacs(FileIOCalculator):
         resulting file is self.label + '.tpr
         """
 
-        #generate gromacs run input file (gromacs.tpr)
+        # generate gromacs run input file (gromacs.tpr)
         try:
             os.remove(self.label + '.tpr')
         except OSError:
@@ -349,7 +346,7 @@ class Gromacs(FileIOCalculator):
         """Write input parameters to input file."""
 
         FileIOCalculator.write_input(self, atoms, properties, system_changes)
-        #print self.parameters
+        # print self.parameters
         with open(self.label + '.mdp', 'w') as myfile:
             for key, val in self.parameters.items():
                 if val is not None:
@@ -361,7 +358,7 @@ class Gromacs(FileIOCalculator):
         """ set atoms and do the calculation """
         # performs an update of the atoms
         self.atoms = atoms.copy()
-        #must be g96 format for accuracy, alternatively binary formats
+        # must be g96 format for accuracy, alternatively binary formats
         write_gromos(self.label + '.g96', atoms)
         # does run to get forces and energies
         self.calculate()
@@ -405,8 +402,7 @@ class Gromacs(FileIOCalculator):
         with open(self.label + '.Energy.xvg') as fd:
             lastline = fd.readlines()[-1]
             energy = float(lastline.split()[1])
-        #We go for ASE units !
-        #self.energy = energy * units.kJ / units.mol
+        # We go for ASE units !
         self.results['energy'] = energy * units.kJ / units.mol
         # energies are about 100 times bigger in Gromacs units
         # when compared to ase units
@@ -423,10 +419,7 @@ class Gromacs(FileIOCalculator):
         with open(self.label + '.Force.xvg', 'r') as fd:
             lastline = fd.readlines()[-1]
             forces = np.array([float(f) for f in lastline.split()[1:]])
-        #We go for ASE units !gromacsForce.xvg
-        #self.forces = np.array(forces)/ units.nm * units.kJ / units.mol
-        #self.forces = np.reshape(self.forces, (-1, 3))
+        # We go for ASE units !gromacsForce.xvg
         tmp_forces = forces / units.nm * units.kJ / units.mol
         tmp_forces = np.reshape(tmp_forces, (-1, 3))
         self.results['forces'] = tmp_forces
-        #self.forces = np.array(forces)

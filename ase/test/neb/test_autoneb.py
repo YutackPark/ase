@@ -67,7 +67,7 @@ def test_Au2Ag(testdir):
 
     middle = initial.copy()
     middle[1].position[0] = 0
-    
+
     final = initial.copy()
     final[1].position[0] += d
 
@@ -80,12 +80,12 @@ def test_Au2Ag(testdir):
         opt = QuasiNewton(image)
         opt.run(fmax=fmax)
     middle.get_forces()
-    
+
     prefix = Path('subdir') / 'neb'
     prefix.parent.mkdir()
     for i, image in enumerate([initial, middle, final]):
         image.write(f'{prefix}00{i}.traj')
-    
+
     autoneb = AutoNEB(attach_calculators,
                       prefix=prefix,
                       optimizer=QuasiNewton,
@@ -96,6 +96,6 @@ def test_Au2Ag(testdir):
                       parallel=False,
                       maxsteps=[20, 1000])
     autoneb.run()
-    
+
     nebtools = NEBTools(autoneb.all_images)
     assert nebtools.get_barrier()[0] == pytest.approx(4.185, 1e-3)

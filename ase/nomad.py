@@ -88,9 +88,10 @@ class NomadEntry(dict):
     ASE converts each dictionary into a NomadEntry object which supports
     different actions.  Some actions are only available when the NomadEntry
     represents a particular section."""
+
     def __init__(self, dct):
-        #assert dct['type'] == 'nomad_calculation_2_0'
-        #assert dct['name'] == 'calculation_context'
+        # assert dct['type'] == 'nomad_calculation_2_0'
+        # assert dct['name'] == 'calculation_context'
         # We could implement NomadEntries that represent sections.
         dict.__init__(self, dct)
 

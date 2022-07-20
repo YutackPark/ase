@@ -206,6 +206,82 @@ def write_castep_cell(fd, atoms, positions_frac=False, force_write=False,
         elems = atoms.get_array('castep_custom_species')
     else:
         elems = atoms.get_chemical_symbols()
+    if atoms.has('masses'):
+
+        from ase.data import atomic_masses
+        masses = atoms.get_array('masses')
+        custom_masses = {}
+
+        for i, species in enumerate(elems):
+            custom_mass = masses[i]
+
+            # build record of different masses for each species
+            if species not in custom_masses.keys():
+
+                # build dictionary of positions of all species with
+                # same name and mass value ideally there should only
+                # be one mass per species
+                custom_masses[species] = {custom_mass: [i]}
+
+            # if multiple masses found for a species
+            elif custom_mass not in custom_masses[species].keys():
+
+                # if custom species were already manually defined raise an error
+                if atoms.has('castep_custom_species'):
+                    raise ValueError(
+                        "Could not write custom mass block for {0}. \n"
+                        "Custom mass was set ({1}), but an inconsistent set of "
+                        "castep_custom_species already defines "
+                        "({2}) for {0}. \n"
+                        "If using both features, ensure that "
+                        "each species type in "
+                        "atoms.arrays['castep_custom_species'] "
+                        "has consistent mass values and that each atom "
+                        "with non-standard "
+                        "mass belongs to a custom species type."
+                        "".format(
+                            species, custom_mass, list(
+                                custom_masses[species].keys())[0]))
+
+                # append mass to create custom species later
+                else:
+                    custom_masses[species][custom_mass] = [i]
+            else:
+                custom_masses[species][custom_mass].append(i)
+
+        # create species_mass block
+        mass_block = []
+
+        for el, mass_dict in custom_masses.items():
+
+            # ignore mass record that match defaults
+            default = mass_dict.pop(atomic_masses[atoms.get_array(
+                'numbers')[list(elems).index(el)]], None)
+            if mass_dict:
+                # no custom species need to be created
+                if len(mass_dict) == 1 and not default:
+                    mass_block.append('{0} {1}'.format(
+                        el, list(mass_dict.keys())[0]))
+                # for each custom mass, create new species and change names to
+                # match in 'elems' list
+                else:
+                    warnings.warn(
+                        'Custom mass specified for '
+                        'standard species {0}, creating custom species'
+                        .format(el))
+
+                    for i, vals in enumerate(mass_dict.items()):
+                        mass_val, idxs = vals
+                        custom_species_name = "{0}:{1}".format(el, i)
+                        warnings.warn(
+                            'Creating custom species {0} with mass {1}'.format(
+                                custom_species_name, str(mass_dict)))
+                        for idx in idxs:
+                            elems[idx] = custom_species_name
+                        mass_block.append('{0} {1}'.format(
+                            custom_species_name, mass_val))
+
+        setattr(cell, 'species_mass', mass_block)
 
     if atoms.has('castep_labels'):
         labels = atoms.get_array('castep_labels')
@@ -245,15 +321,16 @@ def write_castep_cell(fd, atoms, positions_frac=False, force_write=False,
 
         for constr in constraints:
             if not isinstance(constr, _supported_constraints):
-                warnings.warn('Warning: you have constraints in your atoms, that are '
-                              'not supported by the CASTEP ase interface')
+                warnings.warn(
+                    'Warning: you have constraints in your atoms, that are '
+                    'not supported by the CASTEP ase interface')
                 break
             species_indices = atoms.symbols.species_indices()
             if isinstance(constr, FixAtoms):
                 for i in constr.index:
                     try:
                         symbol = atoms.get_chemical_symbols()[i]
-                        nis = species_indices[i]+1
+                        nis = species_indices[i] + 1
                     except KeyError:
                         raise UserWarning('Unrecognized index in'
                                           + ' constraint %s' % constr)
@@ -267,7 +344,7 @@ def write_castep_cell(fd, atoms, positions_frac=False, force_write=False,
             elif isinstance(constr, FixCartesian):
                 n = constr.a
                 symbol = atoms.get_chemical_symbols()[n]
-                nis = species_indices[n]+1
+                nis = species_indices[n] + 1
 
                 for i, m in enumerate(constr.mask):
                     if m == 1:
@@ -279,7 +356,7 @@ def write_castep_cell(fd, atoms, positions_frac=False, force_write=False,
             elif isinstance(constr, FixedPlane):
                 n = constr.a
                 symbol = atoms.get_chemical_symbols()[n]
-                nis = species_indices[n]+1
+                nis = species_indices[n] + 1
 
                 L = '%6d %3s %3d   ' % (len(constr_block) + 1, symbol, nis)
                 L += ' '.join([str(d) for d in constr.dir])
@@ -288,7 +365,7 @@ def write_castep_cell(fd, atoms, positions_frac=False, force_write=False,
             elif isinstance(constr, FixedLine):
                 n = constr.a
                 symbol = atoms.get_chemical_symbols()[n]
-                nis = species_indices[n]+1
+                nis = species_indices[n] + 1
 
                 direction = constr.dir
                 ((i1, v1), (i2, v2)) = sorted(enumerate(direction),
@@ -415,13 +492,14 @@ def read_castep_cell(fd, index=None, calculator_args={}, find_spg=False,
 
     if calc.cell.castep_version == 0 and calc._kw_tol < 3:
         # No valid castep_keywords.json was found
-        warnings.warn('read_cell: Warning - Was not able to validate CASTEP input. '
-                      'This may be due to a non-existing '
-                      '"castep_keywords.json" '
-                      'file or a non-existing CASTEP installation. '
-                      'Parsing will go on but keywords will not be '
-                      'validated and may cause problems if incorrect during a CASTEP '
-                      'run.')
+        warnings.warn(
+            'read_cell: Warning - Was not able to validate CASTEP input. '
+            'This may be due to a non-existing '
+            '"castep_keywords.json" '
+            'file or a non-existing CASTEP installation. '
+            'Parsing will go on but keywords will not be '
+            'validated and may cause problems if incorrect during a CASTEP '
+            'run.')
 
     celldict = read_freeform(fd)
 
@@ -432,8 +510,8 @@ def read_castep_cell(fd, index=None, calculator_args={}, find_spg=False,
             u = cell_units.get(usymb, 1)
             if usymb not in cell_units:
                 warnings.warn('read_cell: Warning - ignoring invalid '
-                               'unit specifier in %BLOCK {0} '
-                               '(assuming Angstrom instead)'.format(blockname))
+                              'unit specifier in %BLOCK {0} '
+                              '(assuming Angstrom instead)'.format(blockname))
             line_tokens = line_tokens[1:]
         return u, line_tokens
 
@@ -454,7 +532,7 @@ def read_castep_cell(fd, index=None, calculator_args={}, find_spg=False,
     if 'lattice_abc' in celldict:
 
         lines = celldict.pop('lattice_abc')[0].split('\n')
-        line_tokens = [l.split() for l in lines]
+        line_tokens = [line.split() for line in lines]
 
         u, line_tokens = parse_blockunit(line_tokens, 'lattice_abc')
 
@@ -470,7 +548,7 @@ def read_castep_cell(fd, index=None, calculator_args={}, find_spg=False,
     if 'lattice_cart' in celldict:
 
         lines = celldict.pop('lattice_cart')[0].split('\n')
-        line_tokens = [l.split() for l in lines]
+        line_tokens = [line.split() for line in lines]
 
         u, line_tokens = parse_blockunit(line_tokens, 'lattice_cart')
 
@@ -502,7 +580,7 @@ def read_castep_cell(fd, index=None, calculator_args={}, find_spg=False,
     aargs[pos_type] = []
 
     lines = pos_block.split('\n')
-    line_tokens = [l.split() for l in lines]
+    line_tokens = [line.split() for line in lines]
 
     if 'scaled' not in pos_type:
         u, line_tokens = parse_blockunit(line_tokens, 'positions_abs')
@@ -549,10 +627,36 @@ def read_castep_cell(fd, index=None, calculator_args={}, find_spg=False,
         for k in add_info:
             add_info_arrays[k] += [info.get(k, add_info[k][1])]
 
+    # read in custom species mass
+    if 'species_mass' in celldict:
+        spec_list = custom_species if custom_species else aargs['symbols']
+        aargs['masses'] = [None for _ in spec_list]
+        lines = celldict.pop('species_mass')[0].split('\n')
+        line_tokens = [line.split() for line in lines]
+
+        if len(line_tokens[0]) == 1:
+            if line_tokens[0][0].lower() not in ('amu', 'u'):
+                raise ValueError(
+                    "unit specifier '{0}' in %BLOCK SPECIES_MASS "
+                    "not recognised".format(
+                        line_tokens[0][0].lower()))
+            line_tokens = line_tokens[1:]
+
+        for tokens in line_tokens:
+            token_pos_list = [i for i, x in enumerate(
+                spec_list) if x == tokens[0]]
+            if len(token_pos_list) == 0:
+                warnings.warn(
+                    'read_cell: Warning - ignoring unused '
+                    'species mass {0} in %BLOCK SPECIES_MASS'.format(
+                        tokens[0]))
+            for idx in token_pos_list:
+                aargs['masses'][idx] = tokens[1]
+
     # Now on to the species potentials...
     if 'species_pot' in celldict:
         lines = celldict.pop('species_pot')[0].split('\n')
-        line_tokens = [l.split() for l in lines]
+        line_tokens = [line.split() for line in lines]
 
         for tokens in line_tokens:
             if len(tokens) == 1:
@@ -569,7 +673,7 @@ def read_castep_cell(fd, index=None, calculator_args={}, find_spg=False,
 
     if 'ionic_constraints' in celldict:
         lines = celldict.pop('ionic_constraints')[0].split('\n')
-        line_tokens = [l.split() for l in lines]
+        line_tokens = [line.split() for line in lines]
 
         for tokens in line_tokens:
             if not len(tokens) == 6:
@@ -589,7 +693,7 @@ def read_castep_cell(fd, index=None, calculator_args={}, find_spg=False,
     # Symmetry operations
     if 'symmetry_ops' in celldict:
         lines = celldict.pop('symmetry_ops')[0].split('\n')
-        line_tokens = [l.split() for l in lines]
+        line_tokens = [line.split() for line in lines]
 
         # Read them in blocks of four
         blocks = np.array(line_tokens).astype(float)
@@ -612,7 +716,8 @@ def read_castep_cell(fd, index=None, calculator_args={}, find_spg=False,
                 val = val.split('\n')  # Avoids a bug for one-line blocks
             calc.cell.__setattr__(k, val)
         except Exception as e:
-            raise RuntimeError('Problem setting calc.cell.%s = %s: %s' % (k, val, e))
+            raise RuntimeError(
+                'Problem setting calc.cell.%s = %s: %s' % (k, val, e))
 
     # Get the relevant additional info
     aargs['magmoms'] = np.array(add_info_arrays['SPIN'])
@@ -650,20 +755,24 @@ def read_castep_cell(fd, index=None, calculator_args={}, find_spg=False,
     index_dict = atoms.symbols.indices()
     for (species, nic), value in raw_constraints.items():
 
-        absolute_nr = index_dict[species][nic-1]
+        absolute_nr = index_dict[species][nic - 1]
         if len(value) == 3:
             # Check if they are linearly independent
             if np.linalg.det(value) == 0:
-                warnings.warn('Error: Found linearly dependent constraints attached '
-                              'to atoms %s' % (absolute_nr))
+                warnings.warn(
+                    'Error: Found linearly dependent constraints attached '
+                    'to atoms %s' %
+                    (absolute_nr))
                 continue
             fixed_atoms.append(absolute_nr)
         elif len(value) == 2:
             direction = np.cross(value[0], value[1])
             # Check if they are linearly independent
             if np.linalg.norm(direction) == 0:
-                warnings.warn('Error: Found linearly dependent constraints attached '
-                              'to atoms %s' % (absolute_nr))
+                warnings.warn(
+                    'Error: Found linearly dependent constraints attached '
+                    'to atoms %s' %
+                    (absolute_nr))
                 continue
             constraint = ase.constraints.FixedLine(
                 a=absolute_nr,
@@ -1197,7 +1306,6 @@ def read_castep_md(fd, index=None, return_scalars=False,
 # Routines that only the calculator requires
 
 def read_param(filename='', calc=None, fd=None, get_interface_options=False):
-
     if fd is None:
         if filename == '':
             raise ValueError('One between filename and fd must be provided')
@@ -1214,8 +1322,8 @@ def read_param(filename='', calc=None, fd=None, get_interface_options=False):
         lines = fd.readlines()
         fd.seek(0)
 
-        for l in lines:
-            m = optre.search(l)
+        for line in lines:
+            m = optre.search(line)
             if m:
                 int_opts[m.groups()[0]] = m.groups()[1]
 
@@ -1251,7 +1359,7 @@ def write_param(filename, param, check_checkfile=False,
         if a restart file exists in the same directory
     """
     if os.path.isfile(filename) and not force_write:
-        warnings.warn('ase.io.castep.write_param: Set optional argument ' 
+        warnings.warn('ase.io.castep.write_param: Set optional argument '
                       'force_write=True to overwrite %s.' % filename)
         return False
 
@@ -1341,8 +1449,9 @@ def read_seed(seed, new_seed=None, ignore_internal_keys=False):
         # setting without a castep file...
         pass
         # No print statement required in these cases
-        warnings.warn('Corresponding *.castep file not found. '
-                      'Atoms object will be restored from *.cell and *.param only.')
+        warnings.warn(
+            'Corresponding *.castep file not found. '
+            'Atoms object will be restored from *.cell and *.param only.')
     atoms.calc.push_oldstate()
 
     return atoms

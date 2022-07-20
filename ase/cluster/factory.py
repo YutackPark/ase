@@ -66,9 +66,9 @@ class ClusterFactory(ClusterBase):
         translations = np.zeros((size.prod(), 3))
         for h in range(size[0]):
             for k in range(size[1]):
-                for l in range(size[2]):
-                    i = h * (size[1] * size[2]) + k * size[2] + l
-                    translations[i] = np.dot([h, k, l], self.lattice_basis)
+                for l_ in range(size[2]):
+                    i = h * (size[1] * size[2]) + k * size[2] + l_
+                    translations[i] = np.dot([h, k, l_], self.lattice_basis)
 
         atomic_basis = np.dot(self.atomic_basis, self.lattice_basis)
         positions = np.zeros((len(translations) * len(atomic_basis), 3))

@@ -26,7 +26,8 @@ def test_modify_parameters(KIM):
     cutoff = 10.9759
 
     # Create random dimer with separation < cutoff
-    dimer_separation = np.random.RandomState(11).uniform(0.1 * cutoff, 0.6 * cutoff)
+    dimer_separation = np.random.RandomState(
+        11).uniform(0.1 * cutoff, 0.6 * cutoff)
     atoms = Atoms("Mo" * 2, positions=[[0, 0, 0], [0, 0, dimer_separation]])
 
     calc = KIM("LennardJones612_UniversalShifted__MO_959249795837_003")

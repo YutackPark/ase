@@ -4,7 +4,7 @@ import numpy as np
 def rotation_matrix_from_points(m0, m1):
     """Returns a rigid transformation/rotation matrix that minimizes the
     RMSD between two set of points.
-    
+
     m0 and m1 should be (3, npoints) numpy arrays with
     coordinates as columns::
 
@@ -17,7 +17,7 @@ def rotation_matrix_from_points(m0, m1):
 
     The rotation matrix is computed using quaternion
     algebra as detailed in::
-        
+
         Melander et al. J. Chem. Theory Comput., 2015, 11,1055
     """
 
@@ -48,10 +48,10 @@ def rotation_matrix_from_points(m0, m1):
 
     return R
 
-    
+
 def quaternion_to_matrix(q):
     """Returns a rotation matrix.
-    
+
     Computed from a unit quaternion Input as (4,) numpy array.
     """
 
@@ -70,9 +70,9 @@ def quaternion_to_matrix(q):
 
 def minimize_rotation_and_translation(target, atoms):
     """Minimize RMSD between atoms and target.
-    
+
     Rotate and translate atoms to best match target.  For more details, see::
-        
+
         Melander et al. J. Chem. Theory Comput., 2015, 11,1055
     """
 

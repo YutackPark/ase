@@ -23,6 +23,7 @@ class Positions:
     origin: int (0 or 1)
         Determines at which side of the plane the position should be.
     """
+
     def __init__(self, scaled_positions, cop, symbols, distance, origin):
         self.scaled_positions = scaled_positions
         self.cop = cop
@@ -136,6 +137,7 @@ class CutAndSplicePairing(OffspringCreator):
     rng: Random number generator
         By default numpy.random.
     """
+
     def __init__(self, slab, n_top, blmin, number_of_variable_cell_vectors=0,
                  p1=1, p2=0.05, minfrac=None, cellbounds=None,
                  test_dist_to_slab=True, use_tags=False, rng=np.random,

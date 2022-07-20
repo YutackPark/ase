@@ -17,8 +17,9 @@ class ForceField(Calculator):
             dihedrals is None and
             vdws is None and
                 coulombs is None):
-            raise ImportError("At least one of morses, bonds, angles, dihedrals,"
-                              "vdws or coulombs lists must be defined!")
+            raise ImportError(
+                "At least one of morses, bonds, angles, dihedrals,"
+                "vdws or coulombs lists must be defined!")
         if morses is None:
             self.morses = []
         else:

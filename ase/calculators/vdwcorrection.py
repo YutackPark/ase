@@ -141,6 +141,7 @@ def get_logging_file_descriptor(calculator):
 
 class vdWTkatchenko09prl(Calculator, IOContext):
     """vdW correction after Tkatchenko and Scheffler PRL 102 (2009) 073005."""
+
     def __init__(self,
                  hirshfeld=None, vdwradii=None, calculator=None,
                  Rmax=10.,  # maximal radius for periodic calculations
@@ -190,7 +191,7 @@ class vdWTkatchenko09prl(Calculator, IOContext):
 
         self.parameters['calculator'] = self.calculator.name
         self.parameters['xc'] = self.calculator.get_xc_functional()
-        
+
     @property
     def implemented_properties(self):
         return self.calculator.implemented_properties
@@ -312,7 +313,7 @@ class vdWTkatchenko09prl(Calculator, IOContext):
                                for j in range(i + 1, len(atoms))])
                 # r_list.append( [[0,0,0] for j in range(i+1, len(atoms))])
                 # No PBC means we are in the same cell
-        
+
         # Here goes the calculation, valid with and without
         # PBC because we loop over
         # independent pairwise *interactions*
@@ -356,7 +357,7 @@ class vdWTkatchenko09prl(Calculator, IOContext):
                     forces[j] -= force_ij
         EvdW = self.comm.sum(EvdW)
         self.comm.sum(forces)
-        
+
         self.results['energy'] += EvdW
         self.results['free_energy'] += EvdW
         self.results['forces'] += forces
@@ -421,5 +422,6 @@ def calculate_ts09_polarizability(atoms):
 
 class TS09Polarizability(StaticPolarizabilityCalculator):
     """Class interface as expected by Displacement"""
+
     def __call__(self, atoms):
         return calculate_ts09_polarizability(atoms)

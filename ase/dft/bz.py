@@ -12,8 +12,8 @@ def bz_vertices(icell, dim=3):
     if dim < 2:
         icell[1, 1] = 1e-3
 
-    I = (np.indices((3, 3, 3)) - 1).reshape((3, 27))
-    G = np.dot(icell.T, I).T
+    indices = (np.indices((3, 3, 3)) - 1).reshape((3, 27))
+    G = np.dot(icell.T, indices).T
     vor = Voronoi(G)
     bz1 = []
     for vertices, points in zip(vor.ridge_vertices, vor.ridge_points):

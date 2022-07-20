@@ -18,7 +18,8 @@ def test_multi_neighlist(KIM, testdir):
     # Create random cluster of atoms
     positions = np.random.RandomState(34).rand(15, 3) * 10
     atoms = Atoms(
-        "Ar" * 15, positions=positions, pbc=False, cell=[[10, 0, 0], [0, 10, 0], [0, 0, 10]]
+        "Ar" * 15, positions=positions, pbc=False,
+        cell=[[10, 0, 0], [0, 10, 0], [0, 0, 10]]
     )
 
     calc = KIM("ex_model_Ar_P_Morse_MultiCutoff")

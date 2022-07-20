@@ -28,7 +28,7 @@ gui_default_settings = {
 def read_defaults():
     import os
     # should look for .config/ase/gui.py
-    #if 'XDG_CONFIG_HOME' in os.environ:
+    # if 'XDG_CONFIG_HOME' in os.environ:
     #    name = os.environ['XDG_CONFIG_HOME'] + '/ase/gui.py'
     name = os.path.expanduser('~/.ase/gui.py')
     config = gui_default_settings

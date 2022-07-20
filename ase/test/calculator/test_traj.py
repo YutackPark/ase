@@ -7,7 +7,7 @@ from ase.test.factories import ObsoleteFactoryWrapper
 parameters = {
     'crystal': dict(basis='sto-3g'),
     'gamess_us': dict(label='test_traj'),
-    #'elk': dict(tasks=0, rgkmax=5.0, epsengy=1.0, epspot=1.0, tforce=True,
+    # 'elk': dict(tasks=0, rgkmax=5.0, epsengy=1.0, epspot=1.0, tforce=True,
     #            pbc=True),
 }
 

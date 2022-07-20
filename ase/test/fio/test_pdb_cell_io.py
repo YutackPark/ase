@@ -112,7 +112,8 @@ def test_pdb_cell_io(nrepeat):
         cell1 = atoms1.cell.cellpar()
         cell2 = atoms2.cell.cellpar()
 
-        np.testing.assert_allclose(atoms1.get_atomic_numbers(), atoms2.get_atomic_numbers())
+        np.testing.assert_allclose(
+            atoms1.get_atomic_numbers(), atoms2.get_atomic_numbers())
         np.testing.assert_allclose(spos1, spos2, rtol=0, atol=2e-4)
         np.testing.assert_allclose(cell1, cell2, rtol=0, atol=1e-3)
 
@@ -126,7 +127,8 @@ def test_pdb_nonbulk_read():
     spos1 = (atoms1.get_scaled_positions() + 0.5) % 1.0
     spos2 = (atoms2.get_scaled_positions() + 0.5) % 1.0
 
-    np.testing.assert_allclose(atoms1.get_atomic_numbers(), atoms2.get_atomic_numbers())
+    np.testing.assert_allclose(
+        atoms1.get_atomic_numbers(), atoms2.get_atomic_numbers())
     np.testing.assert_allclose(spos1, spos2, rtol=0, atol=2e-4)
 
 
@@ -140,5 +142,6 @@ def test_pdb_no_periodic():
     spos1 = atoms1.get_positions()
     spos2 = atoms2.get_positions()
 
-    np.testing.assert_allclose(atoms1.get_atomic_numbers(), atoms2.get_atomic_numbers())
+    np.testing.assert_allclose(
+        atoms1.get_atomic_numbers(), atoms2.get_atomic_numbers())
     np.testing.assert_allclose(spos1, spos2, rtol=0, atol=2e-4)

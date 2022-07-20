@@ -26,7 +26,7 @@ import subprocess
 from contextlib import contextmanager
 from pathlib import Path
 from warnings import warn
-from typing import Dict, Any
+from typing import Dict, Any, List, Tuple
 from xml.etree import ElementTree
 
 import ase
@@ -36,6 +36,7 @@ from ase.calculators import calculator
 from ase.calculators.calculator import Calculator
 from ase.calculators.singlepoint import SinglePointDFTCalculator
 from ase.calculators.vasp.create_input import GenerateVaspInput
+from ase.vibrations.data import VibrationsData
 
 
 class Vasp(GenerateVaspInput, Calculator):  # type: ignore
@@ -1152,10 +1153,13 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore
     def get_bz_k_points(self):
         raise NotImplementedError
 
-    def read_vib_freq(self, lines=None):
+    def read_vib_freq(self, lines=None) -> Tuple[List[float], List[float]]:
         """Read vibrational frequencies.
 
-        Returns list of real and list of imaginary frequencies."""
+        Returns:
+            List of real and list of imaginary frequencies
+            (imaginary number as real number).
+        """
         freq = []
         i_freq = []
 
@@ -1170,6 +1174,102 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore
                 else:
                     i_freq.append(float(data[-2]))
         return freq, i_freq
+
+    def _read_massweighted_hessian_xml(self) -> np.ndarray:
+        """Read the Mass Weighted Hessian from vasprun.xml.
+
+        Returns:
+            The Mass Weighted Hessian as np.ndarray from the xml file.
+
+            Raises a ReadError if the reader is not able to read the Hessian.
+
+            Converts to ASE units for VASP version 6.
+        """
+
+        file = self._indir('vasprun.xml')
+        try:
+            tree = ElementTree.iterparse(file)
+            hessian = None
+            for event, elem in tree:
+                if elem.tag == 'dynmat':
+                    for i, entry in enumerate(
+                            elem.findall('varray[@name="hessian"]/v')):
+                        text_split = entry.text.split()
+                        if not text_split:
+                            raise ElementTree.ParseError(
+                                "Could not find varray hessian!")
+                        if i == 0:
+                            n_items = len(text_split)
+                            hessian = np.zeros((n_items, n_items))
+                        assert isinstance(hessian, np.ndarray)
+                        hessian[i, :] = np.array(
+                            [float(val) for val in text_split])
+                    if i != n_items - 1:
+                        raise ElementTree.ParseError(
+                            "Hessian is not quadratic!")
+                    # VASP6+ uses THz**2 as unit, not mEV**2 as before
+                    for entry in elem.findall('i[@name="unit"]'):
+                        if entry.text.strip() == 'THz^2':
+                            conv = ase.units._amu / ase.units._e / \
+                                1e-4 * (2 * np.pi)**2  # THz**2 to eV**2
+                            # VASP6 uses factor 2pi
+                            # 1e-4 = (angstrom to meter times Hz to THz) squared
+                            # = (1e10 times 1e-12)**2
+                            break
+                        else:  # Catch changes in VASP
+                            vasp_version_error_msg = (
+                                f'The file "{file}" is from a '
+                                'non-supported VASP version. '
+                                'Not sure what unit the Hessian '
+                                'is in, aborting.')
+                            raise calculator.ReadError(vasp_version_error_msg)
+
+                    else:
+                        conv = 1.0  # VASP version <6 unit is meV**2
+                    assert isinstance(hessian, np.ndarray)
+                    hessian *= conv
+            if hessian is None:
+                raise ElementTree.ParseError("Hessian is None!")
+
+        except ElementTree.ParseError as exc:
+            incomplete_msg = (
+                f'The file "{file}" is incomplete, '
+                'and no DFT data was available. '
+                'This is likely due to an incomplete calculation.')
+            raise calculator.ReadError(incomplete_msg) from exc
+        # VASP uses the negative definition of the hessian compared to ASE
+        return -hessian
+
+    def get_vibrations(self) -> VibrationsData:
+        """Get a VibrationsData Object from a VASP Calculation.
+
+        Returns:
+            VibrationsData object.
+
+            Note that the atoms in the VibrationsData object can be resorted.
+
+            Uses the (mass weighted) Hessian from vasprun.xml, different masses
+            in the POTCAR can therefore result in different results.
+
+            Note the limitations concerning k-points and symmetry mentioned in
+            the VASP-Wiki.
+        """
+
+        mass_weighted_hessian = self._read_massweighted_hessian_xml()
+        # get indices of freely moving atoms, i.e. respect constraints.
+        indices = VibrationsData.indices_from_constraints(self.atoms)
+        # save the corresponding sorted atom numbers
+        sort_indices = np.array(self.sort)[indices]
+        # mass weights = 1/sqrt(mass)
+        mass_weights = np.repeat(self.atoms.get_masses()[sort_indices]**-0.5, 3)
+        # get the unweighted hessian = H_w / m_w / m_w^T
+        # ugly and twice the work, but needed since vasprun.xml does
+        # not have the unweighted ase.vibrations.vibration will do the
+        # opposite in Vibrations.read
+        hessian = mass_weighted_hessian / \
+            mass_weights / mass_weights[:, np.newaxis]
+
+        return VibrationsData.from_2d(self.atoms[self.sort], hessian, indices)
 
     def get_nonselfconsistent_energies(self, bee_type):
         """ Method that reads and returns BEE energy contributions

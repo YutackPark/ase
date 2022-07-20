@@ -100,8 +100,8 @@ def write_struct(fd, atoms2=None, rmt=None, lattice='P', zza=None):
     nat = len(atoms)
     if rmt is None:
         rmt = [2.0] * nat
-        fd.write(lattice +
-                 '   LATTICE,NONEQUIV.ATOMS:%3i\nMODE OF CALC=RELA\n' % nat)
+    fd.write(lattice +
+             '   LATTICE,NONEQUIV.ATOMS:%3i\nMODE OF CALC=RELA\n' % nat)
     cell = atoms.get_cell()
     metT = np.dot(cell, np.transpose(cell))
     cell2 = cellconst(metT)

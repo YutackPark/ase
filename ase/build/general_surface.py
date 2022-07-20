@@ -31,7 +31,7 @@ def surface(lattice, indices, layers, vacuum=None, tol=1e-10, periodic=False):
     if isinstance(lattice, str):
         lattice = bulk(lattice, cubic=True)
 
-    h, k, l = indices
+    h, k, l = indices  # noqa (E741, the variable l)
     h0, k0, l0 = (indices == 0)
 
     if h0 and k0 or h0 and l0 or k0 and l0:  # if two indices are zero

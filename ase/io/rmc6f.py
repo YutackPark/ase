@@ -17,7 +17,7 @@ def _read_construct_regex(lines):
     """
     Utility for constructing  regular expressions used by reader.
     """
-    lines = [l.strip() for l in lines]
+    lines = [line.strip() for line in lines]
     lines_re = '|'.join(lines)
     lines_re = lines_re.replace(' ', r'\s+')
     lines_re = lines_re.replace('(', r'\(')

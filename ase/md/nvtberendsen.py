@@ -44,7 +44,7 @@ class NVTBerendsen(MolecularDynamics):
             Use '-' for stdout.
 
         loginterval: int (optional)
-            Only write a log line for every *loginterval* time steps.  
+            Only write a log line for every *loginterval* time steps.
             Default: 1
 
         append_trajectory: boolean (optional)

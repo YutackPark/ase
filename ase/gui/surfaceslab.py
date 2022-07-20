@@ -43,6 +43,7 @@ atoms = {func}(symbol='{symbol}', size={size},
 
 class SetupSurfaceSlab:
     '''Window for setting up a surface.'''
+
     def __init__(self, gui):
         self.element = Element('', self.apply)
         self.structure = ui.ComboBox(structures, structures,

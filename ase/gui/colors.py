@@ -9,6 +9,7 @@ from ase.gui.utils import get_magmoms
 
 class ColorWindow:
     """A window for selecting how to color the atoms."""
+
     def __init__(self, gui):
         self.reset(gui)
 

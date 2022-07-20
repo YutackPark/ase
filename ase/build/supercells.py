@@ -164,7 +164,8 @@ def make_supercell(prim, P, wrap=True, tol=1e-5):
     shifted = prim.positions[:, None] + lattice_points
     N = len(lattice_points)
 
-    # Reshape such that the order is [atom1_shift1, atom2_shift1, atom1_shift2, atom2_shift2, ...]
+    # Reshape such that the order is
+    # [atom1_shift1, atom2_shift1, atom1_shift2, atom2_shift2, ...]
     # i.e. alternating between atom 1 and atom 2
     # This preserves the order from older implementations.
     shifted_reshaped = np.reshape(shifted, (len(prim) * N, 3), order="F")

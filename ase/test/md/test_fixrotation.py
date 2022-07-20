@@ -18,7 +18,7 @@ def check_inertia(atoms):
     for a in v:
         if (abs(a[0]) < delta
             and abs(a[1]) < delta
-            and abs(abs(a[2]) - 1.0) < delta):
+                and abs(abs(a[2]) - 1.0) < delta):
 
             print("Vector along z:", a)
             n += 1

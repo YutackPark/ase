@@ -61,7 +61,7 @@ def _maxwellboltzmanndistribution(masses, temp, communicator=None, rng=None):
         The temperature in electron volt.
 
     communicator: MPI communicator (optional)
-        Communicator used to distribute an identical distribution to 
+        Communicator used to distribute an identical distribution to
         all tasks.  Set to 'serial' to disable communication (setting to None
         gives the default).  Default: ase.parallel.world
 
@@ -107,7 +107,7 @@ def MaxwellBoltzmannDistribution(
         get the default: ase.parallel.world
 
     force_temp: bool (optinal, default: False)
-        If True, random the momenta are rescaled so the kinetic energy is 
+        If True, random the momenta are rescaled so the kinetic energy is
         exactly 3/2 N k T.  This is a slight deviation from the correct
         Maxwell-Boltzmann distribution.
 
@@ -210,7 +210,7 @@ def phonon_harmonics(
         masses of the structure in amu
 
     temp: float (deprecated)
-        Temperature converted to eV (T * units.kB).  Deprecated, use 
+        Temperature converted to eV (T * units.kB).  Deprecated, use
         ``temperature_K``.
 
     temperature_K: float

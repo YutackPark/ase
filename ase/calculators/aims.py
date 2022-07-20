@@ -13,7 +13,8 @@ import re
 import numpy as np
 
 from ase.io.aims import write_aims, write_control
-from ase.calculators.genericfileio import GenericFileIOCalculator, CalculatorTemplate
+from ase.calculators.genericfileio import (GenericFileIOCalculator,
+                                           CalculatorTemplate)
 
 
 def get_aims_version(string):
@@ -116,7 +117,8 @@ class AimsTemplate(CalculatorTemplate):
             geo_constrain = scaled and "relax_geometry" in parameters
 
         have_lattice_vectors = atoms.pbc.any()
-        have_k_grid = "k_grid" in parameters or "kpts" in parameters or "k_grid_density" in parameters
+        have_k_grid = ("k_grid" in parameters or "kpts" in parameters
+                       or "k_grid_density" in parameters)
         if have_lattice_vectors and not have_k_grid:
             raise RuntimeError("Found lattice vectors but no k-grid!")
         if not have_lattice_vectors and have_k_grid:

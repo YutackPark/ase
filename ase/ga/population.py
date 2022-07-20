@@ -51,6 +51,7 @@ class Population:
     rng: Random number generator
         By default numpy.random.
     """
+
     def __init__(self, data_connection, population_size,
                  comparator=None, logfile=None, use_extinct=False,
                  rng=np.random):
@@ -142,8 +143,8 @@ class Population:
         if self.logfile is not None:
             fd = open(self.logfile, 'r')
             gens = {}
-            for l in fd:
-                _, no, popul = l.split(':')
+            for line in fd:
+                _, no, popul = line.split(':')
                 gens[int(no)] = [int(i) for i in popul.split(',')]
             fd.close()
             return [c.copy() for c in self.all_cand[::-1]
@@ -466,6 +467,7 @@ class FitnessSharingPopulation(Population):
         Default is 1, which gives a linear sharing function.
 
     """
+
     def __init__(self, data_connection, population_size,
                  comp_key, threshold, alpha_sh=1.,
                  comparator=None, logfile=None, use_extinct=False):
@@ -605,6 +607,7 @@ class RankFitnessPopulation(Population):
             The prefactor used in the exponential fitness scaling function.
             Default 0.5
     """
+
     def __init__(self, data_connection, population_size, variable_function,
                  comparator=None, logfile=None, use_extinct=False,
                  exp_function=True, exp_prefactor=0.5):

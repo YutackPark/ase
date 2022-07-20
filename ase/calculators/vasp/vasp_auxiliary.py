@@ -25,6 +25,7 @@ class VaspChargeDensity:
     Filename is normally CHG."""
     # Can the filename be CHGCAR?  There's a povray tutorial
     # in doc/tutorials where it's CHGCAR as of January 2021.  --askhl
+
     def __init__(self, filename):
         # Instance variables
         self.atoms = []  # List of Atoms objects
@@ -250,6 +251,7 @@ class VaspDos:
     level. Changing this value shifts the energies.
 
     """
+
     def __init__(self, doscar='DOSCAR', efermi=0.0):
         """Initialize"""
         self._efermi = 0.0

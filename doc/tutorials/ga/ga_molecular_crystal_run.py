@@ -45,8 +45,8 @@ rattlerotmut = RattleRotationalMutation(rattlemut, rotmut)
 blmin_soft = closest_distances_generator(atom_numbers_to_optimize, 0.8)
 softmut = SoftMutation(blmin_soft, bounds=[2., 5.], use_tags=True)
 
-operators = OperationSelector([5, 1, 1, 1, 1, 1], [pairing, rattlemut,
-                                                   strainmut, rotmut, rattlerotmut, softmut])
+operators = OperationSelector([5, 1, 1, 1, 1, 1], [
+    pairing, rattlemut, strainmut, rotmut, rattlerotmut, softmut])
 
 # Relaxing the initial candidates
 while da.get_number_of_unrelaxed_candidates() > 0:
@@ -98,8 +98,8 @@ for step in range(n_to_test):
         pairing.update_scaling_volume(current_pop, w_adapt=0.5, n_adapt=4)
 
     # Print out information for easier follow-up/analysis/plotting:
-    print('Step %d %s %.3f %.3f %.3f' % (step, desc,
-                                         get_raw_score(a1), get_raw_score(a2), get_raw_score(a3)))
+    print('Step %d %s %.3f %.3f %.3f' % (
+        step, desc, get_raw_score(a1), get_raw_score(a2), get_raw_score(a3)))
 
     print('Step %d highest raw score in pop: %.3f' %
           (step, get_raw_score(current_pop[0])))

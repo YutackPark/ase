@@ -1,6 +1,7 @@
 import importlib
 from typing import List, Tuple
-from ase.utils import search_current_git_hash, get_python_package_path_description
+from ase.utils import (search_current_git_hash,
+                       get_python_package_path_description)
 
 
 def format_dependency(modname: str) -> Tuple[str, str]:

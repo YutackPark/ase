@@ -26,7 +26,6 @@ def equilibrated(asap3, berendsenparams):
     rng = np.random.RandomState(42)
     # Must be big enough to avoid ridiculous fluctuations
     atoms = bulk('Au', cubic=True).repeat((3, 3, 3))
-    #a[5].symbol = 'Ag'
     atoms.calc = asap3.EMT()
     MaxwellBoltzmannDistribution(atoms, temperature_K=100, force_temp=True,
                                  rng=rng)

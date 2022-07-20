@@ -176,6 +176,7 @@ class EquationOfState:
         eos.plot(show=True)
 
     """
+
     def __init__(self, volumes, energies, eos='sj'):
         self.v = np.array(volumes)
         self.e = np.array(energies)
@@ -331,7 +332,8 @@ def plot(eos_string, e0, v0, B, x, y, v, e, ax=None):
         ax = plt.gca()
 
     ax.plot(x, y, ls='-', color='C3')  # By default red line
-    ax.plot(v, e, ls='', marker='o', mec='C0', mfc='C0')  # By default blue marker
+    ax.plot(v, e, ls='', marker='o', mec='C0',
+            mfc='C0')  # By default blue marker
 
     try:
         ax.set_xlabel(u'volume [Å$^3$]')

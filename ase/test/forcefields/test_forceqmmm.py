@@ -86,7 +86,7 @@ def test_qm_buffer_mask(qm_calc, mm_calc, bulk_at):
         assert qm_mask_region.sum() == qm_mask.sum()
         buffer_mask_region = region == "buffer"
         assert qm_mask_region.sum() + \
-               buffer_mask_region.sum() == qm_buffer_mask_ref.sum()
+            buffer_mask_region.sum() == qm_buffer_mask_ref.sum()
 
 
 def compare_qm_cell_and_pbc(qm_calc, mm_calc, bulk_at,
@@ -373,7 +373,6 @@ def at0(qm_calc, mm_calc, bulk_at):
 
 
 def test_export_xyz(at0, testdir):
-
     """
     test the export_extxyz function and checks the region adn forces arrays
     """
@@ -427,7 +426,6 @@ def test_set_masks_from_region(at0, qm_calc, mm_calc):
 
 
 def test_import_xyz(at0, qm_calc, mm_calc, testdir):
-
     """
     test the import_extxyz function and checks the mapping
     """

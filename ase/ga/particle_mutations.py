@@ -112,11 +112,11 @@ class RandomMutation(Mutation):
                 self.descriptor + ':Parent {0}'.format(f.info['confid']))
 
     @classmethod
-    def random_vector(cls, l, rng=np.random):
-        """return random vector of length l"""
+    def random_vector(cls, length, rng=np.random):
+        """return random vector of certain length"""
         vec = np.array([rng.random() * 2 - 1 for i in range(3)])
         vl = np.linalg.norm(vec)
-        return np.array([v * l / vl for v in vec])
+        return np.array([v * length / vl for v in vec])
 
 
 class RandomPermutation(Mutation):

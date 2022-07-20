@@ -22,7 +22,8 @@ def test_Pt_stress_cellopt(factory, pt_eam_potential_file):
         atoms.cell += 2 * rng.random((3, 3))
         atoms.calc = calc
 
-        assert_allclose(atoms.get_stress(), calc.calculate_numerical_stress(atoms),
+        assert_allclose(atoms.get_stress(),
+                        calc.calculate_numerical_stress(atoms),
                         atol=1e-4, rtol=1e-4)
 
         with BFGS(ExpCellFilter(atoms)) as opt:

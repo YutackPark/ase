@@ -90,7 +90,8 @@ def test_gromacs(factory):
     atoms = calc.get_atoms()
     final_energy = calc.get_potential_energy(atoms)
 
-    # e.g., -4.17570101 eV = -402.893902 kJ / mol by Gromacs 2019.1 double precision
+    # e.g., -4.17570101 eV = -402.893902 kJ / mol by Gromacs 2019.1 double
+    # precision
     final_energy_ref = -4.175
     tolerance = 0.010
     assert abs(final_energy - final_energy_ref) < tolerance

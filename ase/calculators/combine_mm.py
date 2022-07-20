@@ -166,11 +166,11 @@ class CombineMM(Calculator):
             if not self.mask[i]:
                 ct2 += 1
             if ((ct2 == self.apm2) &
-                (self.apm2 != self.atoms2.calc.sites_per_mol)):
+                    (self.apm2 != self.atoms2.calc.sites_per_mol)):
                 virtual_mask.append(False)
                 ct2 = 0
             if ((ct1 == self.apm1) &
-                (self.apm1 != self.atoms1.calc.sites_per_mol)):
+                    (self.apm1 != self.atoms1.calc.sites_per_mol)):
                 virtual_mask.append(True)
                 ct1 = 0
 

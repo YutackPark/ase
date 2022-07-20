@@ -177,7 +177,9 @@ class Turbomole(FileIOCalculator):
         self.atoms = None
         self.results = {}
         self.results['calculation parameters'] = {}
-        ase_files = [f for f in os.listdir(self.directory) if f.startswith('ASE.TM.')]
+        ase_files = [
+            f for f in os.listdir(
+                self.directory) if f.startswith('ASE.TM.')]
         for f in self.tm_files + self.tm_tmp_files + ase_files:
             if os.path.exists(f):
                 os.remove(f)
@@ -649,6 +651,7 @@ class Turbomole(FileIOCalculator):
 
 class PointChargePotential:
     """Point-charge potential for Turbomole"""
+
     def __init__(self, mmcharges, mmpositions=None):
         self.mmcharges = mmcharges
         self.mmpositions = mmpositions

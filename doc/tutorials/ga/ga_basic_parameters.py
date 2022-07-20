@@ -139,7 +139,7 @@ while (not pbs_run.enough_jobs_running() and
     if random() < mutation_probability:
         a3_mut, desc_mut = mutations.get_new_individual([a3])
         if (a3_mut is not None and
-            not should_we_skip(a3_mut, comparison_energy, weights)):
+                not should_we_skip(a3_mut, comparison_energy, weights)):
             da.add_unrelaxed_step(a3_mut, desc_mut)
             a3 = a3_mut
     pbs_run.relax(a3)

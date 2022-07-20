@@ -142,6 +142,7 @@ class SiestaParameters(Parameters):
     Documented in BaseSiesta.__init__
 
     """
+
     def __init__(
             self,
             label='siesta',
@@ -550,9 +551,17 @@ class Siesta(FileIOCalculator):
             fd.write(format_fdf('Spin     ', self['spin']))
             # Spin backwards compatibility.
             if self['spin'] == 'collinear':
-                fd.write(format_fdf('SpinPolarized', (True, "# Backwards compatibility.")))
+                fd.write(
+                    format_fdf(
+                        'SpinPolarized',
+                        (True,
+                         "# Backwards compatibility.")))
             elif self['spin'] == 'non-collinear':
-                fd.write(format_fdf('NonCollinearSpin', (True, "# Backwards compatibility.")))
+                fd.write(
+                    format_fdf(
+                        'NonCollinearSpin',
+                        (True,
+                         "# Backwards compatibility.")))
 
             # Write functional.
             functional, authors = self['xc']
@@ -660,7 +669,9 @@ class Siesta(FileIOCalculator):
             if len(magmoms) != 0 and isinstance(magmoms[0], np.ndarray):
                 for n, M in enumerate(magmoms):
                     if M[0] != 0:
-                        fd.write('    %d %.14f %.14f %.14f \n' % (n + 1, M[0], M[1], M[2]))
+                        fd.write(
+                            '    %d %.14f %.14f %.14f \n' %
+                            (n + 1, M[0], M[1], M[2]))
             elif len(magmoms) != 0 and isinstance(magmoms[0], float):
                 for n, M in enumerate(magmoms):
                     if M != 0:
@@ -748,7 +759,8 @@ class Siesta(FileIOCalculator):
           1 -- means that the coordinate will be updated during relaxation
           0 -- mains that the coordinate will be fixed during relaxation
         """
-        from ase.constraints import FixAtoms, FixedLine, FixedPlane, FixCartesian
+        from ase.constraints import (FixAtoms, FixedLine, FixedPlane,
+                                     FixCartesian)
         import sys
         import warnings
 
@@ -1118,7 +1130,7 @@ class Siesta(FileIOCalculator):
                 self.results['free_energy'] = float(line.split()[-1])
 
         if ('energy' not in self.results or
-            'free_energy' not in self.results):
+                'free_energy' not in self.results):
             raise RuntimeError
 
     def read_forces_stress(self):

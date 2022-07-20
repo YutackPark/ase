@@ -26,7 +26,7 @@ def test_bulk_operators(seed, tmp_path):
 
     stoichiometry = []
     for block, count in blocks:
-        if type(block) == str:
+        if isinstance(block, str):
             stoichiometry += list(Atoms(block).numbers) * count
         else:
             stoichiometry += list(block.numbers) * count
@@ -52,9 +52,11 @@ def test_bulk_operators(seed, tmp_path):
 
     # Define and test genetic operators
     n_top = len(a1)
-    pairing = CutAndSplicePairing(slab, n_top, blmin, p1=1., p2=0., minfrac=0.15,
+    pairing = CutAndSplicePairing(slab, n_top, blmin, p1=1., p2=0.,
+                                  minfrac=0.15,
                                   number_of_variable_cell_vectors=3,
-                                  cellbounds=cellbounds, use_tags=True, rng=rng)
+                                  cellbounds=cellbounds, use_tags=True,
+                                  rng=rng)
 
     a3, desc = pairing.get_new_individual([a1, a2])
     cell = a3.get_cell()
@@ -69,10 +71,12 @@ def test_bulk_operators(seed, tmp_path):
                            use_tags=True)  # no rng
     rotmut = RotationalMutation(blmin, fraction=0.3, min_angle=0.5 * np.pi,
                                 rng=rng)
-    rattlemut = RattleMutation(blmin, n_top, rattle_prop=0.3, rattle_strength=0.5,
+    rattlemut = RattleMutation(blmin, n_top, rattle_prop=0.3,
+                               rattle_strength=0.5,
                                use_tags=True, test_dist_to_slab=False, rng=rng)
     rattlerotmut = RattleRotationalMutation(rattlemut, rotmut)  # no rng
-    permut = PermutationMutation(n_top, probability=0.33, test_dist_to_slab=False,
+    permut = PermutationMutation(n_top, probability=0.33,
+                                 test_dist_to_slab=False,
                                  use_tags=True, blmin=blmin, rng=rng)
     combmut = CombinationMutation(rattlemut, rotmut, verbose=True)  # no rng
     mutations = [strainmut, softmut, rotmut,

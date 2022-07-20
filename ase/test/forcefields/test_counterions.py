@@ -1,5 +1,5 @@
 def test_counterions():
-    """ Test AtomicCounterIon is force/energy consistent over 
+    """ Test AtomicCounterIon is force/energy consistent over
         PBCs and with cutoff """
 
     import numpy as np
@@ -7,7 +7,7 @@ def test_counterions():
     from ase import units
     from ase.calculators.counterions import AtomicCounterIon as ACI
 
-    sigma = 1.868 * (1.0/2.0)**(1.0/6.0)
+    sigma = 1.868 * (1.0 / 2.0)**(1.0 / 6.0)
     epsilon = 0.00277 * units.kcal / units.mol
 
     atoms = Atoms('3Na', positions=np.array([[0, 0, -2], [0, 0, 0], [0, 0, 2]]))
@@ -20,5 +20,5 @@ def test_counterions():
     for p in points:
         f = atoms.get_forces()
         fn = atoms.calc.calculate_numerical_forces(atoms, 1e-5)
-        df = (f-fn)
+        df = (f - fn)
         assert abs(df).max() < 1e-8

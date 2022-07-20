@@ -6,7 +6,7 @@ def test_cell_completion():
     rng = np.random.RandomState(0)
 
     def random_unit_vector():
-        while 1:
+        while True:
             v = rng.uniform(-1, 1, 3)
             norm = np.linalg.norm(v)
             if norm > eps:

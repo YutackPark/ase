@@ -211,7 +211,8 @@ class DMol3(FileIOCalculator):
         if np.all(self.atoms.pbc):  # [True, True, True]
             dmol_atoms = self.read_atoms_from_outmol()
             if (np.linalg.norm(self.atoms.positions - dmol_atoms.positions) <
-                    tol) and (np.linalg.norm(self.atoms.cell - dmol_atoms.cell) < tol):
+                    tol) and (np.linalg.norm(self.atoms.cell -
+                                             dmol_atoms.cell) < tol):
                 self.internal_transformation = False
             else:
                 R, err = find_transformation(dmol_atoms, self.atoms)

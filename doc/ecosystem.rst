@@ -13,6 +13,13 @@ Listed in alphabetical order, for want of a better approach.
    abTEM provides a Python API for running simulations of (scanning)
    transmission electron microscopy images and diffraction patterns.
 
+ * `ACAT <https://asm-dtu.gitlab.io/acat/>`_:
+   ACAT is a Python package for atomistic modelling of metal or alloy 
+   heterogeneoues catalysts. ACAT provides automatic identification of 
+   adsorption sites and adsorbate coverages for a wide range of surfaces 
+   and nanoparticles. ACAT also provides tools for structure generation 
+   and global optimization of catalysts with and without adsorbates.
+
  * `atomicrex <https://atomicrex.org/>`_:
    atomicrex is a versatile tool for the construction of interatomic
    potential models. It includes a Python interface for integration
@@ -63,7 +70,7 @@ Listed in alphabetical order, for want of a better approach.
    validation techniques, and includes a Monte Carlo module with
    support for many different thermodynamic ensembles.
 
-* `NequIP <https://github.com/mir-group/nequip>`_:
+ * `NequIP <https://github.com/mir-group/nequip>`_:
    Euclidian Equivariant neural network potentials.  Nequip can fit
    neural network potentials to series of DFT calculations (using
    e.g. ASE trajectory files), and then be used to perform

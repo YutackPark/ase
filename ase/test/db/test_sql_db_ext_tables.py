@@ -77,11 +77,14 @@ def test_sql_db_ext_tables(psycopg2, testdir):
         # Try to insert something that should not pass
         # i.e. string value into the same table
         with pytest.raises(ValueError):
-            db.write(atoms, external_tables={"insert_tab": {"rate": "something"}})
+            db.write(atoms, external_tables={
+                     "insert_tab": {"rate": "something"}})
 
         # Try to insert Numpy floats
-        db.write(atoms, external_tables={"insert_tab": {"rate": np.float32(1.0)}})
-        db.write(atoms, external_tables={"insert_tab": {"rate": np.float64(1.0)}})
+        db.write(atoms, external_tables={
+                 "insert_tab": {"rate": np.float32(1.0)}})
+        db.write(atoms, external_tables={
+                 "insert_tab": {"rate": np.float64(1.0)}})
 
         # Make sure that we cannot insert a Numpy integer types into
         # a float array
@@ -151,8 +154,9 @@ def test_sql_db_ext_tables(psycopg2, testdir):
         atoms = Atoms()
         db = connect(db_name)
         uid = db.write(
-            atoms, external_tables={"insert_tab": {"rate": 12.0, "rate1": -10.0},
-                                    "another_tab": {"somevalue": 1.0}})
+            atoms, external_tables={
+                "insert_tab": {"rate": 12.0, "rate1": -10.0},
+                "another_tab": {"somevalue": 1.0}})
         row = db.get(id=uid)
 
         # Hack: Just change the unique ID

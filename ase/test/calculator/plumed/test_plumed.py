@@ -70,24 +70,24 @@ def test_units(factory):
                      'charges': files['mass_charge'][2],
                      'forces': np.array([[0, 0, -2], [0, 0, 2]])}
 
-    assert ase_values['time'] * 1/(1000*units.fs) == \
-           approx(plumed_values['time'], abs=1E-5), \
-           "error in time units"
-    assert ase_values['energy'] * units.mol/units.kJ == \
-           approx(plumed_values['energy'], abs=1E-5), \
-           "error in energy units"
-    assert ase_values['distance'] * 1/units.nm == \
-           approx(plumed_values['distance'], abs=1E-5), \
-           "error in distance units"
-    assert ase_values['forces'] * units.nm * units.mol/units.kJ == \
-           approx(plumed_values['forces'], abs=1E-5), \
-           "error in forces units"
+    assert ase_values['time'] * 1 / (1000 * units.fs) == \
+        approx(plumed_values['time'], abs=1E-5), \
+        "error in time units"
+    assert ase_values['energy'] * units.mol / units.kJ == \
+        approx(plumed_values['energy'], abs=1E-5), \
+        "error in energy units"
+    assert ase_values['distance'] * 1 / units.nm == \
+        approx(plumed_values['distance'], abs=1E-5), \
+        "error in distance units"
+    assert ase_values['forces'] * units.nm * units.mol / units.kJ == \
+        approx(plumed_values['forces'], abs=1E-5), \
+        "error in forces units"
     assert ase_values['masses'] == approx(plumed_values['masses'],
                                           abs=1E-5),\
-           "error in masses units"
+        "error in masses units"
     assert ase_values['charges'] == approx(plumed_values['charges'],
                                            abs=1E-5),\
-           "error in charges units"
+        "error in charges units"
 
 
 @pytest.mark.calculator_lite
@@ -154,9 +154,9 @@ def test_metadyn(factory):
 
     assert (atoms.get_positions()[0][0] == approx(position1, abs=0.01) and
             atoms.get_positions()[1][0] == approx(position2, abs=0.01)), \
-           "Error in the metadynamics simulation"
+        "Error in the metadynamics simulation"
     assert atoms.get_forces()[0][0] == approx(forceWithBias, abs=0.01), \
-           "Error in the computation of Bias-forces"
+        "Error in the computation of Bias-forces"
 
 
 @pytest.mark.calculator_lite
@@ -182,11 +182,11 @@ def test_restart(factory):
     forceWithBias = 0.28807
 
     assert atoms1.get_forces()[0][0] == approx(forceWithBias, abs=0.01), \
-           "Error in restart for the computation of Bias-forces"
+        "Error in restart for the computation of Bias-forces"
 
     assert (atoms1.get_positions()[0][0] == approx(position1, abs=0.01) and
             atoms1.get_positions()[1][0] == approx(position2, abs=0.01)), \
-           "Error in the restart of metadynamics simulation"
+        "Error in the restart of metadynamics simulation"
 
 
 @pytest.mark.calculator_lite

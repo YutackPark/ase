@@ -60,7 +60,7 @@ class CLICommand:
     * 1 trajectory file followed by hyphen-minus (ASCII 45): for display
 
     Note deltas are defined as 2 - 1.
-    
+
     Use [FILE]@[SLICE] to select images.
                     """,
             nargs='+')

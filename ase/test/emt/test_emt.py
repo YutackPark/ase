@@ -23,7 +23,7 @@ def test_emt():
 
     for i in range(4):
         x = 0.001 * i
-        A = np.array([(x, b, b+x),
+        A = np.array([(x, b, b + x),
                       (b, 0, b),
                       (b, b, 0)])
         cu.set_cell(A, scale_atoms=True)
@@ -35,7 +35,7 @@ def test_emt():
 
     A = np.array([(0, b, b),
                   (b, 0, b),
-                  (6*b, 6*b, 0)])
+                  (6 * b, 6 * b, 0)])
     R = np.zeros((2, 3))
     for i in range(1, 2):
         R[i] = i * A[2] / 6
@@ -45,7 +45,7 @@ def test_emt():
 
     A = np.array([(0, b, b),
                   (b, 0, b),
-                  (10*b, 10*b, 0)])
+                  (10 * b, 10 * b, 0)])
     R = np.zeros((3, 3))
     for i in range(1, 3):
         R[i] = i * A[2] / 10

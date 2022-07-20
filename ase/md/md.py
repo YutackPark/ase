@@ -32,7 +32,7 @@ def process_temperature(temperature, temperature_K, orig_unit):
     orig_unit: str
         Unit used for the `temperature`` parameter.  Must be 'K' or 'eV'.
 
-    Exactly one of the two temperature parameters must be different from 
+    Exactly one of the two temperature parameters must be different from
     None, otherwise an error is issued.
 
     Return value: Temperature in Kelvin.

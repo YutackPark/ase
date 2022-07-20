@@ -64,7 +64,8 @@ def point_in_cell_2d(point, cell, eps=1e-8):
         t1x, t1y = t1[0:2]
         t2x, t2y = t2[0:2]
         t3x, t3y = t3[0:2]
-        return abs(t1x * (t2y - t3y) + t2x * (t3y - t1y) + t3x * (t1y - t2y)) / 2
+        return abs(t1x * (t2y - t3y) + t2x *
+                   (t3y - t1y) + t3x * (t1y - t2y)) / 2
 
     # c0, c1, c2, c3 define a parallelogram
     c0 = (0, 0)
@@ -77,7 +78,8 @@ def point_in_cell_2d(point, cell, eps=1e-8):
 
     # Get area of triangles formed from adjacent vertices of parallelogram and
     # point in question.
-    pA = tri_area(point, c0, c1) + tri_area(point, c1, c2) + tri_area(point, c2, c3) + tri_area(point, c3, c0)
+    pA = tri_area(point, c0, c1) + tri_area(point, c1, c2) + \
+        tri_area(point, c2, c3) + tri_area(point, c3, c0)
 
     # If combined area of triangles from point is larger than area of
     # parallelogram, point is not inside parallelogram.
@@ -85,7 +87,8 @@ def point_in_cell_2d(point, cell, eps=1e-8):
 
 
 def _root_cell_normalization(primitive_slab):
-    """Returns the scaling factor for x axis and cell normalized by that factor"""
+    """Returns the scaling factor for x axis and cell normalized by that
+    factor"""
 
     xscale = np.linalg.norm(primitive_slab.cell[0, 0:2])
     cell_vectors = primitive_slab.cell[0:2, 0:2] / xscale
@@ -119,10 +122,13 @@ def _root_surface_analysis(primitive_slab, root, eps=1e-8):
 
     valid_roots = np.nonzero(roots == root)[0]
     if len(valid_roots) == 0:
-        raise ValueError("Invalid root {} for cell {}".format(root, cell_vectors))
+        raise ValueError(
+            "Invalid root {} for cell {}".format(
+                root, cell_vectors))
     int_roots = np.array([int(this_root) for this_root in roots
                           if this_root.is_integer() and this_root <= root])
-    return cell_points, cell_points[np.nonzero(roots == root)[0][0]], set(int_roots[1:])
+    return cell_points, cell_points[np.nonzero(
+        roots == root)[0][0]], set(int_roots[1:])
 
 
 def root_surface_analysis(primitive_slab, root, eps=1e-8):
@@ -133,7 +139,8 @@ def root_surface_analysis(primitive_slab, root, eps=1e-8):
     *primitive slab* is the primitive cell to analyze.
 
     *root* is the desired root to find, and all below."""
-    return _root_surface_analysis(primitive_slab=primitive_slab, root=root, eps=eps)[2]
+    return _root_surface_analysis(
+        primitive_slab=primitive_slab, root=root, eps=eps)[2]
 
 
 def root_surface(primitive_slab, root, eps=1e-8):
@@ -153,7 +160,8 @@ def root_surface(primitive_slab, root, eps=1e-8):
     xscale, cell_vectors = _root_cell_normalization(primitive_slab)
 
     # Do root surface analysis
-    cell_points, root_point, roots = _root_surface_analysis(primitive_slab, root, eps=eps)
+    cell_points, root_point, roots = _root_surface_analysis(
+        primitive_slab, root, eps=eps)
 
     # Find new cell
     root_angle = -atan2(root_point[1], root_point[0])
@@ -161,11 +169,14 @@ def root_surface(primitive_slab, root, eps=1e-8):
                      [sin(root_angle), cos(root_angle)]]
     root_scale = np.linalg.norm(root_point)
 
-    cell = np.array([np.dot(x, root_rotation) * root_scale for x in cell_vectors])
+    cell = np.array([np.dot(x, root_rotation) *
+                    root_scale for x in cell_vectors])
 
     # Find all cell centers within the cell
     shift = cell_vectors.sum(axis=0) / 2
-    cell_points = [point for point in cell_points if point_in_cell_2d(point+shift, cell, eps=eps)]
+    cell_points = [
+        point for point in cell_points if point_in_cell_2d(
+            point + shift, cell, eps=eps)]
 
     # Setup new cell
     atoms.rotate(root_angle, v="z")
@@ -174,7 +185,8 @@ def root_surface(primitive_slab, root, eps=1e-8):
     atoms.center()
 
     # Remove all extra atoms
-    del atoms[[atom.index for atom in atoms if not point_in_cell_2d(atom.position, atoms.cell, eps=eps)]]
+    del atoms[[atom.index for atom in atoms if not point_in_cell_2d(
+        atom.position, atoms.cell, eps=eps)]]
 
     # Rotate cell back to original orientation
     standard_rotation = [[cos(-root_angle), -sin(-root_angle), 0],

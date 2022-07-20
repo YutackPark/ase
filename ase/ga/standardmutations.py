@@ -39,6 +39,7 @@ class RattleMutation(OffspringCreator):
     rng: Random number generator
         By default numpy.random.
     """
+
     def __init__(self, blmin, n_top, rattle_strength=0.8,
                  rattle_prop=0.4, test_dist_to_slab=True, use_tags=False,
                  verbose=False, rng=np.random):
@@ -133,6 +134,7 @@ class PermutationMutation(OffspringCreator):
     rng: Random number generator
         By default numpy.random.
     """
+
     def __init__(self, n_top, probability=0.33, test_dist_to_slab=True,
                  use_tags=False, blmin=None, rng=np.random, verbose=False):
         OffspringCreator.__init__(self, verbose, rng=rng)
@@ -238,6 +240,7 @@ class MirrorMutation(OffspringCreator):
     rng: Random number generator
         By default numpy.random.
     """
+
     def __init__(self, blmin, n_top, reflect=False, rng=np.random,
                  verbose=False):
         OffspringCreator.__init__(self, verbose, rng=rng)
@@ -411,6 +414,7 @@ class StrainMutation(OffspringCreator):
     rng: Random number generator
         By default numpy.random.
     """
+
     def __init__(self, blmin, cellbounds=None, stddev=0.7,
                  number_of_variable_cell_vectors=3, use_tags=False,
                  rng=np.random, verbose=False):
@@ -565,6 +569,7 @@ class PermuStrainMutation(CombinationMutation):
     strainmutation: OffspringCreator instance
         A mutation that mutates by straining.
     """
+
     def __init__(self, permutationmutation, strainmutation, verbose=False):
         super(PermuStrainMutation, self).__init__(permutationmutation,
                                                   strainmutation,
@@ -614,6 +619,7 @@ class RotationalMutation(OffspringCreator):
     rng: Random number generator
         By default numpy.random.
     """
+
     def __init__(self, blmin, n_top=None, fraction=0.33, tags=None,
                  min_angle=1.57, test_dist_to_slab=True, rng=np.random,
                  verbose=False):
@@ -715,6 +721,7 @@ class RattleRotationalMutation(CombinationMutation):
     rotationalmutation: OffspringCreator instance
         A mutation that rotates moieties.
     """
+
     def __init__(self, rattlemutation, rotationalmutation, verbose=False):
         super(RattleRotationalMutation, self).__init__(rattlemutation,
                                                        rotationalmutation,

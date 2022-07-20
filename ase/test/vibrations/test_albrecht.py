@@ -17,8 +17,8 @@ def rrname(atoms):
     """Prepare the Resonant Raman calculation"""
     name = 'rrmorse'
     with ResonantRamanCalculator(atoms, H2MorseExcitedStatesCalculator,
-                                  overlap=lambda x, y: x.overlap(y),
-                                  name=name, txt='-') as rmc:
+                                 overlap=lambda x, y: x.overlap(y),
+                                 name=name, txt='-') as rmc:
         rmc.run()
     return name
 

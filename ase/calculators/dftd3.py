@@ -189,7 +189,7 @@ class PureDFTD3(FileIOCalculator):
         # stresses) can be bypassed. This will greatly speed up calculations
         # in dense 3D-periodic systems with three-body corrections. But, we
         # can no longer say that we implement forces and stresses.
-        #if not self.parameters['grad']:
+        # if not self.parameters['grad']:
         #    for val in ['forces', 'stress']:
         #        if val in self.implemented_properties:
         #            self.implemented_properties.remove(val)

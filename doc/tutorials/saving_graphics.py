@@ -46,7 +46,7 @@ povray_settings = {  # For povray files only
 }
 
 # Make flat png file
-#write('flat.png', atoms, **kwargs)
+# write('flat.png', atoms, **kwargs)
 
 # Make the color of the glass beads semi-transparent
 colors2 = np.zeros((1152, 4))

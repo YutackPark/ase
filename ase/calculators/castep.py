@@ -227,7 +227,7 @@ Keyword                    Description
                            3 = no attempt is made to look for
                            castep_keywords.json at all
 ``castep_keywords``        Can be used to pass a CastepKeywords object that is
-                           then used with no attempt to actually load a 
+                           then used with no attempt to actually load a
                            castep_keywords.json file. Most useful for debugging
                            and testing purposes.
 
@@ -620,10 +620,11 @@ End CASTEP Interface Documentation
                 warnings.warn('No castep version found')
                 return
             if not local_castep_version == self._castep_version:
-                warnings.warn('The options module was generated from version %s '
-                              'while your are currently using CASTEP version %s' %
-                              (self._castep_version,
-                               get_castep_version(self._castep_command)))
+                warnings.warn(
+                    'The options module was generated from version %s '
+                    'while your are currently using CASTEP version %s' %
+                    (self._castep_version,
+                     get_castep_version(self._castep_command)))
                 self._castep_version = local_castep_version
 
         # processes optional arguments in kw style
@@ -782,7 +783,7 @@ End CASTEP Interface Documentation
             kpts = kpts.copy()
 
             if (kpts.get('spacing') is not None
-                and kpts.get('density') is not None):
+                    and kpts.get('density') is not None):
                 raise ValueError(
                     'Cannot set kpts spacing and density simultaneously.')
             else:
@@ -1379,8 +1380,9 @@ End CASTEP Interface Documentation
 
         if mulliken_analysis:
             if len(mulliken_charges) != len(positions_frac):
-                warnings.warn('Mulliken charges could not be read for the atoms;'
-                              ' charges will be ignored')
+                warnings.warn(
+                    'Mulliken charges could not be read for the atoms;'
+                    ' charges will be ignored')
                 mulliken_charges = np.zeros(len(positions_frac))
             mulliken_charges_atoms = np.array(mulliken_charges)
         else:
@@ -1436,9 +1438,10 @@ End CASTEP Interface Documentation
                 not_assigned = [i for (i, assigned)
                                 in zip(range(len(atoms_assigned)),
                                        atoms_assigned) if not assigned]
-                warnings.warn('%s atoms not assigned. '
-                              ' DEBUGINFO: The following atoms where not assigned: %s' %
-                              (atoms_assigned.count(False), not_assigned))
+                warnings.warn(
+                    '%s atoms not assigned. '
+                    ' DEBUGINFO: The following atoms where not assigned: %s' %
+                    (atoms_assigned.count(False), not_assigned))
             else:
                 self.atoms.set_scaled_positions(positions_frac_atoms)
 
@@ -1492,7 +1495,7 @@ End CASTEP Interface Documentation
         # Read in eigenvalues from bands file
         bands_file = castep_file[:-7] + '.bands'
         if (self.param.task.value is not None
-            and self.param.task.value.lower() == 'bandstructure'):
+                and self.param.task.value.lower() == 'bandstructure'):
             self._band_structure = self.band_structure(bandfile=bands_file)
         else:
             try:
@@ -1581,8 +1584,9 @@ End CASTEP Interface Documentation
                              'displacement': displacement}
                     self.symmetry_ops = symop
                 self.symmetry = symmetry_operations
-                warnings.warn('Symmetry operations successfully read from %s. %s' %
-                              (f.name, self.cell.symmetry_ops))
+                warnings.warn(
+                    'Symmetry operations successfully read from %s. %s' %
+                    (f.name, self.cell.symmetry_ops))
                 break
 
         # only close if we opened the file in this routine
@@ -1702,8 +1706,9 @@ End CASTEP Interface Documentation
 
         if not os.path.isdir(self._castep_pp_path):
             if self._pedantic:
-                warnings.warn('Cannot search directory: {} Folder does not exist'
-                              .format(self._castep_pp_path))
+                warnings.warn(
+                    'Cannot search directory: {} Folder does not exist'
+                    .format(self._castep_pp_path))
             return
 
         # translate the bash wildcard syntax to regex
@@ -1947,15 +1952,17 @@ End CASTEP Interface Documentation
 
         if self.param.reuse.value is None:
             if self._pedantic:
-                warnings.warn('You have not set e.g. calc.param.reuse = True. '
-                              'Reusing a previous calculation may save CPU time! '
-                              'The interface will make sure by default, a .check exists. '
-                              'file before adding this statement to the .param file.')
+                warnings.warn(
+                    'You have not set e.g. calc.param.reuse = True. '
+                    'Reusing a previous calculation may save CPU time! '
+                    'The interface will make sure by default, .check exists. '
+                    'file before adding this statement to the .param file.')
         if self.param.num_dump_cycles.value is None:
             if self._pedantic:
-                warnings.warn('You have not set e.g. calc.param.num_dump_cycles = 0. '
-                              'This can save you a lot of disk space. One only needs '
-                              '*wvfn* if electronic convergence is not achieved.')
+                warnings.warn(
+                    'You have not set e.g. calc.param.num_dump_cycles = 0. '
+                    'This can save you a lot of disk space. One only needs '
+                    '*wvfn* if electronic convergence is not achieved.')
         from ase.io.castep import write_param
 
         if atoms is None:
@@ -2106,20 +2113,22 @@ End CASTEP Interface Documentation
             similars = difflib.get_close_matches(attr, self.internal_keys,
                                                  cutoff=0.9)
             if attr not in self.internal_keys and similars:
-                warnings.warn('Warning: You probably tried one of: %s but typed %s' %
-                              (similars, attr))
+                warnings.warn(
+                    'Warning: You probably tried one of: %s but typed %s' %
+                    (similars, attr))
             if attr in self.internal_keys:
                 self._opt[attr] = value
                 if attr == '_track_output':
                     if value:
                         self._try_reuse = True
                         if self._pedantic:
-                            warnings.warn('You switched _track_output on. This will '
-                                          'consume a lot of disk-space. The interface '
-                                          'also switched _try_reuse on, which will '
-                                          'try to find the last check file. Set '
-                                          '_try_reuse = False, if you need '
-                                          'really separate calculations')
+                            warnings.warn(
+                                'You switched _track_output on. This will '
+                                'consume a lot of disk-space. The interface '
+                                'also switched _try_reuse on, which will '
+                                'try to find the last check file. Set '
+                                '_try_reuse = False, if you need '
+                                'really separate calculations')
                     elif '_try_reuse' in self._opt and self._try_reuse:
                         self._try_reuse = False
                         if self._pedantic:
@@ -2317,10 +2326,12 @@ End CASTEP Interface Documentation
             if not pspots or species not in pspots.keys():
                 if self._build_missing_pspots:
                     if self._pedantic:
-                        warnings.warn('Warning: you have no PP specified for %s. '
-                                      'CASTEP will now generate an on-the-fly potentials. '
-                                      'For sake of numerical consistency and efficiency '
-                                      'this is discouraged.' % species)
+                        warnings.warn(
+                            'Warning: you have no PP specified for %s. '
+                            'CASTEP will now generate an on-the-fly '
+                            'potentials. '
+                            'For sake of numerical consistency and efficiency '
+                            'this is discouraged.' % species)
                 else:
                     raise RuntimeError(
                         'Warning: you have no PP specified for %s.' %
@@ -2337,10 +2348,13 @@ End CASTEP Interface Documentation
                         os.symlink(orig_pspot_file, cp_pspot_file)
                     else:
                         if self._pedantic:
-                            warnings.warn('Warning: PP files have neither been '
-                                          'linked nor copied to the working directory. Make '
-                                          'sure to set the evironment variable PSPOT_DIR '
-                                          'accordingly!')
+                            warnings.warn(ppwarning)
+
+
+ppwarning = ('Warning: PP files have neither been '
+             'linked nor copied to the working directory. Make '
+             'sure to set the evironment variable PSPOT_DIR '
+             'accordingly!')
 
 
 def get_castep_version(castep_command):
@@ -2729,8 +2743,9 @@ class CastepInputFile:
         self._perm = np.clip(keyword_tolerance, 0, 2)
 
         # Compile a dictionary for quick check of conflict sets
-        self._conflict_dict = {kw: set(cset).difference({kw})
-                               for cset in self._keyword_conflicts for kw in cset}
+        self._conflict_dict = {
+            kw: set(cset).difference({kw})
+            for cset in self._keyword_conflicts for kw in cset}
 
     def __repr__(self):
         expr = ''
@@ -2878,27 +2893,49 @@ class CastepCell(CastepInputFile):
     _keyword_conflicts = [
         {'kpoint_mp_grid', 'kpoint_mp_spacing', 'kpoint_list',
          'kpoints_mp_grid', 'kpoints_mp_spacing', 'kpoints_list'},
-        {'bs_kpoint_mp_grid', 'bs_kpoint_mp_spacing', 'bs_kpoint_list',
+        {'bs_kpoint_mp_grid',
+         'bs_kpoint_mp_spacing',
+         'bs_kpoint_list',
          'bs_kpoint_path',
-         'bs_kpoints_mp_grid', 'bs_kpoints_mp_spacing', 'bs_kpoints_list',
+         'bs_kpoints_mp_grid',
+         'bs_kpoints_mp_spacing',
+         'bs_kpoints_list',
          'bs_kpoints_path'},
-        {'spectral_kpoint_mp_grid', 'spectral_kpoint_mp_spacing', 'spectral_kpoint_list',
+        {'spectral_kpoint_mp_grid',
+         'spectral_kpoint_mp_spacing',
+         'spectral_kpoint_list',
          'spectral_kpoint_path',
-         'spectral_kpoints_mp_grid', 'spectral_kpoints_mp_spacing', 'spectral_kpoints_list',
+         'spectral_kpoints_mp_grid',
+         'spectral_kpoints_mp_spacing',
+         'spectral_kpoints_list',
          'spectral_kpoints_path'},
-        {'phonon_kpoint_mp_grid', 'phonon_kpoint_mp_spacing', 'phonon_kpoint_list',
+        {'phonon_kpoint_mp_grid',
+         'phonon_kpoint_mp_spacing',
+         'phonon_kpoint_list',
          'phonon_kpoint_path',
-         'phonon_kpoints_mp_grid', 'phonon_kpoints_mp_spacing', 'phonon_kpoints_list',
+         'phonon_kpoints_mp_grid',
+         'phonon_kpoints_mp_spacing',
+         'phonon_kpoints_list',
          'phonon_kpoints_path'},
-        {'fine_phonon_kpoint_mp_grid', 'fine_phonon_kpoint_mp_spacing', 'fine_phonon_kpoint_list',
+        {'fine_phonon_kpoint_mp_grid',
+         'fine_phonon_kpoint_mp_spacing',
+         'fine_phonon_kpoint_list',
          'fine_phonon_kpoint_path'},
-        {'magres_kpoint_mp_grid', 'magres_kpoint_mp_spacing', 'magres_kpoint_list',
+        {'magres_kpoint_mp_grid',
+         'magres_kpoint_mp_spacing',
+         'magres_kpoint_list',
          'magres_kpoint_path'},
-        {'elnes_kpoint_mp_grid', 'elnes_kpoint_mp_spacing', 'elnes_kpoint_list',
+        {'elnes_kpoint_mp_grid',
+         'elnes_kpoint_mp_spacing',
+         'elnes_kpoint_list',
          'elnes_kpoint_path'},
-        {'optics_kpoint_mp_grid', 'optics_kpoint_mp_spacing', 'optics_kpoint_list',
+        {'optics_kpoint_mp_grid',
+         'optics_kpoint_mp_spacing',
+         'optics_kpoint_list',
          'optics_kpoint_path'},
-        {'supercell_kpoint_mp_grid', 'supercell_kpoint_mp_spacing', 'supercell_kpoint_list',
+        {'supercell_kpoint_mp_grid',
+         'supercell_kpoint_mp_spacing',
+         'supercell_kpoint_list',
          'supercell_kpoint_path'}, ]
 
     def __init__(self, castep_keywords, keyword_tolerance=1):
@@ -2920,10 +2957,11 @@ class CastepCell(CastepInputFile):
         if hasattr(value, '__getitem__'):
             pspots = [tuple(map(str.strip, x)) for x in value]
             if not all(map(lambda x: len(x) == 2, value)):
-                warnings.warn('Please specify pseudopotentials in python as '
-                              'a tuple or a list of tuples formatted like: '
-                              '(species, file), e.g. ("O", "path-to/O_OTFG.usp") '
-                              'Anything else will be ignored')
+                warnings.warn(
+                    'Please specify pseudopotentials in python as '
+                    'a tuple or a list of tuples formatted like: '
+                    '(species, file), e.g. ("O", "path-to/O_OTFG.usp") '
+                    'Anything else will be ignored')
                 return None
 
         text_block = self._options['species_pot'].value
@@ -3081,13 +3119,14 @@ def import_castep_keywords(castep_command='',
     provide the file in the first place.""")
         create_castep_keywords(get_castep_command(castep_command),
                                filename=filename, path=path)
-        warnings.warn('Stored %s in %s.  Copy it to your ASE installation under '
-                      'ase/calculators for system-wide installation. Using a *nix '
-                      'OS this can be a simple as mv %s %s' %
-                      (filename, os.path.abspath(path),
-                       os.path.join(os.path.abspath(path), filename),
-                       os.path.join(os.path.dirname(ase.__file__),
-                                    'calculators')))
+        warnings.warn(
+            'Stored %s in %s.  Copy it to your ASE installation under '
+            'ase/calculators for system-wide installation. Using a *nix '
+            'OS this can be a simple as mv %s %s' %
+            (filename, os.path.abspath(path),
+             os.path.join(os.path.abspath(path), filename),
+             os.path.join(os.path.dirname(ase.__file__),
+                          'calculators')))
         kwfile = os.path.join(path, filename)
 
     # Now create the castep_keywords object proper
@@ -3105,13 +3144,14 @@ def import_castep_keywords(castep_command='',
 
 
 if __name__ == '__main__':
-    warnings.warn('When called directly this calculator will fetch all available '
-                  'keywords from the binarys help function into a '
-                  'castep_keywords.json in the current directory %s '
-                  'For system wide usage, it can be copied into an ase installation '
-                  'at ASE/calculators. '
-                  'This castep_keywords.json usually only needs to be generated once '
-                  'for a CASTEP binary/CASTEP version.' % os.getcwd())
+    warnings.warn(
+        'When called directly this calculator will fetch all available '
+        'keywords from the binarys help function into a '
+        'castep_keywords.json in the current directory %s '
+        'For system wide usage, it can be copied into an ase installation '
+        'at ASE/calculators. '
+        'This castep_keywords.json usually only needs to be generated once '
+        'for a CASTEP binary/CASTEP version.' % os.getcwd())
 
     import optparse
     parser = optparse.OptionParser()
