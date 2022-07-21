@@ -90,8 +90,8 @@ def test_compare_placzek_implementation_intensities(testdir):
     atoms = H2Morse()
     name = 'placzek'
     with ResonantRamanCalculator(atoms, H2MorseExcitedStatesCalculator,
-                                  overlap=lambda x, y: x.overlap(y),
-                                  name=name, txt='-') as rmc:
+                                 overlap=lambda x, y: x.overlap(y),
+                                 name=name, txt='-') as rmc:
         rmc.run()
 
     om = 1

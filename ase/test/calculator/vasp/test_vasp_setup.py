@@ -53,10 +53,8 @@ def do_check():
     (dict(xc='pbe', setups='materialsproject'), ('Ca_sv', 'Gd', 'Cs_sv')),
 ])
 def test_vasp_setup_atoms_1(factory, do_check, atoms_1, settings, expected):
-    """
-    Run some tests to ensure that VASP calculator constructs correct POTCAR files
-
-    """
+    """Run some tests to ensure that VASP calculator constructs correct
+    POTCAR files"""
     do_check(factory, atoms_1, expected, settings)
 
 

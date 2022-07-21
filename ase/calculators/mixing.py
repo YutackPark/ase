@@ -1,5 +1,6 @@
 from ase.calculators.calculator import BaseCalculator, all_changes
-from ase.calculators.calculator import PropertyNotImplementedError, CalculatorSetupError
+from ase.calculators.calculator import (PropertyNotImplementedError,
+                                        CalculatorSetupError)
 
 
 class Mixer:
@@ -46,6 +47,7 @@ class Mixer:
 class LinearCombinationCalculator(BaseCalculator):
     """LinearCombinationCalculator for weighted summation of multiple calculators.
     """
+
     def __init__(self, calcs, weights):
         """Implementation of sum of calculators.
 
@@ -59,13 +61,16 @@ class LinearCombinationCalculator(BaseCalculator):
         self.implemented_properties = self.mixer.implemented_properties
 
     def calculate(self, atoms, properties, system_changes):
-        """ Calculates all the specific property for each calculator and returns with the summed value.
+        """Calculates all the specific property for each calculator and
+        returns with the summed value.
+
         """
         self.atoms = atoms.copy()  # for caching of results
         self.results = self.mixer.get_properties(properties, atoms)
 
     def __str__(self):
-        calculators = ', '.join(calc.__class__.__name__ for calc in self.mixer.calcs)
+        calculators = ', '.join(
+            calc.__class__.__name__ for calc in self.mixer.calcs)
         return '{}({})'.format(self.__class__.__name__, calculators)
 
 
@@ -86,6 +91,7 @@ class MixedCalculator(LinearCombinationCalculator):
     weight2 : float
         weight for calculator 2
     """
+
     def __init__(self, calc1, calc2, weight1, weight2):
         super().__init__([calc1, calc2], [weight1, weight2])
 
@@ -95,18 +101,25 @@ class MixedCalculator(LinearCombinationCalculator):
 
     def get_energy_contributions(self, atoms=None):
         """ Return the potential energy from calc1 and calc2 respectively """
-        self.calculate(properties=['energy'], atoms=atoms, system_changes=all_changes)
+        self.calculate(
+            properties=['energy'],
+            atoms=atoms,
+            system_changes=all_changes)
         return self.results['energy_contributions']
 
 
 class SumCalculator(LinearCombinationCalculator):
     """SumCalculator for combining multiple calculators.
 
-    This calculator can be used when there are different calculators for the different chemical environment or
-    for example during delta leaning. It works with a list of arbitrary calculators and evaluates them in sequence
-    when it is required.
-    The supported properties are the intersection of the implemented properties in each calculator.
+    This calculator can be used when there are different calculators
+    for the different chemical environment or for example during delta
+    leaning. It works with a list of arbitrary calculators and
+    evaluates them in sequence when it is required.  The supported
+    properties are the intersection of the implemented properties in
+    each calculator.
+
     """
+
     def __init__(self, calcs):
         """Implementation of sum of calculators.
 
@@ -119,8 +132,9 @@ class SumCalculator(LinearCombinationCalculator):
 
 
 class AverageCalculator(LinearCombinationCalculator):
-    """AverageCalculator for equal summation of multiple calculators (for thermodynamic purposes)..
-    """
+    """AverageCalculator for equal summation of multiple calculators (for
+    thermodynamic purposes)."""
+
     def __init__(self, calcs):
         """Implementation of average of calculators.
 
@@ -130,7 +144,8 @@ class AverageCalculator(LinearCombinationCalculator):
         n = len(calcs)
 
         if n == 0:
-            raise CalculatorSetupError('The value of the calcs must be a list of Calculators')
+            raise CalculatorSetupError(
+                'The value of the calcs must be a list of Calculators')
 
         weights = [1 / n] * n
         super().__init__(calcs, weights)

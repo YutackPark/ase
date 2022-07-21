@@ -323,7 +323,8 @@ class Optimizer(Dynamics):
                 return read_json(fd, always_array=False)
             except Exception as ex:
                 msg = ('Could not decode restart file as JSON.  '
-                       f'You may need to delete the restart file {self.restart}')
+                       'You may need to delete the restart file '
+                       f'{self.restart}')
                 raise RestartError(msg) from ex
 
     def set_force_consistent(self):

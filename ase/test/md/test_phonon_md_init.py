@@ -4,7 +4,6 @@ import pytest
 from ase.phonons import Phonons
 from ase.data import atomic_numbers
 from ase.optimize import FIRE
-#from asap3 import EMT
 from ase.build import bulk
 from ase.md.velocitydistribution import PhononHarmonics
 
@@ -97,8 +96,8 @@ def test_phonon_md_init(asap3, testdir):
 
     if 0:
         import matplotlib.pyplot as plt
-        I = np.arange(len(Epots))
-        plt.plot(I, Epots, 'o', label='pot')
-        plt.plot(I, Ekins, 'o', label='kin')
-        plt.plot(I, Etots, 'o', label='tot')
+        Ivalues = np.arange(len(Epots))
+        plt.plot(Ivalues, Epots, 'o', label='pot')
+        plt.plot(Ivalues, Ekins, 'o', label='kin')
+        plt.plot(Ivalues, Etots, 'o', label='tot')
         plt.show()

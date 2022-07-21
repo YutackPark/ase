@@ -8,7 +8,9 @@ def test_mixingcalc():
 
     from ase.build import fcc111
     from ase.calculators.emt import EMT
-    from ase.calculators.mixing import SumCalculator, LinearCombinationCalculator, AverageCalculator, MixedCalculator
+    from ase.calculators.mixing import (
+        SumCalculator, LinearCombinationCalculator, AverageCalculator,
+        MixedCalculator)
     from ase.calculators.calculator import CalculatorSetupError
     from ase.constraints import FixAtoms
 
@@ -16,12 +18,14 @@ def test_mixingcalc():
     atoms = fcc111('Cu', (2, 2, 1), vacuum=10.)
     atoms[0].x += 0.2
 
-    # First run the test with EMT similarly to the test of the single point calculator.
+    # First run the test with EMT similarly to the test of the single point
+    # calculator.
     calc = EMT()
     atoms.calc = calc
     forces = atoms.get_forces()
 
-    # SumCalculator: Only one way to associate a calculator with an atoms object.
+    # SumCalculator: Only one way to associate a calculator with an atoms
+    # object.
     atoms1 = atoms.copy()
     calc1 = SumCalculator([EMT(), EMT()])
     atoms1.calc = calc1
@@ -49,7 +53,8 @@ def test_mixingcalc():
     calc2 = LinearCombinationCalculator([EMT(), EMT()], weights=[.5, .5])
     atoms2.calc = calc2
 
-    # Check the results (it should be the same because it is tha average of the same values).
+    # Check the results (it should be the same because it is tha average of
+    # the same values).
     assert np.isclose(forces, atoms1.get_forces()).all()
     assert np.isclose(forces, atoms2.get_forces()).all()
 

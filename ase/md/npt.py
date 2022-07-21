@@ -81,16 +81,17 @@ class NPT(MolecularDynamics):
             Set to None to disable the thermostat.
 
             WARNING: Not specifying ttime sets it to None, disabling the
-            thermostat.            
+            thermostat.
 
         pfactor: float
             A constant in the barostat differential equation.  If
             a characteristic barostat timescale of ptime is
-            desired, set pfactor to ptime^2 * B (where ptime is in units matching
+            desired, set pfactor to ptime^2 * B
+            (where ptime is in units matching
             eV, Å, u; and B is the Bulk Modulus, given in eV/Å^3).
             Set to None to disable the barostat.
             Typical metallic bulk moduli are of the order of
-            100 GPa or 0.6 eV/A^3.  
+            100 GPa or 0.6 eV/A^3.
 
             WARNING: Not specifying pfactor sets it to None, disabling the
             barostat.
@@ -319,14 +320,13 @@ class NPT(MolecularDynamics):
         else:
             trace_part, traceless_part = self._separatetrace(
                 self._makeuppertriangular(deltaeta))
-            eta_future = self.eta_past + trace_part + self.frac_traceless * traceless_part
+            eta_future = (self.eta_past + trace_part +
+                          self.frac_traceless * traceless_part)
 
         deltazeta = 2 * dt * self.tfact * (self.atoms.get_kinetic_energy() -
                                            self.desiredEkin)
         zeta_future = self.zeta_past + deltazeta
         # Advance time
-        # print "Max change in scaled positions:", max(abs(self.q_future.flat - self.q.flat))
-        # print "Max change in basis set", max(abs((h_future - self.h).flat))
         self.timeelapsed += dt
         self.h_past = self.h
         self.h = h_future
@@ -342,8 +342,9 @@ class NPT(MolecularDynamics):
         self.zeta_integrated += dt * self.zeta
         force = self.forcecalculator()
         self._calculate_q_future(force)
-        self.atoms.set_momenta(np.dot(self.q_future - self.q_past, self.h / (2 * dt)) *
-                               self._getmasses())
+        self.atoms.set_momenta(
+            np.dot(self.q_future - self.q_past, self.h / (2 * dt)) *
+            self._getmasses())
         # self.stresscalculator()
 
     def forcecalculator(self):
@@ -373,7 +374,8 @@ class NPT(MolecularDynamics):
             print("Min:", min((self.h[1, 0], self.h[2, 0], self.h[2, 1])))
             print("Max:", max((self.h[1, 0], self.h[2, 0], self.h[2, 1])))
             raise NotImplementedError(
-                "Can (so far) only operate on lists of atoms where the computational box is an upper triangular matrix.")
+                "Can (so far) only operate on lists of atoms where the "
+                "computational box is an upper triangular matrix.")
         self.inv_h = linalg.inv(self.h)
         # The contents of the q arrays should migrate in parallel simulations.
         # self._make_special_q_arrays()
@@ -449,7 +451,8 @@ class NPT(MolecularDynamics):
         h = self._getbox()
         if max(abs((h - self.h).ravel())) > limit:
             raise RuntimeError(
-                "The unit cell of the atoms does not match the unit cell stored in the file.")
+                "The unit cell of the atoms does not match "
+                "the unit cell stored in the file.")
         self.inv_h = linalg.inv(self.h)
         self.q = np.dot(self.atoms.get_positions(), self.inv_h) - 0.5
         self._calculate_q_past_and_future()
@@ -577,7 +580,8 @@ class NPT(MolecularDynamics):
         beta = dt * np.dot(self.h, np.dot(self.eta + 0.5 * self.zeta * id3,
                                           self.inv_h))
         inv_b = linalg.inv(beta + id3)
-        self.q_future = np.dot(2 * self.q + np.dot(self.q_past, beta - id3) + alpha,
+        self.q_future = np.dot(2 * self.q +
+                               np.dot(self.q_past, beta - id3) + alpha,
                                inv_b)
 
     def _calculate_q_past_and_future(self):
@@ -611,7 +615,8 @@ class NPT(MolecularDynamics):
         else:
             trace_part, traceless_part = self._separatetrace(
                 self._makeuppertriangular(deltaeta))
-            self.eta_past = self.eta - trace_part - self.frac_traceless * traceless_part
+            self.eta_past = (self.eta - trace_part -
+                             self.frac_traceless * traceless_part)
 
     def _makeuppertriangular(self, sixvector):
         "Make an upper triangular matrix from a 6-vector."
@@ -625,7 +630,9 @@ class NPT(MolecularDynamics):
         return m[1, 0] == m[2, 0] == m[2, 1] == 0.0
 
     def _calculateconstants(self):
-        "(Re)calculate some constants when pfactor, ttime or temperature have been changed."
+        """(Re)calculate some constants when pfactor,
+        ttime or temperature have been changed."""
+
         n = self._getnatoms()
         if self.ttime is None:
             self.tfact = 0.0

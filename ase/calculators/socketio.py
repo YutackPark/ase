@@ -308,7 +308,7 @@ class SocketServer(IOContext):
         self.clientsocket = None
         self.address = None
 
-        #if launch_client is not None:
+        # if launch_client is not None:
         #    self.proc = launch_client(port=port, unixsocket=unixsocket)
 
     def _accept(self):
@@ -613,7 +613,6 @@ class SocketIOCalculator(Calculator, IOContext):
                 raise ValueError('Cannot pass both calc and launch_client')
             launch_client = FileIOSocketClientLauncher(calc)
         self.launch_client = launch_client
-        #self.calc = calc
         self.timeout = timeout
         self.server = None
 
@@ -634,13 +633,13 @@ class SocketIOCalculator(Calculator, IOContext):
     def todict(self):
         d = {'type': 'calculator',
              'name': 'socket-driver'}
-        #if self.calc is not None:
+        # if self.calc is not None:
         #    d['calc'] = self.calc.todict()
         return d
 
     def launch_server(self):
         return self.closelater(SocketServer(
-            #launch_client=launch_client,
+            # launch_client=launch_client,
             port=self._port,
             unixsocket=self._unixsocket,
             timeout=self.timeout, log=self.log,

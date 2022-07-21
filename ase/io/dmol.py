@@ -237,8 +237,9 @@ def write_dmol_arc(fd, images):
             raise ValueError(
                 'PBC must be all true or all false for .arc format')
         for i, (sym, pos) in enumerate(zip(symbols, positions)):
-            fd.write('%-6s  %12.8f   %12.8f   %12.8f XXXX 1      xx      %-2s  '
-                     '0.000\n' % (sym + str(i + 1), pos[0], pos[1], pos[2], sym))
+            fd.write(
+                '%-6s  %12.8f   %12.8f   %12.8f XXXX 1      xx      %-2s  '
+                '0.000\n' % (sym + str(i + 1), pos[0], pos[1], pos[2], sym))
         fd.write('end\nend\n')
         fd.write('\n')
 

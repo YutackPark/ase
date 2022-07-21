@@ -150,7 +150,8 @@ class ASENeighborList(NeighborList):
 
         self.neigh = {}
         compute_args.set_callback(
-            kimpy.compute_callback_name.GetNeighborList, self.get_neigh, self.neigh
+            kimpy.compute_callback_name.GetNeighborList, self.get_neigh,
+            self.neigh
         )
 
     @staticmethod
@@ -206,7 +207,8 @@ class ASENeighborList(NeighborList):
         # which atoms/images we've accounted for in the `used` dictionary.
         used = dict()
         for neigh_i, neigh_j, rel_pos, offset, dist in zip(
-            neigh_indices_i, neigh_indices_j, relative_pos, neigh_cell_offsets, dists
+                neigh_indices_i, neigh_indices_j,
+                relative_pos, neigh_cell_offsets, dists
         ):
             # Get neighbor position of neighbor
             # (mapped back into unit cell, so this may overlap with other atoms)
@@ -241,7 +243,8 @@ class ASENeighborList(NeighborList):
             for k, neigh in enumerate(padding_image_of):
                 # Shift from original atom in cell to neighbor
                 shift = padding_shifts[k]
-                for orig_neigh, orig_dist in zip(neigh_list[neigh], neigh_dists[neigh]):
+                for orig_neigh, orig_dist in zip(
+                        neigh_list[neigh], neigh_dists[neigh]):
                     # Get the shift of the neighbor of the original atom
                     orig_shift = inv_used[orig_neigh][1:]
 
@@ -253,7 +256,8 @@ class ASENeighborList(NeighborList):
                     if orig_neigh <= orig_num_atoms - 1:
                         orig_neigh_image = orig_neigh
                     else:
-                        orig_neigh_image = padding_image_of[orig_neigh - orig_num_atoms]
+                        orig_neigh_image = padding_image_of[orig_neigh -
+                                                            orig_num_atoms]
 
                     # If the original image with the total shift has been
                     # used before then it is also a neighbor of this atom
@@ -315,7 +319,9 @@ class ASENeighborList(NeighborList):
                 species_map[s] for s in new_atoms.get_chemical_symbols()
             ]
         except KeyError as e:
-            raise RuntimeError("Species not supported by KIM model; {}".format(str(e)))
+            raise RuntimeError(
+                "Species not supported by KIM model; {}".format(
+                    str(e)))
 
         self.last_update_positions = orig_atoms.get_positions()
 
@@ -397,10 +403,13 @@ class KimpyNeighborList(NeighborList):
         # Species support and code
         try:
             contributing_species_code = np.array(
-                [species_map[s] for s in atoms.get_chemical_symbols()], dtype=c_int
+                [species_map[s] for s in atoms.get_chemical_symbols()],
+                dtype=c_int
             )
         except KeyError as e:
-            raise RuntimeError("Species not supported by KIM model; {}".format(str(e)))
+            raise RuntimeError(
+                "Species not supported by KIM model; {}".format(
+                    str(e)))
 
         if pbc.any():  # Need padding atoms
             # Create padding atoms
@@ -419,7 +428,8 @@ class KimpyNeighborList(NeighborList):
             self.species_code = np.concatenate(
                 (contributing_species_code, padding_species_code)
             )
-            self.particle_contributing = [1] * num_contributing + [0] * num_padding
+            self.particle_contributing = [1] * \
+                num_contributing + [0] * num_padding
             self.need_neigh = [1] * self.num_particles[0]
             if not self.padding_need_neigh:
                 self.need_neigh[num_contributing:] = 0

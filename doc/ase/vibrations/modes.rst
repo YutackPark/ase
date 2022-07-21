@@ -27,3 +27,10 @@ The output format of vibrational calculations was changed from ``pickle``
 to ``json``. There is a tool to convert old ``pickle``-files::
 
   > python3 -m ase.vibrations.pickle2json mydirectory/vib.*.pckl
+
+Vibrational Data
+----------------
+Vibrational data is stored inside the :class:`~ase.vibrations.data.VibrationsData` class.
+
+.. autoclass:: VibrationsData
+   :members:

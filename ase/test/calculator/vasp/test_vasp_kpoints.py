@@ -96,11 +96,11 @@ def test_weighted(factory, write_kpoints):
 
     with open('KPOINTS.ref', 'w') as fd:
         fd.write("""KPOINTS created by Atomic Simulation Environment
-    3 
+    3 \n\
     Cartesian
-    0.100000 0.200000 0.300000 2.000000 
-    0.000000 0.000000 0.000000 1.000000 
-    0.000000 0.500000 0.500000 2.000000 
+    0.100000 0.200000 0.300000 2.000000 \n\
+    0.000000 0.000000 0.000000 1.000000 \n\
+    0.000000 0.500000 0.500000 2.000000 \n\
     """)
 
     assert filecmp_ignore_whitespace('KPOINTS', 'KPOINTS.ref')
@@ -115,11 +115,11 @@ def test_explicit_auto_weight(factory, write_kpoints):
 
     with open('KPOINTS.ref', 'w') as fd:
         fd.write("""KPOINTS created by Atomic Simulation Environment
-    3 
+    3 \n\
     Reciprocal
-    0.100000 0.200000 0.300000 1.0 
-    0.000000 0.000000 0.000000 1.0 
-    0.000000 0.500000 0.500000 1.0 
+    0.100000 0.200000 0.300000 1.0 \n\
+    0.000000 0.000000 0.000000 1.0 \n\
+    0.000000 0.500000 0.500000 1.0 \n\
     """)
 
     assert filecmp_ignore_whitespace('KPOINTS', 'KPOINTS.ref')

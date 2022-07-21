@@ -65,7 +65,7 @@ def bulk(name, crystalstructure=None, a=None, b=None, c=None, *, alpha=None,
             # is given, and the reference state says we need one, but
             # does not have one, then we can't proceed.
             if (crystalstructure is None and basis is None
-                and 'basis' in ref and ref['basis'] is None):
+                    and 'basis' in ref and ref['basis'] is None):
                 # XXX This is getting much too complicated, we need to split
                 # this function up.  A lot.
                 raise RuntimeError('This structure requires an atomic basis')

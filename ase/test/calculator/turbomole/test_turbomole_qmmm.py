@@ -21,15 +21,15 @@ def test_turbomole_qmmm():
     qm_par = {'esp fit': 'kollman', 'multiplicity': 1}
 
     calcs = [
-            TIP3P(),
-            SimpleQMMM([0, 1, 2], Turbomole(**qm_par), TIP3P(), TIP3P()),
-            SimpleQMMM([0, 1, 2], Turbomole(**qm_par), TIP3P(), TIP3P(),
-                       vacuum=3.0),
-            EIQMMM([0, 1, 2], Turbomole(**qm_par), TIP3P(), interaction),
-            EIQMMM([3, 4, 5], Turbomole(**qm_par), TIP3P(), interaction,
+        TIP3P(),
+        SimpleQMMM([0, 1, 2], Turbomole(**qm_par), TIP3P(), TIP3P()),
+        SimpleQMMM([0, 1, 2], Turbomole(**qm_par), TIP3P(), TIP3P(),
                    vacuum=3.0),
-            EIQMMM([0, 1, 2], Turbomole(**qm_par), TIP3P(), interaction,
-                   vacuum=3.0)]
+        EIQMMM([0, 1, 2], Turbomole(**qm_par), TIP3P(), interaction),
+        EIQMMM([3, 4, 5], Turbomole(**qm_par), TIP3P(), interaction,
+               vacuum=3.0),
+        EIQMMM([0, 1, 2], Turbomole(**qm_par), TIP3P(), interaction,
+               vacuum=3.0)]
     refs = [(0.269, 0.283, 2.748, 25.6),
             (2077.695, 2077.709, 2.749, 25.7),
             (2077.695, 2077.709, 2.749, 25.7),

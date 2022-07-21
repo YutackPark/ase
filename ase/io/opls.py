@@ -45,7 +45,7 @@ class AnglesData:
     def name_value(self, aname, bname, cname):
         for name in [
             (twochar(aname) + '-' + twochar(bname) + '-' + twochar(cname)),
-            (twochar(cname) + '-' + twochar(bname) + '-' + twochar(aname))]:
+                (twochar(cname) + '-' + twochar(bname) + '-' + twochar(aname))]:
             if name in self.nvh:
                 return name, self.nvh[name]
         return None, None
@@ -398,7 +398,7 @@ minimize        1.0e-14 1.0e-5 100000 100000
                 dih_types.append(name)
             index = dih_types.index(name)
             if (([index, i, j, k, L] not in dih_list) and
-                ([index, L, k, j, i] not in dih_list)):
+                    ([index, L, k, j, i] not in dih_list)):
                 dih_list.append([index, i, j, k, L])
 
         for angle in ang_types:

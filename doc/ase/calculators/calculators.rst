@@ -40,10 +40,10 @@ Supported calculators
 
 The calculators can be divided in four groups:
 
-1) Asap_, BigDFT_, DeePMD-kit_, DFTD3_, DFTD4_, DFTK_, GPAW_, Hotbit_, TBLite_, and XTB_
-   have their own native ASE interfaces.
+1) Asap_, BigDFT_, DeePMD-kit_, DFTD3_, DFTD4_, DFTK_, FLEUR_, GPAW_, Hotbit_, TBLite_, and XTB_
+   have their own native or external ASE interfaces.
 
-2) ABINIT, AMBER, CP2K, CASTEP, deMon2k, DFTB+, ELK, EXCITING, FHI-aims, FLEUR, GAUSSIAN,
+2) ABINIT, AMBER, CP2K, CASTEP, deMon2k, DFTB+, ELK, EXCITING, FHI-aims, GAUSSIAN,
    Gromacs, LAMMPS, MOPAC, NWChem, Octopus, ONETEP, PLUMED, psi4, Q-Chem, Quantum ESPRESSO, SIESTA,
    TURBOMOLE and VASP, have Python wrappers in the ASE package, but the actual
    FORTRAN/C/C++ codes are not part of ASE.
@@ -71,6 +71,7 @@ DeePMD-kit_                               A deep learning package for many-body 
 DFTD3_                                    London-dispersion correction
 DFTD4_                                    Charge-dependent London-dispersion correction
 DFTK_                                     Plane-wave code for DFT and related models
+FLEUR_                                    Full Potential LAPW code
 GPAW_                                     Real-space/plane-wave/LCAO PAW code
 Hotbit_                                   DFT based tight binding
 TBLite_                                   Light-weight tight-binding framework
@@ -88,7 +89,6 @@ elk                                       Full Potential LAPW code
 :mod:`~ase.calculators.espresso`          Plane-wave pseudopotential code
 :mod:`~ase.calculators.exciting`          Full Potential LAPW code
 :mod:`~ase.calculators.aims`              Numeric atomic orbital, full potential code
-:mod:`~ase.calculators.fleur`             Full Potential LAPW code
 :mod:`~ase.calculators.gamess_us`         Gaussian based electronic structure code
 :mod:`~ase.calculators.gaussian`          Gaussian based electronic structure code
 :mod:`~ase.calculators.gromacs`           Classical molecular dynamics code
@@ -145,6 +145,7 @@ where ``abc`` is the module name and ``ABC`` is the class name.
 .. _DeePMD-kit: https://github.com/deepmodeling/deepmd-kit
 .. _DFTD4: https://github.com/dftd4/dftd4/tree/main/python
 .. _DFTD3: https://dftd3.readthedocs.io/en/latest/api/python.html#module-dftd3.ase
+.. _FLEUR: https://github.com/JuDFTteam/ase-fleur
 .. _TBLite: https://tblite.readthedocs.io/en/latest/users/ase.html
 .. _XTB: https://xtb-python.readthedocs.io/en/latest/ase-calculator.html
 

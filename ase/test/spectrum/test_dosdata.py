@@ -8,6 +8,7 @@ from ase.spectrum.dosdata import DOSData, GridDOSData, RawDOSData
 
 class MinimalDOSData(DOSData):
     """Inherit from ABC to test its features"""
+
     def get_energies(self):
         return NotImplementedError()
 
@@ -213,6 +214,7 @@ class TestRawDosData:
 
 class TestGridDosData:
     """Test the grid DOS data container"""
+
     def test_init(self):
         # energies and weights must be equal lengths
         with pytest.raises(ValueError):

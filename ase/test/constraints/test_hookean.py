@@ -47,7 +47,7 @@ def test_hookean():
     atoms.set_momenta(momenta)
 
     # Propagate in Velocity Verlet (NVE).
-    with VelocityVerlet(atoms, timestep=1.0*units.fs) as dyn:
+    with VelocityVerlet(atoms, timestep=1.0 * units.fs) as dyn:
         energies = SaveEnergy(atoms)
         dyn.attach(energies)
         dyn.run(steps=100)

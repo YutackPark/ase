@@ -108,6 +108,7 @@ class H2MorseCalculator(MorsePotential):
 
 class H2MorseExcitedStatesCalculator():
     """First singlet excited states of H2 from Morse potentials"""
+
     def __init__(self, nstates=3):
         """
         Parameters
@@ -151,6 +152,7 @@ class H2MorseExcitedStatesCalculator():
 
 class H2MorseExcitedStates(ExcitationList):
     """First singlet excited states of H2"""
+
     def __init__(self, nstates=3):
         """
         Parameters
@@ -198,6 +200,7 @@ class H2Excitation(Excitation):
 class H2MorseExcitedStatesAndCalculator(
         H2MorseExcitedStatesCalculator, H2MorseExcitedStates):
     """Traditional joined object for backward compatibility only"""
+
     def __init__(self, calculator, nstates=3):
         if isinstance(calculator, str):
             exlist = H2MorseExcitedStates.read(calculator, nstates)

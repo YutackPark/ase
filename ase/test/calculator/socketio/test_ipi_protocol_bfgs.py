@@ -18,7 +18,7 @@ pid = os.getpid()
 inet_port = (3141 + pid) % 65536
 # We could also use a Unix port perhaps, but not yet implemented
 
-#unixsocket = 'grumble'
+# unixsocket = 'grumble'
 timeout = 20.0
 
 

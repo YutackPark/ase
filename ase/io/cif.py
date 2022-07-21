@@ -114,9 +114,9 @@ def parse_cif_loop_data(lines: List[str],
         line = lines.pop().strip()
         lowerline = line.lower()
         if (not line or
-              line.startswith('_') or
-              lowerline.startswith('data_') or
-              lowerline.startswith('loop_')):
+            line.startswith('_') or
+            lowerline.startswith('data_') or
+                lowerline.startswith('loop_')):
             lines.append(line)
             break
 

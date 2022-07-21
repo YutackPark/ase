@@ -83,7 +83,7 @@ def test_removed_dof_fixedline(indices, expected):
     mol = molecule("butadiene")  # `get_removed_dof` requires an `Atoms` object
     constraints = FixedLine(indices, direction=[1, 0, 0])
     assert constraints.get_removed_dof(atoms=mol) == expected
-    
+
 
 @pytest.mark.parametrize('indices', [[0], [0, 1]])
 def test_constrained_optimization_fixedline(indices):

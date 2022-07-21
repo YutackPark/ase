@@ -498,7 +498,7 @@ F('xtd', 'Materials Studio file', '+F')
 #      The .xyz files are handled by the extxyz module by default.
 F('xyz', 'XYZ-file', '+F')
 
-#Register IO formats exposed through the ase.ioformats entry point
+# Register IO formats exposed through the ase.ioformats entry point
 register_external_io_formats('ase.ioformats')
 
 
@@ -606,7 +606,7 @@ def write(
         format: str = None,
         parallel: bool = True,
         append: bool = False,
-        **kwargs: dict
+        **kwargs: Any
 ) -> None:
     """Write Atoms object(s) to file.
 

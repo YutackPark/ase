@@ -7,14 +7,13 @@ calc = pytest.mark.calculator
 @pytest.mark.filterwarnings('ignore:Specifying directory')
 @calc('vasp')
 def test_vasp_wdir(factory, atoms_co):
-    """
-    Run tests to ensure that the VASP txt and label arguments function correctly,
-    i.e. correctly sets the working directories and works in that directory.
+    """Run tests to ensure that the VASP txt and label arguments function
+    correctly, i.e. correctly sets the working directories and works
+    in that directory.
 
-    This is conditional on the existence of the ASE_VASP_COMMAND, VASP_COMMAND
-    or VASP_SCRIPT environment variables
+    This is conditional on the existence of the ASE_VASP_COMMAND,
+    VASP_COMMAND or VASP_SCRIPT environment variables"""
 
-    """
     def compare_paths(path1, path2):
         assert os.path.abspath(path1) == os.path.abspath(path2)
 

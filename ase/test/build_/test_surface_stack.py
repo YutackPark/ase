@@ -22,7 +22,8 @@ def test_surface_stack():
 
         for nlayers in range(1, 7):
             atoms = func('Au', size=(2, 2, nlayers), periodic=True, a=4.0)
-            big_atoms = func('Au', size=(2, 2, 2 * nlayers), periodic=True, a=4.0)
+            big_atoms = func('Au', size=(2, 2, 2 * nlayers),
+                             periodic=True, a=4.0)
             stacked_atoms = stack(atoms, atoms)
 
             changes = compare_atoms(stacked_atoms, big_atoms, tol=1e-11)

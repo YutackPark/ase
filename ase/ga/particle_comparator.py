@@ -8,6 +8,7 @@ class NNMatComparator:
     in the distribution (and to a slighter degree structure)
     of atoms. As specified in
     S. Lysgaard et al., Top. Catal., 57 (1-4), pp 33-39, (2014)"""
+
     def __init__(self, d=0.2, elements=None, mic=False):
         self.d = d
         if elements is None:

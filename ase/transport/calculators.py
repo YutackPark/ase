@@ -314,18 +314,18 @@ class TransportCalculator:
 
         **Parameters:**
         bias : {float, (M,) ndarray}, units: V
-          Specifies the bias voltage.  
+          Specifies the bias voltage.
         T : {float}, units: K, optional
           Specifies the temperature.
         E : {(N,) ndarray}, units: eV, optional
-          Contains energy grid of the transmission function.  
+          Contains energy grid of the transmission function.
         T_e {(N,) ndarray}, units: unitless, optional
           Contains the transmission function.
         spinpol: {bool}, optional
-          Specifies whether the current should be 
+          Specifies whether the current should be
           calculated assuming degenerate spins
 
-        **Returns:** 
+        **Returns:**
         I : {float, (M,) ndarray}, units: 2e/h*eV
           Contains the electric current.
 
@@ -349,7 +349,8 @@ class TransportCalculator:
                 self.uptodate = False
                 T_e = self.get_transmission().copy()
         else:
-            assert self.uptodate, 'Energy grid and transmission function not defined.'
+            assert self.uptodate, ('Energy grid and transmission function '
+                                   'not defined.')
             E = self.energies.copy()
             T_e = self.T_e.copy()
 
@@ -358,8 +359,8 @@ class TransportCalculator:
             E = E[:, np.newaxis]
             T_e = T_e[:, np.newaxis]
 
-        fl = fermidistribution(E - bias/2., kB * T)
-        fr = fermidistribution(E + bias/2., kB * T)
+        fl = fermidistribution(E - bias / 2., kB * T)
+        fr = fermidistribution(E + bias / 2., kB * T)
 
         if spinpol:
             return .5 * np.trapz((fl - fr) * T_e, x=E, axis=0)

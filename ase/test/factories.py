@@ -73,7 +73,6 @@ class AbinitFactory:
         return major_ver < 9
 
     def _base_kw(self):
-        #command = f'{self.executable} PREFIX.in > PREFIX.log'
         return dict(pp_paths=self.pp_paths,
                     ecut=150,
                     chksymbreak=0,
@@ -316,7 +315,8 @@ class VaspFactory:
         if Vasp.VASP_PP_PATH not in os.environ:
             # For now, we skip with a message that we cannot run the test
             pytest.skip(
-                'No VASP pseudopotential path set. Set the ${} environment variable to enable.'
+                'No VASP pseudopotential path set. '
+                'Set the ${} environment variable to enable.'
                 .format(Vasp.VASP_PP_PATH))
         return Vasp(command=self.executable, **kwargs)
 
@@ -546,7 +546,7 @@ class PlumedFactory:
     def __init__(self):
         import plumed
         self.path = plumed.__spec__.origin
-        
+
     def calc(self, **kwargs):
         from ase.calculators.plumed import Plumed
         return Plumed(**kwargs)
@@ -582,7 +582,6 @@ class Factories:
         'dftd3',
         'dmol',
         'exciting',
-        'fleur',
         'gamess_us',
         'gaussian',
         'gulp',
@@ -668,8 +667,8 @@ class Factories:
         test_calculator_names = (self.autoenabled_calculators
                                  | self.builtin_calculators
                                  | self.requested_calculators)
-        disable_names = self.monkeypatch_calculator_constructors - test_calculator_names
-        #disable_names = self.all_calculators - test_calculator_names
+        disable_names = (self.monkeypatch_calculator_constructors
+                         - test_calculator_names)
 
         for name in disable_names:
             try:

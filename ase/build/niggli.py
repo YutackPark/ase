@@ -103,8 +103,8 @@ def _niggli_reduce(g0, eps):
             g = D @ g0
             continue
 
-        lmn = np.array(gt(g[3:], 0, eps=eps/2), dtype=int)
-        lmn -= np.array(lt(g[3:], 0, eps=eps/2), dtype=int)
+        lmn = np.array(gt(g[3:], 0, eps=eps / 2), dtype=int)
+        lmn -= np.array(lt(g[3:], 0, eps=eps / 2), dtype=int)
 
         ijk = lmn_to_ijk(lmn)
 

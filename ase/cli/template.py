@@ -347,8 +347,9 @@ class Table:
         field_data = field_data[:, np.lexsort(sorting_array)].transpose()
 
         if csv:
-            rowformat = ','.join(['{:h}' if field == 'el' else '{{:.{}E}}'.format(
-                self.tableformat.precision) for field in self.fields])
+            rowformat = ','.join(
+                ['{:h}' if field == 'el' else '{{:.{}E}}'.format(
+                    self.tableformat.precision) for field in self.fields])
         else:
             rowformat = ''.join([self.tableformat.fmt[field]
                                  for field in self.fields])

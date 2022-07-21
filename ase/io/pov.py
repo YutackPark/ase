@@ -26,9 +26,9 @@ def pc(array):
         return 'color ' + array
     if isinstance(array, float):
         return f'rgb <{array:.2f}>*3'.format(array)
-    l = len(array)
-    if l > 2 and l < 6:
-        return f"rgb{'' if l == 3 else 't' if l == 4 else 'ft'} <" +\
+    L = len(array)
+    if L > 2 and L < 6:
+        return f"rgb{'' if L == 3 else 't' if L == 4 else 'ft'} <" +\
             ', '.join(f"{x:.2f}" for x in tuple(array)) + '>'
 
 

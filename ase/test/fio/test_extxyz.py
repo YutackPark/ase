@@ -320,7 +320,9 @@ def test_json_scalars():
     a.write('tmp.xyz')
     with open('tmp.xyz', 'r') as fd:
         comment_line = fd.readlines()[1]
-    assert "val_1=42.0" in comment_line and "val_2=42.0" in comment_line and "val_3=42" in comment_line
+    assert ("val_1=42.0" in comment_line
+            and "val_2=42.0" in comment_line
+            and "val_3=42" in comment_line)
     b = ase.io.read('tmp.xyz')
     assert abs(b.info['val_1'] - 42.0) < 1e-6
     assert abs(b.info['val_2'] - 42.0) < 1e-6
@@ -366,7 +368,7 @@ Properties=species:S:1:pos:R:3:move_mask:I:1 pbc="F F F"
 O        0.00000000       0.00000000       0.11926200  1
 H        0.00000000       0.76323900      -0.47704700  0
 H        0.00000000      -0.76323900      -0.47704700  0""")
-        
+
     a = ase.io.read('movemask.xyz')
     assert isinstance(a.constraints[0], FixAtoms)
     assert np.all(a.constraints[0].index == [1, 2])
@@ -383,8 +385,8 @@ def test_write_read_charges(at, tmpdir, enable_initial_charges, enable_charges):
     if enable_charges:
         at.calc = SinglePointCalculator(at, charges=charges)
         at.get_charges()
-    ase.io.write(str(tmpdir/'charge.xyz'), at, format='extxyz')
-    r = ase.io.read(str(tmpdir/'charge.xyz'))
+    ase.io.write(str(tmpdir / 'charge.xyz'), at, format='extxyz')
+    r = ase.io.read(str(tmpdir / 'charge.xyz'))
     assert at == r
     if enable_initial_charges:
         assert np.allclose(r.get_initial_charges(), initial_charges)

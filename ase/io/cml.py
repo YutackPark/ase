@@ -34,7 +34,7 @@ def read_cml(fileobj):
         gamma = cell['gamma']
         atoms.cell = Cell.fromcellpar([a, b, c, alpha, beta, gamma])
         atoms.pbc = True
-    
+
     coords = contract(datoms['coords'])
     if '3d' in coords:
         positions = np.array(coords['3d']).reshape(len(atoms), 3)
@@ -42,5 +42,5 @@ def read_cml(fileobj):
     else:
         positions = np.array(coords['3dfractional']).reshape(len(atoms), 3)
         atoms.set_scaled_positions(positions)
-        
+
     yield atoms

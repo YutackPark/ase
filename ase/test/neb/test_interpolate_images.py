@@ -32,7 +32,7 @@ def images(initial, final):
 
 def assert_interpolated(values):
     step = (values[-1] - values[0]) / (len(values) - 1)
-    for v1, v2 in zip(*[values[i:i+1] for i in range(len(values)-1)]):
+    for v1, v2 in zip(*[values[i:i + 1] for i in range(len(values) - 1)]):
         assert v2 - v1 == pytest.approx(step)
 
 

@@ -142,8 +142,9 @@ def write_jsv(fd, atoms):
                   enumerate(atoms.get_chemical_symbols())]
     numbers = atoms.get_atomic_numbers()
     scaled = atoms.get_scaled_positions()
-    for l, n, p in zip(labels, numbers, scaled):
-        fd.write('%-4s  %2d  %9.6f  %9.6f  %9.6f\n' % (l, n, p[0], p[1], p[2]))
+    for label, n, p in zip(labels, numbers, scaled):
+        fd.write('%-4s  %2d  %9.6f  %9.6f  %9.6f\n'
+                 % (label, n, p[0], p[1], p[2]))
 
     fd.write('Label  AtomicNumber  x y z (repeat natom times)\n')
 

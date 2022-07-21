@@ -41,7 +41,8 @@ def test_vasp_charge(factory, system, expected_nelect_from_vasp):
 
 @calc('vasp')
 def test_vasp_no_inputs(system, factory):
-    # Make sure that no nelect was written into INCAR yet (as it wasn't necessary)
+    # Make sure that no nelect was written into INCAR yet (as it wasn't
+    # necessary)
     calc = factory.calc()
     system.calc = calc
     system.get_potential_energy()
@@ -70,7 +71,8 @@ def test_vasp_minus_charge(factory, system, expected_nelect_from_vasp):
 @calc('vasp')
 def test_vasp_nelect_charge_conflict(factory, system,
                                      expected_nelect_from_vasp):
-    # Test that conflicts between explicitly given nelect and charge are detected
+    # Test that conflicts between explicitly given nelect and charge are
+    # detected
     charge = -2
     calc = factory.calc(xc='LDA',
                         nsw=-1,

@@ -8,7 +8,8 @@ from ase.calculators.emt import EMT
 from ase.optimize.fire import FIRE
 from ase.lattice.compounds import L1_2
 
-from ase.geometry.rdf import get_rdf, get_volume_estimate, CellTooSmall, VolumeNotDefined
+from ase.geometry.rdf import (get_rdf, get_volume_estimate, CellTooSmall,
+                              VolumeNotDefined)
 
 
 @pytest.fixture

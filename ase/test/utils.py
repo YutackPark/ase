@@ -3,6 +3,7 @@ from numpy.random import RandomState
 
 class RandomCalculator:
     """Fake Calculator class."""
+
     def __init__(self):
         self.rng = RandomState(42)
 

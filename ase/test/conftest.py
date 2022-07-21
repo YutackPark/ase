@@ -340,7 +340,7 @@ def arbitrarily_seed_rng(request):
     ase_path = get_python_package_path_description(ase, default='abort!')
     if "abort!" in ase_path:
         raise RuntimeError("Bad ase.__path__: {:}".format(
-                                ase_path.replace('abort!', '')))
+            ase_path.replace('abort!', '')))
     abspath = Path(request.module.__file__)
     relpath = abspath.relative_to(ase_path)
     module_identifier = relpath.as_posix()  # Same on all platforms

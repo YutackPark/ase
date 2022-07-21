@@ -14,7 +14,7 @@ def test_dftb_relax_dimer(factory):
     )
 
     atoms = Atoms('Si2', positions=[[5., 5., 5.], [7., 5., 5.]],
-                  cell=[12.]*3, pbc=False)
+                  cell=[12.] * 3, pbc=False)
     atoms.calc = calc
 
     with BFGS(atoms, logfile='-') as dyn:

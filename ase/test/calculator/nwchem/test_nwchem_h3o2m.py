@@ -16,21 +16,23 @@ def test_h3o2m(factory):
     doht = 0.957
     doh = 0.977
     angle = radians(104.5)
-    initial = Atoms('HOHOH',
-                    positions=[(-sin(angle) * doht, 0, cos(angle) * doht),
-                               (0., 0., 0.),
-                               (0., 0., doh),
-                               (0., 0., doo),
-                               (sin(angle) * doht, 0., doo - cos(angle) * doht)])
+    initial = Atoms(
+        'HOHOH',
+        positions=[(-sin(angle) * doht, 0, cos(angle) * doht),
+                   (0., 0., 0.),
+                   (0., 0., doh),
+                   (0., 0., doo),
+                   (sin(angle) * doht, 0., doo - cos(angle) * doht)])
     if 0:
         view(initial)
 
-    final = Atoms('HOHOH',
-                  positions=[(- sin(angle) * doht, 0., cos(angle) * doht),
-                             (0., 0., 0.),
-                             (0., 0., doo - doh),
-                             (0., 0., doo),
-                             (sin(angle) * doht, 0., doo - cos(angle) * doht)])
+    final = Atoms(
+        'HOHOH',
+        positions=[(- sin(angle) * doht, 0., cos(angle) * doht),
+                   (0., 0., 0.),
+                   (0., 0., doo - doh),
+                   (0., 0., doo),
+                   (sin(angle) * doht, 0., doo - cos(angle) * doht)])
     if 0:
         view(final)
 

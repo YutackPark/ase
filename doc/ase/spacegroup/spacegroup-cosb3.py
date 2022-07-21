@@ -18,7 +18,7 @@ symbols = cosb3.get_chemical_symbols()
 for i in range(len(cosb3)):
     for j in range(i):
         if (symbols[i] == symbols[j] == 'Co' and
-            cosb3.get_distance(i, j) < 4.53):
+                cosb3.get_distance(i, j) < 4.53):
             bondatoms.append((i, j))
         elif (symbols[i] == symbols[j] == 'Sb' and
               cosb3.get_distance(i, j) < 2.99):

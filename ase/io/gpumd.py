@@ -140,7 +140,6 @@ def write_gpumd(fd, atoms, maximum_neighbors=None, cutoff=None,
 
 
 def load_xyz_input_gpumd(fd, species=None, isotope_masses=None):
-
     """
     Read the structure input file for GPUMD and return an ase Atoms object
     togehter with a dictionary with parameters and a types-to-symbols map

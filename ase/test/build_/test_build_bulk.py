@@ -7,8 +7,8 @@ def test_build_bulk():
                    hcp='HEX',
                    bct='BCT',
                    diamond='FCC',
-                   #sc='CUB',
-                   #orthorhombic='ORC',
+                   # sc='CUB',
+                   # orthorhombic='ORC',
                    rhombohedral='RHL')
     lat_counts = {}
 

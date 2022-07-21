@@ -21,7 +21,8 @@ def test_energy_forces_stress(KIM, testdir):
         latticeconstant=3.0,
     )
 
-    # Perturb the x coordinate of the first atom by less than the cutoff distance
+    # Perturb the x coordinate of the first atom by less than the cutoff
+    # distance
     atoms.positions[0, 0] += 0.01
 
     calc = KIM("ex_model_Ar_P_Morse_07C")

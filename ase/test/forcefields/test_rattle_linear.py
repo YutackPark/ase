@@ -51,6 +51,6 @@ def test_rattle_linear(testdir):
 
         de = dimer.get_potential_energy() - e
 
-        assert np.all(abs(dimer[:3].get_all_distances()-d1) < 1e-10)
-        assert np.all(abs(dimer[3:].get_all_distances()-d2) < 1e-10)
+        assert np.all(abs(dimer[:3].get_all_distances() - d1) < 1e-10)
+        assert np.all(abs(dimer[3:].get_all_distances() - d2) < 1e-10)
         assert abs(de - -0.005) < 0.001

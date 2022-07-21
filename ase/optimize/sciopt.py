@@ -16,6 +16,7 @@ class SciPyOptimizer(Optimizer):
 
     Only the call to the optimizer is still needed
     """
+
     def __init__(self, atoms, logfile='-', trajectory=None,
                  callback_always=False, alpha=70.0, master=None,
                  force_consistent=None):
@@ -92,7 +93,7 @@ class SciPyOptimizer(Optimizer):
         This should also be called once before optimization starts, as SciPy
         optimizers only calls it after each iteration, while ase optimizers
         call something similar before as well.
-        
+
         :meth:`callback`() can raise a :exc:`Converged` exception to signal the
         optimisation is complete. This will be silently ignored by
         :meth:`run`().
@@ -128,6 +129,7 @@ class SciPyOptimizer(Optimizer):
 
 class SciPyFminCG(SciPyOptimizer):
     """Non-linear (Polak-Ribiere) conjugate gradient algorithm"""
+
     def call_fmin(self, fmax, steps):
         output = opt.fmin_cg(self.f,
                              self.x0(),
@@ -150,6 +152,7 @@ class SciPyFminCG(SciPyOptimizer):
 
 class SciPyFminBFGS(SciPyOptimizer):
     """Quasi-Newton method (Broydon-Fletcher-Goldfarb-Shanno)"""
+
     def call_fmin(self, fmax, steps):
         output = opt.fmin_bfgs(self.f,
                                self.x0(),
@@ -181,6 +184,7 @@ class SciPyGradientlessOptimizer(Optimizer):
 
     XXX: This is still a work in progress
     """
+
     def __init__(self, atoms, logfile='-', trajectory=None,
                  callback_always=False, master=None,
                  force_consistent=None):
@@ -284,6 +288,7 @@ class SciPyFmin(SciPyGradientlessOptimizer):
 
     XXX: This is still a work in progress
     """
+
     def call_fmin(self, xtol, ftol, steps):
         opt.fmin(self.f,
                  self.x0(),
@@ -305,6 +310,7 @@ class SciPyFminPowell(SciPyGradientlessOptimizer):
 
     XXX: This is still a work in progress
     """
+
     def __init__(self, *args, **kwargs):
         """Parameters:
 

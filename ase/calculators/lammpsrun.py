@@ -34,7 +34,6 @@ import warnings
 from typing import Dict, Any
 import numpy as np
 
-from ase import Atoms
 from ase.parallel import paropen
 from ase.calculators.calculator import Calculator
 from ase.calculators.calculator import all_changes
@@ -119,6 +118,7 @@ potentials)
     # parameters to choose options in LAMMPSRUN
     ase_parameters: Dict[str, Any] = dict(
         specorder=None,
+        atorder=True,
         always_triclinic=False,
         keep_alive=True,
         keep_tmp_files=False,
@@ -494,7 +494,7 @@ potentials)
 
         trj_atoms = read_lammps_dump(
             infileobj=lammps_trj,
-            order=False,
+            order=self.parameters.atorder,
             index=-1,
             prismobj=self.prism,
             specorder=self.parameters.specorder,
@@ -515,7 +515,10 @@ potentials)
             tc["pe"], "energy", self.parameters["units"], "ASE"
         )
         self.results["free_energy"] = self.results["energy"]
-        self.results["forces"] = self.forces.copy()
+        self.results['forces'] = convert(self.forces.copy(),
+                                         'force',
+                                         self.parameters['units'],
+                                         'ASE')
         stress = np.array(
             [-tc[i] for i in ("pxx", "pyy", "pzz", "pyz", "pxz", "pxy")]
         )
@@ -564,9 +567,10 @@ potentials)
         # read_log depends on that the first (three) thermo_style custom args
         # can be capitalized and matched against the log output. I.e.
         # don't use e.g. 'ke' or 'cpu' which are labeled KinEng and CPU.
-        _custom_thermo_mark = " ".join(
+        mark_re = r"^\s*" + r"\s+".join(
             [x.capitalize() for x in self.parameters.thermo_args[0:3]]
         )
+        _custom_thermo_mark = re_compile(mark_re)
 
         # !TODO: regex-magic necessary?
         # Match something which can be converted to a float
@@ -587,7 +591,7 @@ potentials)
                 raise RuntimeError(f'LAMMPS exits with error message: {line}')
 
             # get thermo output
-            if line.startswith(_custom_thermo_mark):
+            if _custom_thermo_mark.match(line):
                 bool_match = True
                 while bool_match:
                     line = fileobj.readline().decode("utf-8")
@@ -649,33 +653,3 @@ class SpecialTee:
     def flush(self):
         self._orig_fd.flush()
         self._out_fd.flush()
-
-
-if __name__ == "__main__":
-    pair_style = "eam"
-    Pd_eam_file = "Pd_u3.eam"
-    pair_coeff = ["* * " + Pd_eam_file]
-    parameters = {"pair_style": pair_style, "pair_coeff": pair_coeff}
-    my_files = [Pd_eam_file]
-    calc = LAMMPS(parameters=parameters, files=my_files)
-    a0 = 3.93
-    b0 = a0 / 2.0
-
-    bulk = Atoms(
-        ["Pd"] * 4,
-        positions=[(0, 0, 0), (b0, b0, 0), (b0, 0, b0), (0, b0, b0)],
-        cell=[a0] * 3,
-        pbc=True,
-    )
-    # test get_forces
-    print("forces for a = {0}".format(a0))
-    print(calc.get_forces(bulk))
-    # single points for various lattice constants
-    bulk.calc = calc
-    for i in range(-5, 5, 1):
-        a = a0 * (1 + i / 100.0)
-        bulk.set_cell([a] * 3)
-        print("a : {0} , total energy : {1}".format(
-            a, bulk.get_potential_energy()))
-
-    calc.clean()

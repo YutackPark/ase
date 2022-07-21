@@ -46,6 +46,7 @@ class RamanCalculatorBase(IOContext):
 class StaticRamanCalculatorBase(RamanCalculatorBase):
     """Base class for Raman intensities derived from
     static polarizabilities"""
+
     def __init__(self, atoms, exobj, exkwargs=None, *args, **kwargs):
         self.exobj = exobj
         if exkwargs is None:
@@ -110,6 +111,7 @@ class RamanBase(AtomicDisplacements, IOContext):
 
 class RamanData(RamanBase):
     """Base class to evaluate Raman spectra from pre-computed data"""
+
     def __init__(self, atoms,  # XXX do we need atoms at this stage ?
                  *args,
                  exname=None,      # name for excited state calculations
@@ -206,7 +208,7 @@ class RamanData(RamanBase):
         unit e^4 Angstrom^4 / eV^2
         """
         self.calculate_energies_and_modes()
-        
+
         m2 = Raman.m2
         alpha_Qcc = self.me_Qcc(*args, **kwargs)
         if not self.observation:  # XXXX remove
@@ -318,14 +320,14 @@ class Raman(RamanData):
             kwargs.pop(key, None)
         kwargs['name'] = kwargs.get('name', self.name)
         self.vibrations = Vibrations(atoms, *args, **kwargs)
-        
+
         self.delta = self.vibrations.delta
         self.indices = self.vibrations.indices
 
     def calculate_energies_and_modes(self):
         if hasattr(self, 'im_r'):
             return
-        
+
         self.read()
 
         self.im_r = self.vibrations.im

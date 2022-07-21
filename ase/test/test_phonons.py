@@ -35,7 +35,8 @@ def test_check_eq_forces(testdir):
     assert fmin < fmax
 
 
-# Regression test for #953;  data stored for eq should resemble data for displacements
+# Regression test for #953;  data stored for eq should resemble data for
+# displacements
 def test_check_consistent_format(testdir):
     atoms = molecule('H2')
     atoms.calc = EMT()
@@ -43,7 +44,8 @@ def test_check_consistent_format(testdir):
     phonons = Phonons(atoms, EMT())
     phonons.run()
 
-    # Check that the data stored for `eq` is shaped like the data stored for displacements.
+    # Check that the data stored for `eq` is shaped like the data stored for
+    # displacements.
     eq_data = phonons.cache['eq']
     disp_data = phonons.cache['0x-']
     assert isinstance(eq_data, dict) and isinstance(disp_data, dict)

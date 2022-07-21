@@ -545,6 +545,7 @@ class CellBounds:
     ...                    'psi': [20, 160],
     ...                    'a': [2, 20], 'b': [2, 20], 'c': [2, 20]})
     """
+
     def __init__(self, bounds={}):
         self.bounds = {'alpha': [0, np.pi], 'beta': [0, np.pi],
                        'gamma': [0, np.pi], 'phi': [0, np.pi],

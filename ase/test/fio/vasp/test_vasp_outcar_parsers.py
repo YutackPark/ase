@@ -1,3 +1,4 @@
+# flake8: noqa
 import pytest
 
 import numpy as np
@@ -69,13 +70,20 @@ def test_convert_stress(stress, expected):
     assert np.allclose(vop.convert_vasp_outcar_stress(stress), expected)
 
 
-@pytest.mark.parametrize('line, expected', [
-    ("  in kB      -4.29429    -4.58894    -4.50342     0.50047    -0.94049     0.36481",
-     [-4.29429, -4.58894, -4.50342, 0.50047, -0.94049, 0.36481]),
-    ("  in kB     -47.95544   -39.91706   -34.79627     9.20266   -15.74132    -1.85167",
-     [-47.95544, -39.91706, -34.79627, 9.20266, -15.74132, -1.85167]),
-],
-                         ids=['stress1', 'stress2'])
+L1 = ("  in kB      -4.29429    -4.58894    -4.50342 "
+      "    0.50047    -0.94049     0.36481")
+L2 = ("  in kB     -47.95544   -39.91706   -34.79627  "
+      "   9.20266   -15.74132    -1.85167")
+
+
+@pytest.mark.parametrize(
+    'line, expected',
+    [
+        (L1,
+         [-4.29429, -4.58894, -4.50342, 0.50047, -0.94049, 0.36481]),
+        (L2,
+         [-47.95544, -39.91706, -34.79627, 9.20266, -15.74132, -1.85167])],
+    ids=['stress1', 'stress2'])
 def test_stress(line, expected, do_test_stress):
     """Test reading a particular line for parsing stress"""
     do_test_stress(line, vop.convert_vasp_outcar_stress(expected))

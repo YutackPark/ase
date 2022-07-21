@@ -39,15 +39,17 @@ def test_analysis_rdf(images_without_cell):
     ls_rdf = analysis.get_rdf(
         5.0, 5, volume=analysis.get_max_volume_estimate())
 
-    ls_rdf_ref = np.array(((0.65202591, 1.1177587, 0.54907445, 0.10573393, 0.01068895),
-                           (0.0, 1.1177587, 0.5833916, 0.10573393, 0.01068895)))
+    ls_rdf_ref = np.array(((0.65202591, 1.1177587, 0.54907445,
+                            0.10573393, 0.01068895),
+                           (0.0, 1.1177587, 0.5833916,
+                            0.10573393, 0.01068895)))
 
     assert np.array(ls_rdf) == pytest.approx(ls_rdf_ref)
 
 
 @pytest.mark.filterwarnings('ignore:the matrix subclass')
 def test_analysis():
-    #test the geometry.analysis module
+    # test the geometry.analysis module
 
     mol = molecule('CH3CH2OH')
     ana = Analysis(mol)
@@ -67,7 +69,9 @@ def test_analysis():
         l2 = sum([len(x) for x in ana.unique_dihedrals[imi]])
         assert l1 == l2 * 2
 
-    assert len(ana.get_angles('C', 'C', 'H', unique=False)[0]) == len(ana.get_angles('C', 'C', 'H', unique=True)[0])*2
+    angles1 = ana.get_angles('C', 'C', 'H', unique=False)[0]
+    angles2 = ana.get_angles('C', 'C', 'H', unique=True)[0]
+    assert len(angles1) == len(angles2) * 2
 
     csixty = molecule('C60')
     mol = molecule('C7NH5')
@@ -87,5 +91,10 @@ def test_analysis():
         l2 = sum([len(x) for x in ana.unique_dihedrals[imI]])
         assert l1 == l2 * 2
 
-    assert len(ana2.get_angles('C', 'C', 'H', unique=False)[0]) == len(ana2.get_angles('C', 'C', 'H', unique=True)[0]) * 2
-    assert len(ana2.get_dihedrals('H', 'C', 'C', 'H', unique=False)[0]) == len(ana2.get_dihedrals('H', 'C', 'C', 'H', unique=True)[0]) * 2
+    angles1 = ana2.get_angles('C', 'C', 'H', unique=False)[0]
+    angles2 = ana2.get_angles('C', 'C', 'H', unique=True)[0]
+    assert len(angles1) == len(angles2) * 2
+
+    dihedrals1 = ana2.get_dihedrals('H', 'C', 'C', 'H', unique=False)[0]
+    dihedrals2 = ana2.get_dihedrals('H', 'C', 'C', 'H', unique=True)[0]
+    assert len(dihedrals1) == len(dihedrals2) * 2

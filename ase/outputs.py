@@ -156,7 +156,7 @@ _defineprop('dielectric_tensor', float, shape=(3, 3))
 # concepts to have a formalization outside the Atoms class.
 
 
-#def to_singlepoint(self, atoms):
+# def to_singlepoint(self, atoms):
 #    from ase.calculators.singlepoint import SinglePointDFTCalculator
 #    return SinglePointDFTCalculator(atoms,
 #                                    efermi=self.fermi_level,

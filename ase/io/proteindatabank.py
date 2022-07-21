@@ -205,7 +205,8 @@ def write_proteindatabank(fileobj, images, write_arrays=True):
             currentcell = atoms.get_cell()
             cellpar = currentcell.cellpar()
             _, rot_t = currentcell.standard_form()
-            # ignoring Z-value, using P1 since we have all atoms defined explicitly
+            # ignoring Z-value, using P1 since we have all atoms defined
+            # explicitly
             cellformat = 'CRYST1%9.3f%9.3f%9.3f%7.2f%7.2f%7.2f P 1\n'
             fileobj.write(cellformat % (cellpar[0], cellpar[1], cellpar[2],
                                         cellpar[3], cellpar[4], cellpar[5]))
@@ -224,6 +225,6 @@ def write_proteindatabank(fileobj, images, write_arrays=True):
             x, y, z = p[a]
             occ = occupancy[a]
             bf = bfactor[a]
-            fileobj.write(format % ((a+1) % MAXNUM, symbols[a],
+            fileobj.write(format % ((a + 1) % MAXNUM, symbols[a],
                                     x, y, z, occ, bf, symbols[a].upper()))
         fileobj.write('ENDMDL\n')

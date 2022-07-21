@@ -37,13 +37,14 @@ class SimpleCubicFactory(Bravais):
         "Get the lattice constant of an element with cubic crystal structure."
         if _refstate[self.atomicnumber]['symmetry'] != self.xtal_name:
             raise ValueError(("Cannot guess the %s lattice constant of"
-                                + " an element with crystal structure %s.")
-                               % (self.xtal_name,
-                                  _refstate[self.atomicnumber]['symmetry']))
+                              + " an element with crystal structure %s.")
+                             % (self.xtal_name,
+                                _refstate[self.atomicnumber]['symmetry']))
         return _refstate[self.atomicnumber]['a']
 
     def make_crystal_basis(self):
-        "Make the basis matrix for the crystal unit cell and the system unit cell."
+        """Make the basis matrix for the crystal unit cell and the
+        system unit cell."""
         self.crystal_basis = (self.latticeconstant * self.basis_factor
                               * self.int_basis)
         self.miller_basis = self.latticeconstant * np.identity(3)
@@ -57,7 +58,7 @@ class SimpleCubicFactory(Bravais):
         if self.bravais_basis is not None:
             cellsize *= len(self.bravais_basis)
         vol2 = (self.calc_num_atoms() * self.latticeconstant**3 / cellsize)
-        assert abs(vol1-vol2) < 1e-5
+        assert abs(vol1 - vol2) < 1e-5
 
     def find_directions(self, directions, miller):
         "Find missing directions and miller indices from the specified ones."
@@ -76,8 +77,8 @@ class SimpleCubicFactory(Bravais):
                      idx[i].lower() == "orthogonal")):
                 if self.debug:
                     print("Calculating orthogonal direction", i)
-                    print(idx[i-2], "X", idx[i-1], end=' ')
-                idx[i] = reduceindex(np.cross(idx[i-2], idx[i-1]))
+                    print(idx[i - 2], "X", idx[i - 1], end=' ')
+                idx[i] = reduceindex(np.cross(idx[i - 2], idx[i - 1]))
                 if self.debug:
                     print("=", idx[i])
 

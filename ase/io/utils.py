@@ -61,7 +61,7 @@ class PlottingVariables:
         for n in range(nlines):
             d = D[T[n]]
             if ((((R - L[n] - d)**2).sum(1) < r2) &
-                (((R - L[n] + d)**2).sum(1) < r2)).any():
+                    (((R - L[n] + d)**2).sum(1) < r2)).any():
                 T[n] = -1
 
         positions = np.dot(positions, rotation)
@@ -197,7 +197,7 @@ def make_patch_list(writer):
 
             else:
                 if ((xy[1] + r > 0) and (xy[1] - r < writer.h) and
-                    (xy[0] + r > 0) and (xy[0] - r < writer.w)):
+                        (xy[0] + r > 0) and (xy[0] - r < writer.w)):
                     patch = Circle(xy, r, facecolor=writer.colors[a],
                                    edgecolor='black')
                     patch_list.append(patch)

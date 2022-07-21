@@ -66,7 +66,8 @@ fun_material = '''
   material {
     texture {
       pigment { rgbt < 0.8, 0.25, 0.25, 0.5> }
-      finish{ diffuse 0.85 ambient 0.99 brilliance 3 specular 0.5 roughness 0.001
+      finish{ diffuse 0.85 ambient 0.99 brilliance 3 specular 0.5 \
+roughness 0.001
         reflection { 0.05, 0.98 fresnel on exponent 1.5 }
         conserve_energy
       }

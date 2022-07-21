@@ -135,6 +135,7 @@ class Infrared(Vibrations):
     >>> ir.summary()
 
     """
+
     def __init__(self, atoms, indices=None, name='ir', delta=0.01,
                  nfree=2, directions=None):
         Vibrations.__init__(self, atoms, indices=indices, name=name,

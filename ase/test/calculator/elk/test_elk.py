@@ -40,9 +40,9 @@ def test_elk_bulk(factory, atoms):
     assert calc.get_ibz_k_points() == pytest.approx(props['ibz_kpoints'])
     assert calc.get_k_point_weights() == pytest.approx(props['kpoint_weights'])
 
-    I = slice(None)
-    assert calc.get_eigenvalues(I, I) == pytest.approx(props['eigenvalues'])
-    assert calc.get_occupation_numbers(I, I) == pytest.approx(
+    x = slice(None)
+    assert calc.get_eigenvalues(x, x) == pytest.approx(props['eigenvalues'])
+    assert calc.get_occupation_numbers(x, x) == pytest.approx(
         props['occupations'])
     assert calc.get_spin_polarized() == spinpol
     assert calc.get_number_of_spins() == 1 + int(spinpol)

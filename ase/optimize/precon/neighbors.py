@@ -5,7 +5,7 @@ from ase.geometry.cell import cell_to_cellpar
 from ase.neighborlist import neighbor_list
 
 
-def get_neighbours(atoms, r_cut, self_interaction=False, 
+def get_neighbours(atoms, r_cut, self_interaction=False,
                    neighbor_list=neighbor_list):
     """Return a list of pairs of atoms within a given distance of each other.
 
@@ -56,7 +56,7 @@ def estimate_nearest_neighbour_distance(atoms,
         atoms: Atoms object
         neighbor_list: function (optional). Optionally replace the built-in
             ASE neighbour list with an alternative with the same call
-            signature, e.g. `matscipy.neighbours.neighbour_list`.        
+            signature, e.g. `matscipy.neighbours.neighbour_list`.
 
     Returns:
         rNN: float

@@ -9,6 +9,7 @@ import numpy as np
 
 class CellEditor:
     '''Window for editing the cell of an atoms object.'''
+
     def __init__(self, gui):
         self.gui = gui
         self.gui.register_vulnerable(self)
@@ -62,7 +63,7 @@ class CellEditor:
                  ui.Button(_('Apply Magnitudes'), self.apply_magnitudes),
                  ui.Button(_('Apply Angles'), self.apply_angles)])
         win.add([_('Pressing 〈Enter〉 as you enter values will '
-                    'automatically apply correctly')])
+                   'automatically apply correctly')])
         # TRANSLATORS: verb
         win.add([ui.Button(_('Center'), self.apply_center),
                  ui.Button(_('Wrap'), self.apply_wrap),

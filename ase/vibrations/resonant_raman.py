@@ -13,6 +13,7 @@ from ase.vibrations.raman import Raman, RamanCalculatorBase
 class ResonantRamanCalculator(RamanCalculatorBase, Vibrations):
     """Base class for resonant Raman calculators using finite differences.
     """
+
     def __init__(self, atoms, ExcitationsCalculator, *args,
                  exkwargs=None, exext='.ex.gz', overlap=False,
                  **kwargs):
@@ -97,6 +98,7 @@ class ResonantRamanCalculator(RamanCalculatorBase, Vibrations):
 class ResonantRaman(Raman):
     """Base Class for resonant Raman intensities using finite differences.
     """
+
     def __init__(self, atoms, Excitations, *args,
                  observation=None,
                  form='v',         # form of the dipole operator

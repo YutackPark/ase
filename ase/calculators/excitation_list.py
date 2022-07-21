@@ -5,6 +5,7 @@ from ase.units import Hartree, Bohr
 
 class Excitation:
     """Base class for a single excitation"""
+
     def __init__(self, energy, index, mur, muv=None, magn=None):
         """
         Parameters
@@ -65,7 +66,7 @@ class Excitation:
             magn = np.array([float(l.pop(0)) for i in range(3)])
         except IndexError:
             magn = None
-       
+
         return cls(energy, index, mur, muv, magn)
 
     def get_dipole_me(self, form='r'):
@@ -92,10 +93,11 @@ class Excitation:
 
 class ExcitationList(list):
     """Base class for excitions from the ground state"""
+
     def __init__(self):
         # initialise empty list
         super().__init__()
-        
+
         # set default energy scale to get eV
         self.energy_to_eV_scale = 1.
 

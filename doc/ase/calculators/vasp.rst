@@ -497,6 +497,21 @@ and VASP version which was used at the time of the calculation, through the
     The ASE calculator contains no information about the wavefunctions or charge densities, so these are NOT stored
     in the dictionary or JSON file, and therefore results may vary on a restarted calculation.
 
+
+Vibrational Analysis
+====================
+Vibrational analysis can be performed using the :class:`~ase.vibrations.Vibrations`
+class or using the VASP internals (e.g. with ``IBRION=5``).
+When using IBRION=5-8, the corresponding vibrational
+analysis can be represented by retrieving a :class:`~ase.vibrations.VibrationsData`
+object from the calculator using :meth:`ase.calculators.vasp.Vasp.get_vibrations`.
+From the OUTCAR, the energies of all modes can be retrieved using
+:meth:`ase.calculators.vasp.Vasp.read_vib_freq`.
+
+.. automethod:: ase.calculators.vasp.Vasp.get_vibrations
+.. automethod:: ase.calculators.vasp.Vasp.read_vib_freq
+
+
 Examples
 ========
 

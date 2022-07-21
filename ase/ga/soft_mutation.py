@@ -13,6 +13,7 @@ class TagFilter:
     """Filter which constrains same-tag atoms to behave
     like internally rigid moieties.
     """
+
     def __init__(self, atoms):
         self.atoms = atoms
         gather_atoms_by_tag(self.atoms)
@@ -62,6 +63,7 @@ class PairwiseHarmonicPotential:
     """Parent class for interatomic potentials of the type
     E(r_ij) = 0.5 * k_ij * (r_ij - r0_ij) ** 2
     """
+
     def __init__(self, atoms, rcut=10.):
         self.atoms = atoms
         self.pos0 = atoms.get_positions()
@@ -135,6 +137,7 @@ class BondElectroNegativityModel(PairwiseHarmonicPotential):
 
       __ https://dx.doi.org/10.1103/PhysRevB.84.092103
     """
+
     def calculate_force_constants(self):
         cell = self.atoms.get_cell()
         pos = self.atoms.get_positions()
@@ -236,6 +239,7 @@ class SoftMutation(OffspringCreator):
     use_tags: boolean
         Whether to use the atomic tags to preserve molecular identity.
     """
+
     def __init__(self, blmin, bounds=[0.5, 2.0],
                  calculator=BondElectroNegativityModel, rcut=10.,
                  used_modes_file='used_modes.json', use_tags=False,

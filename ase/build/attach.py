@@ -43,27 +43,31 @@ def attach(atoms1, atoms2, distance, direction=(1, 0, 0),
       maximal number of iterations to get required distance, default 100
     accuracy: float
       required accuracy for minimal distance (Angstrom), default 1e-5
+
+    Returns
+    -------
+    Joined structure as an atoms object.
     """
     atoms = atoms1.copy()
     atoms2 = atoms2.copy()
-    
+
     direction = np.array(direction, dtype=float)
     direction /= np.linalg.norm(direction)
     assert len(direction) == 3
     dist2 = distance**2
-    
+
     i1, i2, dv_c = nearest(atoms, atoms2, atoms.cell, atoms.pbc)
 
     for i in range(maxiter):
         dv2 = (dv_c**2).sum()
-            
+
         vcost = np.dot(dv_c, direction)
         a = np.sqrt(max(0, dist2 - dv2 + vcost**2))
         move = a - vcost
         if abs(move) < accuracy:
             atoms += atoms2
             return atoms
-        
+
         # we need to move
         atoms2.translate(direction * move)
         i1, i2, dv_c = nearest(atoms, atoms2, atoms.cell, atoms.pbc)
