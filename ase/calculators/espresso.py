@@ -78,9 +78,8 @@ class EspressoTemplate(CalculatorTemplate):
         return dict(atoms.calc.properties())
 
     def load_profile(self, cfg):
-        import shlex
         return EspressoProfile(
-            argv=shlex.split(cfg['argv']),
+            argv=cfg.getargv('argv')),
             pseudo_path=cfg['pseudo_path'])
 
 

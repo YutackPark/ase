@@ -148,8 +148,7 @@ class AimsTemplate(CalculatorTemplate):
         return read_aims_results(dst, index=-1)
 
     def load_profile(self, cfg):
-        import shlex
-        return AimsProfile(shlex.split(cfg['argv']))
+        return AimsProfile(cfg.getargv('argv'))
 
 
 class Aims(GenericFileIOCalculator):

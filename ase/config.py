@@ -3,12 +3,17 @@ import configparser
 from pathlib import Path
 
 from ase.utils import lazymethod
+import shlex
 
 
 class Config:
     @lazymethod
     def paths_and_parser(self):
-        parser = configparser.ConfigParser()
+        def argv_converter(argv):
+            return shlex.split(argv)
+
+        parser = configparser.ConfigParser(
+            converters={'argv': argv_converter})
         envpath = os.environ.get('ASE_CONFIG_PATH')
         if envpath is not None:
             paths = [Path(p) for p in envpath.split(':')]
