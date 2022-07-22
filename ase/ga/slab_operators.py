@@ -63,10 +63,10 @@ def minority_element_segregate(atoms, layer_tag=1, rng=np.random):
 def same_layer_comp(atoms, rng=np.random):
     unique_syms, comp = np.unique(sorted(atoms.get_chemical_symbols()),
                                   return_counts=True)
-    l = get_layer_comps(atoms)
-    sym_dict = dict((s, int(np.array(c) / len(l)))
+    layer = get_layer_comps(atoms)
+    sym_dict = dict((s, int(np.array(c) / len(layer)))
                     for s, c in zip(unique_syms, comp))
-    for la in l:
+    for la in layer:
         correct_by = sym_dict.copy()
         lcomp = dict(
             zip(*np.unique([atoms[i].symbol for i in la], return_counts=True)))
@@ -304,8 +304,8 @@ class CutSpliceSlabCrossover(SlabOperator):
 
 class RandomCompositionMutation(SlabOperator):
     """Change the current composition to another of the allowed compositions.
-    The allowed compositions should be input in the same order as the element pools,
-    for example:
+    The allowed compositions should be input in the same order as the element
+    pools, for example:
     element_pools = [['Au', 'Cu'], ['In', 'Bi']]
     allowed_compositions = [(6, 2), (5, 3)]
     means that there can be 5 or 6 Au and Cu, and 2 or 3 In and Bi.

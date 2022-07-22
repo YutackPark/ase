@@ -289,6 +289,7 @@ def test_rotation_from_projection(rng):
     assert normalization_error(U_ww) < 1e-10, 'U_ww not normalized'
 
 
+@pytest.mark.calculator_lite
 def test_save(tmpdir, wan):
     wanf = wan(nwannier=4, fixedstates=2, initialwannier='bloch')
     jsonfile = tmpdir.join('wanf.json')
@@ -334,6 +335,7 @@ def test_get_functional_value(fun, wan):
     assert f1 < f2
 
 
+@pytest.mark.calculator_lite
 @calc('gpaw')
 def test_get_centers(factory):
     # Rough test on the position of the Wannier functions' centers
@@ -425,6 +427,7 @@ def test_get_spectral_weight_random(wan, rng):
         assert wanf.get_spectral_weight(i).sum() == pytest.approx(1)
 
 
+@pytest.mark.calculator_lite
 def test_get_pdos(wan):
     nwannier = 4
     gpaw = pytest.importorskip('gpaw')
@@ -597,6 +600,8 @@ def test_get_function(wan):
                 wanf.get_function(index=i, repeat=[1, 2, 3]).shape).all()
 
 
+# Make sure this can run in CI: https://gitlab.com/ase/ase/-/issues/1100
+# @pytest.mark.calculator_lite
 @pytest.mark.parametrize('fun', ['std', 'var'])
 def test_get_gradients(fun, wan, rng):
     wanf = wan(nwannier=4, fixedstates=2, kpts=(1, 1, 1),
@@ -683,7 +688,7 @@ def test_init_orbitals_h2(rng):
     ntot = 2
     orbs = init_orbitals(atoms=atoms, ntot=ntot, rng=rng)
     angular_momenta = [orb[1] for orb in orbs]
-    assert sum([l * 2 + 1 for l in angular_momenta]) == ntot
+    assert sum([l_ * 2 + 1 for l_ in angular_momenta]) == ntot
     assert angular_momenta == [0] * ntot
 
 
@@ -694,7 +699,7 @@ def test_init_orbitals_ti(rng):
     ntot = 14
     orbs = init_orbitals(atoms=atoms, ntot=ntot, rng=rng)
     angular_momenta = [orb[1] for orb in orbs]
-    assert sum([l * 2 + 1 for l in angular_momenta]) == ntot
+    assert sum([l_ * 2 + 1 for l_ in angular_momenta]) == ntot
     assert 0 in angular_momenta
     assert 2 in angular_momenta
 

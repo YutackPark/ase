@@ -96,7 +96,7 @@ def test_append_pickle(images, trajfile):
 def test_append_bundle(images, bundletraj):
     traj = BundleTrajectory(bundletraj, mode='a')
     assert len(read(bundletraj, ':')) == 2
-    #write(bundletraj, images, append=True)
+    # write(bundletraj, images, append=True)
     for atoms in images:
         traj.write(atoms)
     traj.close()

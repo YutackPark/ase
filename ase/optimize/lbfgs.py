@@ -12,6 +12,7 @@ class LBFGS(Optimizer):
     Hessian is represented only as a diagonal matrix to save memory
 
     """
+
     def __init__(self, atoms, restart=None, logfile='-', trajectory=None,
                  maxstep=None, memory=100, damping=1.0, alpha=70.0,
                  use_line_search=False, master=None,

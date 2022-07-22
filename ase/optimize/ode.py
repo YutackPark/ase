@@ -1,7 +1,7 @@
 import numpy as np
 
 from ase.optimize.sciopt import SciPyOptimizer, OptimizerConvergenceError
-   
+
 
 def ode12r(f, X0, h=None, verbose=1, fmax=1e-6, maxtol=1e3, steps=100,
            rtol=1e-1, C1=1e-2, C2=2.0, hmin=1e-10, extrapolate=3,
@@ -50,44 +50,44 @@ def ode12r(f, X0, h=None, verbose=1, fmax=1e-6, maxtol=1e3, steps=100,
         using a simple norm of the forces.
     residual: function
         compute the residual from the current forces
-        
+
     Returns
     -------
 
     X: array
         final value of degrees of freedom
     """
-    
+
     X = X0
     Fn = f(X)
-    
+
     if callback is None:
         def callback(X):
             pass
     callback(X)
-    
+
     if residual is None:
         def residual(F, X):
             return np.linalg.norm(F, np.inf)
     Rn = residual(Fn, X)
-    
+
     if apply_precon is None:
         def apply_precon(F, X):
             return F, residual(F, X)
     Fp, Rp = apply_precon(Fn, X)
-    
+
     def log(*args):
         if verbose >= 1:
             print(*args)
-                        
+
     def debug(*args):
         if verbose >= 2:
             print(*args)
-        
+
     if converged is None:
         def converged(F, X):
             return residual(F, X) <= fmax
-    
+
     if converged(Fn, X):
         log("ODE12r terminates successfully after 0 iterations")
         return X
@@ -179,6 +179,7 @@ class ODE12r(SciPyOptimizer):
     """
     Optimizer based on adaptive ODE solver :func:`ode12r`
     """
+
     def __init__(self, atoms, logfile='-', trajectory=None,
                  callback_always=False, alpha=1.0, master=None,
                  force_consistent=None, precon=None, verbose=0, rtol=1e-2):

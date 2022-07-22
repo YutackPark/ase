@@ -541,6 +541,7 @@ class Cp2kShell:
 
 class InputSection:
     """Represents a section of a CP2K input file"""
+
     def __init__(self, name, params=None):
         self.name = name.upper()
         self.params = params

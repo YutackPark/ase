@@ -14,6 +14,8 @@ from ase.outputs import Properties, all_outputs
 from ase.utils import jsonable
 from ase.calculators.abc import GetPropertiesMixin
 
+from .names import names
+
 
 class CalculatorError(RuntimeError):
     """Base class of error types related to ASE calculators."""
@@ -125,16 +127,6 @@ all_changes = ['positions', 'numbers', 'cell', 'pbc',
                'initial_charges', 'initial_magmoms']
 
 
-# Recognized names of calculators sorted alphabetically:
-names = ['abinit', 'ace', 'aims', 'amber', 'asap', 'castep', 'cp2k',
-         'crystal', 'demon', 'demonnano', 'dftb', 'dftd3', 'dmol', 'eam',
-         'elk', 'emt', 'espresso', 'exciting', 'ff', 'fleur', 'gamess_us',
-         'gaussian', 'gpaw', 'gromacs', 'gulp', 'hotbit', 'kim',
-         'lammpslib', 'lammpsrun', 'lj', 'mopac', 'morse', 'nwchem',
-         'octopus', 'onetep', 'openmx', 'orca', 'plumed', 'psi4', 'qchem', 'siesta',
-         'tip3p', 'tip4p', 'turbomole', 'vasp']
-
-
 special = {'cp2k': 'CP2K',
            'demonnano': 'DemonNano',
            'dftd3': 'DFTD3',
@@ -144,7 +136,6 @@ special = {'cp2k': 'CP2K',
            'emt': 'EMT',
            'crystal': 'CRYSTAL',
            'ff': 'ForceField',
-           'fleur': 'FLEUR',
            'gamess_us': 'GAMESSUS',
            'gulp': 'GULP',
            'kim': 'KIM',
@@ -621,7 +612,8 @@ class Calculator(BaseCalculator):
         self.prefix = None
         if label is not None:
             if self.directory == '.' and '/' in label:
-                # We specified directory in label, and nothing in the diretory key
+                # We specified directory in label, and nothing in the diretory
+                # key
                 self.label = label
             elif '/' not in label:
                 # We specified our directory in the directory keyword
@@ -831,11 +823,19 @@ class Calculator(BaseCalculator):
         implementation to set the atoms attribute and create any missing
         directories.
         """
-
         if atoms is not None:
             self.atoms = atoms.copy()
         if not os.path.isdir(self._directory):
-            os.makedirs(self._directory)
+            try:
+                os.makedirs(self._directory)
+            except FileExistsError as e:
+                # We can only end up here in case of a race condition if
+                # multiple Calculators are running concurrently *and* use the
+                # same _directory, which cannot be expected to work anyway.
+                msg = ('Concurrent use of directory ' + self._directory +
+                       'by multiple Calculator instances detected. Please '
+                       'use one directory per instance.')
+                raise RuntimeError(msg) from e
 
     def calculate_numerical_forces(self, atoms, d=0.001):
         """Calculate numerical forces using finite difference.

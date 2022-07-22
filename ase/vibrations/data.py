@@ -15,6 +15,7 @@ from ase.utils import jsonable, lazymethod
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.spectrum.dosdata import RawDOSData
 from ase.spectrum.doscollection import DOSCollection
+from ase.constraints import constrained_indices, FixCartesian, FixAtoms
 
 RealSequence4D = Sequence[Sequence[Sequence[Sequence[Real]]]]
 VD = TypeVar('VD', bound='VibrationsData')
@@ -34,17 +35,25 @@ class VibrationsData:
     This provides access to q-point-dependent analyses such as phonon
     dispersion plotting.
 
+    If the Atoms object has FixedAtoms or FixedCartesian constraints, these
+    will be respected and the Hessian should be sized accordingly.
+
     Args:
         atoms:
             Equilibrium geometry of vibrating system. This will be stored as a
-            lightweight copy with just positions, masses, unit cell.
+            full copy.
 
         hessian: Second-derivative in energy with respect to
             Cartesian nuclear movements as an (N, 3, N, 3) array.
+
         indices: indices of atoms which are included
-            in Hessian.  Default value (None) includes all atoms.
+            in Hessian.  Default value (None) includes all freely
+            moving atoms (i.e. not fixed ones). Leave at None if
+            constraints should be determined automatically from the
+            atoms object.
 
     """
+
     def __init__(self,
                  atoms: Atoms,
                  hessian: Union[RealSequence4D, np.ndarray],
@@ -52,7 +61,7 @@ class VibrationsData:
                  ) -> None:
 
         if indices is None:
-            self._indices = np.arange(len(atoms), dtype=int)
+            self._indices = self.indices_from_constraints(atoms)
         else:
             self._indices = np.array(indices, dtype=int)
 
@@ -92,6 +101,32 @@ class VibrationsData:
 
         return cls(atoms, hessian_2d_array.reshape(n_atoms, 3, n_atoms, 3),
                    indices=indices)
+
+    @staticmethod
+    def indices_from_constraints(atoms: Atoms) -> List[int]:
+        """Indices corresponding to Atoms Constraints
+
+        Deduces the freely moving atoms from the constraints set on the
+        atoms object. VibrationsData only supports FixCartesian and
+        FixAtoms. All others are neglected.
+
+        Args:
+            atoms: Atoms object.
+
+        Retruns:
+            indices of free atoms.
+
+        """
+        # Only fully fixed atoms supported by VibrationsData
+        const_indices = constrained_indices(
+            atoms, only_include=(FixCartesian, FixAtoms))
+        # Invert the selection to get free atoms
+        indices = np.setdiff1d(
+            np.array(
+                range(
+                    len(atoms))),
+            const_indices).astype(int)
+        return indices.tolist()
 
     @staticmethod
     def indices_from_mask(mask: Union[Sequence[bool], np.ndarray]
@@ -150,7 +185,7 @@ class VibrationsData:
             ref_shape_txt = '{n:d}x3x{n:d}x3'.format(n=n_atoms)
 
         if (isinstance(hessian, np.ndarray)
-            and hessian.shape == tuple(ref_shape)):
+                and hessian.shape == tuple(ref_shape)):
             return n_atoms
         else:
             raise ValueError("Hessian for these atoms should be a "
@@ -188,14 +223,15 @@ class VibrationsData:
 
         Returns:
             array with shape (n_atoms, 3, n_atoms, 3) where
+
             - the first and third indices identify atoms in self.get_atoms()
-            - the second and fourth indices cover the corresponding Cartesian
-              movements in x, y, z
+
+            - the second and fourth indices cover the corresponding
+              Cartesian movements in x, y, z
 
             e.g. the element h[0, 2, 1, 0] gives a harmonic force exerted on
             atoms[1] in the x-direction in response to a movement in the
             z-direction of atoms[0]
-
         """
         n_atoms = int(self._hessian2d.shape[0] / 3)
         return self._hessian2d.reshape(n_atoms, 3, n_atoms, 3).copy()
@@ -208,18 +244,18 @@ class VibrationsData:
 
         Returns:
             array with shape (n_atoms * 3, n_atoms * 3) where the elements are
-            ordered by atom and Cartesian direction
+            ordered by atom and Cartesian direction::
 
-            [[at1x_at1x, at1x_at1y, at1x_at1z, at1x_at2x, ...],
-             [at1y_at1x, at1y_at1y, at1y_at1z, at1y_at2x, ...],
-             [at1z_at1x, at1z_at1y, at1z_at1z, at1z_at2x, ...],
-             [at2x_at1x, at2x_at1y, at2x_at1z, at2x_at2x, ...],
-             ...]
+            >> [[at1x_at1x, at1x_at1y, at1x_at1z, at1x_at2x, ...],
+            >> [at1y_at1x, at1y_at1y, at1y_at1z, at1y_at2x, ...],
+            >> [at1z_at1x, at1z_at1y, at1z_at1z, at1z_at2x, ...],
+            >> [at2x_at1x, at2x_at1y, at2x_at1z, at2x_at2x, ...],
+            >> ...]
+
 
             e.g. the element h[2, 3] gives a harmonic force exerted on
             atoms[1] in the x-direction in response to a movement in the
             z-direction of atoms[0]
-
         """
         return self._hessian2d.copy()
 
@@ -490,7 +526,8 @@ class VibrationsData:
 
         all_images = list(self._get_jmol_images(atoms=self.get_atoms(),
                                                 energies=self.get_energies(),
-                                                modes=self.get_modes(all_atoms=True),
+                                                modes=self.get_modes(
+                                                    all_atoms=True),
                                                 ir_intensities=ir_intensities))
         ase.io.write(filename, all_images, format='extxyz')
 

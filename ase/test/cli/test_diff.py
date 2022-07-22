@@ -72,7 +72,7 @@ def test_twoFiles_trueCalc_multipleImages(cli, traj):
             break
     dfx_ordered = [float(row[c]) for row in body]
     for i in range(len(dfx_ordered) - 2):
-        assert dfx_ordered[i] <= dfx_ordered[i+1]
+        assert dfx_ordered[i] <= dfx_ordered[i + 1]
 
 
 def test_cli_opt(cli, traj):

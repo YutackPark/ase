@@ -3,7 +3,7 @@ import numpy as np
 
 def distance(s1, s2, permute=True):
     """Get the distance between two structures s1 and s2.
-    
+
     The distance is defined by the Frobenius norm of
     the spatial distance between all coordinates (see
     numpy.linalg.norm for the definition).
@@ -16,14 +16,14 @@ def distance(s1, s2, permute=True):
     for s in [s1, s2]:
         s.translate(-s.get_center_of_mass())
     s2pos = 1. * s2.get_positions()
-    
+
     def align(struct, xaxis='x', yaxis='y'):
         """Align moments of inertia with the coordinate system."""
         Is, Vs = struct.get_moments_of_inertia(True)
         IV = list(zip(Is, Vs))
         IV.sort(key=lambda x: x[0])
         struct.rotate(IV[0][1], xaxis)
-        
+
         Is, Vs = struct.get_moments_of_inertia(True)
         IV = list(zip(Is, Vs))
         IV.sort(key=lambda x: x[0])
@@ -56,5 +56,5 @@ def distance(s1, s2, permute=True):
         s2.set_positions(s2pos)
         align(s2, x, y)
         dists.append(dd(s1, s2, permute))
-   
+
     return min(dists)

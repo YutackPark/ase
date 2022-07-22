@@ -33,11 +33,11 @@ def test_dftb_bandstructure(dftb_factory):
 
     # DOS does not currently work because of
     # missing "get_k_point_weights" function
-    #from ase.dft.dos import DOS
-    #dos = DOS(calc, width=0.2)
-    #d = dos.get_dos()
-    #e = dos.get_energies()
-    #print(d, e)
+    # from ase.dft.dos import DOS
+    # dos = DOS(calc, width=0.2)
+    # d = dos.get_dos()
+    # e = dos.get_energies()
+    # print(d, e)
 
     calc = dftb_factory.calc(
         atoms=atoms,
@@ -52,6 +52,6 @@ def test_dftb_bandstructure(dftb_factory):
     atoms.calc = calc
     calc.calculate(atoms)
 
-    #calc.results['fermi_levels'] = [efermi]
+    # calc.results['fermi_levels'] = [efermi]
     calc.band_structure()
     # Maybe write the band structure or assert something?

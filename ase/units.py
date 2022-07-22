@@ -19,6 +19,7 @@ __codata_version__ = '2014'
 # to a module.
 class Units(dict):
     """Dictionary for units that supports .attribute access."""
+
     def __init__(self, *args, **kwargs):
         super(Units, self).__init__(*args, **kwargs)
         self.__dict__ = self

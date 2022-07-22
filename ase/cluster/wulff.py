@@ -14,7 +14,7 @@ def wulff_construction(symbol, surfaces, energies, size, structure,
     surface energy of the cluster.
 
     Parameters
-    ---------- 
+    ----------
     symbol : str or int
         The chemical symbol (or atomic number) of the desired element.
 
@@ -91,7 +91,7 @@ def wulff_construction(symbol, surfaces, energies, size, structure,
     for i, s in enumerate(surfaces):
         d = atoms.get_layer_distance(s)
         energies[i] /= d
-        
+
     # First guess a size that is not too large.
     wanted_size = size ** (1.0 / 3.0)
     max_e = max(energies)

@@ -165,23 +165,23 @@ class STM:
         nz = self.ldos.shape[2]
         ldos = self.ldos.reshape((-1, nz))
 
-        I = np.empty(ldos.shape[0])
+        current = np.empty(ldos.shape[0])
 
         zp = z / self.cell[2, 2] * nz
         zp = int(zp) % nz
 
         for i, a in enumerate(ldos):
-            I[i] = self.find_current(a, zp)
+            current[i] = self.find_current(a, zp)
 
-        s0 = I.shape = self.ldos.shape[:2]
-        I = np.tile(I, repeat)
-        s = I.shape
+        s0 = current.shape = self.ldos.shape[:2]
+        current = np.tile(current, repeat)
+        s = current.shape
 
         ij = np.indices(s, dtype=float).reshape((2, -1)).T
         x, y = np.dot(ij / s0, self.cell[:2, :2]).T.reshape((2,) + s)
 
         # Returing scan with axes in Angstrom.
-        return x, y, I
+        return x, y, current
 
     def linescan(self, bias, current, p1, p2, npoints=50, z0=None):
         """Constant current line scan.
@@ -246,15 +246,15 @@ class STM:
         for bias from bias0 to bias1 with step biasstep."""
 
         biases = np.arange(bias0, bias1+biasstep, biasstep)
-        I = np.zeros(biases.shape)
+        current = np.zeros(biases.shape)
 
         for b in np.arange(len(biases)):
             print(b, biases[b])
-            I[b] = self.pointcurrent(biases[b], x, y, z)
+            current[b] = self.pointcurrent(biases[b], x, y, z)
 
-        dIdV = np.gradient(I, biasstep)
+        dIdV = np.gradient(current, biasstep)
 
-        return biases, I, dIdV
+        return biases, current, dIdV
 
     def find_current(self, ldos, z):
         """ Finds current for given LDOS at height z."""

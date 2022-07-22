@@ -12,7 +12,7 @@ def test_h2dft_old(name):
 calc = pytest.mark.calculator
 
 
-#@calc('abinit', ecut=200, toldfe=0.0001)
+# @calc('abinit', ecut=200, toldfe=0.0001)
 # Doesn't work with abinit9.
 # We should replace the restart stuff anyway.
 @calc('cp2k', auto_write=True, uks=True)

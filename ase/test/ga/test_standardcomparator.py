@@ -1,7 +1,8 @@
 def test_standardcomparator():
-    from ase.ga.standard_comparators import (InteratomicDistanceComparator,
-                                             EnergyComparator, RawScoreComparator,
-                                             SequentialComparator)
+    from ase.ga.standard_comparators import (
+        InteratomicDistanceComparator,
+        EnergyComparator, RawScoreComparator,
+        SequentialComparator)
     from ase import Atoms
     from ase.calculators.singlepoint import SinglePointCalculator
     from ase.ga import set_raw_score

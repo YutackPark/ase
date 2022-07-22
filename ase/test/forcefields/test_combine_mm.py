@@ -53,7 +53,7 @@ def test_combine_mm():
                                rc=rc, width=1.0)
 
         F2 = dimer.get_forces()
-        dF = F1-F2
+        dF = F1 - F2
         print(TIPnP)
         print(dF)
         assert abs(dF).max() < 1e-8
@@ -68,7 +68,7 @@ def test_combine_mm():
 
     F2 = dimer.get_forces()
     Fn = dimer.calc.calculate_numerical_forces(dimer, 1e-7)
-    dF = F2-Fn
+    dF = F2 - Fn
     print('TIP3P/TIP4P')
     print(dF)
     assert abs(dF).max() < 1e-8
@@ -86,7 +86,7 @@ def test_combine_mm():
 
     mmatoms = ions + dimer
 
-    sigNa = 1.868 * (1.0/2.0)**(1.0/6.0) * 10
+    sigNa = 1.868 * (1.0 / 2.0)**(1.0 / 6.0) * 10
     epsNa = 0.00277 * units.kcal / units.mol
 
     # ACI for atoms 0 and 1 of the MM subsystem (2 and 3 for the total system)

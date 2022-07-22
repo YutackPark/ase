@@ -474,10 +474,10 @@ def _read_xyz_frame(lines, natoms, properties_parser=key_val_str_to_dict,
             duplicate_numbers = arrays['numbers']
         del arrays['numbers']
 
-    charges = None
-    if 'charges' in arrays:
-        charges = arrays['charges']
-        del arrays['charges']
+    initial_charges = None
+    if 'initial_charges' in arrays:
+        initial_charges = arrays['initial_charges']
+        del arrays['initial_charges']
 
     positions = None
     if 'positions' in arrays:
@@ -487,7 +487,7 @@ def _read_xyz_frame(lines, natoms, properties_parser=key_val_str_to_dict,
     atoms = Atoms(symbols=symbols,
                   positions=positions,
                   numbers=numbers,
-                  charges=charges,
+                  charges=initial_charges,
                   cell=cell,
                   pbc=pbc,
                   info=info)
@@ -529,7 +529,7 @@ def _read_xyz_frame(lines, natoms, properties_parser=key_val_str_to_dict,
                 results[key] = stress
     for key in list(atoms.arrays.keys()):
         if (key in per_atom_properties and len(value.shape) >= 1
-            and value.shape[0] == len(atoms)):
+                and value.shape[0] == len(atoms)):
             results[key] = atoms.arrays[key]
     if results != {}:
         calculator = SinglePointCalculator(atoms, **results)
@@ -907,7 +907,7 @@ def write_xyz(fileobj, images, comment='', columns=None,
                         # skip missing calculator results
                         continue
                     if (key in per_atom_properties and len(value.shape) >= 1
-                        and value.shape[0] == len(atoms)):
+                            and value.shape[0] == len(atoms)):
                         # per-atom quantities (forces, energies, stresses)
                         per_atom_results[key] = value
                     elif key in per_config_properties:

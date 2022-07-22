@@ -14,7 +14,8 @@ class Render:
 
     def __init__(self, gui):
         self.gui = gui
-        self.win = win = ui.Window(_('Render current view in povray ... '), wmtype='utility')
+        self.win = win = ui.Window(
+            _('Render current view in povray ... '), wmtype='utility')
         win.add(ui.Label(_("Rendering %d atoms.") % len(self.gui.atoms)))
 
         guiwidth, guiheight = self.get_guisize()
@@ -117,20 +118,24 @@ class Render:
             povray_settings['textures'] = self.get_textures()
             povray_settings['colors'] = self.gui.get_colors(rgb=True)
             atoms = self.gui.images.get_atoms(frame)
-            radii_scale = 1                           # atom size multiplier
-            if self.gui.window['toggle-show-bonds']:  # self.gui.config['show_bonds'] is always False
+            radii_scale = 1  # atom size multiplier
+            # self.gui.config['show_bonds'] is always False
+            if self.gui.window['toggle-show-bonds']:
                 print(" | Building bonds")
                 povray_settings['bondatoms'] = get_bondpairs(atoms)
-                radii_scale = 0.65                    # value from draw method of View class
+                radii_scale = 0.65  # value from draw method of View class
             filename = self.update_outputname()
             print(" | Writing files for image", filename, "...")
-            plotting_var_settings['radii'] = radii_scale*self.gui.get_covalent_radii()
+            plotting_var_settings['radii'] = radii_scale * \
+                self.gui.get_covalent_radii()
             renderer = write_pov(
                 filename, atoms,
                 povray_settings=povray_settings,
                 **plotting_var_settings)
             if self.run_povray_widget.value:
-                renderer.render(povray_executable=self.povray_executable.value, clean_up=False)
+                renderer.render(
+                    povray_executable=self.povray_executable.value,
+                    clean_up=False)
             if not self.keep_files_widget.value:
                 print(" | Deleting temporary file ", filename)
                 unlink(filename)
@@ -151,25 +156,25 @@ class Render:
         fname = '.'.join(tokens)
         self.outputname_widget.text = fname
         return fname
-        #if self.movie.get_active():
+        # if self.movie.get_active():
         #    while len(movie_index) + len(str(self.iframe)) < len(
         #            str(self.nimages)):
         #        movie_index += '0'
         #    movie_index = '.' + movie_index + str(self.iframe)
-        #name = self.basename.get_text() + movie_index + '.pov'
-        #self.outputname.set_text(name)
+        # name = self.basename.get_text() + movie_index + '.pov'
+        # self.outputname.set_text(name)
 
     def get_textures(self):
         return [self.texture_widget.value] * len(self.gui.atoms)
-        #natoms = len(self.gui.atoms)
-        #textures = natoms * [
-        #self.texture_list[0]  #self.default_texture.get_active()]
-        #]
-        #for mat in self.materials:
+        # natoms = len(self.gui.atoms)
+        # textures = natoms * [
+        # self.texture_list[0]  #self.default_texture.get_active()]
+        # ]
+        # for mat in self.materials:
         #    sel = mat[1]
         #    t = self.finish_list[mat[2].get_active()]
         #    if mat[0]:
         #        for n, val in enumerate(sel):
         #            if val:
         #                textures[n] = t
-        #return textures
+        # return textures

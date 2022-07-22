@@ -471,7 +471,7 @@ class View:
                         # legacy behavior
                         # Draw the atoms
                         if (self.moving and a < len(self.move_atoms_mask)
-                            and self.move_atoms_mask[a]):
+                                and self.move_atoms_mask[a]):
                             circle(movecolor, False,
                                    A[a, 0] - 4, A[a, 1] - 4,
                                    A[a, 0] + ra + 4, A[a, 1] + ra + 4)
@@ -603,7 +603,7 @@ class View:
                 selected[:] = False
             selected[indices] = True
             if (len(indices) == 1 and
-                indices[0] not in self.images.selected_ordered):
+                    indices[0] not in self.images.selected_ordered):
                 selected_ordered += [indices[0]]
             elif len(indices) > 1:
                 selected_ordered = []

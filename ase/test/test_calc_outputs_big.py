@@ -36,7 +36,6 @@ def props(rng):
         polarization=rng.random(3),
         born_charges=rng.random((natoms, 3, 3)),
         dielectric_tensor=rng.random((3, 3)),
-
     )
     return Properties(results)
 

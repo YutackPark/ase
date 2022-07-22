@@ -1,10 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from ase.dft import Wannier
+from ase.dft.wannier import Wannier
 from gpaw import restart
 
 atoms, calc = restart('benzene.gpw', txt=None)
-wan = Wannier(nwannier=18, calc=calc, fixedstates=15, file='wan18.pickle')
+wan = Wannier(nwannier=18, calc=calc, fixedstates=15, file='wan18.json')
 
 weight_n = np.sum(abs(wan.V_knw[0])**2, 1)
 N = len(weight_n)

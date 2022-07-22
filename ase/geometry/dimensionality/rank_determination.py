@@ -36,12 +36,12 @@ def rank_increase(a, b):
     elif len(a) == 4:
         return False
 
-    l = a + [b]
-    w = cross_product(subtract(l[1], l[0]), subtract(l[2], l[0]))
+    L = a + [b]
+    w = cross_product(subtract(L[1], L[0]), subtract(L[2], L[0]))
     if len(a) == 2:
         return any(w)
     elif len(a) == 3:
-        return dot_product(w, subtract(l[3], l[0])) != 0
+        return dot_product(w, subtract(L[3], L[0])) != 0
     else:
         raise Exception("This shouldn't be possible.")
 

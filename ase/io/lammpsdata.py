@@ -504,10 +504,11 @@ def write_lammps_data(fd, atoms, specorder=None, force_skew=False,
                     " each atom must have exactly one mol-id."))
         else:
             # Assigning each atom to a distinct molecule id would seem
-            # preferableabove assigning all atoms to a single molecule id per
-            # default, as done within ase <= v 3.19.1. I.e.,
-            # molecules = np.arange(start=1, stop=len(atoms)+1, step=1, dtype=int)
-            # However, according to LAMMPS default behavior,
+            # preferableabove assigning all atoms to a single molecule
+            # id per default, as done within ase <= v 3.19.1. I.e.,
+            # molecules = np.arange(start=1, stop=len(atoms)+1,
+            # step=1, dtype=int) However, according to LAMMPS default
+            # behavior,
             molecules = np.zeros(len(atoms), dtype=int)
             # which is what happens if one creates new atoms within LAMMPS
             # without explicitly taking care of the molecule id.

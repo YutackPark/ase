@@ -13,8 +13,8 @@ def make_atoms():
     center = atoms[0].position
     atoms.translate(-center)
     h = atoms[3].position[1] - atoms[0].position[1]
-    l = np.linalg.norm(atoms[0].position - atoms[3].position)
-    angle = np.degrees(np.arcsin(h / l))
+    L = np.linalg.norm(atoms[0].position - atoms[3].position)
+    angle = np.degrees(np.arcsin(h / L))
     atoms.rotate(angle, '-z', center=center)
     return atoms
 

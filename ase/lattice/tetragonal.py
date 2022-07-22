@@ -28,7 +28,7 @@ class _Tetragonalize:
         self.latticeconstant = lattice
         self.orthobase.make_crystal_basis(self)
 
-        
+
 class SimpleTetragonalFactory(_Tetragonalize, SimpleOrthorhombicFactory):
     "A factory for creating simple tetragonal lattices."
     orthobase = SimpleOrthorhombicFactory

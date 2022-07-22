@@ -1,5 +1,6 @@
 import pytest
-from ase.utils import deprecated, devnull, tokenize_version, get_python_package_path_description
+from ase.utils import (deprecated, devnull, tokenize_version,
+                       get_python_package_path_description)
 
 
 def test_deprecated_decorator():
@@ -52,5 +53,5 @@ class Dummy:
 
 def test_get_python_package_path_description():
     assert isinstance(get_python_package_path_description(Dummy()), str)
-    #test object not containing __path__
+    # test object not containing __path__
     assert isinstance(get_python_package_path_description(object()), str)

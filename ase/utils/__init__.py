@@ -170,7 +170,7 @@ def xwopen(filename, world=None):
             fd.close()
 
 
-#@deprecated('use "with xwopen(...) as fd: ..." to prevent resource leak')
+# @deprecated('use "with xwopen(...) as fd: ..." to prevent resource leak')
 def opencew(filename, world=None):
     return _opencew(filename, world)
 
@@ -644,7 +644,8 @@ class IOContext:
         return self.closelater(open(file, mode=mode))
 
 
-def get_python_package_path_description(package, default='module has no path') -> str:
+def get_python_package_path_description(
+        package, default='module has no path') -> str:
     """Helper to get path description of a python package/module
 
     If path has multiple elements, the first one is returned.

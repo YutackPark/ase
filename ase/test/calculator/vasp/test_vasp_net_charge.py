@@ -11,17 +11,17 @@ def system():
 
 @calc('vasp')
 def test_vasp_net_charge(factory, system):
-    """
-    Run VASP tests to ensure that determining number of electrons from
+    """Run VASP tests to ensure that determining number of electrons from
     user-supplied net charge (via the deprecated net_charge parameter) works
     correctly. This is conditional on the existence of the VASP_COMMAND or
     VASP_SCRIPT environment variables.
 
-    This is mainly a slightly reduced duplicate of the vasp_charge test, but with
-    flipped signs and with checks that ensure FutureWarning is emitted.
+    This is mainly a slightly reduced duplicate of the vasp_charge
+    test, but with flipped signs and with checks that ensure
+    FutureWarning is emitted.
 
-    Should be removed along with the net_charge parameter itself at some point.
-    """
+    Should be removed along with the net_charge parameter itself at
+    some point."""
 
     # Dummy calculation to let VASP determine default number of electrons
     calc = factory.calc(xc='LDA',

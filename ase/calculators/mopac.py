@@ -85,7 +85,7 @@ class MOPAC(FileIOCalculator):
             charge = p.charge
         else:
             charge = atoms.get_initial_charges().sum()
-            
+
         if charge != 0:
             s += 'CHARGE={0} '.format(int(round(charge)))
 

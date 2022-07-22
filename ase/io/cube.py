@@ -49,7 +49,9 @@ def write_cube(fileobj, atoms, data=None, origin=None, comment=None):
     else:
         origin = np.asarray(origin) / Bohr
 
-    fileobj.write("{0:5}{1:12.6f}{2:12.6f}{3:12.6f}\n".format(len(atoms), *origin))
+    fileobj.write(
+        "{0:5}{1:12.6f}{2:12.6f}{3:12.6f}\n".format(
+            len(atoms), *origin))
 
     for i in range(3):
         n = data.shape[i]
@@ -60,7 +62,8 @@ def write_cube(fileobj, atoms, data=None, origin=None, comment=None):
     numbers = atoms.numbers
     for Z, (x, y, z) in zip(numbers, positions):
         fileobj.write(
-            "{0:5}{1:12.6f}{2:12.6f}{3:12.6f}{4:12.6f}\n".format(Z, 0.0, x, y, z)
+            "{0:5}{1:12.6f}{2:12.6f}{3:12.6f}{4:12.6f}\n".format(
+                Z, 0.0, x, y, z)
         )
 
     data.tofile(fileobj, sep="\n", format="%e")
@@ -153,7 +156,8 @@ def read_cube(fileobj, read_data=True, program=None, verbose=False):
     dct = {"atoms": atoms}
 
     if read_data:
-        data = np.array([float(s) for s in fileobj.read().split()]).reshape(shape)
+        data = np.array([float(s)
+                        for s in fileobj.read().split()]).reshape(shape)
         if axes != [0, 1, 2]:
             data = data.transpose(axes).copy()
 

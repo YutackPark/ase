@@ -4,8 +4,6 @@ from ase.units import kJ
 
 import numpy as np
 
-from scipy.optimize import curve_fit
-
 
 eos_names = ['sj', 'taylor', 'murnaghan', 'birch', 'birchmurnaghan',
              'pouriertarantola', 'vinet', 'antonschmidt', 'p3']
@@ -176,6 +174,7 @@ class EquationOfState:
         eos.plot(show=True)
 
     """
+
     def __init__(self, volumes, energies, eos='sj'):
         self.v = np.array(volumes)
         self.e = np.array(energies)
@@ -196,6 +195,7 @@ class EquationOfState:
           print(B / kJ * 1.0e24, 'GPa')
 
         """
+        from scipy.optimize import curve_fit
 
         if self.eos_string == 'sj':
             return self.fit_sjeos()
@@ -331,7 +331,8 @@ def plot(eos_string, e0, v0, B, x, y, v, e, ax=None):
         ax = plt.gca()
 
     ax.plot(x, y, ls='-', color='C3')  # By default red line
-    ax.plot(v, e, ls='', marker='o', mec='C0', mfc='C0')  # By default blue marker
+    ax.plot(v, e, ls='', marker='o', mec='C0',
+            mfc='C0')  # By default blue marker
 
     try:
         ax.set_xlabel(u'volume [Å$^3$]')

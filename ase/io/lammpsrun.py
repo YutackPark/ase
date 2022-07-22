@@ -418,8 +418,8 @@ def read_lammps_dump_binary(
                 raise ValueError("Provided columns do not match binary file")
 
             if magic_string and revision > 1:
-                # New binary dump format includes units string, columns string, and
-                # time
+                # New binary dump format includes units string,
+                # columns string, and time
                 units_str_len, = read_variables("=i")
 
                 if units_str_len > 0:

@@ -184,7 +184,7 @@ class Plumed(Calculator):
 
         if self.use_charge:
             if 'charges' in self.calc.implemented_properties and \
-                                             self.update_charge:
+               self.update_charge:
                 charges = self.calc.get_charges(atoms=self.atoms.copy())
 
             elif self.atoms.has('initial_charges') and not self.update_charge:

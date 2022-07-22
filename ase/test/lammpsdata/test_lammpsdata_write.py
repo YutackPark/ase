@@ -16,8 +16,8 @@ def test_lammpsdata_write(atoms):
     # Write atoms object to lammpsdata file-like object
     lammpsdata_buf = StringIO()
     ase.io.write(
-        lammpsdata_buf, atoms, format="lammps-data", atom_style="full", velocities=True
-    )
+        lammpsdata_buf, atoms, format="lammps-data",
+        atom_style="full", velocities=True)
 
     # Now read the output back, parse it, and compare to the original atoms
     # object attributes

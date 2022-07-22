@@ -1,3 +1,4 @@
+# flake8: noqa
 """Calculator for the Embedded Atom Method Potential"""
 
 # eam.py
@@ -122,8 +123,9 @@ Arguments
 Keyword                    Description
 =========================  ====================================================
 ``potential``              file of potential in ``.eam``, ``.alloy``, ``.adp`` or ``.fs``
-                           format or file object (This is generally all you need to supply).
-                           In case of file object the ``form`` argument is required
+                           format or file object
+                           (This is generally all you need to supply).
+                           For file object the ``form`` argument is required
 
 ``elements[N]``            array of N element abbreviations
 
@@ -148,7 +150,8 @@ Keyword                    Description
                            call to the ``update()`` method then the neighbor
                            list can be reused. Defaults to 1.0.
 
-``form``                   the form of the potential ``eam``, ``alloy``, ``adp`` or
+``form``                   the form of the potential
+                           ``eam``, ``alloy``, ``adp`` or
                            ``fs``. This will be determined from the file suffix
                            or must be set if using equations or file object
 
@@ -424,7 +427,8 @@ End EAM Interface Documentation
                     data[d:(d + self.nrho)])
                 d += self.nrho
                 self.density_data[elem, :, :] = np.float_(
-                    data[d:(d + self.nr*self.Nelements)]).reshape([self.Nelements, self.nr])
+                    data[d:(d + self.nr*self.Nelements)]).reshape([
+                        self.Nelements, self.nr])
                 d += self.nr*self.Nelements
 
             # reads in the r*phi data for each interaction between elements
@@ -728,7 +732,8 @@ End EAM Interface Documentation
 
                 if self.form == 'fs':
                     density = np.sum(
-                        self.electron_density[j_index, self.index[i]](r[nearest][use]))
+                        self.electron_density[j_index,
+                                              self.index[i]](r[nearest][use]))
                 else:
                     density = np.sum(
                         self.electron_density[j_index](r[nearest][use]))
@@ -806,9 +811,11 @@ End EAM Interface Documentation
                 if self.form == 'fs':
                     scale = (self.d_phi[self.index[i], j_index](rnuse) +
                              (d_embedded_energy_i *
-                              self.d_electron_density[j_index, self.index[i]](rnuse)) +
+                              self.d_electron_density[j_index,
+                                                      self.index[i]](rnuse)) +
                              (self.d_embedded_energy[j_index](density_j) *
-                              self.d_electron_density[self.index[i], j_index](rnuse)))
+                              self.d_electron_density[self.index[i],
+                                                      j_index](rnuse)))
                 else:
                     scale = (self.d_phi[self.index[i], j_index](rnuse) +
                              (d_embedded_energy_i *
@@ -918,11 +925,13 @@ End EAM Interface Documentation
 
         plt.subplot(nrow, 2, 2)
         if self.form == 'fs':
-            self.multielem_subplot(r, self.electron_density,
-                                   r'$r$', r'Electron Density $\rho(r)$', name, plt, half=False)
+            self.multielem_subplot(
+                r, self.electron_density,
+                r'$r$', r'Electron Density $\rho(r)$', name, plt, half=False)
         else:
-            self.elem_subplot(r, self.electron_density,
-                              r'$r$', r'Electron Density $\rho(r)$', name, plt)
+            self.elem_subplot(
+                r, self.electron_density,
+                r'$r$', r'Electron Density $\rho(r)$', name, plt)
 
         plt.subplot(nrow, 2, 3)
         self.multielem_subplot(r, self.phi,
@@ -948,7 +957,8 @@ End EAM Interface Documentation
             plt.plot(curvex, curvey[i](curvex), label=label)
         plt.legend()
 
-    def multielem_subplot(self, curvex, curvey, xlabel, ylabel, name, plt, half=True):
+    def multielem_subplot(self, curvex, curvey, xlabel,
+                          ylabel, name, plt, half=True):
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
         for i in np.arange(self.Nelements):

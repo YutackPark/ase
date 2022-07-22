@@ -25,7 +25,7 @@ class JSONDatabase(Database):
         nextid = 1
 
         if (isinstance(self.filename, str) and
-            os.path.isfile(self.filename)):
+                os.path.isfile(self.filename)):
             try:
                 bigdct, ids, nextid = self._read_json()
             except (SyntaxError, ValueError):

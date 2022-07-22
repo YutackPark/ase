@@ -397,7 +397,7 @@ Please remove them and recalculate or run \
 
         else:
             if (self.H is None or method.lower() != self.method or
-                direction.lower() != self.direction):
+                    direction.lower() != self.direction):
                 self.read(method, direction, **kw)
 
             return VibrationsData.from_2d(self.atoms, self.H,

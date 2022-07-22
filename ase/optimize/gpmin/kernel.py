@@ -144,7 +144,8 @@ class SquaredExponential(SE_kernel):
                 k = self.kernel(X[i], X[j])
                 K[i * D1:(i + 1) * D1, j * D1:(j + 1) * D1] = k
                 K[j * D1:(j + 1) * D1, i * D1:(i + 1) * D1] = k.T
-            K[i * D1:(i + 1) * D1, i * D1:(i + 1) * D1] = self.kernel(X[i], X[i])
+            K[i * D1:(i + 1) * D1, i * D1:(i + 1) * D1] = self.kernel(
+                X[i], X[i])
         return K
 
     def kernel_vector(self, x, X, nsample):

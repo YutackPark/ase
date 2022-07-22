@@ -4,7 +4,6 @@ import functools
 import pickle
 import sys
 import time
-import warnings
 
 import numpy as np
 
@@ -82,10 +81,21 @@ class MPI:
     * a dummy implementation for serial runs
 
     """
+
     def __init__(self):
         self.comm = None
 
     def __getattr__(self, name):
+        # Pickling of objects that carry instances of MPI class
+        # (e.g. NEB) raises RecursionError since it tries to access
+        # the optional __setstate__ method (which we do not implement)
+        # when unpickling. The two lines below prevent the
+        # RecursionError. This also affects modules that use pickling
+        # e.g. multiprocessing.  For more details see:
+        # https://gitlab.com/ase/ase/-/merge_requests/2695
+        if name == '__setstate__':
+            raise AttributeError(name)
+
         if self.comm is None:
             self.comm = _get_comm()
         return getattr(self.comm, name)
@@ -239,7 +249,7 @@ def parallel_function(func):
     def new_func(*args, **kwargs):
         if (world.size == 1 or
             args and getattr(args[0], 'serial', False) or
-            not kwargs.pop('parallel', True)):
+                not kwargs.pop('parallel', True)):
             # Disable:
             return func(*args, **kwargs)
 
@@ -270,7 +280,7 @@ def parallel_generator(generator):
     def new_generator(*args, **kwargs):
         if (world.size == 1 or
             args and getattr(args[0], 'serial', False) or
-            not kwargs.pop('parallel', True)):
+                not kwargs.pop('parallel', True)):
             # Disable:
             for result in generator(*args, **kwargs):
                 yield result
@@ -342,21 +352,6 @@ def distribute_cpus(size, comm):
     mycomm = comm.new_communicator(ranks)
 
     return mycomm, comm.size // size, tasks_rank
-
-
-class ParallelModuleWrapper:
-    def __getattr__(self, name):
-        if name == 'rank' or name == 'size':
-            warnings.warn('ase.parallel.{name} has been deprecated.  '
-                          'Please use ase.parallel.world.{name} instead.'
-                          .format(name=name),
-                          FutureWarning)
-            return getattr(world, name)
-        return getattr(_parallel, name)
-
-
-_parallel = sys.modules['ase.parallel']
-sys.modules['ase.parallel'] = ParallelModuleWrapper()  # type: ignore
 
 
 def myslice(ntotal, comm):

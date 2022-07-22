@@ -333,7 +333,9 @@ class Phonons(Displacement):
 
         return fmin, fmax, i_min, i_max
 
-    @deprecated('Current implementation of non-analytical correction is likely incorrect, see https://gitlab.com/ase/ase/-/issues/941')
+    @deprecated('Current implementation of non-analytical correction is '
+                'likely incorrect, see '
+                'https://gitlab.com/ase/ase/-/issues/941')
     def read_born_charges(self, name='born', neutrality=True):
         r"""Read Born charges and dieletric tensor from JSON file.
 
@@ -790,10 +792,10 @@ class Phonons(Displacement):
         phase_N = np.exp(2.j * pi * np.dot(q_c, R_cN))
         phase_Na = phase_N.repeat(len(self.atoms))
 
-        for l in branch_l:
+        for lval in branch_l:
 
-            omega = omega_l[0, l]
-            u_av = u_l[0, l]
+            omega = omega_l[0, lval]
+            u_av = u_l[0, lval]
 
             # Mean displacement of a classical oscillator at temperature T
             u_av *= sqrt(kT) / abs(omega)
@@ -804,7 +806,8 @@ class Phonons(Displacement):
             # Repeat and multiply by Bloch phase factor
             mode_Nav = np.vstack(N * [mode_av]) * phase_Na[:, np.newaxis]
 
-            with Trajectory('%s.mode.%d.traj' % (self.name, l), 'w') as traj:
+            with Trajectory('%s.mode.%d.traj'
+                            % (self.name, lval), 'w') as traj:
                 for x in np.linspace(0, 2 * pi, nimages, endpoint=False):
                     atoms.set_positions((pos_Nav + np.exp(1.j * x) *
                                          mode_Nav).real)

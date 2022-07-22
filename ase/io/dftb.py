@@ -84,7 +84,7 @@ def read_dftb(fd):
                 if '}' in line:
                     stop_reading_coords = True
             if (start_reading_coords and not stop_reading_coords
-                and 'TypesAndCoordinates' not in line):
+                    and 'TypesAndCoordinates' not in line):
                 typeindexstr, xxx, yyy, zzz = line.split()[:4]
                 typeindex = int(typeindexstr)
                 symbol = type_names[typeindex - 1]

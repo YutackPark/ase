@@ -31,6 +31,7 @@ class PBSQueueRun:
        qsub_command: The name of the qsub command (default qsub).
        qstat_command: The name of the qstat command (default qstat).
     """
+
     def __init__(self, data_connection, tmp_folder, job_prefix,
                  n_simul, job_template_generator,
                  qsub_command='qsub', qstat_command='qstat',
@@ -79,8 +80,8 @@ class PBSQueueRun:
         fout = p.stdout
         lines = fout.readlines()
         n_running = 0
-        for l in lines:
-            if l.find(self.job_prefix) != -1:
+        for line in lines:
+            if line.find(self.job_prefix) != -1:
                 n_running += 1
         return n_running
 

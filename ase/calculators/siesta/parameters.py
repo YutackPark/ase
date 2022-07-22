@@ -9,6 +9,7 @@ class PAOBasisBlock(Parameters):
     """
     Representing a block in PAO.Basis for one species.
     """
+
     def __init__(self, block):
         """
         Parameters:
@@ -50,6 +51,7 @@ class Species(Parameters):
     can be set be a ghost species, meaning that they will not be considered
     atoms, but the corresponding basis set will be used.
     """
+
     def __init__(self,
                  symbol,
                  basis_set='DZP',

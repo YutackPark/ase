@@ -53,6 +53,7 @@ def Trajectory(filename, mode='r', atoms=None, properties=None, master=None):
 
 class TrajectoryWriter:
     """Writes Atoms objects to a .traj file."""
+
     def __init__(self, filename, mode='w', atoms=None, properties=None,
                  extra=[], master=None):
         """A Trajectory writer, in write or append mode.
@@ -212,6 +213,7 @@ class TrajectoryWriter:
 
 class TrajectoryReader:
     """Reads Atoms objects from a .traj file."""
+
     def __init__(self, filename):
         """A Trajectory in read mode.
 
@@ -426,7 +428,7 @@ class OldCalculatorWrapper:
     def get_property(self, prop, atoms, allow_calculation=True):
         try:
             if (not allow_calculation and
-                self.calc.calculation_required(atoms, [prop])):
+                    self.calc.calculation_required(atoms, [prop])):
                 return None
         except AttributeError:
             pass

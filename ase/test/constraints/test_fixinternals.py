@@ -40,9 +40,9 @@ def setup_fixinternals():
 
     # Initialize constraint
     constr = FixInternals(bonds=[(target_bond, bond_def)],
-                              angles_deg=[(target_angle, angle_def)],
-                              dihedrals_deg=[(target_dihedral, dihedral_def)],
-                              epsilon=1e-10)
+                          angles_deg=[(target_angle, angle_def)],
+                          dihedrals_deg=[(target_dihedral, dihedral_def)],
+                          epsilon=1e-10)
     return (atoms, constr, bond_def, target_bond, angle_def, target_angle,
             dihedral_def, target_dihedral)
 

@@ -395,7 +395,8 @@ class GridDOSCollection(DOSCollection):
                 raise TypeError("GridDOSCollection can only store "
                                 "GridDOSData objects.")
             if (dos_data.get_energies().shape != self._energies.shape
-                or not np.allclose(dos_data.get_energies(), self._energies)):
+                    or not np.allclose(dos_data.get_energies(),
+                                       self._energies)):
                 raise ValueError("All GridDOSData objects in GridDOSCollection"
                                  " must have the same energy axis.")
             self._weights[i, :] = dos_data.get_weights()

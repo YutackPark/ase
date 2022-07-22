@@ -2,8 +2,6 @@
 
 from ase.io import write
 from ase.cluster.cubic import FaceCenteredCubic
-#from ase.cluster.hexagonal import HexagonalClosedPacked
-#import numpy as np
 
 surfaces = [(1, 0, 0), (1, 1, 0), (1, 1, 1)]
 layers = [6, 9, 5]
@@ -23,10 +21,10 @@ write('truncated.pov', trunc,
       show_unit_cell=0).render()
 
 # This does not work!
-#surfaces = [(0, 0, 0, 1), (1, 1, -2, 0), (1, 0, -1, 1)]
-#layers = [6, 6, 6]
-#graphite = Graphite('C', surfaces, layers, latticeconstant=(2.461, 6.708))
-#write('graphite.pov', graphite).render()
+# surfaces = [(0, 0, 0, 1), (1, 1, -2, 0), (1, 0, -1, 1)]
+# layers = [6, 6, 6]
+# graphite = Graphite('C', surfaces, layers, latticeconstant=(2.461, 6.708))
+# write('graphite.pov', graphite).render()
 
 # surfaces = [(0, 0, 0, 1), (1, 1, -2, 0), (1, 0, -1, 1)]
 # layers = [6, 6, 6]

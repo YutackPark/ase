@@ -17,8 +17,8 @@ class HexagonalFactory(ClusterFactory):
         symmetry = _refstate[self.atomic_numbers[0]]['symmetry']
         if symmetry != self.xtal_name:
             raise ValueError("Cannot guess the %s " % (self.xtal_name,) +
-                               "lattice constant of an element with crystal " +
-                               "structure %s." % (symmetry,))
+                             "lattice constant of an element with crystal " +
+                             "structure %s." % (symmetry,))
         return _refstate[self.atomic_numbers[0]].copy()
 
     def set_basis(self):
@@ -33,11 +33,13 @@ class HexagonalFactory(ClusterFactory):
             if len(lattice) == 2:
                 (a, c) = lattice
             else:
-                raise ValueError("Improper lattice constants for %s crystal." % (self.xtal_name,))
-        
+                raise ValueError(
+                    "Improper lattice constants for %s crystal." %
+                    (self.xtal_name,))
+
         self.lattice_constant = (a, c)
         self.lattice_basis = np.array([[a, 0., 0.],
-                                       [-a/2., a*np.sqrt(3.)/2., 0.],
+                                       [-a / 2., a * np.sqrt(3.) / 2., 0.],
                                        [0., 0., c]])
         self.resiproc_basis = self.get_resiproc_basis(self.lattice_basis)
 
@@ -46,9 +48,10 @@ class HexagonalFactory(ClusterFactory):
             if len(s) == 4:
                 (a, b, c, d) = s
                 if a + b + c != 0:
-                    raise ValueError(("(%d,%d,%d,%d) is not a valid hexagonal Miller " +
-                                      "index, as the sum of the first three numbers " +
-                                      "should be zero.") % (a, b, c, d))
+                    raise ValueError(
+                        "(%d,%d,%d,%d) is not a valid hexagonal Miller "
+                        "index, as the sum of the first three numbers "
+                        "should be zero." % (a, b, c, d))
                 surfaces[i] = [a, b, d]
 
         ClusterFactory.set_surfaces_layers(self, surfaces, layers)
@@ -64,7 +67,7 @@ class HexagonalClosedPackedFactory(HexagonalFactory):
     xtal_name = 'hcp'
 
     atomic_basis = np.array([[0., 0., 0.],
-                             [1./3., 2./3., .5]])
+                             [1. / 3., 2. / 3., .5]])
 
 
 HexagonalClosedPacked = HexagonalClosedPackedFactory()
@@ -75,9 +78,9 @@ class GraphiteFactory(HexagonalFactory):
     xtal_name = "graphite"
 
     atomic_basis = np.array([[0., 0., 0.],
-                             [1./3., 2./3., 0.],
-                             [1./3., 2./3., .5],
-                             [2./3., 1./3., .5]])
+                             [1. / 3., 2. / 3., 0.],
+                             [1. / 3., 2. / 3., .5],
+                             [2. / 3., 1. / 3., .5]])
 
 
 Graphite = GraphiteFactory()

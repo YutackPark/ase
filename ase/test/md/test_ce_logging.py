@@ -40,8 +40,8 @@ def test_logging(testdir):
         stepsizes = [dyn.step_size]
         deviation_per_atom = [dev]
 
-        # we shift the target_energy to ensure it's actaully being logged when it
-        # changes.
+        # we shift the target_energy to ensure it's actaully being
+        # logged when it changes.
         de = 0.001 * len(atoms)
 
         # these print statements, mirror the log file.

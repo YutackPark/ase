@@ -6,7 +6,7 @@ def test_aic():
 
     atoms = Atoms('2Na', positions=np.array([[0, 0, 0], [0, 0, 4]]))
 
-    atoms.calc = ACI(1, 1.6642, 0.0001201186, rc=4.5) 
+    atoms.calc = ACI(1, 1.6642, 0.0001201186, rc=4.5)
     f = atoms.get_forces()
     df = atoms.calc.calculate_numerical_forces(atoms, 1e-6) - f
     print(df)

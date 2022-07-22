@@ -41,13 +41,13 @@ def no_blocking_errors_monkeypatch(monkeypatch):
     # want a blocking dialog to lock the whole test suite:
     for name in ['error', 'showerror', 'showwarning', 'showinfo']:
         monkeypatch.setattr(ui, name, mock_gui_error)
-    #orig_ui_error = ui.error
-    #ui.error = mock_gui_error
-    #ui.showerror = mock_gui_error
-    #ui.showwarning = mock_gui_error
-    #ui.showinfo = mock_ugi_error
-    #yield
-    #ui.error = orig_ui_error
+    # orig_ui_error = ui.error
+    # ui.error = mock_gui_error
+    # ui.showerror = mock_gui_error
+    # ui.showwarning = mock_gui_error
+    # ui.showinfo = mock_ugi_error
+    # yield
+    # ui.error = orig_ui_error
 
 
 @pytest.fixture

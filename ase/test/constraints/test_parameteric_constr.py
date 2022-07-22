@@ -31,7 +31,8 @@ def test_parameteric_constr():
     )
 
     # Check expression generator
-    for const_expr, passed_expr in zip(constr_lat.expressions.flatten(), expr_lat):
+    for const_expr, passed_expr in zip(
+            constr_lat.expressions.flatten(), expr_lat):
         assert const_expr == passed_expr
 
     # Check adjust_cell
@@ -42,7 +43,8 @@ def test_parameteric_constr():
     dict2constraint(constr_lat_dict)
 
     cell_diff = (cell - a.cell).flatten()
-    expected_cell_diff = np.array([0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01])
+    expected_cell_diff = np.array(
+        [0.01, 0.0, 0.0, 0.0, 0.01, 0.0, 0.0, 0.0, 0.01])
     assert np.max(np.abs(cell_diff - expected_cell_diff)) < 1e-12
 
     # Check adjust_stress
@@ -51,7 +53,8 @@ def test_parameteric_constr():
     constr_lat.adjust_stress(a, stress)
     stress_rat = stress / a.get_stress()
 
-    assert np.max(np.abs(stress_rat - np.array([1., 1., 1., 0., 0., 0.]))) < 1e-12
+    assert np.max(
+        np.abs(stress_rat - np.array([1., 1., 1., 0., 0., 0.]))) < 1e-12
 
     # Reset cell
     a.cell -= 0.01
@@ -110,7 +113,8 @@ def test_parameteric_constr():
     constr_atom.adjust_forces(a, forces)
     forces_rat = forces / a.get_forces()
 
-    assert np.max(np.abs(forces_rat.flatten() / 100.0 - expected_pos_diff)) < 1e-12
+    assert np.max(np.abs(forces_rat.flatten() /
+                  100.0 - expected_pos_diff)) < 1e-12
 
     # Check auto-remapping/expression generation, the -0.5 should now be 0.5
     expr_atom[4] = "0.5"
@@ -148,4 +152,5 @@ def test_parameteric_constr():
     constr_atom.adjust_forces(a, forces)
     forces_rat = forces / a.get_forces()
 
-    assert np.max(np.abs(forces_rat.flatten() / 100.0 - expected_pos_diff)) < 1e-12
+    assert np.max(np.abs(forces_rat.flatten() /
+                  100.0 - expected_pos_diff)) < 1e-12

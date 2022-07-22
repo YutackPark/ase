@@ -116,7 +116,7 @@ class BFGSLineSearch(Optimizer):
         self.p = -np.dot(self.H, g)
         p_size = np.sqrt((self.p**2).sum())
         if p_size <= np.sqrt(len(atoms) * 1e-10):
-            self.p /= (p_size / np.sqrt(len(atoms)*1e-10))
+            self.p /= (p_size / np.sqrt(len(atoms) * 1e-10))
         ls = LineSearch()
         self.alpha_k, e, self.e0, self.no_update = \
             ls._line_search(self.func, self.fprime, r, self.p, g, e, self.e0,
@@ -215,7 +215,7 @@ class BFGSLineSearch(Optimizer):
         w = self.logfile.write
         if self.nsteps == 0:
             w('%s  %4s[%3s] %8s %15s  %12s\n' %
-              (' '*len(name), 'Step', 'FC', 'Time', 'Energy', 'fmax'))
+              (' ' * len(name), 'Step', 'FC', 'Time', 'Energy', 'fmax'))
             if self.force_consistent:
                 w('*Force-consistent energies used in optimization.\n')
         w('%s:  %3d[%3d] %02d:%02d:%02d %15.6f%1s %12.4f\n'

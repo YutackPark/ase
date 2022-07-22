@@ -11,6 +11,7 @@ class ModifyAtoms:
     """Presents a dialog box where the user is able to change the
     atomic type, the magnetic moment and tags of the selected atoms.
     """
+
     def __init__(self, gui):
         self.gui = gui
         selected = self.selection()

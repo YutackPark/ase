@@ -20,7 +20,8 @@ from ase.calculators.lammps import convert
 
 
 def split_contents_by_section(raw_datafile_contents):
-    return re.split(r"^([A-Za-z]+\s*)$\n", raw_datafile_contents, flags=re.MULTILINE)
+    return re.split(r"^([A-Za-z]+\s*)$\n",
+                    raw_datafile_contents, flags=re.MULTILINE)
 
 
 def extract_section(raw_datafile_contents, section_header):

@@ -65,7 +65,7 @@ def test_COCu111_2(testdir):
     neb.set_calculators(EMT())
     # refine() removed, not implemented any more
     with Optimizer(neb, maxstep=0.04, trajectory='mep_2coarse.traj',
-                    logfile=logfile) as dyn:
+                   logfile=logfile) as dyn:
         dyn.run(fmax=0.1)
 
     # Optimize neb using a many calculators

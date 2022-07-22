@@ -138,9 +138,9 @@ class CutSpliceCrossover(Crossover):
             d = [-np.dot(e, sv)] * 2
             d[0] += np.sqrt(np.dot(e, sv)**2 - lsv**2 + min_dist**2)
             d[1] -= np.sqrt(np.dot(e, sv)**2 - lsv**2 + min_dist**2)
-            l = sorted([abs(i) for i in d])[0] / 2. + eps
-            if l > maxl:
-                maxl = l
+            L = sorted([abs(i) for i in d])[0] / 2. + eps
+            if L > maxl:
+                maxl = L
         tmpf.translate(e * maxl)
         tmpm.translate(-e * maxl)
 

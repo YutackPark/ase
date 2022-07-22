@@ -1,9 +1,7 @@
-from ase import Atoms
-from ase.io import read
-from ase.io.jsonio import read_json
-from ase.dft.kpoints import BandPath
+# Note:
+# Try to avoid module level import statements here to reduce
+# import time during CLI execution
 from ase.cli.main import CLIError
-from ase.io.formats import UnknownFileTypeError
 
 
 def plot_reciprocal_cell(path, output=None):
@@ -18,6 +16,10 @@ def plot_reciprocal_cell(path, output=None):
 
 
 def read_object(filename):
+    from ase.io import read
+    from ase.io.jsonio import read_json
+    from ase.io.formats import UnknownFileTypeError
+
     try:
         return read(filename)
     except UnknownFileTypeError:
@@ -26,6 +28,9 @@ def read_object(filename):
 
 
 def obj2bandpath(obj):
+    from ase import Atoms
+    from ase.dft.kpoints import BandPath
+
     if isinstance(obj, BandPath):
         print('Object is a band path')
         print(obj)

@@ -43,8 +43,8 @@ class EPS(PlottingVariables):
         fd.write('mpldict begin\n')
         for d in psDefs:
             d = d.strip()
-            for l in d.split('\n'):
-                fd.write(l.strip() + '\n')
+            for line in d.split('\n'):
+                fd.write(line.strip() + '\n')
         fd.write('%%EndProlog\n')
 
         fd.write('mpldict begin\n')

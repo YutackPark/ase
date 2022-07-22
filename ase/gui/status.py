@@ -63,7 +63,10 @@ class Status:  # Status is used as a mixin in GUI
                 if key not in haveit:
                     val = atoms.get_array(key)[indices[0]]
                     if val is not None:
-                        text += ' {0}={1:g}'.format(key, val)
+                        if isinstance(val, int):
+                            text += ' {0}={1:g}'.format(key, val)
+                        else:
+                            text += ' {0}={1}'.format(key, val)
         elif n == 2:
             D = R[0] - R[1]
             d = sqrt(np.dot(D, D))

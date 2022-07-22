@@ -7,7 +7,7 @@ from ase.test.utils import RandomCalculator
 
 def test_folding(testdir):
     """Test that folding is consitent with intensities"""
-    
+
     atoms = molecule('C2H6')
     atoms.calc = RandomCalculator()
     ir = Infrared(atoms)

@@ -45,7 +45,7 @@ def test_vasp_Al_volrelax(factory):
 
         return Al
 
-    # -- Perform Volume relaxation using ASE with Vasp as force/stress calculator
+    # -- Volume relaxation using ASE with Vasp as force/stress calculator
     def ase_vol_relax():
         Al = bulk('Al', 'fcc', a=4.5, cubic=True)
         calc = factory.calc(xc='LDA')

@@ -70,7 +70,12 @@ def test_siesta(siesta_factory):
     atoms.set_tags([0, 0, 0, 1, 0])
     species, numbers = siesta.species(atoms)
     assert all(numbers == np.array([1, 2, 2, 2, 2]))
-    siesta = siesta_factory.calc(species=[Species(symbol='H', tag=1, basis_set='SZ')])
+    siesta = siesta_factory.calc(
+        species=[
+            Species(
+                symbol='H',
+                tag=1,
+                basis_set='SZ')])
     species, numbers = siesta.species(atoms)
     assert all(numbers == np.array([1, 2, 2, 3, 2]))
     siesta = siesta_factory.calc(label='test_label', species=species)

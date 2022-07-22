@@ -55,10 +55,10 @@ def helpwindow(text):
 
 
 def set_windowtype(win, wmtype):
-    #only on X11
-    #WM_TYPE, for possible settings see
-    #https://specifications.freedesktop.org/wm-spec/wm-spec-latest.html#idm45623487848608
-    #you want dialog, normal or utility most likely
+    # only on X11
+    # WM_TYPE, for possible settings see
+    # https://specifications.freedesktop.org/wm-spec/wm-spec-latest.html#idm45623487848608
+    # you want dialog, normal or utility most likely
     if win._windowingsystem == "x11":
         win.wm_attributes('-type', wmtype)
 
@@ -665,11 +665,11 @@ class ASEGUIWindow(MainWindow):
             outline = 'black'
             width = 1
         self.canvas.create_arc(*tuple(int(x) for x in bbox),
-                                start=start,
-                                extent=extent,
-                                fill=color,
-                                outline=outline,
-                                width=width)
+                               start=start,
+                               extent=extent,
+                               fill=color,
+                               outline=outline,
+                               width=width)
 
     def line(self, bbox, width=1):
         self.canvas.create_line(*tuple(int(x) for x in bbox), width=width)

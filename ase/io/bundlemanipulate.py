@@ -152,7 +152,9 @@ def read_bundle_info(name):
 
     if not os.path.isfile(metaname):
         if os.path.isfile(os.path.join(name, 'metadata')):
-            raise IOError("Found obsolete metadata in unsecure Pickle format.  Refusing to load.")
+            raise IOError(
+                "Found obsolete metadata in unsecure Pickle format.  "
+                "Refusing to load.")
         else:
             raise IOError("'{}' does not appear to be a BundleTrajectory "
                           "(no {})".format(name, metaname))

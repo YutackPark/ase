@@ -380,7 +380,7 @@ F('dlp4', 'DL_POLY_4 CONFIG file', '1F',
 F('dlp-history', 'DL_POLY HISTORY file', '+F',
   module='dlp4', glob='HISTORY')
 F('dmol-arc', 'DMol3 arc file', '+S',
-  module='dmol')
+  module='dmol', ext='arc')
 F('dmol-car', 'DMol3 structure file', '1S',
   module='dmol', ext='car')
 F('dmol-incoor', 'DMol3 structure file', '1S',
@@ -498,7 +498,7 @@ F('xtd', 'Materials Studio file', '+F')
 #      The .xyz files are handled by the extxyz module by default.
 F('xyz', 'XYZ-file', '+F')
 
-#Register IO formats exposed through the ase.ioformats entry point
+# Register IO formats exposed through the ase.ioformats entry point
 register_external_io_formats('ase.ioformats')
 
 
@@ -606,7 +606,7 @@ def write(
         format: str = None,
         parallel: bool = True,
         append: bool = False,
-        **kwargs: dict
+        **kwargs: Any
 ) -> None:
     """Write Atoms object(s) to file.
 

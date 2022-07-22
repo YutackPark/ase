@@ -21,7 +21,8 @@ def test_permute_axes():
 
         assert (original.pbc == atoms.pbc).all()
         assert_allclose(original.cell, atoms.cell, atol=TOL)
-        assert_allclose(original.get_positions(), atoms.get_positions(), atol=TOL)
+        assert_allclose(original.get_positions(),
+                        atoms.get_positions(), atol=TOL)
         assert_allclose(atoms.get_positions()[:, permutation],
                         permuted.get_positions(), atol=TOL)
 

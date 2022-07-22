@@ -65,20 +65,20 @@ def calculation():
         expected_values = [{"e_0_energy": -29.67691672,
                             "e_fr_energy": -29.67243317,
                             "forces": np.array([[7.58587457,
-                                                          -5.22590317,
-                                                           6.88227285],
-                                                         [-7.58587457,
-                                                           5.22590317,
-                                                          -6.88227285]]),
+                                                 -5.22590317,
+                                                 6.88227285],
+                                                [-7.58587457,
+                                                 5.22590317,
+                                                 -6.88227285]]),
                             "stress": np.array([[4300.36902090,
-                                                          -284.50040544,
-                                                          -1468.20603140],
-                                                          [-284.50040595,
-                                                           4824.17435683,
-                                                           -1625.37541639],
-                                                          [-1468.20603158,
-                                                           -1625.37541697,
-                                                           5726.84189498]])},
+                                                 -284.50040544,
+                                                 -1468.20603140],
+                                                [-284.50040595,
+                                                 4824.17435683,
+                                                 -1625.37541639],
+                                                [-1468.20603158,
+                                                 -1625.37541697,
+                                                 5726.84189498]])},
                            {"e_0_energy": -2.0,
                             "e_fr_energy": -3.0,
                             "forces": np.full((2, 3), np.pi),
@@ -184,7 +184,7 @@ def check_calculation(vasprun_record, expected_values, index=-1):
                  format='vasp-xml')
 
     assert atoms.get_potential_energy() == \
-           pytest.approx(expected_values["e_0_energy"])
+        pytest.approx(expected_values["e_0_energy"])
 
     assert (atoms.get_potential_energy(force_consistent=True) ==
             pytest.approx(expected_values["e_fr_energy"]))
@@ -300,7 +300,7 @@ def test_vasp_parameters(vasprun, calculation):
    <i type="int" name="ISYM">     0</i>
    <i name="SYMPREC">      0.00001000</i>
   </separator>
- </parameters>   
+ </parameters>
     """
     calculation_record, _ = calculation()
     atoms = read(StringIO(vasprun + calculation_record + vasp_parameters),

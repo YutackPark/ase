@@ -6,7 +6,7 @@ from ase.calculators.socketio import SocketIOCalculator
 
 
 os.environ['ASE_AIMS_COMMAND'] = 'aims.x'
-os.environ['AIMS_SPECIES_DIR'] = '/home/alumne/software/FHIaims/species_defaults/light'
+os.environ['AIMS_SPECIES_DIR'] = '/home/myname/FHIaims/species_defaults/light'
 
 atoms = Atoms('HOH',
               positions=[[0, 0, -1], [0, 1, 0], [0, 0, 1]])

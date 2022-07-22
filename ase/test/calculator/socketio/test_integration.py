@@ -50,8 +50,8 @@ def test_socketio_espresso(factory):
     atoms.rattle(stdev=.2, seed=42)
 
     with BFGS(ExpCellFilter(atoms)) as opt, \
-         pytest.warns(UserWarning, match='Subprocess exited'), \
-         SocketIOCalculator(espresso, unixsocket=unixsocket) as calc:
+            pytest.warns(UserWarning, match='Subprocess exited'), \
+            SocketIOCalculator(espresso, unixsocket=unixsocket) as calc:
         atoms.calc = calc
         for _ in opt.irun(fmax=0.05):
             e = atoms.get_potential_energy()

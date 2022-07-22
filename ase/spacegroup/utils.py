@@ -160,7 +160,7 @@ def get_basis(atoms: Atoms,
 def _get_reduced_indices(atoms: Atoms, tol: float = 1e-5) -> List[int]:
     """Get a list of the reduced atomic indices using spglib.
     Note: Does no checks to see if spglib is installed.
-    
+
     :param atoms: ase Atoms object to reduce
     :param tol: ``float``, numeric tolerance for positional comparisons
     """

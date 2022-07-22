@@ -18,7 +18,8 @@ def test_jsonio_atoms():
         assert atoms1 == atoms2
         assert set(atoms1.arrays) == set(atoms2.arrays)
         for name in atoms1.arrays:
-            assert np.array_equal(atoms1.arrays[name], atoms2.arrays[name]), name
+            assert np.array_equal(
+                atoms1.arrays[name], atoms2.arrays[name]), name
 
     atoms = bulk('Ti')
     txt = encode(atoms)
