@@ -48,6 +48,12 @@ class CalculatorTemplate(ABC):
     def read_results(self, directory: PathLike) -> Mapping[str, Any]:
         ...
 
+    @abstractmethod
+    def load_profile(self, cfg):
+        # Note: the shlex argv splitting tends to be repeated
+        # in multiple classes, we should implement a better abstraction.
+        ...
+
 
 class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
     def __init__(self, *, template, profile, directory, parameters=None):

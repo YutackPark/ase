@@ -147,6 +147,10 @@ class AimsTemplate(CalculatorTemplate):
         dst = directory / self.outputname
         return read_aims_results(dst, index=-1)
 
+    def load_profile(self, cfg):
+        import shlex
+        return AimsProfile(shlex.split(cfg['argv']))
+
 
 class Aims(GenericFileIOCalculator):
     def __init__(self, profile=None, directory='.', **kwargs):

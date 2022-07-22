@@ -75,6 +75,10 @@ class AbinitTemplate(CalculatorTemplate):
     def read_results(self, directory):
         return io.read_abinit_outputs(directory, self._label)
 
+    def load_profile(self, cfg):
+        import shlex
+        return AbinitProfile(shlex.split(cfg['argv']))
+
 
 class Abinit(GenericFileIOCalculator):
     """Class for doing ABINIT calculations.
