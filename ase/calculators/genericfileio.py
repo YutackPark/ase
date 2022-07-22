@@ -50,6 +50,8 @@ class CalculatorTemplate(ABC):
 
     @abstractmethod
     def load_profile(self, cfg):
+        # Note: the shlex argv splitting tends to be repeated
+        # in multiple classes, we should implement a better abstraction.
         ...
 
 
