@@ -48,6 +48,10 @@ class CalculatorTemplate(ABC):
     def read_results(self, directory: PathLike) -> Mapping[str, Any]:
         ...
 
+    @abstractmethod
+    def load_profile(self, cfg):
+        ...
+
 
 class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
     def __init__(self, *, template, profile, directory, parameters=None):

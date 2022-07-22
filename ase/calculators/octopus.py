@@ -73,7 +73,8 @@ class OctopusTemplate(CalculatorTemplate):
         inp.write_text(txt)
 
     def load_profile(self, cfg):
-        return OctopusProfile(cfg.
+        import shlex
+        return OctopusProfile(shlex.split(cfg['argv']))
 
 
 class Octopus(GenericFileIOCalculator):
