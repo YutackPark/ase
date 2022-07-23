@@ -1,6 +1,6 @@
-import os
-import os.path as op
-import subprocess
+# Note:
+# Try to avoid module level import statements here to reduce
+# import time during CLI execution
 
 
 class CLICommand:
@@ -31,6 +31,10 @@ class CLICommand:
 
     @staticmethod
     def run(args):
+        import os
+        import os.path as op
+        import subprocess
+
         dotase = op.expanduser('~/.ase')
         tokenfile = op.join(dotase, 'nomad-token')
 

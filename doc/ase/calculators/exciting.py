@@ -8,7 +8,7 @@ a = Atoms('N3O', [(0, 0, 0), (1, 0, 0), (0, 0, 1), (0.5, 0.5, 0.5)], pbc=True)
 
 calculator = Exciting(
     dir='excitingtestfiles',
-    speciespath=os.environ['EXCITINGROOT']+'/species',
+    speciespath=os.environ['EXCITINGROOT'] + '/species',
     paramdict={
         'title': {'text()': 'N3O'},
         'groundstate': {'ngridk': '1 2 3', 'tforce': 'true'},

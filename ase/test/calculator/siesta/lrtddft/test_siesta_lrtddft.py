@@ -19,4 +19,4 @@ def test_siesta_lrtddft(siesta_factory):
 
     freq = np.arange(0.0, 25.0, 0.5)
     pmat = lrtddft.get_polarizability(freq)
-    assert pmat.size == 3*3*freq.size
+    assert pmat.size == 3 * 3 * freq.size

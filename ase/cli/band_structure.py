@@ -1,9 +1,13 @@
-from ase.io.jsonio import read_json
-from ase.spectrum.band_structure import BandStructure
+# Note:
+# Try to avoid module level import statements here to reduce
+# import time during CLI execution
 from ase.cli.main import CLIError
 
 
 def read_band_structure(filename):
+    from ase.io.jsonio import read_json
+    from ase.spectrum.band_structure import BandStructure
+
     bs = read_json(filename)
     if not isinstance(bs, BandStructure):
         raise CLIError(f'Expected band structure, but file contains: {bs}')

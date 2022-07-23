@@ -245,7 +245,7 @@ class STM:
         """Returns the dI/dV curve for position x, y at height z (in Angstrom),
         for bias from bias0 to bias1 with step biasstep."""
 
-        biases = np.arange(bias0, bias1+biasstep, biasstep)
+        biases = np.arange(bias0, bias1 + biasstep, biasstep)
         current = np.zeros(biases.shape)
 
         for b in np.arange(len(biases)):

@@ -199,7 +199,7 @@ class MOPAC(FileIOCalculator):
             elif line.find('NO. OF ALPHA ELECTRON') != -1:
                 self.nspins = 2
                 self.no_alpha_electrons = int(line.split()[-1])
-                self.no_beta_electrons = int(lines[i+1].split()[-1])
+                self.no_beta_electrons = int(lines[i + 1].split()[-1])
                 self.results['magmom'] = abs(self.no_alpha_electrons -
                                              self.no_beta_electrons)
             elif line.find('FINAL  POINT  AND  DERIVATIVES') != -1:

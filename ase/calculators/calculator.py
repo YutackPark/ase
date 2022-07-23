@@ -14,6 +14,8 @@ from ase.outputs import Properties, all_outputs
 from ase.utils import jsonable
 from ase.calculators.abc import GetPropertiesMixin
 
+from .names import names
+
 
 class CalculatorError(RuntimeError):
     """Base class of error types related to ASE calculators."""
@@ -123,17 +125,6 @@ all_properties = ['energy', 'forces', 'stress', 'stresses', 'dipole',
 
 all_changes = ['positions', 'numbers', 'cell', 'pbc',
                'initial_charges', 'initial_magmoms']
-
-
-# Recognized names of calculators sorted alphabetically:
-names = ['abinit', 'ace', 'aims', 'amber', 'asap', 'castep', 'cp2k',
-         'crystal', 'demon', 'demonnano', 'dftb', 'dftd3', 'dmol', 'eam',
-         'elk', 'emt', 'espresso', 'exciting', 'ff', 'gamess_us',
-         'gaussian', 'gpaw', 'gromacs', 'gulp', 'hotbit', 'kim',
-         'lammpslib', 'lammpsrun', 'lj', 'mopac', 'morse', 'nwchem',
-         'octopus', 'onetep', 'openmx', 'orca',
-         'plumed', 'psi4', 'qchem', 'siesta',
-         'tip3p', 'tip4p', 'turbomole', 'vasp']
 
 
 special = {'cp2k': 'CP2K',

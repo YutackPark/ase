@@ -1,7 +1,6 @@
 [flake8]
 ignore =
     E741, # bad variable names like 'l' and 'I'
-    E226, # missing whitespace around arithmetic operator
     W503  # line break before binary operator
     W504  # line break after binary operator
 max-line-length = 80

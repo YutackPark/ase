@@ -249,10 +249,10 @@ class GPMin(Optimizer, GaussianProcess):
 
     def fit_to_batch(self):
         """Fit hyperparameters keeping the ratio noise/weight fixed"""
-        ratio = self.noise/self.kernel.weight
+        ratio = self.noise / self.kernel.weight
         self.fit_hyperparameters(np.array(self.x_list),
                                  np.array(self.y_list), eps=self.eps)
-        self.noise = ratio*self.kernel.weight
+        self.noise = ratio * self.kernel.weight
 
     def step(self, f=None):
         atoms = self.atoms

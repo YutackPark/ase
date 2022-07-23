@@ -121,7 +121,7 @@ class SiestaLRTDDFT:
         else:
             raise ValueError("omega soulf")
 
-        freq_cmplx = freq/un.Ha + 1j * self.tddft.eps
+        freq_cmplx = freq / un.Ha + 1j * self.tddft.eps
         if inter:
             pmat = -self.tddft.comp_polariz_inter_Edir(freq_cmplx, Eext=Eext)
             self.dn = self.tddft.dn

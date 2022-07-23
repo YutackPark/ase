@@ -136,9 +136,9 @@ class Plumed(Calculator):
             ASE and plumed - mass unit is in a.m.u units '''
 
             ps = 1000 * fs
-            self.plumed.cmd("setMDEnergyUnits", mol/kJ)
-            self.plumed.cmd("setMDLengthUnits", 1/nm)
-            self.plumed.cmd("setMDTimeUnits", 1/ps)
+            self.plumed.cmd("setMDEnergyUnits", mol / kJ)
+            self.plumed.cmd("setMDLengthUnits", 1 / nm)
+            self.plumed.cmd("setMDTimeUnits", 1 / ps)
             self.plumed.cmd("setMDChargeUnits", 1.)
             self.plumed.cmd("setMDMassUnits", 1.)
 
@@ -235,9 +235,9 @@ class Plumed(Calculator):
                     ini = line.find('FILE')
                     end = line.find(' ', ini)
                     if end == -1:
-                        file_name = line[ini+5:]
+                        file_name = line[ini + 5:]
                     else:
-                        file_name = line[ini+5:end]
+                        file_name = line[ini + 5:end]
                     read_files[file_name] = np.loadtxt(file_name, unpack=True)
 
             if len(read_files) == 0:

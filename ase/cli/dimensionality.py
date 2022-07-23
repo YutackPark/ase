@@ -1,7 +1,6 @@
-import os
-import warnings
-from ase.io import iread
-from ase.geometry.dimensionality import analyze_dimensionality
+# Note:
+# Try to avoid module level import statements here to reduce
+# import time during CLI execution
 
 
 class CLICommand:
@@ -48,6 +47,10 @@ class CLICommand:
 
     @staticmethod
     def run(args, parser):
+        import os
+        import warnings
+        from ase.io import iread
+        from ase.geometry.dimensionality import analyze_dimensionality
 
         files = [os.path.split(path)[1] for path in args.filenames]
         lmax = max([len(f) for f in files]) + 2

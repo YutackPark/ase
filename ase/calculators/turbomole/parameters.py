@@ -784,6 +784,6 @@ class TurbomoleParameters(dict):
         """update parameters after a restart"""
         nulst = [k for k in dct.keys() if not self.parameter_updateable[k]]
         if len(nulst) != 0:
-            raise ValueError('parameters '+str(nulst)+' cannot be changed')
+            raise ValueError(f'parameters {nulst} cannot be changed')
         self.update(dct)
         self.update_data_groups(dct)

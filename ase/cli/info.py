@@ -1,10 +1,6 @@
-import platform
-import sys
-
-from ase.dependencies import all_dependencies
-from ase.io.formats import filetype, ioformats, UnknownFileTypeError
-from ase.io.ulm import print_ulm_info
-from ase.io.bundletrajectory import print_bundletrajectory_info
+# Note:
+# Try to avoid module level import statements here to reduce
+# import time during CLI execution
 
 
 class CLICommand:
@@ -30,6 +26,10 @@ class CLICommand:
 
     @staticmethod
     def run(args):
+        from ase.io.formats import filetype, ioformats, UnknownFileTypeError
+        from ase.io.ulm import print_ulm_info
+        from ase.io.bundletrajectory import print_bundletrajectory_info
+
         if not args.filename:
             print_info()
             if args.formats:
@@ -80,6 +80,10 @@ class CLICommand:
 
 
 def print_info():
+    import platform
+    import sys
+    from ase.dependencies import all_dependencies
+
     versions = [('platform', platform.platform()),
                 ('python-' + sys.version.split()[0], sys.executable)]
 
@@ -88,6 +92,8 @@ def print_info():
 
 
 def print_formats():
+    from ase.io.formats import ioformats
+
     print('Supported formats:')
     for fmtname in sorted(ioformats):
         fmt = ioformats[fmtname]

@@ -218,25 +218,26 @@ class GULP(FileIOCalculator):
             elif line.find('Final stress tensor components') != -1:
                 res = [0., 0., 0., 0., 0., 0.]
                 for j in range(3):
-                    var = lines[i+j+3].split()[1]
+                    var = lines[i + j + 3].split()[1]
                     res[j] = float(var)
-                    var = lines[i+j+3].split()[3]
-                    res[j+3] = float(var)
+                    var = lines[i + j + 3].split()[3]
+                    res[j + 3] = float(var)
                 stress = np.array(res)
                 self.results['stress'] = stress
 
             elif line.find('Final Cartesian lattice vectors') != -1:
                 lattice_vectors = np.zeros((3, 3))
                 s = i + 2
-                for j in range(s, s+3):
+                for j in range(s, s + 3):
                     temp = lines[j].split()
                     for k in range(3):
-                        lattice_vectors[j-s][k] = float(temp[k])
+                        lattice_vectors[j - s][k] = float(temp[k])
                 self.atoms.set_cell(lattice_vectors)
                 if self.fractional_coordinates is not None:
                     self.fractional_coordinates = np.array(
                         self.fractional_coordinates)
-                    self.atoms.set_scaled_positions(self.fractional_coordinates)
+                    self.atoms.set_scaled_positions(
+                        self.fractional_coordinates)
 
             elif line.find('Final fractional coordinates of atoms') != -1:
                 s = i + 5

@@ -265,7 +265,7 @@ class Onetep(FileIOCalculator):
         dipolemoment = []
         for label, pos in sorted({'dx': 6, 'dy': 2, 'dz': 2}.items()):
             assert label in line.split()
-            value = float(line.split()[pos])*Bohr
+            value = float(line.split()[pos]) * Bohr
             dipolemoment.append(value)
             line = out.readline()
 
@@ -377,8 +377,8 @@ class Onetep(FileIOCalculator):
             words = line.split()
             if len(words) == 0:
                 break
-            excitations.append([float(words[0]), float(
-                words[1])*Hartree, float(words[2])])
+            excitations.append([float(words[0]), float(words[1]) * Hartree,
+                                float(words[2])])
             line = out.readline()
         self.results['excitations'] = array(excitations)
 
@@ -417,10 +417,10 @@ class Onetep(FileIOCalculator):
             except KeyError:
                 ngnum = -1
             if not cond:
-                self.species.append((sp[1]+sp[2], sp[1], sp[0], ngnum, ngrad))
+                self.species.append((sp[1] + sp[2], sp[1], sp[0], ngnum, ngrad))
             else:
                 self.species_cond.append(
-                    (sp[1]+sp[2], sp[1], sp[0], ngnum, ngrad))
+                    (sp[1] + sp[2], sp[1], sp[0], ngnum, ngrad))
 
     def _generate_pseudo_block(self):
         """Create a default onetep pseudopotentials block, using the
@@ -587,7 +587,7 @@ class Onetep(FileIOCalculator):
         positions = atoms.get_positions()
         tags = ["" if i == 0 else str(i) for i in atoms.get_tags()]
         pos_block = [('%s %8.6f %8.6f %8.6f' %
-                      (x+z, y[0], y[1], y[2])) for (x, y, z)
+                      (x + z, y[0], y[1], y[2])) for (x, y, z)
                      in zip(atoms.get_chemical_symbols(), positions, tags)]
 
         fd.write('%%BLOCK %s\n' % keyword)

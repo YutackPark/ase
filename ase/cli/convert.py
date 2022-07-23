@@ -1,6 +1,6 @@
-import os
-
-from ase.io import read, write
+# Note:
+# Try to avoid module level import statements here to reduce
+# import time during CLI execution
 
 
 class CLICommand:
@@ -59,6 +59,9 @@ class CLICommand:
 
     @staticmethod
     def run(args, parser):
+        import os
+        from ase.io import read, write
+
         if args.verbose:
             print(', '.join(args.input), '->', args.output)
         if args.arrays:

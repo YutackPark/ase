@@ -597,9 +597,9 @@ def read_grd(filename):
     data = np.empty(grid)
 
     origin_data = [int(fld) for fld in lines[4].split()[1:]]
-    origin_xyz = cell[0] * (-float(origin_data[0])-0.5) / (grid[0] - 1) + \
-        cell[1] * (-float(origin_data[2])-0.5) / (grid[1] - 1) + \
-        cell[2] * (-float(origin_data[4])-0.5) / (grid[2] - 1)
+    origin_xyz = cell[0] * (-float(origin_data[0]) - 0.5) / (grid[0] - 1) + \
+        cell[1] * (-float(origin_data[2]) - 0.5) / (grid[1] - 1) + \
+        cell[2] * (-float(origin_data[4]) - 0.5) / (grid[2] - 1)
 
     # Fastest index describes which index ( x or y ) varies fastest
     # 1: x  , 3: y

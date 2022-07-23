@@ -133,7 +133,7 @@ class SetupSurfaceSlab:
                 if surface[1] == _('hcp'):
                     self.lattice_c.active = True
                     self.lattice_c.value = round(self.lattice_a.value *
-                                                 ((8.0/3.0) ** (0.5)), 3)
+                                                 ((8.0 / 3.0) ** (0.5)), 3)
                 else:
                     self.lattice_c.active = False
                     self.lattice_c.value = 'None'

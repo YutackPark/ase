@@ -73,7 +73,7 @@ class ACE(FileIOCalculator):
             for section_name in section_sets:
                 repeat = kwargs['order'].count(section_name)
                 if section_name in self.default_parameters.keys():
-                    for i in range(repeat-1):
+                    for i in range(repeat - 1):
                         new_parameters[section_name] += deepcopy(
                             self.default_parameters[section_name])
                 else:

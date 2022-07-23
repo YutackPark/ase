@@ -1,5 +1,6 @@
-from ase.neb import NEBTools
-from ase.gui.images import Images
+# Note:
+# Try to avoid module level import statements here to reduce
+# import time during CLI execution
 
 
 class CLICommand:
@@ -34,6 +35,9 @@ class CLICommand:
 
     @staticmethod
     def run(args, parser):
+        from ase.neb import NEBTools
+        from ase.gui.images import Images
+
         # Nothing will ever be stored in args.output; need to manually find
         # if its supplied by checking extensions.
         if args.filenames[-1].endswith('.pdf'):

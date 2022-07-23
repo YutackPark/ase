@@ -1,13 +1,9 @@
 import os
 import sys
-from subprocess import Popen
-import importlib
 from pathlib import Path
 import warnings
 import argparse
-from multiprocessing import cpu_count
 
-from ase.calculators.calculator import names as calc_names
 from ase.cli.main import CLIError
 
 testdir = Path(__file__).parent
@@ -53,6 +49,8 @@ def test(calculators=tuple(), jobs=0, verbose=False,
 
 
 def have_module(module):
+    import importlib
+
     return importlib.find_loader(module) is not None
 
 
@@ -62,6 +60,8 @@ MULTIPROCESSING_AUTO = -1
 
 
 def choose_how_many_workers(jobs):
+    from multiprocessing import cpu_count
+
     if jobs == MULTIPROCESSING_AUTO:
         if have_module('xdist'):
             jobs = min(cpu_count(), MULTIPROCESSING_MAX_WORKERS)
@@ -151,6 +151,9 @@ class CLICommand:
 
     @staticmethod
     def run(args):
+        from subprocess import Popen
+        from ase.calculators.names import names as calc_names
+
         if args.help_calculators:
             print(help_calculators)
             sys.exit(0)
