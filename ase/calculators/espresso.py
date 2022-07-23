@@ -79,7 +79,7 @@ class EspressoTemplate(CalculatorTemplate):
 
     def load_profile(self, cfg):
         return EspressoProfile(
-            argv=cfg.getargv('argv')),
+            argv=cfg.getargv('argv'),
             pseudo_path=cfg['pseudo_path'])
 
 
