@@ -27,6 +27,7 @@ class Dftb(FileIOCalculator):
                  ignore_bad_restart_file=FileIOCalculator._deprecated,
                  label='dftb', atoms=None, kpts=None,
                  slako_dir=None,
+                 profile=None,
                  **kwargs):
         """
         All keywords for the dftb_in.hsd input file (see the DFTB+ manual)
@@ -109,9 +110,9 @@ class Dftb(FileIOCalculator):
         self.do_forces = False
         self.outfilename = 'dftb.out'
 
-        FileIOCalculator.__init__(self, restart, ignore_bad_restart_file,
-                                  label, atoms,
-                                  **kwargs)
+        super().__init__(restart, ignore_bad_restart_file,
+                         label, atoms, profile=profile,
+                         **kwargs)
 
         # Determine number of spin channels
         try:

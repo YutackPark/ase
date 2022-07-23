@@ -869,6 +869,42 @@ class Calculator(BaseCalculator):
         return get_band_structure(calc=self)
 
 
+class OldShellProfile:
+    def __init__(self, name, command, prefix):
+        self.name = name
+        self.command = command
+        self.prefix = prefix
+
+    def execute(self, directory):
+        if self.command is None:
+            raise EnvironmentError(
+                'Please set ${} environment variable '
+                .format('ASE_' + self.name.upper() + '_COMMAND') +
+                'or supply the command keyword')
+        command = self.command
+        if 'PREFIX' in command:
+            command = command.replace('PREFIX', self.prefix)
+
+        try:
+            proc = subprocess.Popen(command, shell=True, cwd=directory)
+        except OSError as err:
+            # Actually this may never happen with shell=True, since
+            # probably the shell launches successfully.  But we soon want
+            # to allow calling the subprocess directly, and then this
+            # distinction (failed to launch vs failed to run) is useful.
+            msg = 'Failed to execute "{}"'.format(command)
+            raise EnvironmentError(msg) from err
+
+        errorcode = proc.wait()
+
+        if errorcode:
+            path = os.path.abspath(directory)
+            msg = ('Calculator "{}" failed with command "{}" failed in '
+                   '{} with error code {}'.format(self.name, command,
+                                                  path, errorcode))
+            raise CalculationFailed(msg)
+
+
 class FileIOCalculator(Calculator):
     """Base class for calculators that write/read input/output files."""
 
@@ -877,7 +913,8 @@ class FileIOCalculator(Calculator):
 
     def __init__(self, restart=None,
                  ignore_bad_restart_file=Calculator._deprecated,
-                 label=None, atoms=None, command=None, **kwargs):
+                 label=None, atoms=None, command=None,
+                 profile=None, **kwargs):
         """File-IO calculator.
 
         command: str
@@ -893,6 +930,11 @@ class FileIOCalculator(Calculator):
             name = 'ASE_' + self.name.upper() + '_COMMAND'
             self.command = os.environ.get(name, self.command)
 
+        if profile is None:
+            profile = OldShellProfile(self.name, self.command,
+                                      self.prefix)
+        self.profile = profile
+
     def calculate(self, atoms=None, properties=['energy'],
                   system_changes=all_changes):
         Calculator.calculate(self, atoms, properties, system_changes)
@@ -901,33 +943,7 @@ class FileIOCalculator(Calculator):
         self.read_results()
 
     def execute(self):
-        if self.command is None:
-            raise EnvironmentError(
-                'Please set ${} environment variable '
-                .format('ASE_' + self.name.upper() + '_COMMAND') +
-                'or supply the command keyword')
-        command = self.command
-        if 'PREFIX' in command:
-            command = command.replace('PREFIX', self.prefix)
-
-        try:
-            proc = subprocess.Popen(command, shell=True, cwd=self.directory)
-        except OSError as err:
-            # Actually this may never happen with shell=True, since
-            # probably the shell launches successfully.  But we soon want
-            # to allow calling the subprocess directly, and then this
-            # distinction (failed to launch vs failed to run) is useful.
-            msg = 'Failed to execute "{}"'.format(command)
-            raise EnvironmentError(msg) from err
-
-        errorcode = proc.wait()
-
-        if errorcode:
-            path = os.path.abspath(self.directory)
-            msg = ('Calculator "{}" failed with command "{}" failed in '
-                   '{} with error code {}'.format(self.name, command,
-                                                  path, errorcode))
-            raise CalculationFailed(msg)
+        self.profile.execute(self.directory)
 
     def write_input(self, atoms, properties=None, system_changes=None):
         """Write input file(s).
