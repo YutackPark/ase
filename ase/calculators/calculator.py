@@ -902,7 +902,7 @@ class FileIOCalculator(Calculator):
 
     def execute(self):
         if self.command is None:
-            raise CalculatorSetupError(
+            raise EnvironmentError(
                 'Please set ${} environment variable '
                 .format('ASE_' + self.name.upper() + '_COMMAND') +
                 'or supply the command keyword')

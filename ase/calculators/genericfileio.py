@@ -4,7 +4,8 @@ from typing import Iterable, Mapping, Any
 from abc import ABC, abstractmethod
 
 from ase.calculators.abc import GetOutputsMixin
-from ase.calculators.calculator import BaseCalculator
+from ase.calculators.calculator import (BaseCalculator,
+                                        EnvironmentError)
 
 
 def read_stdout(args, createfile=None):
@@ -59,8 +60,17 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
 
         if profile is None:
             from ase.config import cfg
+            if template.name not in cfg.parser:
+                raise EnvironmentError(
+                    f'No configuration of {template.name}')
             myconfig = cfg.parser[template.name]
-            profile = template.load_profile(myconfig)
+            try:
+                profile = template.load_profile(myconfig)
+            except Exception as err:
+                configvars = dict(myconfig)
+                raise EnvironmentError(
+                    f'Failed to load section [{template.name}] '
+                    'from configuration: {configvars}') from err
 
         self.profile = profile
 
