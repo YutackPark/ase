@@ -16,8 +16,8 @@ from ase.units import Hartree, Bohr
 class Dftb(FileIOCalculator):
     if 'DFTB_COMMAND' in os.environ:
         command = os.environ['DFTB_COMMAND'] + ' > PREFIX.out'
-    else:
-        command = 'dftb+ > PREFIX.out'
+    # else:
+    #    command = 'dftb+ > PREFIX.out'
 
     implemented_properties = ['energy', 'forces', 'charges',
                               'stress', 'dipole']

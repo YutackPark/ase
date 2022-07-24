@@ -905,6 +905,27 @@ class OldShellProfile:
             raise CalculationFailed(msg)
 
 
+class ArgvProfile:
+    def __init__(self, name, argv):
+        self.name = name
+        self.argv = argv
+
+    def execute(self, directory, stdout_name=None):
+        directory = Path(directory).resolve()
+        if stdout_name is None:
+            stdout_name = f'{self.name}.out'
+        stdout_path = directory / f'{stdout_name}.out'
+        try:
+            with open(stdout_path, 'w') as fd:
+                subprocess.run(self.argv, cwd=directory, check=True,
+                               stdout=fd)
+        except subprocess.CalledProcessError as err:
+            msg = (f'Calculator {self.name} failed with args {self.argv} '
+                   f'in directory {directory}')
+            raise CalculationFailed(msg) from err
+        return stdout_path
+
+
 class FileIOCalculator(Calculator):
     """Base class for calculators that write/read input/output files."""
 
@@ -924,15 +945,24 @@ class FileIOCalculator(Calculator):
         Calculator.__init__(self, restart, ignore_bad_restart_file, label,
                             atoms, **kwargs)
 
-        if command is not None:
-            self.command = command
-        else:
+        if command is None:
             name = 'ASE_' + self.name.upper() + '_COMMAND'
-            self.command = os.environ.get(name, self.command)
+            command = os.environ.get(name)
 
-        if profile is None:
-            profile = OldShellProfile(self.name, self.command,
+        if command is None:
+            from ase.config import cfg
+            if self.name in cfg.parser:
+                section = cfg.parser[self.name]
+                # XXX getargv() returns None if missing!
+                profile = ArgvProfile(self.name, section.getargv('argv'))
+            else:
+                raise EnvironmentError(
+                    f'No configuration of {self.name}.  '
+                    f'Missing section [{self.name}] in configuration')
+        else:
+            profile = OldShellProfile(self.name, command,
                                       self.prefix)
+
         self.profile = profile
 
     def calculate(self, atoms=None, properties=['energy'],
