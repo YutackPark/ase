@@ -8,26 +8,33 @@ Initial development: markus.kaukonen@iki.fi
 
 import os
 import numpy as np
-from ase.calculators.calculator import (FileIOCalculator, kpts2ndarray,
-                                        kpts2sizeandoffsets)
+from ase.calculators.calculator import (
+    FileIOCalculator,
+    kpts2ndarray,
+    kpts2sizeandoffsets,
+)
 from ase.units import Hartree, Bohr
 
 
 class Dftb(FileIOCalculator):
-    if 'DFTB_COMMAND' in os.environ:
-        command = os.environ['DFTB_COMMAND'] + ' > PREFIX.out'
+    if "DFTB_COMMAND" in os.environ:
+        command = os.environ["DFTB_COMMAND"] + " > PREFIX.out"
     else:
-        command = 'dftb+ > PREFIX.out'
+        command = "dftb+ > PREFIX.out"
 
-    implemented_properties = ['energy', 'forces', 'charges',
-                              'stress', 'dipole']
+    implemented_properties = ["energy", "forces", "charges", "stress", "dipole"]
     discard_results_on_any_change = True
 
-    def __init__(self, restart=None,
-                 ignore_bad_restart_file=FileIOCalculator._deprecated,
-                 label='dftb', atoms=None, kpts=None,
-                 slako_dir=None,
-                 **kwargs):
+    def __init__(
+        self,
+        restart=None,
+        ignore_bad_restart_file=FileIOCalculator._deprecated,
+        label="dftb",
+        atoms=None,
+        kpts=None,
+        slako_dir=None,
+        **kwargs
+    ):
         """
         All keywords for the dftb_in.hsd input file (see the DFTB+ manual)
         can be set by ASE. Consider the following input file block:
@@ -86,42 +93,41 @@ class Dftb(FileIOCalculator):
         """
 
         if slako_dir is None:
-            slako_dir = os.environ.get('DFTB_PREFIX', './')
-            if not slako_dir.endswith('/'):
-                slako_dir += '/'
+            slako_dir = os.environ.get("DFTB_PREFIX", "./")
+            if not slako_dir.endswith("/"):
+                slako_dir += "/"
 
         self.slako_dir = slako_dir
 
         if kwargs.get("Hamiltonian_", "DFTB") == "DFTB":
             self.default_parameters = dict(
-                Hamiltonian_='DFTB',
-                Hamiltonian_SlaterKosterFiles_='Type2FileNames',
+                Hamiltonian_="DFTB",
+                Hamiltonian_SlaterKosterFiles_="Type2FileNames",
                 Hamiltonian_SlaterKosterFiles_Prefix=self.slako_dir,
                 Hamiltonian_SlaterKosterFiles_Separator='"-"',
                 Hamiltonian_SlaterKosterFiles_Suffix='".skf"',
-                Hamiltonian_MaxAngularMomentum_='',
-                Options_='',
-                Options_WriteResultsTag='Yes')
+                Hamiltonian_MaxAngularMomentum_="",
+                Options_="",
+                Options_WriteResultsTag="Yes",
+            )
         else:
-            self.default_parameters = dict(
-                Options_='',
-                Options_WriteResultsTag='Yes')
+            self.default_parameters = dict(Options_="", Options_WriteResultsTag="Yes")
 
         self.pcpot = None
         self.lines = None
         self.atoms = None
         self.atoms_input = None
         self.do_forces = False
-        self.outfilename = 'dftb.out'
+        self.outfilename = "dftb.out"
 
-        FileIOCalculator.__init__(self, restart, ignore_bad_restart_file,
-                                  label, atoms,
-                                  **kwargs)
+        FileIOCalculator.__init__(
+            self, restart, ignore_bad_restart_file, label, atoms, **kwargs
+        )
 
         # Determine number of spin channels
         try:
-            entry = kwargs['Hamiltonian_SpinPolarisation']
-            spinpol = 'colinear' in entry.lower()
+            entry = kwargs["Hamiltonian_SpinPolarisation"]
+            spinpol = "colinear" in entry.lower()
         except KeyError:
             spinpol = False
         self.nspin = 2 if spinpol else 1
@@ -131,40 +137,39 @@ class Dftb(FileIOCalculator):
         self.kpts_coord = None
 
         if self.kpts is not None:
-            initkey = 'Hamiltonian_KPointsAndWeights'
+            initkey = "Hamiltonian_KPointsAndWeights"
             mp_mesh = None
             offsets = None
 
             if isinstance(self.kpts, dict):
-                if 'path' in self.kpts:
+                if "path" in self.kpts:
                     # kpts is path in Brillouin zone
-                    self.parameters[initkey + '_'] = 'Klines '
+                    self.parameters[initkey + "_"] = "Klines "
                     self.kpts_coord = kpts2ndarray(self.kpts, atoms=atoms)
                 else:
                     # kpts is (implicit) definition of
                     # Monkhorst-Pack grid
-                    self.parameters[initkey + '_'] = 'SupercellFolding '
-                    mp_mesh, offsets = kpts2sizeandoffsets(atoms=atoms,
-                                                           **self.kpts)
+                    self.parameters[initkey + "_"] = "SupercellFolding "
+                    mp_mesh, offsets = kpts2sizeandoffsets(atoms=atoms, **self.kpts)
             elif np.array(self.kpts).ndim == 1:
                 # kpts is Monkhorst-Pack grid
-                self.parameters[initkey + '_'] = 'SupercellFolding '
+                self.parameters[initkey + "_"] = "SupercellFolding "
                 mp_mesh = self.kpts
-                offsets = [0.] * 3
+                offsets = [0.0] * 3
             elif np.array(self.kpts).ndim == 2:
                 # kpts is (N x 3) list/array of k-point coordinates
                 # each will be given equal weight
-                self.parameters[initkey + '_'] = ''
+                self.parameters[initkey + "_"] = ""
                 self.kpts_coord = np.array(self.kpts)
             else:
-                raise ValueError('Illegal kpts definition:' + str(self.kpts))
+                raise ValueError("Illegal kpts definition:" + str(self.kpts))
 
             if mp_mesh is not None:
                 eps = 1e-10
                 for i in range(3):
-                    key = initkey + '_empty%03d' % i
+                    key = initkey + "_empty%03d" % i
                     val = [mp_mesh[i] if j == i else 0 for j in range(3)]
-                    self.parameters[key] = ' '.join(map(str, val))
+                    self.parameters[key] = " ".join(map(str, val))
                     offsets[i] *= mp_mesh[i]
                     assert abs(offsets[i]) < eps or abs(offsets[i] - 0.5) < eps
                     # DFTB+ uses a different offset convention, where
@@ -172,32 +177,32 @@ class Dftb(FileIOCalculator):
                     # to the addition of any offsets
                     if mp_mesh[i] % 2 == 0:
                         offsets[i] += 0.5
-                key = initkey + '_empty%03d' % 3
-                self.parameters[key] = ' '.join(map(str, offsets))
+                key = initkey + "_empty%03d" % 3
+                self.parameters[key] = " ".join(map(str, offsets))
 
             elif self.kpts_coord is not None:
                 for i, c in enumerate(self.kpts_coord):
-                    key = initkey + '_empty%09d' % i
-                    c_str = ' '.join(map(str, c))
-                    if 'Klines' in self.parameters[initkey + '_']:
-                        c_str = '1 ' + c_str
+                    key = initkey + "_empty%09d" % i
+                    c_str = " ".join(map(str, c))
+                    if "Klines" in self.parameters[initkey + "_"]:
+                        c_str = "1 " + c_str
                     else:
-                        c_str += ' 1.0'
+                        c_str += " 1.0"
                     self.parameters[key] = c_str
 
     def write_dftb_in(self, outfile):
-        """ Write the innput file for the dftb+ calculation.
-            Geometry is taken always from the file 'geo_end.gen'.
+        """Write the innput file for the dftb+ calculation.
+        Geometry is taken always from the file 'geo_end.gen'.
         """
 
-        outfile.write('Geometry = GenFormat { \n')
+        outfile.write("Geometry = GenFormat { \n")
         outfile.write('    <<< "geo_end.gen" \n')
-        outfile.write('} \n')
-        outfile.write(' \n')
+        outfile.write("} \n")
+        outfile.write(" \n")
 
         params = self.parameters.copy()
 
-        s = 'Hamiltonian_MaxAngularMomentum_'
+        s = "Hamiltonian_MaxAngularMomentum_"
         for key in params:
             if key.startswith(s) and len(key) > len(s):
                 break
@@ -207,117 +212,119 @@ class Dftb(FileIOCalculator):
                 # the .skf files:
                 symbols = set(self.atoms.get_chemical_symbols())
                 for symbol in symbols:
-                    path = os.path.join(self.slako_dir,
-                                        '{0}-{0}.skf'.format(symbol))
+                    path = os.path.join(self.slako_dir, "{0}-{0}.skf".format(symbol))
                     l = read_max_angular_momentum(path)
-                    params[s + symbol] = '"{}"'.format('spdf'[l])
+                    params[s + symbol] = '"{}"'.format("spdf"[l])
 
         # --------MAIN KEYWORDS-------
-        previous_key = 'dummy_'
-        myspace = ' '
+        previous_key = "dummy_"
+        myspace = " "
         for key, value in sorted(params.items()):
-            current_depth = key.rstrip('_').count('_')
-            previous_depth = previous_key.rstrip('_').count('_')
-            for my_backsclash in reversed(
-                    range(previous_depth - current_depth)):
-                outfile.write(3 * (1 + my_backsclash) * myspace + '} \n')
+            current_depth = key.rstrip("_").count("_")
+            previous_depth = previous_key.rstrip("_").count("_")
+            for my_backsclash in reversed(range(previous_depth - current_depth)):
+                outfile.write(3 * (1 + my_backsclash) * myspace + "} \n")
             outfile.write(3 * current_depth * myspace)
-            if key.endswith('_') and len(value) > 0:
-                outfile.write(key.rstrip('_').rsplit('_')[-1] +
-                              ' = ' + str(value) + '{ \n')
-            elif (key.endswith('_') and (len(value) == 0)
-                  and current_depth == 0):  # E.g. 'Options {'
-                outfile.write(key.rstrip('_').rsplit('_')[-1] +
-                              ' ' + str(value) + '{ \n')
-            elif (key.endswith('_') and (len(value) == 0)
-                  and current_depth > 0):  # E.g. 'Hamiltonian_Max... = {'
-                outfile.write(key.rstrip('_').rsplit('_')[-1] +
-                              ' = ' + str(value) + '{ \n')
-            elif key.count('_empty') == 1:
-                outfile.write(str(value) + ' \n')
-            elif ((key == 'Hamiltonian_ReadInitialCharges') and
-                  (str(value).upper() == 'YES')):
-                f1 = os.path.isfile(self.directory + os.sep + 'charges.dat')
-                f2 = os.path.isfile(self.directory + os.sep + 'charges.bin')
+            if key.endswith("_") and len(value) > 0:
+                outfile.write(
+                    key.rstrip("_").rsplit("_")[-1] + " = " + str(value) + "{ \n"
+                )
+            elif (
+                key.endswith("_") and (len(value) == 0) and current_depth == 0
+            ):  # E.g. 'Options {'
+                outfile.write(
+                    key.rstrip("_").rsplit("_")[-1] + " " + str(value) + "{ \n"
+                )
+            elif (
+                key.endswith("_") and (len(value) == 0) and current_depth > 0
+            ):  # E.g. 'Hamiltonian_Max... = {'
+                outfile.write(
+                    key.rstrip("_").rsplit("_")[-1] + " = " + str(value) + "{ \n"
+                )
+            elif key.count("_empty") == 1:
+                outfile.write(str(value) + " \n")
+            elif (key == "Hamiltonian_ReadInitialCharges") and (
+                str(value).upper() == "YES"
+            ):
+                f1 = os.path.isfile(self.directory + os.sep + "charges.dat")
+                f2 = os.path.isfile(self.directory + os.sep + "charges.bin")
                 if not (f1 or f2):
-                    print('charges.dat or .bin not found, switching off guess')
-                    value = 'No'
-                outfile.write(key.rsplit('_')[-1] + ' = ' + str(value) + ' \n')
+                    print("charges.dat or .bin not found, switching off guess")
+                    value = "No"
+                outfile.write(key.rsplit("_")[-1] + " = " + str(value) + " \n")
             else:
-                outfile.write(key.rsplit('_')[-1] + ' = ' + str(value) + ' \n')
-            if self.pcpot is not None and ('DFTB' in str(value)):
-                outfile.write('   ElectricField = { \n')
-                outfile.write('      PointCharges = { \n')
+                outfile.write(key.rsplit("_")[-1] + " = " + str(value) + " \n")
+            if self.pcpot is not None and ("DFTB" in str(value)):
+                outfile.write("   ElectricField = { \n")
+                outfile.write("      PointCharges = { \n")
+                outfile.write("         CoordsAndCharges [Angstrom] = DirectRead { \n")
                 outfile.write(
-                    '         CoordsAndCharges [Angstrom] = DirectRead { \n')
-                outfile.write('            Records = ' +
-                              str(len(self.pcpot.mmcharges)) + ' \n')
-                outfile.write(
-                    '            File = "dftb_external_charges.dat" \n')
-                outfile.write('         } \n')
-                outfile.write('      } \n')
-                outfile.write('   } \n')
+                    "            Records = " + str(len(self.pcpot.mmcharges)) + " \n"
+                )
+                outfile.write('            File = "dftb_external_charges.dat" \n')
+                outfile.write("         } \n")
+                outfile.write("      } \n")
+                outfile.write("   } \n")
             previous_key = key
-        current_depth = key.rstrip('_').count('_')
+        current_depth = key.rstrip("_").count("_")
         for my_backsclash in reversed(range(current_depth)):
-            outfile.write(3 * my_backsclash * myspace + '} \n')
-        outfile.write('ParserOptions { \n')
-        outfile.write('   IgnoreUnprocessedNodes = Yes  \n')
-        outfile.write('} \n')
+            outfile.write(3 * my_backsclash * myspace + "} \n")
+        outfile.write("ParserOptions { \n")
+        outfile.write("   IgnoreUnprocessedNodes = Yes  \n")
+        outfile.write("} \n")
         if self.do_forces:
-            outfile.write('Analysis { \n')
-            outfile.write('   CalculateForces = Yes  \n')
-            outfile.write('} \n')
+            outfile.write("Analysis { \n")
+            outfile.write("   CalculateForces = Yes  \n")
+            outfile.write("} \n")
 
     def check_state(self, atoms):
         system_changes = FileIOCalculator.check_state(self, atoms)
         # Ignore unit cell for molecules:
-        if not atoms.pbc.any() and 'cell' in system_changes:
-            system_changes.remove('cell')
+        if not atoms.pbc.any() and "cell" in system_changes:
+            system_changes.remove("cell")
         if self.pcpot and self.pcpot.mmpositions is not None:
-            system_changes.append('positions')
+            system_changes.append("positions")
         return system_changes
 
     def write_input(self, atoms, properties=None, system_changes=None):
         from ase.io import write
+
         if properties is not None:
-            if 'forces' in properties or 'stress' in properties:
+            if "forces" in properties or "stress" in properties:
                 self.do_forces = True
-        FileIOCalculator.write_input(
-            self, atoms, properties, system_changes)
-        with open(os.path.join(self.directory, 'dftb_in.hsd'), 'w') as fd:
+        FileIOCalculator.write_input(self, atoms, properties, system_changes)
+        with open(os.path.join(self.directory, "dftb_in.hsd"), "w") as fd:
             self.write_dftb_in(fd)
-        write(os.path.join(self.directory, 'geo_end.gen'), atoms,
-              parallel=False)
+        write(os.path.join(self.directory, "geo_end.gen"), atoms, parallel=False)
         # self.atoms is none until results are read out,
         # then it is set to the ones at writing input
         self.atoms_input = atoms
         self.atoms = None
         if self.pcpot:
-            self.pcpot.write_mmcharges('dftb_external_charges.dat')
+            self.pcpot.write_mmcharges("dftb_external_charges.dat")
 
     def read_results(self):
-        """ all results are read from results.tag file
-            It will be destroyed after it is read to avoid
-            reading it once again after some runtime error """
+        """all results are read from results.tag file
+        It will be destroyed after it is read to avoid
+        reading it once again after some runtime error"""
 
-        with open(os.path.join(self.directory, 'results.tag'), 'r') as fd:
+        with open(os.path.join(self.directory, "results.tag"), "r") as fd:
             self.lines = fd.readlines()
 
         self.atoms = self.atoms_input
         charges, energy, dipole = self.read_charges_energy_dipole()
         if charges is not None:
-            self.results['charges'] = charges
-        self.results['energy'] = energy
+            self.results["charges"] = charges
+        self.results["energy"] = energy
         if dipole is not None:
-            self.results['dipole'] = dipole
+            self.results["dipole"] = dipole
         if self.do_forces:
             forces = self.read_forces()
-            self.results['forces'] = forces
+            self.results["forces"] = forces
         self.mmpositions = None
 
         # stress stuff begins
-        sstring = 'stress'
+        sstring = "stress"
         have_stress = False
         stress = list()
         for iline, line in enumerate(self.lines):
@@ -330,20 +337,20 @@ class Dftb(FileIOCalculator):
                     stress.append(cell)
         if have_stress:
             stress = -np.array(stress) * Hartree / Bohr**3
-            self.results['stress'] = stress.flat[[0, 4, 8, 5, 2, 1]]
+            self.results["stress"] = stress.flat[[0, 4, 8, 5, 2, 1]]
         # stress stuff ends
 
         # eigenvalues and fermi levels
         fermi_levels = self.read_fermi_levels()
         if fermi_levels is not None:
-            self.results['fermi_levels'] = fermi_levels
+            self.results["fermi_levels"] = fermi_levels
 
         eigenvalues = self.read_eigenvalues()
         if eigenvalues is not None:
-            self.results['eigenvalues'] = eigenvalues
+            self.results["eigenvalues"] = eigenvalues
 
         # calculation was carried out with atoms written in write_input
-        os.remove(os.path.join(self.directory, 'results.tag'))
+        os.remove(os.path.join(self.directory, "results.tag"))
 
     def read_forces(self):
         """Read Forces from dftb output file (results.tag)."""
@@ -356,12 +363,11 @@ class Dftb(FileIOCalculator):
 
         # Force line indexes
         for iline, line in enumerate(self.lines):
-            fstring = 'forces   '
+            fstring = "forces   "
             if line.find(fstring) >= 0:
                 index_force_begin = iline + 1
-                line1 = line.replace(':', ',')
-                index_force_end = iline + 1 + \
-                    int(line1.split(',')[-1])
+                line1 = line.replace(":", ",")
+                index_force_end = iline + 1 + int(line1.split(",")[-1])
                 break
 
         gradients = []
@@ -373,19 +379,19 @@ class Dftb(FileIOCalculator):
 
     def read_charges_energy_dipole(self):
         """Get partial charges on atoms
-            in case we cannot find charges they are set to None
+        in case we cannot find charges they are set to None
         """
-        with open(os.path.join(self.directory, 'detailed.out'), 'r') as fd:
+        with open(os.path.join(self.directory, "detailed.out"), "r") as fd:
             lines = fd.readlines()
 
         for line in lines:
-            if line.strip().startswith('Total energy:'):
+            if line.strip().startswith("Total energy:"):
                 energy = float(line.split()[2]) * Hartree
                 break
 
         qm_charges = []
         for n, line in enumerate(lines):
-            if ('Atom' and 'Charge' in line):
+            if "Atom" and "Charge" in line:
                 chargestart = n + 1
                 break
         else:
@@ -393,67 +399,67 @@ class Dftb(FileIOCalculator):
             # print('This is ok if flag SCC=No')
             return None, energy, None
 
-        lines1 = lines[chargestart:(chargestart + len(self.atoms))]
+        lines1 = lines[chargestart : (chargestart + len(self.atoms))]
         for line in lines1:
             qm_charges.append(float(line.split()[-1]))
 
         dipole = None
         for line in lines:
-            if 'Dipole moment:' in line and 'au' in line:
+            if "Dipole moment:" in line and "au" in line:
                 words = line.split()
-                dipole = np.array(
-                    [float(w) for w in words[-4:-1]]) * Bohr
+                dipole = np.array([float(w) for w in words[-4:-1]]) * Bohr
 
         return np.array(qm_charges), energy, dipole
 
     def get_charges(self, atoms):
-        """ Get the calculated charges
-        this is inhereted to atoms object """
-        if 'charges' in self.results:
-            return self.results['charges']
+        """Get the calculated charges
+        this is inhereted to atoms object"""
+        if "charges" in self.results:
+            return self.results["charges"]
         else:
             return None
 
     def read_eigenvalues(self):
-        """ Read Eigenvalues from dftb output file (results.tag).
-            Unfortunately, the order seems to be scrambled. """
+        """Read Eigenvalues from dftb output file (results.tag).
+        Unfortunately, the order seems to be scrambled."""
         # Eigenvalue line indexes
         index_eig_begin = None
         for iline, line in enumerate(self.lines):
-            fstring = 'eigenvalues   '
+            fstring = "eigenvalues   "
             if line.find(fstring) >= 0:
                 index_eig_begin = iline + 1
-                line1 = line.replace(':', ',')
-                ncol, nband, nkpt, nspin = map(int, line1.split(',')[-4:])
+                line1 = line.replace(":", ",")
+                ncol, nband, nkpt, nspin = map(int, line1.split(",")[-4:])
                 break
         else:
             return None
 
         # Take into account that the last row may lack
         # columns if nkpt * nspin * nband % ncol != 0
-        nrow = int(np.ceil(nkpt * nspin * nband * 1. / ncol))
+        nrow = int(np.ceil(nkpt * nspin * nband * 1.0 / ncol))
         index_eig_end = index_eig_begin + nrow
         ncol_last = len(self.lines[index_eig_end - 1].split())
 
         # askhl: this is quite hacky, would be good to clean up
         line = self.lines[index_eig_end - 1]
-        assert line[-1] == '\n'
-        line = line[:-1] + ' 0.0 ' * (ncol - ncol_last)
+        assert line[-1] == "\n"
+        line = line[:-1] + " 0.0 " * (ncol - ncol_last)
         self.lines[index_eig_end - 1] = line
-        
+
         eig = np.loadtxt(self.lines[index_eig_begin:index_eig_end]).flatten()
         eig *= Hartree
         N = nkpt * nband
-        eigenvalues = [eig[i * N:(i + 1) * N].reshape((nkpt, nband))
-                       for i in range(nspin)]
+        eigenvalues = [
+            eig[i * N : (i + 1) * N].reshape((nkpt, nband)) for i in range(nspin)
+        ]
 
         return eigenvalues
 
     def read_fermi_levels(self):
-        """ Read Fermi level(s) from dftb output file (results.tag). """
+        """Read Fermi level(s) from dftb output file (results.tag)."""
         # Fermi level line indexes
         for iline, line in enumerate(self.lines):
-            fstring = 'fermi_level   '
+            fstring = "fermi_level   "
             if line.find(fstring) >= 0:
                 index_fermi = iline + 1
                 break
@@ -462,7 +468,7 @@ class Dftb(FileIOCalculator):
 
         fermi_levels = []
         words = self.lines[index_fermi].split()
-        assert len(words) in [1, 2], 'Expected either 1 or 2 Fermi levels'
+        assert len(words) in [1, 2], "Expected either 1 or 2 Fermi levels"
 
         for word in words:
             e = float(word)
@@ -481,25 +487,23 @@ class Dftb(FileIOCalculator):
         return self.nspin
 
     def get_eigenvalues(self, kpt=0, spin=0):
-        return self.results['eigenvalues'][spin][kpt].copy()
+        return self.results["eigenvalues"][spin][kpt].copy()
 
     def get_fermi_levels(self):
-        return self.results['fermi_levels'].copy()
+        return self.results["fermi_levels"].copy()
 
     def get_fermi_level(self):
         return max(self.get_fermi_levels())
 
-    def embed(self, mmcharges=None, directory='./'):
-        """Embed atoms in point-charges (mmcharges)
-        """
+    def embed(self, mmcharges=None, directory="./"):
+        """Embed atoms in point-charges (mmcharges)"""
         self.pcpot = PointChargePotential(mmcharges, self.directory)
         return self.pcpot
 
 
 class PointChargePotential:
-    def __init__(self, mmcharges, directory='./'):
-        """Point-charge potential for DFTB+.
-        """
+    def __init__(self, mmcharges, directory="./"):
+        """Point-charge potential for DFTB+."""
         self.mmcharges = mmcharges
         self.directory = directory
         self.mmpositions = None
@@ -512,21 +516,20 @@ class PointChargePotential:
         self.mmcharges = mmcharges
 
     def write_mmcharges(self, filename):
-        """ mok all
+        """mok all
         write external charges as monopoles for dftb+.
 
         """
         if self.mmcharges is None:
             print("DFTB: Warning: not writing exernal charges ")
             return
-        with open(os.path.join(self.directory, filename), 'w') as charge_file:
+        with open(os.path.join(self.directory, filename), "w") as charge_file:
             for [pos, charge] in zip(self.mmpositions, self.mmcharges):
                 [x, y, z] = pos
-                charge_file.write('%12.6f %12.6f %12.6f %12.6f \n'
-                                  % (x, y, z, charge))
+                charge_file.write("%12.6f %12.6f %12.6f %12.6f \n" % (x, y, z, charge))
 
     def get_forces(self, calc, get_forces=True):
-        """ returns forces on point charges if the flag get_forces=True """
+        """returns forces on point charges if the flag get_forces=True"""
         if get_forces:
             return self.read_forces_on_pointcharges()
         else:
@@ -535,21 +538,20 @@ class PointChargePotential:
     def read_forces_on_pointcharges(self):
         """Read Forces from dftb output file (results.tag)."""
         from ase.units import Hartree, Bohr
-        with open(os.path.join(self.directory, 'detailed.out'), 'r') as fd:
+
+        with open(os.path.join(self.directory, "detailed.out"), "r") as fd:
             lines = fd.readlines()
 
         external_forces = []
         for n, line in enumerate(lines):
-            if ('Forces on external charges' in line):
+            if "Forces on external charges" in line:
                 chargestart = n + 1
                 break
         else:
-            raise RuntimeError(
-                'Problem in reading forces on MM external-charges')
-        lines1 = lines[chargestart:(chargestart + len(self.mmcharges))]
+            raise RuntimeError("Problem in reading forces on MM external-charges")
+        lines1 = lines[chargestart : (chargestart + len(self.mmcharges))]
         for line in lines1:
-            external_forces.append(
-                [float(i) for i in line.split()])
+            external_forces.append([float(i) for i in line.split()])
         return np.array(external_forces) * Hartree / Bohr
 
 
@@ -558,9 +560,9 @@ def read_max_angular_momentum(path):
 
     See dftb.org for A detailed description of the Slater-Koster file format.
     """
-    with open(path, 'r') as fd:
+    with open(path, "r") as fd:
         line = fd.readline()
-        if line[0] == '@':
+        if line[0] == "@":
             # Extended format
             fd.readline()
             l = 3
@@ -571,9 +573,9 @@ def read_max_angular_momentum(path):
             pos = 7
 
         # Sometimes there ar commas, sometimes not:
-        line = fd.readline().replace(',', ' ')
+        line = fd.readline().replace(",", " ")
 
-        occs = [float(f) for f in line.split()[pos:pos + l + 1]]
+        occs = [float(f) for f in line.split()[pos : pos + l + 1]]
         for f in occs:
             if f > 0.0:
                 return l
