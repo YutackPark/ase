@@ -218,9 +218,11 @@ class AtomsRow:
     @property
     def charge(self):
         """Total charge."""
-        charges = self.get('inital_charges')
+        charges = self.get('charges')
         if charges is None:
-            return 0.0
+            charges = self.get('initial_charges')
+            if charges is None:
+                return 0.0
         return charges.sum()
 
     def toatoms(self,
