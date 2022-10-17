@@ -29,13 +29,19 @@ class AbinitProfile:
         self.argv = argv
 
     def version(self):
-        return check_output(self.argv + ['--version'])
+        return check_output(self.argv + ['--version'],
+                            encoding='ascii').strip()
 
     def run(self, directory, inputfile, outputfile):
         with open(outputfile, 'w') as fd:
             check_call(self.argv + [str(inputfile)], stdout=fd,
                        env=os.environ,
                        cwd=directory)
+
+    @classmethod
+    def fromconfig(cls, cfg):
+        section = cfg['abinit']
+        return cls(section['argv'])
 
 
 class AbinitTemplate(CalculatorTemplate):

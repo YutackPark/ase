@@ -20,9 +20,14 @@ class CLICommand:
                             help='Show more information about files.')
         parser.add_argument('--formats', action='store_true',
                             help='List file formats known to ASE.')
-        parser.add_argument('--calculators', action='store_true',
-                            help='List calculators known to ASE '
-                            'and whether they appear to be installed.')
+        parser.add_argument('--config', action='store_true',
+                            help='List configured calculators')
+        parser.add_argument('--check-calculators', action='store_true',
+                            help='List all calculators known to ASE '
+                            'and whether/how each is installed.  Also, '
+                            'attempt to determine version numbers by '
+                            'running binaries or importing packages as '
+                            'appropriate.')
 
     @staticmethod
     def run(args):
@@ -30,15 +35,18 @@ class CLICommand:
         from ase.io.ulm import print_ulm_info
         from ase.io.bundletrajectory import print_bundletrajectory_info
 
+        from ase.config import cfg
         if not args.filename:
             print_info()
             if args.formats:
                 print()
                 print_formats()
-            if args.calculators:
-                from ase.config import cfg
+            if args.config:
                 print()
                 cfg.print_everything()
+            if args.check_calculators:
+                print()
+                cfg.check_calculators()
                 # print()
                 # from ase.calculators.autodetect import (detect_calculators,
                 #                                        format_configs)
