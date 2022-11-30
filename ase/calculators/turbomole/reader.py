@@ -30,12 +30,22 @@ def parse_data_group(dgr, dg_name):
     if not dgr.startswith(dg_key):
         raise ValueError(f'data group does not start with {dg_key}')
     ndg = dgr.replace(dg_key, '').strip()
+    ndg = re.sub(r'=\s+', '=', re.sub(r'\s+=', '=', ndg))
     if all(c not in ndg for c in ('\n', ' ', '=')):
         return ndg
-    # valid identifiers acceptable as keys
-    # quoted strings with spaces not acceptable as values
-    regex = r'([^\d\W]\w*\b)\s*[=\s]\s*(\S+)'
-    return dict(re.findall(regex, ndg, re.DOTALL))
+    lsep = '\n' if '\n' in dgr else ' '
+    result = {}
+    lines = ndg.split(lsep)
+    for line in lines:
+        if len(line) == 0:
+            continue
+        ksep = '=' if '=' in line else None
+        fields = line.strip().split(ksep)
+        if len(fields) == 2:
+            result[fields[0]] = fields[1]
+        elif len(fields) == 1:
+            result[fields[0]] = True
+    return result
 
 
 def read_output(regex, path):
