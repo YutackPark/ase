@@ -833,7 +833,8 @@ End CASTEP Interface Documentation
         record_starts = []
         while True:
             line = castep_file.readline()
-            if 'Welcome' in line and 'CASTEP' in line:
+            if (('Welcome' in line or 'Materials Studio' in line)
+                    and 'CASTEP' in line):
                 record_starts = [castep_file.tell()] + record_starts
             if not line:
                 break
