@@ -1,13 +1,15 @@
 """
 Output support for X3D and X3DOM file types.
 See http://www.web3d.org/x3d/specifications/
-X3DOM outputs to html pages that should display 3-d manipulatable atoms in
-modern web browsers.
+X3DOM outputs to html that display 3-d manipulatable atoms in
+modern web browsers and jupyter notebooks.
 """
 
 from ase.data import covalent_radii
 from ase.data.colors import jmol_colors
 from ase.utils import writer
+import xml.etree.ElementTree as ET
+from xml.dom import minidom
 
 
 @writer
@@ -51,72 +53,106 @@ class X3D:
             datatype - str, output format. 'X3D' or 'X3DOM'.
         """
 
-        # Write the header
-        w = WriteToFile(fileobj)
         if datatype == 'X3DOM':
-            w(0, '<html>')
-            w(1, '<head>')
-            w(2, '<title>ASE atomic visualization</title>')
-            w(2, '<link rel="stylesheet" type="text/css"')
-            w(2, ' href="https://www.x3dom.org/x3dom/release/x3dom.css">')
-            w(2, '</link>')
-            w(2, '<script type="text/javascript"')
-            w(2, ' src="https://www.x3dom.org/x3dom/release/x3dom.js">')
-            w(2, '</script>')
-            w(1, '</head>')
-            w(1, '<body>')
-            w(2, '<X3D>')
+            template = X3DOM_template
         elif datatype == 'X3D':
-            w(0, '<?xml version="1.0" encoding="UTF-8"?>')
-            w(0, '<!DOCTYPE X3D PUBLIC "ISO//Web3D//DTD X3D 3.2//EN" '
-              '"http://www.web3d.org/specifications/x3d-3.2.dtd">')
-            w(0, '<X3D profile="Interchange" version="3.2" '
-              'xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" '
-              'xsd:noNamespaceSchemaLocation='
-              '"http://www.web3d.org/specifications/x3d-3.2.xsd">')
+            template = X3D_template
         else:
-            raise ValueError("datatype not supported: " + str(datatype))
+            raise ValueError(f'datatype not supported: {datatype}')
 
-        w(3, '<Scene>')
-
-        for atom in self._atoms:
-            for indent, line in atom_lines(atom):
-                w(4 + indent, line)
-
-        w(3, '</Scene>')
-
-        if datatype == 'X3DOM':
-            w(2, '</X3D>')
-            w(1, '</body>')
-            w(0, '</html>')
-        elif datatype == 'X3D':
-            w(0, '</X3D>')
+        scene = x3d_atoms(self._atoms)
+        document = template.format(scene=pretty_print(scene))
+        print(document, file=fileobj)
 
 
-class WriteToFile:
-    """Creates convenience function to write to a file."""
+def x3d_atoms(atoms):
+    """Convert an atoms object into an x3d representation."""
 
-    def __init__(self, fileobj):
-        self._f = fileobj
-
-    def __call__(self, indent, line):
-        text = ' ' * indent
-        print('%s%s\n' % (text, line), file=self._f)
+    atom_spheres = [x3d_atom(atom) for atom in atoms]
+    return element('scene', children=atom_spheres)
 
 
-def atom_lines(atom):
-    """Generates a segment of X3D lines representing an atom."""
+def element(name, child=None, children=None, **attributes) -> ET.Element:
+    """Convenience function to make an XML element.
+
+    If child is specified, it is appended to the element.
+    If children is specified, they are appended to the element.
+    You cannot specify both child and children."""
+
+    # make sure we don't specify both child and children
+    if child is not None:
+        assert children is None, 'Cannot specify both child and children'
+        children = [child]
+    else:
+        children = children or []
+
+    element = ET.Element(name, **attributes)
+    for child in children:
+        element.append(child)
+    return element
+
+
+def x3d_atom(atom):
+    """Represent an atom as an x3d, coloured sphere."""
+
     x, y, z = atom.position
-    lines = [(0, '<Transform translation="%.2f %.2f %.2f">' % (x, y, z))]
-    lines += [(1, '<Shape>')]
-    lines += [(2, '<Appearance>')]
-    color = tuple(jmol_colors[atom.number])
-    color = 'diffuseColor="%.3f %.3f %.3f"' % color
-    lines += [(3, '<Material %s specularColor="0.5 0.5 0.5">' % color)]
-    lines += [(3, '</Material>')]
-    lines += [(2, '</Appearance>')]
-    lines += [(2, '<Sphere radius="%.2f">' % covalent_radii[atom.number])]
-    lines += [(2, '</Sphere>')]
-    lines += [(1, '</Shape>')]
-    lines += [(0, '</Transform>')]
-    return lines
+    r, g, b = jmol_colors[atom.number]
+    radius = covalent_radii[atom.number]
+
+    material = element('material', diffuseColor=f'{r} {g} {b}')
+
+    appearance = element('appearance', child=material)
+    sphere = element('sphere', radius=f'{radius}')
+
+    shape = element('shape', children=(appearance, sphere))
+
+    return element('transform', translation=f'{x} {y} {z}', child=shape)
+
+
+def pretty_print(element: ET.Element, indent: int = 2):
+    """Pretty print an XML element."""
+
+    byte_string = ET.tostring(element, 'utf-8')
+    parsed = minidom.parseString(byte_string)
+    prettied = parsed.toprettyxml(indent=' ' * indent)
+    # remove first line - contains an extra, un-needed xml declaration
+    lines = prettied.splitlines()[1:]
+    return '\n'.join(lines)
+
+
+X3DOM_template = """\
+<html>
+    <head>
+        <title>ASE atomic visualization</title>
+        <link rel="stylesheet" type="text/css" \
+            href="https://www.x3dom.org/x3dom/release/x3dom.css"></link>
+        <script type="text/javascript" \
+            src="https://www.x3dom.org/x3dom/release/x3dom.js"></script>
+    </head>
+    <body>
+        <X3D width="640px" height="480px">
+
+<!--Inserting Generated X3D Scene-->
+{scene}
+<!--End of Inserted Scene-->
+
+        </X3D>
+    </body>
+</html>
+"""
+
+X3D_template = """\
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE X3D PUBLIC "ISO//Web3D//DTD X3D 3.2//EN" \
+    "http://www.web3d.org/specifications/x3d-3.2.dtd">
+<X3D profile="Interchange" version="3.2" \
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" \
+    xsd:noNamespaceSchemaLocation=\
+        "http://www.web3d.org/specifications/x3d-3.2.xsd">
+
+<!--Inserting Generated X3D Scene-->
+{scene}
+<!--End of Inserted Scene-->
+
+</X3D>
+"""
