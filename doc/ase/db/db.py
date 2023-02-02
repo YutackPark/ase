@@ -58,6 +58,5 @@ with open('known-keys.csv', 'w') as fd:
         unit = keydesc.unit
         if unit == '|e|':
             unit = r'\|e|'
-        long = long or short
         print('{},{},{},{}'.format(
             key, keydesc.shortdesc, keydesc.longdesc, unit), file=fd)
