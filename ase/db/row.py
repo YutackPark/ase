@@ -257,9 +257,7 @@ class AtomsRow:
         return atoms
 
 
-def row2dct(row,
-            key_descriptions: Dict[str, Tuple[str, str, str]] = {}
-            ) -> Dict[str, Any]:
+def row2dct(row, key_descriptions) -> Dict[str, Any]:
     """Convert row to dict of things for printing or a web-page."""
 
     from ase.db.core import float_to_time_string, now
