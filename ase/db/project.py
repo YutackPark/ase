@@ -1,7 +1,4 @@
-from collections.abc import Mapping
 from pathlib import Path
-import functools
-from typing import Set, Dict, Any
 from ase.db.row import row2dct
 from ase.formula import Formula
 from ase.db.core import KeyDescription
