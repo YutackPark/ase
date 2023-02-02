@@ -53,9 +53,9 @@ class Formula:
             on malformed formula
         """
 
-        # Be sure that Formula(x) works also when x is already a Formula:
-        if hasattr(formula, '_formula'):
-            formula = formula._formula
+        # Be sure that Formula(x) works the same whether x is string or Formula
+        assert isinstance(formula, (str, Formula))
+        formula = str(formula)
 
         if format:
             assert _tree is None and _count is None
@@ -63,7 +63,9 @@ class Formula:
                               'periodic'}:
                 raise ValueError(f'Illegal format: {format}')
             formula = Formula(formula).format(format)
+
         self._formula = formula
+
         self._tree = _tree or parse(formula)
         self._count = _count or count_tree(self._tree)
         if strict:

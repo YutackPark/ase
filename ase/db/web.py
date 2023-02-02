@@ -1,6 +1,5 @@
 """Helper functions for Flask WSGI-app."""
-import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from ase.db.core import Database
 from ase.db.table import Table, all_columns
@@ -49,7 +48,7 @@ class Session:
                what: str,
                x: str,
                args: Dict[str, str],
-               project: Dict[str, Any]) -> None:
+               project) -> None:
 
         if self.columns is None:
             self.columns = list(project.default_columns)
