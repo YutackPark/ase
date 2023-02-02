@@ -10,6 +10,7 @@ from ase.data.colors import jmol_colors
 from ase.utils import writer
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
+import numpy as np
 
 
 @writer
@@ -139,19 +140,25 @@ def x3d_atoms(atoms):
     # we want the cell to be in the middle of the viewport
     # so that we can (a) see the whole cell and (b) rotate around the center
     # therefore we translate so that the center of the cell is at the origin
-    x, y, z = -atoms.cell.diagonal() / 2
-    cell = translate(cell, x, y, z)
+    cell_center = atoms.cell.diagonal() / 2
+    cell = translate(cell, *(-cell_center))
 
-    # TODO:
-    # this position was chosen using the X3DOM viewer debug mode as a
-    # reasonable default (fits a ~10Å cell in the viewport)
-    # it would be nice to have a more general solution that works for
-    # all cell sizes
+    # we want the cell, and all atoms, to be visible
+    # - sometimes atoms appear outside the cell
+    # - sometimes atoms only take up a small part of the cell
+    # location of the viewpoint therefore takes both of these into account:
+    # the scene is centered on the cell, so we find the furthest point away
+    # from the cell center, and use this to determine the
+    # distance of the viewpoint
+    points = np.vstack((atoms.positions, atoms.cell[:]))
+    max_xyz_extent = get_maximum_extent(points - cell_center)
 
+    # the largest separation between two points in any of x, y or z
+    max_dim = max(max_xyz_extent)
+    # put the camera twice as far away as the largest extent
+    pos = f'0 0 {max_dim * 2}'
     # NB. viewpoint needs to contain an (empty) child to be valid x3d
-    viewpoint = element(
-        'viewpoint', position='0 0 35', child=element('group')
-    )
+    viewpoint = element('viewpoint', position=pos, child=element('group'))
 
     return element('scene', children=(viewpoint, cell))
 
@@ -197,6 +204,12 @@ def pretty_print(element: ET.Element, indent: int = 2):
     return '\n'.join(lines)
 
 
+def get_maximum_extent(xyz):
+    """Get the maximum extent of an array of 3d set of points."""
+
+    return np.max(xyz, axis=0) - np.min(xyz, axis=0)
+
+
 X3DOM_template = """\
 <html>
     <head>
@@ -207,7 +220,7 @@ X3DOM_template = """\
             src="https://www.x3dom.org/x3dom/release/x3dom.js"></script>
     </head>
     <body>
-        <X3D width="400px" height="400px">
+        <X3D width="400px" height="300px">
 
 <!--Inserting Generated X3D Scene-->
 {scene}
