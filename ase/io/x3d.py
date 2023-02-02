@@ -65,18 +65,82 @@ class X3D:
         print(document, file=fileobj)
 
 
+def x3d_atom(atom):
+    """Represent an atom as an x3d, coloured sphere."""
+
+    x, y, z = atom.position
+    r, g, b = jmol_colors[atom.number]
+    radius = covalent_radii[atom.number]
+
+    material = element('material', diffuseColor=f'{r} {g} {b}')
+
+    appearance = element('appearance', child=material)
+    sphere = element('sphere', radius=f'{radius}')
+
+    shape = element('shape', children=(appearance, sphere))
+    return translate(shape, x, y, z)
+
+
+def x3d_wireframe_box(box):
+    """x3d wireframe representation of a box (3x3 array).
+
+    To draw a box, spanned by vectors a, b and c, it is necessary to
+    draw 4 faces, each of which is a parallelogram. The faces are:
+    (start from) , (vectors spanning the face)
+    1. (0), (a, b)
+    2. (c), (a, b) # opposite face to 1.
+    3. (0), (a, c)
+    4. (b), (a, c) # opposite face to 3."""
+
+    # box may not be a cube, hence not just using the diagonal
+    a, b, c = box
+    faces = [
+        wireframe_face(a, b),
+        wireframe_face(a, b, origin=c),
+        wireframe_face(a, c),
+        wireframe_face(a, c, origin=b),
+    ]
+    return group(faces)
+
+
+def wireframe_face(vec1, vec2, origin=(0, 0, 0)):
+    """x3d wireframe representation of a face spanned by vec1 and vec2."""
+
+    x1, y1, z1 = vec1
+    x2, y2, z2 = vec2
+
+    material = element('material', diffuseColor='0 0 0')
+    appearance = element('appearance', child=material)
+
+    points = [
+        (0, 0, 0),
+        (x1, y1, z1),
+        (x1 + x2, y1 + y2, z1 + z2),
+        (x2, y2, z2),
+        (0, 0, 0),
+    ]
+    points = ' '.join(f'{x} {y} {z}' for x, y, z in points)
+
+    coordinates = element('coordinate', point=points)
+    lineset = element('lineset', vertexCount='5', child=coordinates)
+    shape = element('shape', children=(appearance, lineset))
+
+    x, y, z = origin
+    return translate(shape, x, y, z)
+
+
 def x3d_atoms(atoms):
     """Convert an atoms object into an x3d representation."""
 
-    atom_spheres = [x3d_atom(atom) for atom in atoms]
+    atom_spheres = group([x3d_atom(atom) for atom in atoms])
+    wireframe = x3d_wireframe_box(atoms.cell)
+    cell = group((wireframe, atom_spheres))
 
     # we want the cell to be in the middle of the viewport
     # so that we can (a) see the whole cell and (b) rotate around the center
     # therefore we translate so that the center of the cell is at the origin
     x, y, z = -atoms.cell.diagonal() / 2
-    cell = element(
-        'transform', translation=f'{x} {y} {z}', children=atom_spheres
-    )
+    cell = translate(cell, x, y, z)
 
     # TODO:
     # this position was chosen using the X3DOM viewer debug mode as a
@@ -112,21 +176,14 @@ def element(name, child=None, children=None, **attributes) -> ET.Element:
     return element
 
 
-def x3d_atom(atom):
-    """Represent an atom as an x3d, coloured sphere."""
+def translate(thing, x, y, z):
+    """Translate a x3d element by x, y, z."""
+    return element('transform', translation=f'{x} {y} {z}', child=thing)
 
-    x, y, z = atom.position
-    r, g, b = jmol_colors[atom.number]
-    radius = covalent_radii[atom.number]
 
-    material = element('material', diffuseColor=f'{r} {g} {b}')
-
-    appearance = element('appearance', child=material)
-    sphere = element('sphere', radius=f'{radius}')
-
-    shape = element('shape', children=(appearance, sphere))
-
-    return element('transform', translation=f'{x} {y} {z}', child=shape)
+def group(things):
+    """Group a (list of) x3d elements."""
+    return element('group', children=things)
 
 
 def pretty_print(element: ET.Element, indent: int = 2):
