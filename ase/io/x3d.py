@@ -69,7 +69,27 @@ def x3d_atoms(atoms):
     """Convert an atoms object into an x3d representation."""
 
     atom_spheres = [x3d_atom(atom) for atom in atoms]
-    return element('scene', children=atom_spheres)
+
+    # we want the cell to be in the middle of the viewport
+    # so that we can (a) see the whole cell and (b) rotate around the center
+    # therefore we translate so that the center of the cell is at the origin
+    x, y, z = -atoms.cell.diagonal() / 2
+    cell = element(
+        'transform', translation=f'{x} {y} {z}', children=atom_spheres
+    )
+
+    # TODO:
+    # this position was chosen using the X3DOM viewer debug mode as a
+    # reasonable default (fits a ~10Å cell in the viewport)
+    # it would be nice to have a more general solution that works for
+    # all cell sizes
+
+    # NB. viewpoint needs to contain an (empty) child to be valid x3d
+    viewpoint = element(
+        'viewpoint', position='0 0 35', child=element('group')
+    )
+
+    return element('scene', children=(viewpoint, cell))
 
 
 def element(name, child=None, children=None, **attributes) -> ET.Element:
@@ -130,7 +150,7 @@ X3DOM_template = """\
             src="https://www.x3dom.org/x3dom/release/x3dom.js"></script>
     </head>
     <body>
-        <X3D width="640px" height="480px">
+        <X3D width="400px" height="400px">
 
 <!--Inserting Generated X3D Scene-->
 {scene}
