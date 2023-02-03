@@ -4,6 +4,7 @@ from ase.calculators.calculator import compare_atoms
 from ase.db import connect
 from ase.db.cli import check_jsmol
 from ase.db.web import Session
+from ase.db.app import DatabaseProject
 
 
 projectname = 'db-web-test-project'
@@ -39,11 +40,6 @@ def database(tmp_path_factory):
     yield db
 
 
-def handle_query(args) -> str:
-    """Converts request args to ase.db query string."""
-    return args['query']
-
-
 @pytest.fixture(scope='module')
 def client(database):
     pytest.importorskip('flask')
@@ -61,8 +57,8 @@ def test_add_columns(database):
     pytest.importorskip('flask')
 
     session = Session('name')
-    project = {'default_columns': ['bar'],
-               'handle_query_function': handle_query}
+    project = DatabaseProject.dummyproject(
+        default_columns=['bar'])
 
     session.update('query', '', {'query': 'id=2'}, project)
     table = session.create_table(database, 'id', ['foo'])
@@ -114,8 +110,8 @@ def test_paging(database):
     pytest.importorskip('flask')
 
     session = Session('name')
-    project = {'default_columns': ['bar'],
-               'handle_query_function': handle_query}
+    project = DatabaseProject.dummyproject(
+        default_columns=['bar'])
 
     session.update('query', '', {'query': ''}, project)
     table = session.create_table(database, 'id', ['foo'])

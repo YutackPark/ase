@@ -1,5 +1,5 @@
 from random import randint
-from typing import Dict, Tuple, Any
+from typing import Dict, Any
 
 import numpy as np
 
@@ -257,9 +257,7 @@ class AtomsRow:
         return atoms
 
 
-def row2dct(row,
-            key_descriptions: Dict[str, Tuple[str, str, str]] = {}
-            ) -> Dict[str, Any]:
+def row2dct(row, key_descriptions) -> Dict[str, Any]:
     """Convert row to dict of things for printing or a web-page."""
 
     from ase.db.core import float_to_time_string, now
@@ -299,6 +297,8 @@ def row2dct(row,
             set(key_descriptions) |
             set(row.key_value_pairs))
     dct['table'] = []
+
+    from ase.db.project import KeyDescription
     for key in keys:
         if key == 'age':
             age = float_to_time_string(now() - row.ctime, True)
@@ -310,9 +310,12 @@ def row2dct(row,
                 value = '{:.3f}'.format(value)
             elif not isinstance(value, str):
                 value = str(value)
-            desc, unit = key_descriptions.get(key, ['', '', ''])[1:]
+
+            nokeydesc = KeyDescription(key, '', '', '')
+            keydesc = key_descriptions.get(key, nokeydesc)
+            unit = keydesc.unit
             if unit:
                 value += ' ' + unit
-            dct['table'].append((key, desc, value))
+            dct['table'].append((key, keydesc.longdesc, value))
 
     return dct

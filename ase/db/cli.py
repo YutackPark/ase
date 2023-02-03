@@ -282,7 +282,7 @@ def main(args):
 
 
 def row2str(row) -> str:
-    t = row2dct(row)
+    t = row2dct(row, key_descriptions={})
     S = [t['formula'] + ':',
          'Unit cell in Ang:',
          'axis|periodic|          x|          y|          z|' +

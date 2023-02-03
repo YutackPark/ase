@@ -1,8 +1,7 @@
 """Helper functions for Flask WSGI-app."""
-import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
-from ase.db.core import Database, default_key_descriptions
+from ase.db.core import Database
 from ase.db.table import Table, all_columns
 
 
@@ -49,13 +48,13 @@ class Session:
                what: str,
                x: str,
                args: Dict[str, str],
-               project: Dict[str, Any]) -> None:
+               project) -> None:
 
         if self.columns is None:
-            self.columns = project['default_columns'][:]
+            self.columns = list(project.default_columns)
 
         if what == 'query':
-            self.query = project['handle_query_function'](args)
+            self.query = project.handle_query(args)
             self.nrows = None
             self.page = 0
 
@@ -78,7 +77,7 @@ class Session:
         elif what == 'toggle':
             column = x
             if column == 'reset':
-                self.columns = project['default_columns'][:]
+                self.columns = list(project.default_columns)
             else:
                 if column in self.columns:
                     self.columns.remove(column)
@@ -152,34 +151,6 @@ class Session:
         table.format()
         assert self.columns is not None
         table.addcolumns = sorted(column for column in
-                                  all_columns + keys
+                                  [*all_columns, *keys]
                                   if column not in self.columns)
         return table
-
-
-KeyDescriptions = Dict[str, Tuple[str, str, str]]  # type-hint shortcut
-
-
-def create_key_descriptions(kd: KeyDescriptions) -> KeyDescriptions:
-    kd = kd.copy()
-    kd.update(default_key_descriptions)
-
-    # Fill in missing descriptions:
-    for key, (short, long, unit) in kd.items():
-        if not short:
-            kd[key] = (key, key, unit)
-        elif not long:
-            kd[key] = (short, short, unit)
-
-    sub = re.compile(r'`(.)_(.)`')
-    sup = re.compile(r'`(.*)\^\{?(.*?)\}?`')
-
-    # Convert LaTeX to HTML:
-    for key, value in kd.items():
-        short, long, unit = value
-        unit = sub.sub(r'\1<sub>\2</sub>', unit)
-        unit = sup.sub(r'\1<sup>\2</sup>', unit)
-        unit = unit.replace(r'\text{', '').replace('}', '')
-        kd[key] = (short, long, unit)
-
-    return kd
