@@ -635,14 +635,16 @@ class IOContext:
         if hasattr(file, 'close'):
             return file  # File already opened, not for us to close.
 
+        encoding = None if mode.endswith('b') else 'utf-8'
+
         if file is None or comm.rank != 0:
             return self.closelater(open(os.devnull, mode=mode,
-                                        encoding='utf-8'))
+                                        encoding=encoding))
 
         if file == '-':
             return sys.stdout
 
-        return self.closelater(open(file, mode=mode, encoding='utf-8'))
+        return self.closelater(open(file, mode=mode, encoding=encoding))
 
 
 def get_python_package_path_description(
