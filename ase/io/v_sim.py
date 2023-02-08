@@ -80,11 +80,11 @@ def read_v_sim(fd):
 
     if "periodic" in keywords:
         atoms.pbc = [True, True, True]
-    elif "freeBC" in keywords:
+    elif "freebc" in keywords:
         atoms.pbc = [False, False, False]
     elif "surface" in keywords:
         atoms.pbc = [True, False, True]
-    else: # default is periodic boundary conditions
+    else:  # default is periodic boundary conditions
         atoms.pbc = [True, True, True]
 
     atoms.set_chemical_symbols(symbols)
