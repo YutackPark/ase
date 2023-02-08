@@ -61,9 +61,6 @@ def read_v_sim(fd):
                               unit * float(fields[2])])
             symbols.append(fields[3])
 
-    if ("surface" in keywords) or ("freeBC" in keywords):
-        raise NotImplementedError
-
     # create atoms object based on the information
     if "angdeg" in keywords:
         cell = cellpar_to_cell(box)
@@ -80,6 +77,15 @@ def read_v_sim(fd):
         atoms = Atoms(cell=cell, scaled_positions=positions)
     else:
         atoms = Atoms(cell=cell, positions=positions)
+
+    if "periodic" in keywords:
+        atoms.pbc = [True, True, True]
+    elif "freeBC" in keywords:
+        atoms.pbc = [False, False, False]
+    elif "surface" in keywords:
+        atoms.pbc = [True, False, True]
+    else: # default is periodic boundary conditions
+        atoms.pbc = [True, True, True]
 
     atoms.set_chemical_symbols(symbols)
     return atoms
