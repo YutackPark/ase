@@ -23,8 +23,8 @@ def write_x3d(fd, atoms, format='X3D', style=None):
         format - str, either 'X3DOM' for web-browser compatibility or 'X3D'
             to be readable by Blender. `None` to detect format based on file
             extension ('.html' -> 'X3DOM', '.x3d' -> 'X3D')
-        style - dict, css style attributes for the X3D element. For example,
-            {'width': '50%', 'height': '30%'}."""
+        style - dict, css style attributes for the X3D element
+    """
     X3D(atoms).write(fd, datatype=format, x3d_style=style)
 
 
@@ -34,7 +34,8 @@ def write_html(fd, atoms):
 
     Args:
         filename - str or file-like object, filename or output file object
-        atoms - Atoms object to be rendered"""
+        atoms - Atoms object to be rendered
+    """
     write_x3d(fd, atoms, format='X3DOM')
 
 
@@ -54,8 +55,8 @@ class X3D:
 
         Args:
             datatype - str, output format. 'X3D' or 'X3DOM'
-            x3d_style - dict, css style attributes for the X3D element. For
-                example, {'width': '50%', 'height': '30%'}."""
+            x3d_style - dict, css style attributes for the X3D element
+        """
 
         # convert dictionary of style attributes to a css string
         if x3d_style is None:
