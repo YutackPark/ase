@@ -14,7 +14,7 @@ import numpy as np
 
 
 @writer
-def write_x3d(fd, atoms, format='X3D'):
+def write_x3d(fd, atoms, format='X3D', style=None):
     """Writes to html using X3DOM.
 
     Args:
@@ -22,8 +22,10 @@ def write_x3d(fd, atoms, format='X3D'):
         atoms - Atoms object to be rendered
         format - str, either 'X3DOM' for web-browser compatibility or 'X3D'
             to be readable by Blender. `None` to detect format based on file
-            extension ('.html' -> 'X3DOM', '.x3d' -> 'X3D')"""
-    X3D(atoms).write(fd, datatype=format)
+            extension ('.html' -> 'X3DOM', '.x3d' -> 'X3D')
+        style - dict, css style attributes for the X3D element. For example,
+            {'width': '50%', 'height': '30%'}."""
+    X3D(atoms).write(fd, datatype=format, x3d_style=style)
 
 
 @writer
@@ -45,14 +47,20 @@ class X3D:
     def __init__(self, atoms):
         self._atoms = atoms
 
-    def write(self, fileobj, datatype):
+    def write(self, fileobj, datatype, x3d_style=None):
         """Writes output to either an 'X3D' or an 'X3DOM' file, based on
         the extension. For X3D, filename should end in '.x3d'. For X3DOM,
         filename should end in '.html'.
 
         Args:
-            datatype - str, output format. 'X3D' or 'X3DOM'.
-        """
+            datatype - str, output format. 'X3D' or 'X3DOM'
+            x3d_style - dict, css style attributes for the X3D element. For
+                example, {'width': '50%', 'height': '30%'}."""
+
+        # convert dictionary of style attributes to a css string
+        if x3d_style is None:
+            x3d_style = {}
+        x3dstyle = " ".join(f'{k}="{v}";' for k, v in x3d_style.items())
 
         if datatype == 'X3DOM':
             template = X3DOM_template
@@ -62,7 +70,7 @@ class X3D:
             raise ValueError(f'datatype not supported: {datatype}')
 
         scene = x3d_atoms(self._atoms)
-        document = template.format(scene=pretty_print(scene))
+        document = template.format(scene=pretty_print(scene), style=x3dstyle)
         print(document, file=fileobj)
 
 
@@ -220,7 +228,7 @@ X3DOM_template = """\
             src="https://www.x3dom.org/x3dom/release/x3dom.js"></script>
     </head>
     <body>
-        <X3D width="400px" height="300px">
+        <X3D {style}>
 
 <!--Inserting Generated X3D Scene-->
 {scene}
@@ -238,7 +246,7 @@ X3D_template = """\
 <X3D profile="Interchange" version="3.2" \
     xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" \
     xsd:noNamespaceSchemaLocation=\
-        "http://www.web3d.org/specifications/x3d-3.2.xsd">
+        "http://www.web3d.org/specifications/x3d-3.2.xsd" {style}>
 
 <!--Inserting Generated X3D Scene-->
 {scene}
