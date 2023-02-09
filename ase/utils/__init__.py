@@ -18,7 +18,7 @@ import numpy as np
 
 from ase.formula import formula_hill, formula_metal
 
-__all__ = ['exec_', 'basestring', 'import_module', 'seterr', 'plural',
+__all__ = ['basestring', 'import_module', 'seterr', 'plural',
            'devnull', 'gcd', 'convert_string_to_fd', 'Lock',
            'opencew', 'OpenLock', 'rotate', 'irotate', 'pbc2pbc', 'givens',
            'hsv2rgb', 'hsv', 'pickleload', 'FileNotFoundError',
@@ -635,13 +635,16 @@ class IOContext:
         if hasattr(file, 'close'):
             return file  # File already opened, not for us to close.
 
+        encoding = None if mode.endswith('b') else 'utf-8'
+
         if file is None or comm.rank != 0:
-            return self.closelater(open(os.devnull, mode=mode))
+            return self.closelater(open(os.devnull, mode=mode,
+                                        encoding=encoding))
 
         if file == '-':
             return sys.stdout
 
-        return self.closelater(open(file, mode=mode))
+        return self.closelater(open(file, mode=mode, encoding=encoding))
 
 
 def get_python_package_path_description(
