@@ -6,6 +6,8 @@ from subprocess import Popen, PIPE
 from ase.calculators.calculator import Calculator, all_properties
 
 
+
+
 class PackedCalculator(ABC):
     """Portable calculator for use via PythonSubProcessCalculator.
 
@@ -119,21 +121,59 @@ class PythonSubProcessCalculator(Calculator):
     def __init__(self, calc_input, mpi_command=None):
         super().__init__()
 
-        self.proc = None
+        # self.proc = None
         self.calc_input = calc_input
         if mpi_command is None:
             mpi_command = MPICommand.serial()
         self.mpi_command = mpi_command
 
+        self.client = None
+
     def set(self, **kwargs):
-        if hasattr(self, 'proc'):
+        if hasattr(self, 'client'):
             raise RuntimeError('No setting things for now, thanks')
 
-    def _send(self, obj):
+    def __repr__(self):
+        return '{}({})'.format(type(self).__name__,
+                               self.calc_input)
+
+    def __enter__(self):
+        assert self.client is None
+        proc = self.mpi_command.execute()
+        self.client = Client(proc)
+        self.client.send(self.calc_input)
+        return self
+
+    def __exit__(self, *args):
+        self.client.send('stop')
+        self.client.proc.communicate()
+        self.client = None
+
+    def _run_calculation(self, atoms, properties, system_changes):
+        self.client.send('calculate')
+        self.client.send((atoms, properties, system_changes))
+
+    def calculate(self, atoms, properties, system_changes):
+        Calculator.calculate(self, atoms, properties, system_changes)
+        # We send a pickle of self.atoms because this is a fresh copy
+        # of the input, but without an unpicklable calculator:
+        self._run_calculation(self.atoms.copy(), properties, system_changes)
+        results = self.client.recv()
+        self.results.update(results)
+
+    def backend(self):
+        return ParallelBackendInterface(self)
+
+
+class Client:
+    def __init__(self, proc):
+        self.proc = proc
+
+    def send(self, obj):
         pickle.dump(obj, self.proc.stdin)
         self.proc.stdin.flush()
 
-    def _recv(self):
+    def recv(self):
         response_type, value = pickle.load(self.proc.stdout)
 
         if response_type == 'raise':
@@ -141,36 +181,6 @@ class PythonSubProcessCalculator(Calculator):
 
         assert response_type == 'return'
         return value
-
-    def __repr__(self):
-        return '{}({})'.format(type(self).__name__,
-                               self.calc_input)
-
-    def __enter__(self):
-        assert self.proc is None
-        self.proc = self.mpi_command.execute()
-        self._send(self.calc_input)
-        return self
-
-    def __exit__(self, *args):
-        self._send('stop')
-        self.proc.communicate()
-        self.proc = None
-
-    def _run_calculation(self, atoms, properties, system_changes):
-        self._send('calculate')
-        self._send((atoms, properties, system_changes))
-
-    def calculate(self, atoms, properties, system_changes):
-        Calculator.calculate(self, atoms, properties, system_changes)
-        # We send a pickle of self.atoms because this is a fresh copy
-        # of the input, but without an unpicklable calculator:
-        self._run_calculation(self.atoms.copy(), properties, system_changes)
-        results = self._recv()
-        self.results.update(results)
-
-    def backend(self):
-        return ParallelBackendInterface(self)
 
 
 class MockMethod:
@@ -220,7 +230,7 @@ def bad_mode():
     return SystemExit(f'sys.argv[1] must be one of {run_modes}')
 
 
-def main():
+def parallel_startup():
     try:
         run_mode = sys.argv[1]
     except IndexError:
@@ -238,48 +248,107 @@ def main():
     binary_stdout = sys.stdout.buffer
     sys.stdout = sys.stderr
 
-    from ase.parallel import world, broadcast
+    return ClientProtocol(input_fd=sys.stdin.buffer,
+                          output_fd=binary_stdout)
 
-    def recv():
-        if world.rank == 0:
-            obj = pickle.load(sys.stdin.buffer)
+
+class ClientProtocol:
+    def __init__(self, input_fd, output_fd):
+        from ase.parallel import world
+        self._world = world
+        self.input_fd = input_fd
+        self.output_fd = output_fd
+
+    def recv(self):
+        from ase.parallel import broadcast
+        if self._world.rank == 0:
+            obj = pickle.load(self.input_fd)
         else:
             obj = None
 
-        obj = broadcast(obj, 0, world)
+        obj = broadcast(obj, 0, self._world)
         return obj
 
-    def send(obj):
-        if world.rank == 0:
-            pickle.dump(obj, binary_stdout)
-            binary_stdout.flush()
+    def send(self, obj):
+        if self._world.rank == 0:
+            pickle.dump(obj, self.output_fd)
+            self.output_fd.flush()
 
-    pack = recv()
-    calc = pack.unpack_calculator()
+    def mainloop(self, calc):
+        while True:
+            instruction = self.recv()
+            if instruction == 'stop':
+                return
 
-    while True:
-        instruction = recv()
-        if instruction == 'stop':
-            return
+            instruction_data = self.recv()
 
+            response_type, value = self.process_instruction(
+                calc, instruction, instruction_data)
+            self.send((response_type, value))
+
+    def process_instruction(self, calc, instruction, instruction_data):
         if instruction == 'callmethod':
             function = callmethod
+            args = (calc, *instruction_data)
         elif instruction == 'calculate':
             function = calculate
+            args = (calc, *instruction_data)
+        elif instruction == 'callfunction':
+            function = instruction_data[0]
+            args = instruction_data[1:]
+            print('FUNCTION', self._world.rank, function, args)
         else:
             raise RuntimeError(f'Bad instruction: {instruction}')
 
-        instruction_data = recv()
-
         try:
-            value = function(calc, *instruction_data)
+            value = function(*args)
+            # value = function(calc, *instruction_data)
         except Exception as ex:
             response_type = 'raise'
             value = ex
         else:
             response_type = 'return'
+        return response_type, value
 
-        send((response_type, value))
+
+class ParallelDispatch:
+    """Utility class to run functions in parallel.
+
+    with ParallelDispatch(...) as parallel:
+        parallel.call(function, args, kwargs)
+
+    """
+    def __init__(self, mpicommand):
+        self._mpicommand = mpicommand
+        self._client = None
+
+    def call(self, func, *args, **kwargs):
+        self._client.send('callfunction')
+        self._client.send((func, args, kwargs))
+        return self._client.recv()
+
+    def __enter__(self):
+        assert self._client is None
+        self._client = Client(mpicommand.execute())
+
+        # Even if we are not using a calculator, we have to send one:
+        pack = NamedPackedCalculator('emt', {})
+        self._client.send(pack)
+        # (We should get rid of that requirement.)
+
+        return self
+
+    def __exit__(self, *args):
+        self._client.send('stop')
+        self._client.proc.communicate()
+        self._client = None
+
+
+def main():
+    client = parallel_startup()
+    pack = client.recv()
+    calc = pack.unpack_calculator()
+    client.mainloop(calc)
 
 
 if __name__ == '__main__':
