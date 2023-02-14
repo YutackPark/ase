@@ -6,8 +6,6 @@ from subprocess import Popen, PIPE
 from ase.calculators.calculator import Calculator, all_properties
 
 
-
-
 class PackedCalculator(ABC):
     """Portable calculator for use via PythonSubProcessCalculator.
 
@@ -127,7 +125,7 @@ class PythonSubProcessCalculator(Calculator):
             mpi_command = MPICommand.serial()
         self.mpi_command = mpi_command
 
-        self.client = None
+        self.protocol = None
 
     def set(self, **kwargs):
         if hasattr(self, 'client'):
@@ -138,34 +136,34 @@ class PythonSubProcessCalculator(Calculator):
                                self.calc_input)
 
     def __enter__(self):
-        assert self.client is None
+        assert self.protocol is None
         proc = self.mpi_command.execute()
-        self.client = Client(proc)
-        self.client.send(self.calc_input)
+        self.protocol = Protocol(proc)
+        self.protocol.send(self.calc_input)
         return self
 
     def __exit__(self, *args):
-        self.client.send('stop')
-        self.client.proc.communicate()
-        self.client = None
+        self.protocol.send('stop')
+        self.protocol.proc.communicate()
+        self.protocol = None
 
     def _run_calculation(self, atoms, properties, system_changes):
-        self.client.send('calculate')
-        self.client.send((atoms, properties, system_changes))
+        self.protocol.send('calculate')
+        self.protocol.send((atoms, properties, system_changes))
 
     def calculate(self, atoms, properties, system_changes):
         Calculator.calculate(self, atoms, properties, system_changes)
         # We send a pickle of self.atoms because this is a fresh copy
         # of the input, but without an unpicklable calculator:
         self._run_calculation(self.atoms.copy(), properties, system_changes)
-        results = self.client.recv()
+        results = self.protocol.recv()
         self.results.update(results)
 
     def backend(self):
         return ParallelBackendInterface(self)
 
 
-class Client:
+class Protocol:
     def __init__(self, proc):
         self.proc = proc
 
@@ -212,6 +210,10 @@ def callmethod(calc, attrname, args, kwargs):
     return value
 
 
+def callfunction(func, args, kwargs):
+    return func(*args, **kwargs)
+
+
 def calculate(calc, atoms, properties, system_changes):
     # Again we need formalization of the results/outputs, and
     # a way to programmatically access all available properties.
@@ -248,11 +250,11 @@ def parallel_startup():
     binary_stdout = sys.stdout.buffer
     sys.stdout = sys.stderr
 
-    return ClientProtocol(input_fd=sys.stdin.buffer,
-                          output_fd=binary_stdout)
+    return Client(input_fd=sys.stdin.buffer,
+                  output_fd=binary_stdout)
 
 
-class ClientProtocol:
+class Client:
     def __init__(self, input_fd, output_fd):
         from ase.parallel import world
         self._world = world
@@ -294,16 +296,16 @@ class ClientProtocol:
             function = calculate
             args = (calc, *instruction_data)
         elif instruction == 'callfunction':
-            function = instruction_data[0]
-            args = instruction_data[1:]
-            print('FUNCTION', self._world.rank, function, args)
+            function = callfunction
+            args = instruction_data
         else:
             raise RuntimeError(f'Bad instruction: {instruction}')
 
         try:
             value = function(*args)
-            # value = function(calc, *instruction_data)
         except Exception as ex:
+            import traceback
+            traceback.print_exc()
             response_type = 'raise'
             value = ex
         else:
@@ -320,28 +322,28 @@ class ParallelDispatch:
     """
     def __init__(self, mpicommand):
         self._mpicommand = mpicommand
-        self._client = None
+        self._protocol = None
 
     def call(self, func, *args, **kwargs):
-        self._client.send('callfunction')
-        self._client.send((func, args, kwargs))
-        return self._client.recv()
+        self._protocol.send('callfunction')
+        self._protocol.send((func, args, kwargs))
+        return self._protocol.recv()
 
     def __enter__(self):
-        assert self._client is None
-        self._client = Client(mpicommand.execute())
+        assert self._protocol is None
+        self._protocol = Protocol(self._mpicommand.execute())
 
         # Even if we are not using a calculator, we have to send one:
         pack = NamedPackedCalculator('emt', {})
-        self._client.send(pack)
+        self._protocol.send(pack)
         # (We should get rid of that requirement.)
 
         return self
 
     def __exit__(self, *args):
-        self._client.send('stop')
-        self._client.proc.communicate()
-        self._client = None
+        self._protocol.send('stop')
+        self._protocol.proc.communicate()
+        self._protocol = None
 
 
 def main():
