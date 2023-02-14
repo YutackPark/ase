@@ -12,7 +12,9 @@ from ase.utils import reader, writer
 def read_v_sim(fd):
     """Import V_Sim input file.
 
-    Reads cell, atom positions, etc. from v_sim ascii file. V_sim format is specified here: https://l_sim.gitlab.io/v_sim/sample.html#sample_ascii
+    Reads cell, atom positions, etc. from v_sim ascii file.
+    V_sim format is specified here:
+    https://l_sim.gitlab.io/v_sim/sample.html#sample_ascii
     """
 
     from ase import Atoms, units
@@ -95,7 +97,9 @@ def read_v_sim(fd):
 def write_v_sim(fd, atoms):
     """Write V_Sim input file.
 
-    Writes the atom positions and unit cell. V_sim format is specified here: https://l_sim.gitlab.io/v_sim/sample.html#sample_ascii
+    Writes the atom positions and unit cell.
+    V_sim format is specified here:
+    https://l_sim.gitlab.io/v_sim/sample.html#sample_ascii
     """
     from ase.geometry import cellpar_to_cell, cell_to_cellpar
 
