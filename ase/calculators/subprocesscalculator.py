@@ -182,23 +182,23 @@ class Protocol:
 
 
 class MockMethod:
-    def __init__(self, name, interface):
+    def __init__(self, name, calc):
         self.name = name
-        self.interface = interface
+        self.calc = calc
 
     def __call__(self, *args, **kwargs):
-        ifc = self.interface
-        ifc._send('callmethod')
-        ifc._send([self.name, args, kwargs])
-        return ifc._recv()
+        protocol = self.calc.protocol
+        protocol.send('callmethod')
+        protocol.send([self.name, args, kwargs])
+        return protocol.recv()
 
 
 class ParallelBackendInterface:
-    def __init__(self, interface):
-        self.interface = interface
+    def __init__(self, calc):
+        self.calc = calc
 
     def __getattr__(self, name):
-        return MockMethod(name, self.interface)
+        return MockMethod(name, self.calc)
 
 
 run_modes = {'standard', 'mpi4py'}
@@ -302,6 +302,7 @@ class Client:
             raise RuntimeError(f'Bad instruction: {instruction}')
 
         try:
+            print('ARGS', args)
             value = function(*args)
         except Exception as ex:
             import traceback
