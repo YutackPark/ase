@@ -3130,7 +3130,8 @@ def import_castep_keywords(castep_command='',
         kwfile = os.path.join(path, filename)
 
     # Now create the castep_keywords object proper
-    kwdata = json.load(open(kwfile))
+    with open(kwfile) as f:
+        kwdata = json.load(f)
 
     # This is a bit awkward, but it's necessary for backwards compatibility
     param_dict = make_param_dict(kwdata['param'])
