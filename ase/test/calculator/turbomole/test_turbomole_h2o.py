@@ -65,3 +65,17 @@ def test_turbomole_h2o():
                 assert np.isclose(s['frequency']['value'], freq, rtol=0.05)
 
     print(calc.todict(skip_default=False))
+
+
+def test_turbomole_h2o_parsing_issue():
+    """setting the damping in define causes a parsing issue during restart"""
+    mol = molecule('H2O')
+    params = {
+        'multiplicity': 1,
+        'initial damping': 2.0,
+        'damping adjustment step': 0.5,
+        'minimal damping': 1.0
+    }
+    mol.calc = Turbomole(**params)
+    mol.get_potential_energy(mol)
+    Turbomole(restart=True)
