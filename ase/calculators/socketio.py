@@ -123,7 +123,7 @@ class IPIProtocol:
             # Receiving 0 bytes will block forever on python2.
             morebytes = self.recv(nmorebytes, np.byte)
         else:
-            morebytes = b''
+            morebytes = None
         return (e * units.Ha, (units.Ha / units.Bohr) * forces,
                 units.Ha * virial, morebytes)
 
@@ -192,7 +192,7 @@ class IPIProtocol:
         r = dict(energy=e,
                  forces=forces,
                  virial=virial)
-        if morebytes:
+        if morebytes is not None:
             r['morebytes'] = morebytes
         return r
 
