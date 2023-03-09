@@ -119,11 +119,7 @@ class IPIProtocol:
         virial = self.recv((3, 3), np.float64).T.copy()
         nmorebytes = self.recv(1, np.int32)
         nmorebytes = int(nmorebytes)
-        if nmorebytes > 0:
-            # Receiving 0 bytes will block forever on python2.
-            morebytes = self.recv(nmorebytes, np.byte)
-        else:
-            morebytes = b''
+        morebytes = self.recv(nmorebytes, np.byte)
         return (e * units.Ha, (units.Ha / units.Bohr) * forces,
                 units.Ha * virial, morebytes)
 
@@ -191,9 +187,8 @@ class IPIProtocol:
         e, forces, virial, morebytes = self.sendrecv_force()
         r = dict(energy=e,
                  forces=forces,
-                 virial=virial)
-        if morebytes:
-            r['morebytes'] = morebytes
+                 virial=virial,
+                 morebytes=morebytes)
         return r
 
 
