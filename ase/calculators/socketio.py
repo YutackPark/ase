@@ -187,9 +187,8 @@ class IPIProtocol:
         e, forces, virial, morebytes = self.sendrecv_force()
         r = dict(energy=e,
                  forces=forces,
-                 virial=virial)
-        if morebytes is not None:
-            r['morebytes'] = morebytes
+                 virial=virial,
+                 morebytes=morebytes)
         return r
 
 
