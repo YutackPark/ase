@@ -386,6 +386,7 @@ M  END
 $$$$
 '''
 
+
 def test_read_sdf() -> None:
     """Test SDF V2000 reader."""
     with io.StringIO(DIFFICULT_BUT_VALID_SDF_V2000) as file_obj:
