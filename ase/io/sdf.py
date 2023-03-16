@@ -16,7 +16,7 @@ def get_num_atoms_sdf_v2000(first_line: str) -> int:
 
 @reader
 def read_sdf(file_obj: TextIO) -> Atoms:
-    """Read the sdf data from a text file and compose the corresponding Atoms object."""
+    """Read the sdf data and compose the corresponding Atoms object."""
     lines = file_obj.readlines()
     # first three lines header
     del lines[:3]

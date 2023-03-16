@@ -46,11 +46,14 @@ def test_read_sdf() -> None:
         atoms: Atoms = read_sdf(file_obj)
 
     assert len(atoms) == 24
-    assert atoms.get_chemical_symbols() == ['O', 'O', 'N', 'N', 'N', 'N', 'C', 'C', 'C', 'C', 'C',
-                                            'C', 'C', 'C', 'H', 'H', 'H', 'H', 'H', 'H', 'H', 'H',
+    assert atoms.get_chemical_symbols() == ['O', 'O', 'N', 'N', 'N', 'N', 'C',
+                                            'C', 'C', 'C', 'C',
+                                            'C', 'C', 'C', 'H', 'H', 'H', 'H',
+                                            'H', 'H', 'H', 'H',
                                             'H', 'H']
     assert atoms.get_positions()[0] == pytest.approx((0.4700, 2.5688, 0.0006))
-    assert atoms.get_positions()[-1] == pytest.approx((-2.9346, 2.1021, -0.8849))
+    assert atoms.get_positions()[-1] == pytest.approx(
+        (-2.9346, 2.1021, -0.8849))
 
 
 def test_get_num_atoms_sdf_v2000() -> None:
