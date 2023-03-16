@@ -25,8 +25,7 @@ def read_sdf(file_obj: TextIO) -> Atoms:
     positions = []
     symbols = []
     for line in lines[:num_atoms]:
-        ls = line.split()
-        positions.append(tuple(map(float, ls[:3])))
-        symbols.append(ls[3])
-
+        x, y, z, symbol = line.split()[:4]
+        symbols.append(symbol)
+        positions.append((float(x), float(y), float(z)))
     return Atoms(symbols=symbols, positions=positions)
