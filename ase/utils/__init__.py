@@ -21,7 +21,7 @@ from ase.formula import formula_hill, formula_metal
 __all__ = ['basestring', 'import_module', 'seterr', 'plural',
            'devnull', 'gcd', 'convert_string_to_fd', 'Lock',
            'opencew', 'OpenLock', 'rotate', 'irotate', 'pbc2pbc', 'givens',
-           'hsv2rgb', 'hsv', 'pickleload', 'FileNotFoundError',
+           'hsv2rgb', 'hsv', 'pickleload', 'reader',
            'formula_hill', 'formula_metal', 'PurePath', 'xwopen',
            'tokenize_version', 'get_python_package_path_description']
 
