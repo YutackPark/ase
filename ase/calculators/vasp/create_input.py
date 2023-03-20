@@ -31,8 +31,11 @@ from ase.calculators.calculator import kpts2ndarray
 from ase.calculators.vasp.setups import get_default_setups
 
 
-def write_kpoints_file(p, atoms, kpoints):
-    kpoints.write('KPOINTS created by Atomic Simulation Environment\n')
+def format_kpoints(p, atoms):
+    tokens = []
+    append = tokens.append
+
+    append('KPOINTS created by Atomic Simulation Environment\n')
 
     if isinstance(p['kpts'], dict):
         p['kpts'] = kpts2ndarray(p['kpts'], atoms=atoms)
@@ -46,27 +49,28 @@ def write_kpoints_file(p, atoms, kpoints):
         shape = (1, )
 
     if len(shape) == 1:
-        kpoints.write('0\n')
+        append('0\n')
         if shape == (1, ):
-            kpoints.write('Auto\n')
+            append('Auto\n')
         elif p['gamma']:
-            kpoints.write('Gamma\n')
+            append('Gamma\n')
         else:
-            kpoints.write('Monkhorst-Pack\n')
-        [kpoints.write('%i ' % kpt) for kpt in p['kpts']]
-        kpoints.write('\n0 0 0\n')
+            append('Monkhorst-Pack\n')
+        append(' '.join(f'{kpt:d}' for kpt in p['kpts']))
+        append('\n0 0 0\n')
     elif len(shape) == 2:
-        kpoints.write('%i \n' % (len(p['kpts'])))
+        append('%i \n' % (len(p['kpts'])))
         if p['reciprocal']:
-            kpoints.write('Reciprocal\n')
+            append('Reciprocal\n')
         else:
-            kpoints.write('Cartesian\n')
+            append('Cartesian\n')
         for n in range(len(p['kpts'])):
-            [kpoints.write('%f ' % kpt) for kpt in p['kpts'][n]]
+            [append('%f ' % kpt) for kpt in p['kpts'][n]]
             if shape[1] == 4:
-                kpoints.write('\n')
+                append('\n')
             elif shape[1] == 3:
-                kpoints.write('1.0 \n')
+                append('1.0 \n')
+    return ''.join(tokens)
 
 
 # Parameters that can be set in INCAR. The values which are None
@@ -1643,8 +1647,9 @@ class GenerateVaspInput:
                                  "Please use None or a positive number."
                                  "".format(self.float_params['kspacing']))
 
+        kpointstring = format_kpoints(self.input_params, atoms)
         with open(join(directory, 'KPOINTS'), 'w') as kpoints:
-            write_kpoints_file(self.input_params, atoms, kpoints)
+            kpoints.write(kpointstring)
 
     def write_potcar(self, suffix="", directory='./'):
         """Writes the POTCAR file."""

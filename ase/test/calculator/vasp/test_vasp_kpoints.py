@@ -5,7 +5,7 @@ import os
 import pytest
 
 from ase.build import bulk
-from ase.calculators.vasp.create_input import write_kpoints_file
+from ase.calculators.vasp.create_input import format_kpoints
 
 from .filecmp_ignore_whitespace import filecmp_ignore_whitespace
 
@@ -48,10 +48,10 @@ def test_vasp_kpoints_3_tuple(atoms, testdir):
     # 3-tuple prints mesh
     params = dict(gamma=False, kpts=(4, 4, 4))
 
-    with open('KPOINTS', 'w') as fd:
-        write_kpoints_file(params, atoms, fd)
-    check_kpoints_line(2, 'Monkhorst-Pack')
-    check_kpoints_line(3, '4 4 4')
+    string = format_kpoints(params, atoms)
+    lines = string.split('\n')
+    assert lines[2] == 'Monkhorst-Pack'
+    assert lines[3] == '4 4 4'
 
 
 @calc('vasp')
