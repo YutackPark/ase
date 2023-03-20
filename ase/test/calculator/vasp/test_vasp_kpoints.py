@@ -44,7 +44,7 @@ def test_vasp_kpoints_111(factory, write_kpoints):
     check_kpoints_line(3, '1 1 1')
 
 
-def test_vasp_kpoints_3_tuple(atoms, testdir):
+def test_vasp_kpoints_3_tuple(atoms):
     # 3-tuple prints mesh
     params = dict(gamma=False, kpts=(4, 4, 4))
 
