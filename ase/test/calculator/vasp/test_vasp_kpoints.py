@@ -65,13 +65,12 @@ def test_vasp_kpoints_auto(atoms):
     check_kpoints_string(string, 3, '20')
 
 
-@calc('vasp')
-def test_vasp_kpoints_1_element_list_gamma(factory, write_kpoints):
+def test_vasp_kpoints_1_element_list_gamma(atoms):
     # 1-element list ok, Gamma ok
-    write_kpoints(factory, kpts=[20], gamma=True)
-    check_kpoints_line(1, '0')
-    check_kpoints_line(2, 'Auto')
-    check_kpoints_line(3, '20')
+    string = format_kpoints(atoms=atoms, kpts=[20], p=dict(gamma=True))
+    check_kpoints_string(string, 1, '0')
+    check_kpoints_string(string, 2, 'Auto')
+    check_kpoints_string(string, 3, '20')
 
 
 @calc('vasp')
