@@ -30,6 +30,45 @@ import ase
 from ase.calculators.calculator import kpts2ndarray
 from ase.calculators.vasp.setups import get_default_setups
 
+
+def write_kpoints_file(p, atoms, kpoints):
+    kpoints.write('KPOINTS created by Atomic Simulation Environment\n')
+
+    if isinstance(p['kpts'], dict):
+        p['kpts'] = kpts2ndarray(p['kpts'], atoms=atoms)
+        p['reciprocal'] = True
+
+    shape = np.array(p['kpts']).shape
+
+    # Wrap scalar in list if necessary
+    if shape == ():
+        p['kpts'] = [p['kpts']]
+        shape = (1, )
+
+    if len(shape) == 1:
+        kpoints.write('0\n')
+        if shape == (1, ):
+            kpoints.write('Auto\n')
+        elif p['gamma']:
+            kpoints.write('Gamma\n')
+        else:
+            kpoints.write('Monkhorst-Pack\n')
+        [kpoints.write('%i ' % kpt) for kpt in p['kpts']]
+        kpoints.write('\n0 0 0\n')
+    elif len(shape) == 2:
+        kpoints.write('%i \n' % (len(p['kpts'])))
+        if p['reciprocal']:
+            kpoints.write('Reciprocal\n')
+        else:
+            kpoints.write('Cartesian\n')
+        for n in range(len(p['kpts'])):
+            [kpoints.write('%f ' % kpt) for kpt in p['kpts'][n]]
+            if shape[1] == 4:
+                kpoints.write('\n')
+            elif shape[1] == 3:
+                kpoints.write('1.0 \n')
+
+
 # Parameters that can be set in INCAR. The values which are None
 # are not written and default parameters of VASP are used for them.
 
@@ -1604,43 +1643,8 @@ class GenerateVaspInput:
                                  "Please use None or a positive number."
                                  "".format(self.float_params['kspacing']))
 
-        p = self.input_params
         with open(join(directory, 'KPOINTS'), 'w') as kpoints:
-            kpoints.write('KPOINTS created by Atomic Simulation Environment\n')
-
-            if isinstance(p['kpts'], dict):
-                p['kpts'] = kpts2ndarray(p['kpts'], atoms=atoms)
-                p['reciprocal'] = True
-
-            shape = np.array(p['kpts']).shape
-
-            # Wrap scalar in list if necessary
-            if shape == ():
-                p['kpts'] = [p['kpts']]
-                shape = (1, )
-
-            if len(shape) == 1:
-                kpoints.write('0\n')
-                if shape == (1, ):
-                    kpoints.write('Auto\n')
-                elif p['gamma']:
-                    kpoints.write('Gamma\n')
-                else:
-                    kpoints.write('Monkhorst-Pack\n')
-                [kpoints.write('%i ' % kpt) for kpt in p['kpts']]
-                kpoints.write('\n0 0 0\n')
-            elif len(shape) == 2:
-                kpoints.write('%i \n' % (len(p['kpts'])))
-                if p['reciprocal']:
-                    kpoints.write('Reciprocal\n')
-                else:
-                    kpoints.write('Cartesian\n')
-                for n in range(len(p['kpts'])):
-                    [kpoints.write('%f ' % kpt) for kpt in p['kpts'][n]]
-                    if shape[1] == 4:
-                        kpoints.write('\n')
-                    elif shape[1] == 3:
-                        kpoints.write('1.0 \n')
+            write_kpoints_file(self.input_params, atoms, kpoints)
 
     def write_potcar(self, suffix="", directory='./'):
         """Writes the POTCAR file."""
