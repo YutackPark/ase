@@ -31,21 +31,21 @@ from ase.calculators.calculator import kpts2ndarray
 from ase.calculators.vasp.setups import get_default_setups
 
 
-def format_kpoints(p, atoms):
+def format_kpoints(p, kpts, atoms):
     tokens = []
     append = tokens.append
 
     append('KPOINTS created by Atomic Simulation Environment\n')
 
-    if isinstance(p['kpts'], dict):
-        p['kpts'] = kpts2ndarray(p['kpts'], atoms=atoms)
+    if isinstance(kpts, dict):
+        kpts = kpts2ndarray(kpts, atoms=atoms)
         p['reciprocal'] = True
 
-    shape = np.array(p['kpts']).shape
+    shape = np.array(kpts).shape
 
     # Wrap scalar in list if necessary
     if shape == ():
-        p['kpts'] = [p['kpts']]
+        kpts = [kpts]
         shape = (1, )
 
     if len(shape) == 1:
@@ -56,16 +56,16 @@ def format_kpoints(p, atoms):
             append('Gamma\n')
         else:
             append('Monkhorst-Pack\n')
-        append(' '.join(f'{kpt:d}' for kpt in p['kpts']))
+        append(' '.join(f'{kpt:d}' for kpt in kpts))
         append('\n0 0 0\n')
     elif len(shape) == 2:
-        append('%i \n' % (len(p['kpts'])))
+        append('%i \n' % (len(kpts)))
         if p['reciprocal']:
             append('Reciprocal\n')
         else:
             append('Cartesian\n')
-        for n in range(len(p['kpts'])):
-            [append('%f ' % kpt) for kpt in p['kpts'][n]]
+        for n in range(len(kpts)):
+            [append('%f ' % kpt) for kpt in kpts[n]]
             if shape[1] == 4:
                 append('\n')
             elif shape[1] == 3:
@@ -1647,7 +1647,9 @@ class GenerateVaspInput:
                                  "Please use None or a positive number."
                                  "".format(self.float_params['kspacing']))
 
-        kpointstring = format_kpoints(self.input_params, atoms)
+        kpointstring = format_kpoints(self.input_params,
+                                      self.input_params['kpts'],
+                                      atoms)
         with open(join(directory, 'KPOINTS'), 'w') as kpoints:
             kpoints.write(kpointstring)
 

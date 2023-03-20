@@ -45,22 +45,24 @@ def test_vasp_kpoints_111(factory, write_kpoints):
 
 
 def test_vasp_kpoints_3_tuple(atoms):
-    # 3-tuple prints mesh
-    params = dict(gamma=False, kpts=(4, 4, 4))
+    params = dict(gamma=False, )
 
-    string = format_kpoints(params, atoms)
+    string = format_kpoints(params, kpts=(4, 4, 4), atoms=atoms)
     lines = string.split('\n')
     assert lines[2] == 'Monkhorst-Pack'
     assert lines[3] == '4 4 4'
 
 
-@calc('vasp')
-def test_vasp_kpoints_auto(factory, write_kpoints):
-    # Auto mode
-    write_kpoints(factory, kpts=20)
-    check_kpoints_line(1, '0')
-    check_kpoints_line(2, 'Auto')
-    check_kpoints_line(3, '20')
+def check_kpoints_string(string, lineno, value):
+    assert string.splitlines()[lineno].strip() == value
+
+
+def test_vasp_kpoints_auto(atoms):
+    string = format_kpoints({}, atoms=atoms, kpts=20)
+
+    check_kpoints_string(string, 1, '0')
+    check_kpoints_string(string, 2, 'Auto')
+    check_kpoints_string(string, 3, '20')
 
 
 @calc('vasp')
