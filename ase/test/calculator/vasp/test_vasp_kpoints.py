@@ -36,12 +36,11 @@ def write_kpoints(atoms):
     return _write_kpoints
 
 
-@calc('vasp')
-def test_vasp_kpoints_111(factory, write_kpoints):
+def test_vasp_kpoints_111(atoms):
     # Default to (1 1 1)
-    write_kpoints(factory, gamma=True)
-    check_kpoints_line(2, 'Gamma')
-    check_kpoints_line(3, '1 1 1')
+    string = format_kpoints(gamma=True, atoms=atoms, kpts=(1, 1, 1))
+    check_kpoints_string(string, 2, 'Gamma')
+    check_kpoints_string(string, 3, '1 1 1')
 
 
 def test_vasp_kpoints_3_tuple(atoms):
@@ -110,12 +109,15 @@ def test_weighted(atoms, testdir):
     assert filecmp_ignore_whitespace('KPOINTS', 'KPOINTS.ref')
 
 
-@calc('vasp')
-def test_explicit_auto_weight(factory, write_kpoints):
+def test_explicit_auto_weight(atoms, testdir):
     # Explicit points as list of tuples, automatic weighting = 1.
-    write_kpoints(factory,
-                  kpts=[(0.1, 0.2, 0.3), (0.0, 0.0, 0.0), (0.0, 0.5, 0.5)],
-                  reciprocal=True)
+    string = format_kpoints(
+        atoms=atoms,
+        kpts=[(0.1, 0.2, 0.3), (0.0, 0.0, 0.0), (0.0, 0.5, 0.5)],
+        reciprocal=True)
+
+    with open('KPOINTS', 'w') as fd:
+        fd.write(string)
 
     with open('KPOINTS.ref', 'w') as fd:
         fd.write("""KPOINTS created by Atomic Simulation Environment
