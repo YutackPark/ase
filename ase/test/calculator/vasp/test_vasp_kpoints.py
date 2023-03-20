@@ -45,9 +45,7 @@ def test_vasp_kpoints_111(factory, write_kpoints):
 
 
 def test_vasp_kpoints_3_tuple(atoms):
-    params = dict(gamma=False, )
-
-    string = format_kpoints(params, kpts=(4, 4, 4), atoms=atoms)
+    string = format_kpoints(gamma=False, kpts=(4, 4, 4), atoms=atoms)
     lines = string.split('\n')
     assert lines[2] == 'Monkhorst-Pack'
     assert lines[3] == '4 4 4'
@@ -58,7 +56,7 @@ def check_kpoints_string(string, lineno, value):
 
 
 def test_vasp_kpoints_auto(atoms):
-    string = format_kpoints({}, atoms=atoms, kpts=20)
+    string = format_kpoints(atoms=atoms, kpts=20)
 
     check_kpoints_string(string, 1, '0')
     check_kpoints_string(string, 2, 'Auto')
@@ -67,7 +65,7 @@ def test_vasp_kpoints_auto(atoms):
 
 def test_vasp_kpoints_1_element_list_gamma(atoms):
     # 1-element list ok, Gamma ok
-    string = format_kpoints(atoms=atoms, kpts=[20], p=dict(gamma=True))
+    string = format_kpoints(atoms=atoms, kpts=[20], gamma=True)
     check_kpoints_string(string, 1, '0')
     check_kpoints_string(string, 2, 'Auto')
     check_kpoints_string(string, 3, '20')
@@ -90,12 +88,15 @@ def test_negative_kspacing_error(factory, write_kpoints):
         write_kpoints(factory, kspacing=-0.5)
 
 
-@calc('vasp')
-def test_weighted(factory, write_kpoints):
+def test_weighted(atoms, testdir):
     # Explicit weighted points with nested lists, Cartesian if not specified
-    write_kpoints(factory,
-                  kpts=[[0.1, 0.2, 0.3, 2], [0.0, 0.0, 0.0, 1],
-                        [0.0, 0.5, 0.5, 2]])
+    string = format_kpoints(
+        atoms=atoms,
+        kpts=[[0.1, 0.2, 0.3, 2], [0.0, 0.0, 0.0, 1],
+              [0.0, 0.5, 0.5, 2]])
+
+    with open('KPOINTS', 'w') as fd:
+        fd.write(string)
 
     with open('KPOINTS.ref', 'w') as fd:
         fd.write("""KPOINTS created by Atomic Simulation Environment

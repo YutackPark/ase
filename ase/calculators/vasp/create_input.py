@@ -31,7 +31,7 @@ from ase.calculators.calculator import kpts2ndarray
 from ase.calculators.vasp.setups import get_default_setups
 
 
-def format_kpoints(p, kpts, atoms):
+def format_kpoints(kpts, atoms, reciprocal=False, gamma=False):
     tokens = []
     append = tokens.append
 
@@ -39,7 +39,7 @@ def format_kpoints(p, kpts, atoms):
 
     if isinstance(kpts, dict):
         kpts = kpts2ndarray(kpts, atoms=atoms)
-        p['reciprocal'] = True
+        reciprocal = True
 
     shape = np.array(kpts).shape
 
@@ -52,7 +52,7 @@ def format_kpoints(p, kpts, atoms):
         append('0\n')
         if shape == (1, ):
             append('Auto\n')
-        elif p['gamma']:
+        elif gamma:
             append('Gamma\n')
         else:
             append('Monkhorst-Pack\n')
@@ -60,7 +60,7 @@ def format_kpoints(p, kpts, atoms):
         append('\n0 0 0\n')
     elif len(shape) == 2:
         append('%i \n' % (len(kpts)))
-        if p['reciprocal']:
+        if reciprocal:
             append('Reciprocal\n')
         else:
             append('Cartesian\n')
@@ -1647,9 +1647,10 @@ class GenerateVaspInput:
                                  "Please use None or a positive number."
                                  "".format(self.float_params['kspacing']))
 
-        kpointstring = format_kpoints(self.input_params,
-                                      self.input_params['kpts'],
-                                      atoms)
+        kpointstring = format_kpoints(kpts=self.input_params['kpts'],
+                                      atoms=atoms,
+                                      reciprocal=self.input_params['reciprocal'],
+                                      gamma=self.input_params['gamma'])
         with open(join(directory, 'KPOINTS'), 'w') as kpoints:
             kpoints.write(kpointstring)
 
