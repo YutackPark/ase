@@ -1647,10 +1647,11 @@ class GenerateVaspInput:
                                  "Please use None or a positive number."
                                  "".format(self.float_params['kspacing']))
 
-        kpointstring = format_kpoints(kpts=self.input_params['kpts'],
-                                      atoms=atoms,
-                                      reciprocal=self.input_params['reciprocal'],
-                                      gamma=self.input_params['gamma'])
+        kpointstring = format_kpoints(
+            kpts=self.input_params['kpts'],
+            atoms=atoms,
+            reciprocal=self.input_params['reciprocal'],
+            gamma=self.input_params['gamma'])
         with open(join(directory, 'KPOINTS'), 'w') as kpoints:
             kpoints.write(kpointstring)
 
