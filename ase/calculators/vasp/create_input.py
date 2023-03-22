@@ -1478,15 +1478,14 @@ class GenerateVaspInput:
                     nelect_from_charge = default_nelect - charge
                     if val is not None and val != nelect_from_charge:
                         raise ValueError('incompatible input parameters: '
-                                         'nelect=%s, but charge=%s '
-                                         '(neutral nelect is %s)' %
-                                         (val, charge, default_nelect))
+                                         f'nelect={val}, but charge={charge} '
+                                         f'(neutral nelect is {default_nelect})')
                     val = nelect_from_charge
             if val is not None:
-                incar.write(' %s = %5.6f\n' % (key.upper(), val))
+                incar.write(f' {key.upper()} = {val:5.6f}\n')
         for key, val in self.exp_params.items():
             if val is not None:
-                incar.write(' %s = %5.2e\n' % (key.upper(), val))
+                incar.write(f' {key.upper()} = {val:5.2e}\n')
         for key, val in self.string_params.items():
             if val is not None:
                 incar.write(' %s = %s\n' % (key.upper(), val))
