@@ -626,8 +626,9 @@ def read_abinit_gsr(fd):
                'ibz_kpoints': ibzkpts,
                'eigenvalues': eigs,
                'kpoint_weights': weights,
+               'occupations': occ,
                'version': version}
-    
+
     return results
 
 
