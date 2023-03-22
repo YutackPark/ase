@@ -971,10 +971,6 @@ End CASTEP Interface Documentation
             # TODO: add a switch if we have a geometry optimization: record
             # atoms objects for intermediate steps.
             try:
-                # in case we need to rewind back one line, we memorize the bit
-                # position of this line in the file.
-                # --> see symops problem below
-                _line_start = out.tell()
                 line = out.readline()
                 if not line or out.tell() > record_end:
                     break
@@ -1177,13 +1173,6 @@ End CASTEP Interface Documentation
                             # after each calculation triggering unnecessary
                             # recalculation
                             break
-                elif 'Symmetry and Constraints' in line:
-                    # this is a bit of a hack, but otherwise the read_symops
-                    # would need to re-read the entire file. --> just rewind
-                    # back by one line, so the read_symops routine can find the
-                    # start of this block.
-                    out.seek(_line_start)
-                    self.read_symops(castep_castep=out)
                 elif 'Number of cell constraints' in line:
                     n_cell_const = int(line.split()[4])
                 elif 'Final energy' in line:
@@ -1506,92 +1495,6 @@ End CASTEP Interface Documentation
             except FileNotFoundError:
                 warnings.warn('Could not load .bands file, eigenvalues and '
                               'Fermi energy are unknown')
-
-    def read_symops(self, castep_castep=None):
-        # TODO: check that this is really backwards compatible
-        # with previous routine with this name...
-        """Read all symmetry operations used from a .castep file."""
-
-        if castep_castep is None:
-            castep_castep = self._seed + '.castep'
-
-        if isinstance(castep_castep, str):
-            if not os.path.isfile(castep_castep):
-                warnings.warn('Warning: CASTEP file %s not found!' %
-                              castep_castep)
-            f = paropen(castep_castep, 'r')
-            _close = True
-        else:
-            # in this case we assume that we have a fileobj already, but check
-            # for attributes in order to avoid extended EAFP blocks.
-            f = castep_castep
-
-            # look before you leap...
-            attributes = ['name',
-                          'readline',
-                          'close']
-
-            for attr in attributes:
-                if not hasattr(f, attr):
-                    raise TypeError('read_castep_castep_symops: castep_castep '
-                                    'is not of type str nor valid fileobj!')
-
-            castep_castep = f.name
-            _close = False
-
-        while True:
-            line = f.readline()
-            if not line:
-                return
-            if 'output verbosity' in line:
-                iprint = line.split()[-1][1]
-                # filter out the default
-                if int(iprint) != 1:
-                    self.param.iprint = iprint
-            if 'Symmetry and Constraints' in line:
-                break
-
-        if self.param.iprint.value is None or int(self.param.iprint.value) < 2:
-            self._interface_warnings.append(
-                'Warning: No symmetry'
-                'operations could be read from %s (iprint < 2).' % f.name)
-            return
-
-        while True:
-            line = f.readline()
-            if not line:
-                break
-            if 'Number of symmetry operations' in line:
-                nsym = int(line.split()[5])
-                # print "nsym = %d" % nsym
-                # information about symmetry related atoms currently not read
-                symmetry_operations = []
-                for _ in range(nsym):
-                    rotation = []
-                    displacement = []
-                    while True:
-                        if 'rotation' in f.readline():
-                            break
-                    for _ in range(3):
-                        line = f.readline()
-                        rotation.append([float(r) for r in line.split()[1:4]])
-                    while True:
-                        if 'displacement' in f.readline():
-                            break
-                    line = f.readline()
-                    displacement = [float(d) for d in line.split()[1:4]]
-                    symop = {'rotation': rotation,
-                             'displacement': displacement}
-                    self.symmetry_ops = symop
-                self.symmetry = symmetry_operations
-                warnings.warn(
-                    'Symmetry operations successfully read from %s. %s' %
-                    (f.name, self.cell.symmetry_ops))
-                break
-
-        # only close if we opened the file in this routine
-        if _close:
-            f.close()
 
     def get_hirsh_volrat(self):
         """
