@@ -971,10 +971,6 @@ End CASTEP Interface Documentation
             # TODO: add a switch if we have a geometry optimization: record
             # atoms objects for intermediate steps.
             try:
-                # in case we need to rewind back one line, we memorize the bit
-                # position of this line in the file.
-                # --> see symops problem below
-                _line_start = out.tell()
                 line = out.readline()
                 if not line or out.tell() > record_end:
                     break
