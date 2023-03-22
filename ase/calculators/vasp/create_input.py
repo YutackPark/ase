@@ -1488,7 +1488,7 @@ class GenerateVaspInput:
                 incar.write(f' {key.upper()} = {val:5.2e}\n')
         for key, val in self.string_params.items():
             if val is not None:
-                incar.write(' %s = %s\n' % (key.upper(), val))
+                incar.write(f' {key.upper()} = {val}\n')
         for key, val in self.int_params.items():
             if val is not None:
                 incar.write(' %s = %d\n' % (key.upper(), val))
