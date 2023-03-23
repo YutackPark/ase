@@ -49,6 +49,7 @@ def water():
     return Atoms('OHH', positions=[(0, 0, 0), (1, 0, 0), (0, 1, 0)])
 
 
+@calc('orca')
 def test_orca(water, factory):
     water.calc = factory.calc(label='water',
                               orcasimpleinput='BLYP def2-SVP Engrad')
@@ -60,6 +61,7 @@ def test_orca(water, factory):
     np.testing.assert_almost_equal(final_energy, -2077.24420, decimal=0)
 
 
+@calc('orca')
 def test_orca_sp(water, factory):
     water.calc = factory.calc(label='water', orcasimpleinput='BLYP def2-SVP',
                               task="SP")
@@ -68,6 +70,7 @@ def test_orca_sp(water, factory):
     np.testing.assert_almost_equal(final_energy, -2077.24420, decimal=0)
 
 
+@calc('orca')
 def test_orca_use_last_energy(water, factory):
     water.calc = factory.calc(
         label='water',

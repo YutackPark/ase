@@ -4,6 +4,7 @@ from ase.utils import reader, writer
 from ase.units import Hartree, Bohr
 from pathlib import Path
 import re
+import os
 import numpy as np
 # Made from NWChem interface
 
@@ -61,15 +62,16 @@ def read_orca_energy(fd):
     text = fd.read()
     re_energy = re.compile(r"FINAL SINGLE POINT ENERGY.*\n")
     re_not_converged = re.compile(r"Wavefunction not fully converged")
-    found_line = re_energy.search(text)
 
-    if found_line and not re_not_converged.search(found_line.group()):
-        return float(found_line.group().split()[-1]) * Hartree
-    elif found_line:
-        # XXX Who should handle errors?  Maybe raise as SCFError
-        raise RuntimeError('Energy not converged')
-    else:
+    found_line = re_energy.finditer(text)
+    energy = float('nan')
+    for match in found_line:
+        if not re_not_converged.search(match.group()):
+            energy = float(match.group().split()[-1]) * Hartree
+    if np.isnan(energy):
         raise RuntimeError('No energy')
+    else:
+        return energy
 
 
 @reader
@@ -103,9 +105,11 @@ def read_orca_outputs(directory, stdout_path):
     results['energy'] = energy
     results['free_energy'] = energy
 
-    # Does engrad always exist?
-    # Will there be other files?  If not, we should just take engrad
+    # Does engrad always exist? - No!
+    # Will there be other files -No -> We should just take engrad
     # as a direct argument.  Or maybe this function does not even need to
     # exist.
-    results['forces'] = read_orca_forces(Path(directory) / 'engrad')
+    engrad_path = Path(stdout_path).with_suffix('.engrad')
+    if os.path.isfile(engrad_path):
+        results['forces'] = read_orca_forces(engrad_path)
     return results
