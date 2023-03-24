@@ -32,10 +32,9 @@ class AbinitProfile:
         return check_output(self.argv + ['--version'])
 
     def run(self, directory, inputfile, outputfile):
-        with open(outputfile, 'w') as fd:
-            check_call(self.argv + [str(inputfile)], stdout=fd,
-                       env=os.environ,
-                       cwd=directory)
+        argv = self.argv + [str(inputfile)]
+        with open(directory / outputfile, 'wb') as fd:
+            check_call(argv, stdout=fd, env=os.environ, cwd=directory)
 
 
 class AbinitTemplate(CalculatorTemplate):
