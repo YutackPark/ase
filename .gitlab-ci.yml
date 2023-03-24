@@ -38,7 +38,7 @@ oldlibs:
   script:
     - pip install --no-deps .
     - >
-      ase test --pytest --color=yes
+      ase test -j0 --pytest --color=yes
       -W "ignore:can't resolve package"
       -W ignore::PendingDeprecationWarning
 
