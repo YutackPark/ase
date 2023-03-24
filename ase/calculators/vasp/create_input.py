@@ -324,6 +324,7 @@ int_keys = [
     'nbmod',  # specifies mode for partial charge calculation
     'nelm',  # nr. of electronic steps (default 60)
     'nelmdl',  # nr. of initial electronic steps
+    'nelmgw', # nr. of self-consistency cycles for GW
     'nelmin',
     'nfree',  # number of steps per DOF when calculting Hessian using
     # finite differences
