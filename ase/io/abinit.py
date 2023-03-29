@@ -662,8 +662,8 @@ def get_ppp_list(atoms, species, raise_exception, xc, pps,
                     names.append(hghtemplate % (number, s, '*'))
                     names.append('%s[.-_]*.pspnc' % s)
                 elif pps in ['psp8']:
-                    hghtemplate = '%d.psp8'  # E.g. "Si.psp8"
-                    names.append(hghtemplate % (number))
+                    hghtemplate = '%s.psp8'  # E.g. "Si.psp8"
+                    names.append(hghtemplate % (s))
                 elif pps in ['hgh', 'hgh.sc']:
                     hghtemplate = '%d%s.%s.hgh'  # E.g. "42mo.6.hgh"
                     # There might be multiple files with different valence
