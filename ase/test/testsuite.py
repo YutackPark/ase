@@ -93,7 +93,7 @@ the ASE_CONFIG environment variable.  Example configuration file:
 [executables]
 abinit = abinit
 cp2k = cp2k_shell
-dftb+ = dftb+
+dftb = dftb+
 espresso = pw.x
 lammpsrun = lmp
 nwchem = /usr/bin/nwchem
