@@ -342,6 +342,8 @@ def define_external_io_format(entry_point):
 # B=like F, but opens in binary mode
 
 F = define_io_format
+F('abinit-gsr', 'ABINIT GSR file', '1S',
+  module='abinit', glob='*o_GSR.nc')
 F('abinit-in', 'ABINIT input file', '1F',
   module='abinit', magic=b'*znucl *')
 F('abinit-out', 'ABINIT output file', '1F',

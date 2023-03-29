@@ -586,9 +586,9 @@ def read_abinit_outputs(directory, label):
     return results
 
 
-def read_abinit_gsr(fd):
+def read_abinit_gsr(filename):
     import netCDF4
-    data = netCDF4.Dataset(fd)
+    data = netCDF4.Dataset(filename)
     data.set_auto_mask(False)
     version = data.abinit_version
 
@@ -661,6 +661,9 @@ def get_ppp_list(atoms, species, raise_exception, xc, pps,
                     hghtemplate = '%d%s%s.pspnc'  # E.g. "44ru.pspnc"
                     names.append(hghtemplate % (number, s, '*'))
                     names.append('%s[.-_]*.pspnc' % s)
+                elif pps in ['psp8']:
+                    hghtemplate = '%d.psp8'  # E.g. "Si.psp8"
+                    names.append(hghtemplate % (number))
                 elif pps in ['hgh', 'hgh.sc']:
                     hghtemplate = '%d%s.%s.hgh'  # E.g. "42mo.6.hgh"
                     # There might be multiple files with different valence
