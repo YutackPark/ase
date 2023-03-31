@@ -28,6 +28,7 @@ import subprocess
 from copy import deepcopy
 from collections import namedtuple
 from itertools import product
+from pathlib import Path
 from typing import List, Set
 
 import ase
@@ -3001,15 +3002,14 @@ def shell_stdouterr(raw_command, cwd=None):
 def import_castep_keywords(castep_command='',
                            filename='castep_keywords.json',
                            path='.'):
+    """Search for castep keywords JSON in multiple paths"""
 
-    # Search for castep_keywords.json (or however it's called) in multiple
-    # paths
-
-    searchpaths = [path, os.path.expanduser('~/.ase'),
-                   os.path.expanduser('~/.config/ase')]
+    config_paths = ('~/.ase', '~/.config/ase')
+    searchpaths = [path] + [os.path.expanduser(config_path)
+                            for config_path in config_paths]
     try:
-        kwfile = sum([glob.glob(os.path.join(sp, filename))
-                      for sp in searchpaths], [])[0]
+        keywords_file = sum([glob.glob(os.path.join(sp, filename))
+                             for sp in searchpaths], [])[0]
     except IndexError:
         warnings.warn("""Generating CASTEP keywords JSON file... hang on.
     The CASTEP keywords JSON file contains abstractions for CASTEP input
@@ -3018,23 +3018,20 @@ def import_castep_keywords(castep_command='',
     internal online help facility of a CASTEP binary, thus allowing to
     easily keep the calculator synchronized with (different versions of)
     the CASTEP code. Consequently, avoiding licensing issues (CASTEP is
-    distributed commercially by accelrys), we consider it wise not to
+    distributed commercially by Biovia), we consider it wise not to
     provide the file in the first place.""")
         create_castep_keywords(get_castep_command(castep_command),
                                filename=filename, path=path)
+        keywords_file = Path(path).absolute() / filename
+
         warnings.warn(
-            'Stored %s in %s.  Copy it to your ASE installation under '
-            'ase/calculators for system-wide installation. Using a *nix '
-            'OS this can be a simple as mv %s %s' %
-            (filename, os.path.abspath(path),
-             os.path.join(os.path.abspath(path), filename),
-             os.path.join(os.path.dirname(ase.__file__),
-                          'calculators')))
-        kwfile = os.path.join(path, filename)
+            f'Stored castep keywords dictionary as {keywords_file}. '
+            f'Copy it to {Path(config_paths[0]).expanduser() / filename} for '
+            r'user installation.')
 
     # Now create the castep_keywords object proper
-    with open(kwfile) as f:
-        kwdata = json.load(f)
+    with open(keywords_file) as fd:
+        kwdata = json.load(fd)
 
     # This is a bit awkward, but it's necessary for backwards compatibility
     param_dict = make_param_dict(kwdata['param'])
