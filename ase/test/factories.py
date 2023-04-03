@@ -527,9 +527,12 @@ class OrcaFactory:
     def __init__(self, executable):
         self.executable = executable
 
+    def _profile(self):
+        from ase.calculators.orca import OrcaProfile
+        return OrcaProfile([self.executable])
+
     def version(self):
-        from ase.calculators.orca import orca_version_from_executable
-        return orca_version_from_executable([self.executable])
+        return self._profile().version()
 
     def calc(self, **kwargs):
         from ase.calculators.orca import ORCA

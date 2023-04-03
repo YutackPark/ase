@@ -248,6 +248,7 @@ gpaw_factory = make_factory_fixture('gpaw')
 mopac_factory = make_factory_fixture('mopac')
 octopus_factory = make_factory_fixture('octopus')
 siesta_factory = make_factory_fixture('siesta')
+orca_factory = make_factory_fixture('orca')
 
 
 @pytest.fixture
