@@ -27,7 +27,7 @@ def test_orca_version_from_string(txt1, ref1):
     assert version == ref1
 
 
-#@calc('orca') #somehow this test only works with static factory fixture
+# @calc('orca') #somehow this test only works with static factory fixture
 def test_orca_version_from_executable(orca_factory):
     # only check the format to be compatible with future versions
     version_regexp = re.compile(r'\d+.\d+.\d+')
