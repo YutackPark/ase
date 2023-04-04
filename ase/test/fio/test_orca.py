@@ -53,7 +53,7 @@ def test_read_orca_outputs():
 TIMINGS
 -------
 
-Total SCF time: 0 days 0 hours 0 min 3 sec 
+Total SCF time: 0 days 0 hours 0 min 3 sec
 
 Total time                  ....       3.805 sec
 Sum of individual times     ....       3.040 sec  ( 79.9%)
@@ -103,9 +103,9 @@ FINAL SINGLE POINT ENERGY       -76.422436201230
 #
 # The atomic numbers and current coordinates in Bohr
 #
-   8     0.0000000    0.0000000    0.0000000 
-   1     1.8897261    0.0000000    0.0000000 
-   1     0.0000000    1.8897261    0.0000000 
+   8     0.0000000    0.0000000    0.0000000
+   1     1.8897261    0.0000000    0.0000000
+   1     0.0000000    1.8897261    0.0000000
 """
     with open('orcamolecule_test.out', 'w') as fd:
         fd.write(sample_outputfile)
