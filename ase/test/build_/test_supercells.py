@@ -27,15 +27,24 @@ def P(request):
     return request.param
 
 
-def test_make_supercell(prim, P):
-    rep = int(round(np.linalg.det(P)))
-    expected = rep * len(prim)
-    sc = make_supercell(prim, P)
+@pytest.fixture(params=["cell-major", "atom-major"])
+def order(request):
+    return request.param
+
+
+def test_make_supercell(prim, P, order):
+    n = int(round(np.linalg.det(P)))
+    expected = n * len(prim)
+    sc = make_supercell(prim, P, order=order)
     assert len(sc) == expected
-    assert list(sc.symbols) == list(prim.symbols) * rep
+    if order == "cell-major":
+        symbols_expected = list(prim.symbols) * n
+    elif order == "atom-major":
+        symbols_expected = [s for s in prim.symbols for _ in range(n)]
+    assert list(sc.symbols) == symbols_expected
 
 
-def test_make_supercells_arrays(prim, P, rng):
+def test_make_supercells_arrays(prim, P, order, rng):
     reps = int(round(np.linalg.det(P)))
     tags = list(range(len(prim)))
     momenta = rng.random((len(prim), 3))
@@ -43,12 +52,17 @@ def test_make_supercells_arrays(prim, P, rng):
     prim.set_tags(tags)
     prim.set_momenta(momenta)
 
-    sc = make_supercell(prim, P)
+    sc = make_supercell(prim, P, order=order)
 
     assert reps * len(prim) == len(sc.get_tags())
-    assert all(sc.get_tags() == np.tile(tags, reps))
-    assert np.allclose(sc[:len(prim)].get_momenta(), prim.get_momenta())
-    assert np.allclose(sc.get_momenta(), np.tile(momenta, (reps, 1)))
+    if order == "cell-major":
+        assert all(sc.get_tags() == np.tile(tags, reps))
+        assert np.allclose(sc[:len(prim)].get_momenta(), prim.get_momenta())
+        assert np.allclose(sc.get_momenta(), np.tile(momenta, (reps, 1)))
+    elif order == "atom-major":
+        assert all(sc.get_tags() == np.repeat(tags, reps))
+        assert np.allclose(sc[::reps].get_momenta(), prim.get_momenta())
+        assert np.allclose(sc.get_momenta(), np.repeat(momenta, reps, axis=0))
 
 
 @pytest.mark.parametrize('rep', [

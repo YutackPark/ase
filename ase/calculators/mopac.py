@@ -8,7 +8,11 @@ Set $ASE_MOPAC_COMMAND to something like::
 
 """
 import os
+import re
+from typing import Sequence
+from warnings import warn
 
+from packaging import version
 import numpy as np
 
 from ase import Atoms
@@ -17,14 +21,15 @@ from ase.units import kcal, mol, Debye
 
 
 class MOPAC(FileIOCalculator):
-    implemented_properties = ['energy', 'forces', 'dipole', 'magmom']
+    implemented_properties = ['energy', 'forces', 'dipole',
+                              'magmom', 'free_energy']
     command = 'mopac PREFIX.mop 2> /dev/null'
     discard_results_on_any_change = True
 
     default_parameters = dict(
         method='PM7',
         task='1SCF GRADIENTS',
-        charge=0,
+        charge=None,
         relscf=0.0001)
 
     methods = ['AM1', 'MNDO', 'MNDOD', 'PM3', 'PM6', 'PM6-D3', 'PM6-DH+',
@@ -72,19 +77,23 @@ class MOPAC(FileIOCalculator):
 
     def write_input(self, atoms, properties=None, system_changes=None):
         FileIOCalculator.write_input(self, atoms, properties, system_changes)
-        p = self.parameters
+        p = Parameters(self.parameters.copy())
+
+        # Ensure DISP so total energy is available
+        if 'DISP' not in p.task.split():
+            p.task = p.task + ' DISP'
 
         # Build string to hold .mop input file:
-        s = p.method + ' ' + p.task + ' '
+        s = f'{p.method} {p.task} '
 
         if p.relscf:
             s += 'RELSCF={0} '.format(p.relscf)
 
         # Write charge:
-        if p.charge:
-            charge = p.charge
-        else:
+        if p.charge is None:
             charge = atoms.get_initial_charges().sum()
+        else:
+            charge = p.charge
 
         if charge != 0:
             s += 'CHARGE={0} '.format(int(round(charge)))
@@ -100,8 +109,8 @@ class MOPAC(FileIOCalculator):
         for xyz, symbol in zip(atoms.positions, atoms.get_chemical_symbols()):
             s += ' {0:2} {1} 1 {2} 1 {3} 1\n'.format(symbol, *xyz)
 
-        for v, p in zip(atoms.cell, atoms.pbc):
-            if p:
+        for v, pbc in zip(atoms.cell, atoms.pbc):
+            if pbc:
                 s += 'Tv {0} {1} {2}\n'.format(*v)
 
         with open(self.label + '.mop', 'w') as fd:
@@ -134,7 +143,10 @@ class MOPAC(FileIOCalculator):
             else:
                 p.task += keyword + ' '
 
-        p.task.rstrip()
+        p.task = p.task.rstrip()
+        if 'charge' not in p:
+            p.charge = None
+
         self.atoms = self.read_atoms_from_file(lines)
         self.read_results()
 
@@ -188,18 +200,27 @@ class MOPAC(FileIOCalculator):
         with open(self.label + '.out') as fd:
             lines = fd.readlines()
 
+        self.results['version'] = self.get_version_from_file(lines)
+
+        total_energy_regex = re.compile(
+            r'^\s+TOTAL ENERGY\s+\=\s+(-?\d+\.\d+) EV')
+        final_heat_regex = re.compile(
+            r'^\s+FINAL HEAT OF FORMATION\s+\=\s+(-?\d+\.\d+) KCAL/MOL')
+
         for i, line in enumerate(lines):
-            if line.find('TOTAL ENERGY') != -1:
-                self.results['energy'] = float(line.split()[3])
-            elif line.find('FINAL HEAT OF FORMATION') != -1:
-                self.final_hof = float(line.split()[5]) * kcal / mol
+            if total_energy_regex.match(line):
+                self.results['total_energy'] = float(
+                    total_energy_regex.match(line).groups()[0])
+            elif final_heat_regex.match(line):
+                self.results['final_hof'] = float(final_heat_regex.match(line)
+                                                  .groups()[0]) * kcal / mol
             elif line.find('NO. OF FILLED LEVELS') != -1:
                 self.nspins = 1
                 self.no_occ_levels = int(line.split()[-1])
             elif line.find('NO. OF ALPHA ELECTRON') != -1:
                 self.nspins = 2
                 self.no_alpha_electrons = int(line.split()[-1])
-                self.no_beta_electrons = int(lines[i+1].split()[-1])
+                self.no_beta_electrons = int(lines[i + 1].split()[-1])
                 self.results['magmom'] = abs(self.no_alpha_electrons -
                                              self.no_beta_electrons)
             elif line.find('FINAL  POINT  AND  DERIVATIVES') != -1:
@@ -233,6 +254,28 @@ class MOPAC(FileIOCalculator):
                 self.results['dipole'] = np.array(
                     lines[i + 3].split()[1:1 + 3], float) * Debye
 
+        # Developers recommend using final HOF as it includes dispersion etc.
+        # For backward compatibility we won't change the results of old MOPAC
+        # calculations... yet
+        if version.parse(self.results['version']) >= version.parse('22'):
+            self.results['energy'] = self.results['final_hof']
+        else:
+            warn("Using a version of MOPAC lower than v22: ASE will use "
+                 "TOTAL ENERGY as the potential energy. In future, "
+                 "FINAL HEAT OF FORMATION will be preferred for all versions.")
+            self.results['energy'] = self.results['total_energy']
+        self.results['free_energy'] = self.results['energy']
+
+    @staticmethod
+    def get_version_from_file(lines: Sequence[str]):
+        version_regex = re.compile(r'^ \*\*\s+MOPAC (v[\.\d]+)\s+\*\*\s$')
+        for line in lines:
+            match = version_regex.match(line)
+            if match:
+                return match.groups()[0]
+        else:
+            return ValueError('Version number was not found in MOPAC output')
+
     def get_eigenvalues(self, kpt=0, spin=0):
         return self.eigenvalues[spin, kpt]
 
@@ -265,6 +308,19 @@ class MOPAC(FileIOCalculator):
                              self.eigenvalues[1, 0, nb - 1]])
 
     def get_final_heat_of_formation(self):
-        """Final heat of formation as reported in the Mopac output file
-        """
-        return self.final_hof
+        """Final heat of formation as reported in the Mopac output file"""
+        warn("This method is deprecated, please use "
+             "MOPAC.results['final_hof']", DeprecationWarning)
+        return self.results['final_hof']
+
+    @property
+    def final_hof(self):
+        warn("This property is deprecated, please use "
+             "MOPAC.results['final_hof']", DeprecationWarning)
+        return self.results['final_hof']
+
+    @final_hof.setter
+    def final_hof(self, new_hof):
+        warn("This property is deprecated, please use "
+             "MOPAC.results['final_hof']", DeprecationWarning)
+        self.results['final_hof'] = new_hof

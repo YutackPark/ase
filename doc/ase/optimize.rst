@@ -196,7 +196,7 @@ Read more about this algorithm here:
              N is the number of atoms and n the number of steps.
              If the number of atoms is sufficiently high, this
              may cause a memory issue.
-             This class prints a warning if the user tries to 
+             This class prints a warning if the user tries to
              run GPMin with more than 100 atoms in the unit cell.
 
 
@@ -519,3 +519,22 @@ The code is written such that a stopped simulation (e.g., killed by the batching
 Note that these searches can be quite slow, so it can pay to have multiple searches running at a time. Multiple searches can run in parallel and share one list of minima. (Run each script from a separate directory but specify the location to the same absolute location for ``minima_traj``). Each search will use the global information of the list of minima, but will keep its own local information of the initial temperature and `E_\mathrm{diff}`.
 
 For an example of use, see the :ref:`mhtutorial` tutorial.
+
+Transition state search
+=======================
+There are several strategies and tools for the search and optimization of
+transition states available in ASE.
+The transition state search and optimization algorithms are:
+:class:`ClimbFixInternals`, :mod:`~ase.neb` and :mod:`~ase.dimer`.
+
+ClimbFixInternals
+-----------------
+The :class:`BFGSClimbFixInternals` optimizer can be used to climb a reaction
+coordinate defined using the :class:`~ase.constraints.FixInternals` class.
+
+.. module:: ase.optimize.climbfixinternals
+
+.. autoclass:: BFGSClimbFixInternals
+
+   .. automethod:: get_projected_forces
+   .. automethod:: get_scaled_fmax

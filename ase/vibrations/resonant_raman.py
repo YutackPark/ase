@@ -153,7 +153,7 @@ class ResonantRaman(Raman):
 
         kwargs['exext'] = exext
         Raman.__init__(self, atoms, *args, **kwargs)
-        assert(self.vibrations.nfree == 2)
+        assert self.vibrations.nfree == 2
 
         self.exobj = Excitations
         if exkwargs is None:
@@ -235,7 +235,7 @@ class ResonantRaman(Raman):
 
         def select(exl, matching):
             mlst = [ex for ex in exl if ex in matching]
-            assert(len(mlst) == len(matching))
+            assert len(mlst) == len(matching)
             return mlst
 
         ex0 = select(ex0_object, matching)

@@ -31,21 +31,21 @@ def test_franck_condon(testdir):
     fcr = FranckCondonRecursive()
 
     # check factorial
-    assert(fco.factorial(8) == factorial(8))
+    assert fco.factorial(8) == factorial(8)
     # the second test is useful according to the implementation
-    assert(fco.factorial(5) == factorial(5))
-    assert(fco.factorial.inv(5) == 1. / factorial(5))
+    assert fco.factorial(5) == factorial(5)
+    assert fco.factorial.inv(5) == 1. / factorial(5)
 
     # check T=0 and n=0 equality
     S = np.array([1, 2.1, 34])
     m = 5
-    assert(((fco.directT0(m, S) - fco.direct(0, m, S)) / fco.directT0(m, S) <
-            1e-15).all())
+    assert ((fco.directT0(m, S) - fco.direct(0, m, S)) / fco.directT0(m, S) <
+            1e-15).all()
 
     # check symmetry
     S = 2
     n = 3
-    assert(fco.direct(n, m, S) == fco.direct(m, n, S))
+    assert fco.direct(n, m, S) == fco.direct(m, n, S)
 
     # ---------------------------
     # specials

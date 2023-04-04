@@ -4,8 +4,6 @@ import numpy as np
 from ase.phasediagram import Pourbaix, solvated
 
 
-# Fixme: The phasediagram module specifies unknown solver options
-@pytest.mark.filterwarnings('ignore:Unknown solver options')
 def test_pourbaix():
     """Test ZnO system from docs."""
     refs = solvated('Zn')

@@ -207,7 +207,6 @@ is implemented as a subclass of the NEB method::
     from ase.dyneb import DyNEB
     neb = DyNEB(images, fmax=0.05, dynamic_relaxation=True)
 
->>>>>>> refs/remotes/origin/split-neb-methods
 where ``fmax`` must be identical to the ``fmax`` of the optimizer.
 
 .. note::

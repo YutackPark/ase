@@ -500,7 +500,7 @@ def _validate_symbol_string(string):
 
 
 def _get_key_value_pairs(line):
-    '''Reads a line of a gaussian input file, which contains keywords and options
+    '''Read line of a gaussian input file with keywords and options
     separated according to the rules of the route section.
 
     Parameters
@@ -674,9 +674,9 @@ def _get_cartesian_atom_coords(symbol, pos):
         try:
             return list(map(float, pos))
         except ValueError:
-            raise(ParseError(
+            raise ParseError(
                 "ERROR: Molecule specification in"
-                "Gaussian input file could not be read"))
+                "Gaussian input file could not be read")
 
 
 def _get_zmatrix_line(line):
@@ -689,7 +689,7 @@ def _get_zmatrix_line(line):
             ", as the alternative Z-matrix format using "
             "two bond angles instead of a bond angle and "
             "a dihedral angle is not supported.")
-    return(line.strip() + '\n')
+    return line.strip() + '\n'
 
 
 def _read_zmatrix(zmatrix_contents, zmatrix_vars=None):

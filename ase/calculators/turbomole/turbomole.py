@@ -362,6 +362,8 @@ class Turbomole(FileIOCalculator):
                     nforce_cmd.append('-central')
                 if 'delta' in pdict.keys():
                     nforce_cmd.extend(['-d', str(pdict['delta'] / Bohr)])
+                if self.update_forces:
+                    self.get_forces(atoms)
                 execute(nforce_cmd)
             self.update_hessian = False
 

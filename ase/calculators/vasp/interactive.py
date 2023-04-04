@@ -112,7 +112,7 @@ class VaspInteractive(GenerateVaspInput, Calculator):  # type: ignore
         # or it exited with an error. Either way, we need to raise an error.
 
         raise RuntimeError("VASP exited unexpectedly with exit code {}"
-                           "".format(self.subprocess.poll()))
+                           "".format(self.process.poll()))
 
     def close(self):
         if self.process is None:

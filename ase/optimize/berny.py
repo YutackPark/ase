@@ -66,11 +66,11 @@ class Berny(Optimizer):
         # typically used as a generator, see berny.optimize()
         next(self._berny)
 
-    def step(self, f=None):
-        if f is None:
-            f = self.atoms.get_forces()
+    def step(self, forces=None):
+        if forces is None:
+            forces = self.atoms.get_forces()
         energy = self.atoms.get_potential_energy()
-        gradients = -self.atoms.get_forces()
+        gradients = -forces
         debug = self._berny.send((energy / Ha, gradients / Ha * Bohr))
         self.dump(debug)
         geom = next(self._berny)

@@ -45,8 +45,7 @@ class Mixer:
 
 
 class LinearCombinationCalculator(BaseCalculator):
-    """LinearCombinationCalculator for weighted summation of multiple calculators.
-    """
+    """Weighted summation of multiple calculators."""
 
     def __init__(self, calcs, weights):
         """Implementation of sum of calculators.

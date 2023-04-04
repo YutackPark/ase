@@ -41,7 +41,8 @@ def parse_geometry(filename):
 
 
 def read_acemolecule_out(filename):
-    '''Interface to ACEMoleculeReader and return values for corresponding quantity
+    '''Interface to ACEMoleculeReader, return values for corresponding quantity
+
     Parameters
     ==========
     filename: ACE-Molecule log file.

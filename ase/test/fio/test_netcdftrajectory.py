@@ -143,7 +143,7 @@ def test_netcdftrajectory(co):
     traj.close()
 
     a = read('5.nc')
-    assert(len(a) == 2)
+    assert len(a) == 2
 
 
 def test_netcdf_with_variable_atomic_numbers(netCDF4):

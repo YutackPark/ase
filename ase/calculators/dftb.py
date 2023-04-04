@@ -439,6 +439,10 @@ class Dftb(FileIOCalculator):
         nrow = int(np.ceil(nkpt * nspin * nband * 1.0 / ncol))
         index_eig_end = index_eig_begin + nrow
         ncol_last = len(self.lines[index_eig_end - 1].split())
+        # XXX dirty fix
+        self.lines[index_eig_end - 1] = (
+            self.lines[index_eig_end - 1].strip()
+            + ' 0.0 ' * (ncol - ncol_last))
 
         # askhl: this is quite hacky, would be good to clean up
         line = self.lines[index_eig_end - 1]

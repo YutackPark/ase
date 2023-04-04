@@ -740,7 +740,7 @@ def parse_sitesym_element(element):
         elif char == "/":
             is_frac = True
         elif char in "xyz":
-            rot.append((ord(char)-ord("x"), 1 if is_positive else -1))
+            rot.append((ord(char) - ord("x"), 1 if is_positive else -1))
         elif char.isdigit() or char == ".":
             if sng_trans is None:
                 sng_trans = 1.0 if is_positive else -1.0

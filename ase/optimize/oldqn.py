@@ -266,12 +266,12 @@ class GoodOldQuasiNewton(Optimizer):
                     h *= 1. / absdpos
                     self.hessian[i][j] += h
 
-    def step(self, f=None):
+    def step(self, forces=None):
         """ Do one QN step
         """
 
-        if f is None:
-            f = self.atoms.get_forces()
+        if forces is None:
+            forces = self.atoms.get_forces()
 
         pos = self.atoms.get_positions().ravel()
         G = -self.atoms.get_forces().ravel()
@@ -299,16 +299,17 @@ class GoodOldQuasiNewton(Optimizer):
             else:
                 self.update_hessian(pos, G)
                 de = energy - self.oldenergy
-                f = 1.0
+                forces = 1.0
                 if self.forcemin:
                     self.write_log(
                         "energy change; actual: %f estimated: %f " %
                         (de, self.energy_estimate))
                     if abs(self.energy_estimate) > self.eps:
-                        f = abs((de / self.energy_estimate) - 1)
-                        self.write_log('Energy prediction factor ' + str(f))
+                        forces = abs((de / self.energy_estimate) - 1)
+                        self.write_log('Energy prediction factor '
+                                       + str(forces))
                         # fg = self.get_force_prediction(G)
-                        self.radius *= scale_radius_energy(f, self.radius)
+                        self.radius *= scale_radius_energy(forces, self.radius)
 
                 else:
                     self.write_log("energy change; actual: %f " % (de))
@@ -316,7 +317,7 @@ class GoodOldQuasiNewton(Optimizer):
 
                 fg = self.get_force_prediction(G)
                 self.write_log("Scale factors %f %f " %
-                               (scale_radius_energy(f, self.radius),
+                               (scale_radius_energy(forces, self.radius),
                                 scale_radius_force(fg, self.radius)))
 
             self.radius = max(min(self.radius, self.maxradius), 0.0001)

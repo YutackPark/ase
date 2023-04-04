@@ -35,7 +35,7 @@ def test_dimer_method(testdir):
 
     # Test the results
     tolerance = 1e-3
-    assert(d_atoms.get_barrier_energy() - 1.03733136918 < tolerance)
-    assert(abs(d_atoms.get_curvature() + 0.900467048707) < tolerance)
-    assert(d_atoms.get_eigenmode()[-1][1] < -0.99)
-    assert(abs(d_atoms.get_positions()[-1][1]) < tolerance)
+    assert d_atoms.get_barrier_energy() - 1.03733136918 < tolerance
+    assert abs(d_atoms.get_curvature() + 0.900467048707) < tolerance
+    assert d_atoms.get_eigenmode()[-1][1] < -0.99
+    assert abs(d_atoms.get_positions()[-1][1]) < tolerance

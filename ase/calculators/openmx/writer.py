@@ -58,8 +58,8 @@ def write_openmx(label=None, atoms=None, parameters=None, properties=None,
         # Write 1-line keywords
         for fltrd_keyword in filtered_keywords.keys():
             for key in keys:
-                openmx_keywords = getattr(param, key+'_keys')
-                write = globals()['write_'+key]
+                openmx_keywords = getattr(param, key + '_keys')
+                write = globals()['write_' + key]
                 for omx_keyword in openmx_keywords:
                     if fltrd_keyword == get_standard_key(omx_keyword):
                         write(fd, omx_keyword, filtered_keywords[fltrd_keyword])
@@ -109,8 +109,9 @@ def parameters_to_keywords(label=None, atoms=None, parameters=None,
         'scf_eigenvaluesolver': 'eigensolver'
     }
     standard_units = {'eV': 1, 'Ha': Ha, 'Ry': Ry, 'Bohr': Bohr, 'fs': fs,
-                      'K': 1, 'GV / m': 1e9/1.6e-19 / m, 'Ha/Bohr': Ha/Bohr,
-                      'm/s': m/s, '_amu': 1, 'Tesla': 1}
+                      'K': 1, 'GV / m': 1e9 / 1.6e-19 / m,
+                      'Ha/Bohr': Ha / Bohr,
+                      'm/s': m / s, '_amu': 1, 'Tesla': 1}
     unit_dict = {get_standard_key(k): v for k, v in unit_dat_keywords.items()}
 
     for key in sequence:
@@ -189,8 +190,8 @@ def parameters_to_keywords(label=None, atoms=None, parameters=None,
         get_matrix_key = globals()['get_' + get_standard_key(key)]
         keywords[get_standard_key(key)] = get_matrix_key(atoms, parameters)
     return OrderedDict([(k, v)for k, v in keywords.items()
-                        if not(v is None or
-                               (isinstance(v, list) and v == []))])
+                        if not (v is None or
+                                (isinstance(v, list) and v == []))])
 
 
 def get_species(symbols):
@@ -408,7 +409,8 @@ def get_up_down_spin(magmom, element, xc, data_path, year):
     suffix = get_pseudo_potential_suffix(element, xc, year)
     filename = os.path.join(data_path, 'VPS/' + suffix + '.vps')
     valence_electron = float(read_electron_valency(filename))
-    return [valence_electron / 2 + magmom / 2, valence_electron / 2 - magmom/2]
+    return [valence_electron / 2 + magmom / 2,
+            valence_electron / 2 - magmom / 2]
 
 
 def get_spin_direction(magmoms):
@@ -420,7 +422,7 @@ def get_spin_direction(magmoms):
         return []
     else:
         magmoms = np.array(magmoms)
-        return magmoms/np.linalg.norm(magmoms, axis=1)
+        return magmoms / np.linalg.norm(magmoms, axis=1)
 
 
 def get_orbital_direction():

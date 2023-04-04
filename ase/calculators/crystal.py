@@ -131,7 +131,7 @@ class CRYSTAL(FileIOCalculator):
             if isinstance(p.xc, str):
                 xc = {'LDA': 'EXCHANGE\nLDA\nCORRELAT\nVWN',
                       'PBE': 'PBEXC'}.get(p.xc, p.xc)
-                outfile.write(xc.upper()+'\n')
+                outfile.write(xc.upper() + '\n')
         # Custom xc functional are given by a tuple of string
             else:
                 x, c = p.xc
@@ -202,7 +202,7 @@ class CRYSTAL(FileIOCalculator):
                 raise ValueError('Shifted Monkhorst-Pack not allowed.')
             outfile.write('SHRINK  \n')
             # isp is by default 1, 2 is suggested for metals.
-            outfile.write('0 ' + str(p.isp*max(self.kpts)) + ' \n')
+            outfile.write('0 ' + str(p.isp * max(self.kpts)) + ' \n')
             if ispbc[2]:
                 outfile.write(str(self.kpts[0])
                               + ' ' + str(self.kpts[1])
@@ -283,13 +283,13 @@ class CRYSTAL(FileIOCalculator):
                 break
         else:
             raise RuntimeError('Problem in reading forces')
-        for j in range(index_force_begin, index_force_begin+len(self.atoms)):
+        for j in range(index_force_begin, index_force_begin + len(self.atoms)):
             word = self.lines[j].split()
             # If GHOST atoms give problems, have a close look at this
             if len(word) == 5:
-                gradients.append([float(word[k+2]) for k in range(0, 3)])
+                gradients.append([float(word[k + 2]) for k in range(0, 3)])
             elif len(word) == 4:
-                gradients.append([float(word[k+1]) for k in range(0, 3)])
+                gradients.append([float(word[k + 1]) for k in range(0, 3)])
             else:
                 raise RuntimeError('Problem in reading forces')
 
@@ -384,7 +384,7 @@ class PointChargePotential:
             print("CRYSTAL: Warning: not writing external charges ")
             return
         with open(os.path.join(self.directory, filename), 'w') as charge_file:
-            charge_file.write(str(len(self.mmcharges))+' \n')
+            charge_file.write(str(len(self.mmcharges)) + ' \n')
             for [pos, charge] in zip(self.mmpositions, self.mmcharges):
                 [x, y, z] = pos
                 charge_file.write('%12.6f %12.6f %12.6f %12.6f \n'
@@ -402,7 +402,7 @@ class PointChargePotential:
         with open(os.path.join(self.directory, 'OUTPUT'), 'r') as infile:
             lines = infile.readlines()
 
-        print('PCPOT crys_pcc: '+str(self.crys_pcc))
+        print('PCPOT crys_pcc: ' + str(self.crys_pcc))
         # read in force and energy Coulomb corrections
         if self.crys_pcc:
             self.read_pc_corrections()
@@ -444,13 +444,13 @@ class PointChargePotential:
         e *= Hartree
 
         f_lines = [s for s in lines if '199' in s]
-        assert(len(f_lines) == len(self.mmcharges)), \
+        assert len(f_lines) == len(self.mmcharges), \
             'Mismatch in number of point charges from FORCES_CHG.dat'
 
         pc_forces = np.zeros((len(self.mmcharges), 3))
         for i, l in enumerate(f_lines):
             first = l.split(str(i + 1) + ' 199  ')
-            assert(len(first) == 2), 'Problem reading FORCES_CHG.dat'
+            assert len(first) == 2, 'Problem reading FORCES_CHG.dat'
             f = first[-1].split()
             pc_forces[i] = [float(x) for x in f]
 

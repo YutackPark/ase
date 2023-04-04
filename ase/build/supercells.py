@@ -132,7 +132,7 @@ def find_optimal_cell_shape(
     return optimal_P
 
 
-def make_supercell(prim, P, wrap=True, tol=1e-5):
+def make_supercell(prim, P, *, wrap=True, order="cell-major", tol=1e-5):
     r"""Generate a supercell by applying a general transformation (*P*) to
     the input configuration (*prim*).
 
@@ -150,6 +150,18 @@ def make_supercell(prim, P, wrap=True, tol=1e-5):
         Transformation matrix `\mathbf{P}`.
     wrap: bool
         wrap in the end
+    order: str (default: "cell-major")
+        how to order the atoms in the supercell
+
+        "cell-major":
+        [atom1_shift1, atom2_shift1, ..., atom1_shift2, atom2_shift2, ...]
+        i.e. run first over all the atoms in cell1 and then move to cell2.
+
+        "atom-major":
+        [atom1_shift1, atom1_shift2, ..., atom2_shift1, atom2_shift2, ...]
+        i.e. run first over atom1 in all the cells and then move to atom2.
+        This may be the order preferred by most VASP users.
+
     tol: float
         tolerance for wrapping
     """
@@ -160,15 +172,15 @@ def make_supercell(prim, P, wrap=True, tol=1e-5):
     # cartesian lattice points
     lattice_points_frac = lattice_points_in_supercell(supercell_matrix)
     lattice_points = np.dot(lattice_points_frac, supercell)
-
-    shifted = prim.positions[:, None] + lattice_points
     N = len(lattice_points)
 
-    # Reshape such that the order is
-    # [atom1_shift1, atom2_shift1, atom1_shift2, atom2_shift2, ...]
-    # i.e. alternating between atom 1 and atom 2
-    # This preserves the order from older implementations.
-    shifted_reshaped = np.reshape(shifted, (len(prim) * N, 3), order="F")
+    if order == "cell-major":
+        shifted = prim.positions[None, :, :] + lattice_points[:, None, :]
+    elif order  == "atom-major":
+        shifted = prim.positions[:, None, :] + lattice_points[None, :, :]
+    else:
+        raise ValueError(f"invalid order: {order}")
+    shifted_reshaped = shifted.reshape(-1, 3)
 
     superatoms = Atoms(positions=shifted_reshaped,
                        cell=supercell,
@@ -179,8 +191,11 @@ def make_supercell(prim, P, wrap=True, tol=1e-5):
         if name == "positions":
             # This was added during construction of the super cell
             continue
-        # Shape borrowed from atoms.__imul__
-        new_arr = np.tile(arr, (N, ) + (1, ) * (len(arr.shape) - 1))
+        shape = (N * arr.shape[0], *arr.shape[1:])
+        if order == "cell-major":
+            new_arr = np.repeat(arr[None, :], N, axis=0).reshape(shape)
+        elif order == "atom-major":
+            new_arr = np.repeat(arr[:, None], N, axis=1).reshape(shape)
         superatoms.set_array(name, new_arr)
 
     # check number of atoms is correct

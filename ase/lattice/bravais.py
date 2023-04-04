@@ -313,7 +313,7 @@ class Bravais:
                 #    if perce > percent + 10:
                 #        print ("%d%%" % perce),
                 #        percent = perce
-        assert(self.nput == self.natoms)
+        assert self.nput == self.natoms
 
     def inside(self, point):
         "Is a point inside the unit cell?"

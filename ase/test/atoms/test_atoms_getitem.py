@@ -13,8 +13,8 @@ def test_h2o_getitem():
     with pytest.raises(IndexError):
         w[True, False]
 
-    assert(w[0, 1] == w[True, True, False])
-    assert(w[0, 1] == w[0:2])
+    assert w[0, 1] == w[True, True, False]
+    assert w[0, 1] == w[0:2]
 
 
 @pytest.mark.parametrize(

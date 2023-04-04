@@ -1,8 +1,9 @@
-def test_h2o_xas_xes():
-    import ase.calculators.demon as demon
-    from ase import Atoms
-    import numpy as np
+import ase.calculators.demon as demon
+from ase import Atoms
+import numpy as np
 
+
+def test_h2o_xas_xes():
     # d = 0.9575
     d = 0.9775
     # t = np.pi / 180 * 104.51
@@ -43,7 +44,7 @@ def test_h2o_xas_xes():
     print(error)
 
     tol = 1.0e-4
-    assert(error < tol)
+    assert error < tol
 
     # check xas
     results = calc.results
@@ -57,7 +58,7 @@ def test_h2o_xas_xes():
     print(error)
 
     tol = 1.0e-4
-    assert(error < tol)
+    assert error < tol
 
     print('xray, first transition, transition dipole moments')
     value = results['xray']['trans_dip'][0]
@@ -68,7 +69,7 @@ def test_h2o_xas_xes():
     print(error)
 
     tol = 1.0e-4
-    assert(error < tol)
+    assert error < tol
 
     # XES
     input_arguments = {'GRID': 'FINE',
@@ -96,7 +97,7 @@ def test_h2o_xas_xes():
     print(error)
 
     tol = 1.0e-4
-    assert(error < tol)
+    assert error < tol
 
     # check xes
     results = calc.results
@@ -110,7 +111,7 @@ def test_h2o_xas_xes():
     print(error)
 
     tol = 1.0e-4
-    assert(error < tol)
+    assert error < tol
 
     print('xray, first transition, transition dipole moments')
     value = results['xray']['trans_dip'][0]
@@ -121,7 +122,7 @@ def test_h2o_xas_xes():
     print(error)
 
     tol = 1.0e-4
-    assert(error < tol)
+    assert error < tol
 
     # and XPS
     input_arguments = {'GRID': 'FINE',
@@ -151,7 +152,7 @@ def test_h2o_xas_xes():
     print(error)
 
     tol = 1.0e-4
-    assert(error < tol)
+    assert error < tol
 
     # First excited state
     input_arguments = {'GRID': 'FINE',
@@ -180,6 +181,6 @@ def test_h2o_xas_xes():
     print(error)
 
     tol = 1.0e-4
-    assert(error < tol)
+    assert error < tol
 
     print('tests passed')

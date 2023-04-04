@@ -27,4 +27,4 @@ def test_bader(testdir):
         print('Atom', atom.symbol, 'Bader charge', atom.charge)
 
     # O is negatively charged
-    assert(atoms[0].charge < -1 and atoms[0].charge > -2)
+    assert atoms[0].charge < -1 and atoms[0].charge > -2

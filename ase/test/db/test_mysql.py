@@ -15,7 +15,11 @@ def url():
     on_ci_server = 'CI_PROJECT_DIR' in os.environ
 
     if on_ci_server:
-        db_url = 'mysql://root:ase@mysql:3306/testase_mysql'
+        # CI server configured to use non-standard port 3307
+        # instead of the default 3306 port. This is to test
+        # for proper passing of the port for creating the
+        # mysql connection
+        db_url = 'mysql://root:ase@mysql:3307/testase_mysql'
         # HOST = 'mysql'
         # USER = 'root'
         # PASSWD = 'ase'

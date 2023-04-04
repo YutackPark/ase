@@ -27,7 +27,7 @@ def read_abinit_in(fd):
 
     index = tokens.index("acell")
     unit = 1.0
-    if(tokens[index + 4].lower()[:3] != 'ang'):
+    if tokens[index + 4].lower()[:3] != 'ang':
         unit = Bohr
     acell = [unit * float(tokens[index + 1]),
              unit * float(tokens[index + 2]),
@@ -586,6 +586,52 @@ def read_abinit_outputs(directory, label):
     return results
 
 
+def read_abinit_gsr(filename):
+    import netCDF4
+    data = netCDF4.Dataset(filename)
+    data.set_auto_mask(False)
+    version = data.abinit_version
+
+    typat = data.variables['atom_species'][:]
+    cell = data.variables['primitive_vectors'][:] * Bohr
+    znucl = data.variables['atomic_numbers'][:]
+    xred = data.variables['reduced_atom_positions'][:]
+
+    znucl_int = znucl.astype(int)
+    znucl_int[znucl_int != znucl] = 0  # (Fractional Z)
+    numbers = znucl_int[typat - 1]
+
+    atoms = Atoms(numbers=numbers,
+                  scaled_positions=xred,
+                  cell=cell,
+                  pbc=True)
+
+    # Within the netCDF4 dataset, the float variables return a array(float)
+    # The tolist() is here to ensure that the result is of type float
+    energy = data.variables['etotal'][:].tolist() * Hartree
+    forces = data.variables['cartesian_forces'][:] * Hartree / Bohr
+    stress = data.variables['cartesian_stress_tensor'][:] * (Hartree / Bohr**3)
+    efermi = data.variables['fermie'][:].tolist() * Hartree
+    ibzkpts = data.variables['reduced_coordinates_of_kpoints'][:]
+    eigs = data.variables['eigenvalues'][:] * Hartree
+    occ = data.variables['occupations'][:]
+    weights = data.variables['kpoint_weights'][:]
+
+    results = {'atoms': atoms,
+               'energy': energy,
+               'free_energy': energy,
+               'forces': forces,
+               'stress': stress,
+               'fermilevel': efermi,
+               'ibz_kpoints': ibzkpts,
+               'eigenvalues': eigs,
+               'kpoint_weights': weights,
+               'occupations': occ,
+               'version': version}
+
+    return results
+
+
 def get_ppp_list(atoms, species, raise_exception, xc, pps,
                  search_paths):
     ppp_list = []
@@ -615,6 +661,9 @@ def get_ppp_list(atoms, species, raise_exception, xc, pps,
                     hghtemplate = '%d%s%s.pspnc'  # E.g. "44ru.pspnc"
                     names.append(hghtemplate % (number, s, '*'))
                     names.append('%s[.-_]*.pspnc' % s)
+                elif pps in ['psp8']:
+                    hghtemplate = '%s.psp8'  # E.g. "Si.psp8"
+                    names.append(hghtemplate % (s))
                 elif pps in ['hgh', 'hgh.sc']:
                     hghtemplate = '%d%s.%s.hgh'  # E.g. "42mo.6.hgh"
                     # There might be multiple files with different valence

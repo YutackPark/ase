@@ -245,8 +245,10 @@ cp2k_factory = make_factory_fixture('cp2k')
 dftb_factory = make_factory_fixture('dftb')
 espresso_factory = make_factory_fixture('espresso')
 gpaw_factory = make_factory_fixture('gpaw')
+mopac_factory = make_factory_fixture('mopac')
 octopus_factory = make_factory_fixture('octopus')
 siesta_factory = make_factory_fixture('siesta')
+orca_factory = make_factory_fixture('orca')
 
 
 @pytest.fixture

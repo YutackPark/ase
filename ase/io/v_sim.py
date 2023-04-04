@@ -12,7 +12,9 @@ from ase.utils import reader, writer
 def read_v_sim(fd):
     """Import V_Sim input file.
 
-    Reads cell, atom positions, etc. from v_sim ascii file
+    Reads cell, atom positions, etc. from v_sim ascii file.
+    V_sim format is specified here:
+    https://l_sim.gitlab.io/v_sim/sample.html#sample_ascii
     """
 
     from ase import Atoms, units
@@ -61,9 +63,6 @@ def read_v_sim(fd):
                               unit * float(fields[2])])
             symbols.append(fields[3])
 
-    if ("surface" in keywords) or ("freeBC" in keywords):
-        raise NotImplementedError
-
     # create atoms object based on the information
     if "angdeg" in keywords:
         cell = cellpar_to_cell(box)
@@ -81,6 +80,15 @@ def read_v_sim(fd):
     else:
         atoms = Atoms(cell=cell, positions=positions)
 
+    if "periodic" in keywords:
+        atoms.pbc = [True, True, True]
+    elif "freebc" in keywords:
+        atoms.pbc = [False, False, False]
+    elif "surface" in keywords:
+        atoms.pbc = [True, False, True]
+    else:  # default is periodic boundary conditions
+        atoms.pbc = [True, True, True]
+
     atoms.set_chemical_symbols(symbols)
     return atoms
 
@@ -90,6 +98,8 @@ def write_v_sim(fd, atoms):
     """Write V_Sim input file.
 
     Writes the atom positions and unit cell.
+    V_sim format is specified here:
+    https://l_sim.gitlab.io/v_sim/sample.html#sample_ascii
     """
     from ase.geometry import cellpar_to_cell, cell_to_cellpar
 

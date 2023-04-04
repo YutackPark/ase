@@ -342,6 +342,8 @@ def define_external_io_format(entry_point):
 # B=like F, but opens in binary mode
 
 F = define_io_format
+F('abinit-gsr', 'ABINIT GSR file', '1S',
+  module='abinit', glob='*o_GSR.nc')
 F('abinit-in', 'ABINIT input file', '1F',
   module='abinit', magic=b'*znucl *')
 F('abinit-out', 'ABINIT output file', '1F',
@@ -478,7 +480,7 @@ F('turbomole-gradient', 'TURBOMOLE gradient file', '+F',
   module='turbomole', glob='gradient', magic=b'$grad')
 F('v-sim', 'V_Sim ascii file', '1F', ext='ascii')
 F('vasp', 'VASP POSCAR/CONTCAR', '1F',
-  ext='poscar', glob=['*POSCAR*', '*CONTCAR*'])
+  ext='poscar', glob=['*POSCAR*', '*CONTCAR*', '*CENTCAR*'])
 F('vasp-out', 'VASP OUTCAR file', '+F',
   module='vasp', glob='*OUTCAR*')
 F('vasp-xdatcar', 'VASP XDATCAR file', '+F',

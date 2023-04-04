@@ -604,10 +604,12 @@ class FixLinearTriatomic(FixConstraint):
 
 class FixedMode(FixConstraint):
     """Constrain atoms to move along directions orthogonal to
-    a given mode only."""
+    a given mode only. Initialize with a mode, such as one produced by
+    ase.vibrations.Vibrations.get_mode()."""
 
     def __init__(self, mode):
-        self.mode = (np.asarray(mode) / np.sqrt((mode**2).sum())).reshape(-1)
+        mode = np.asarray(mode)
+        self.mode = (mode / np.sqrt((mode**2).sum())).reshape(-1)
 
     def get_removed_dof(self, atoms):
         return len(atoms)
@@ -844,10 +846,11 @@ class FixScaled(IndexedConstraint):
 class FixInternals(FixConstraint):
     """Constraint object for fixing multiple internal coordinates.
 
-    Allows fixing bonds, angles, and dihedrals as well as linear combinations
-    of bond lengths (bondcombos).
-    Please provide angular units in degrees using angles_deg and
-    dihedrals_deg.
+    Allows fixing bonds, angles, dihedrals as well as linear combinations
+    of bonds (bondcombos).
+
+    Please provide angular units in degrees using `angles_deg` and
+    `dihedrals_deg`.
     Fixing planar angles is not supported at the moment.
     """
 
@@ -855,8 +858,38 @@ class FixInternals(FixConstraint):
                  angles_deg=None, dihedrals_deg=None,
                  bondcombos=None,
                  mic=False, epsilon=1.e-7):
+        """
+        A constrained internal coordinate is defined as a nested list:
+        '[value, [atom indices]]'. The constraint is initialized with a list of
+        constrained internal coordinates, i.e. '[[value, [atom indices]], ...]'.
+        If 'value' is None, the current value of the coordinate is constrained.
 
-        # deprecate public API using radians; degrees is preferred
+        Parameters
+        ----------
+        bonds: nested python list, optional
+            List with targetvalue and atom indices defining the fixed bonds,
+            i.e. [[targetvalue, [index0, index1]], ...]
+
+        angles_deg: nested python list, optional
+            List with targetvalue and atom indices defining the fixedangles,
+            i.e. [[targetvalue, [index0, index1, index3]], ...]
+
+        dihedrals_deg: nested python list, optional
+            List with targetvalue and atom indices defining the fixed dihedrals,
+            i.e. [[targetvalue, [index0, index1, index3]], ...]
+
+        bondcombos: nested python list, optional
+            List with targetvalue, atom indices and linear coefficient defining
+            the fixed linear combination of bonds,
+            i.e. [[targetvalue, [[index0, index1, coefficient_for_bond],
+            [index1, index2, coefficient_for_bond]]], ...]
+
+        mic: bool, optional, default: False
+            Minimum image convention.
+
+        epsilon: float, optional, default: 1e-7
+            Convergence criterion.
+        """
         warn_msg = 'Please specify {} in degrees using the {} argument.'
         if angles:
             warn(FutureWarning(warn_msg.format('angles', 'angle_deg')))
@@ -900,14 +933,42 @@ class FixInternals(FixConstraint):
             cell = atoms.cell
             pbc = atoms.pbc
         self.constraints = []
-        for data, make_constr in [(self.bonds, self.FixBondLengthAlt),
+        for data, ConstrClass in [(self.bonds, self.FixBondLengthAlt),
                                   (self.angles, self.FixAngle),
                                   (self.dihedrals, self.FixDihedral),
                                   (self.bondcombos, self.FixBondCombo)]:
             for datum in data:
-                constr = make_constr(datum[0], datum[1], masses, cell, pbc)
+                targetvalue = datum[0]
+                if targetvalue is None:  # set to current value
+                    targetvalue = ConstrClass.get_value(atoms, datum[1],
+                                                        self.mic)
+                constr = ConstrClass(targetvalue, datum[1], masses, cell, pbc)
                 self.constraints.append(constr)
         self.initialized = True
+
+    @staticmethod
+    def get_bondcombo(atoms, indices, mic=False):
+        """Convenience function to return the value of the bondcombo coordinate
+        (linear combination of bond lengths) for the given Atoms object 'atoms'.
+        Example: Get the current value of the linear combination of two bond
+        lengths defined as `bondcombo = [[0, 1, 1.0], [2, 3, -1.0]]`."""
+        c = sum(df[2] * atoms.get_distance(*df[:2], mic=mic) for df in indices)
+        return c
+
+    def get_subconstraint(self, atoms, definition):
+        """Get pointer to a specific subconstraint.
+        Identification by its definition via indices (and coefficients)."""
+        self.initialize(atoms)
+        for subconstr in self.constraints:
+            if type(definition[0]) == list:  # identify Combo constraint
+                defin = [d + [c] for d, c in zip(subconstr.indices,
+                                                 subconstr.coefs)]
+                if defin == definition:
+                    return subconstr
+            else:  # identify primitive constraints by their indices
+                if subconstr.indices == [definition]:
+                    return subconstr
+        raise ValueError('Given `definition` not found on Atoms object.')
 
     def shuffle_definitions(self, shuffle_dic, internal_type):
         dfns = []  # definitions
@@ -926,7 +987,7 @@ class FixInternals(FixConstraint):
 
     def shuffle_combos(self, shuffle_dic, internal_type):
         dfns = []  # definitions
-        for dfn in internal_type:  # e.g. for bondcombo in self.bondcombos
+        for dfn in internal_type:  # i.e. for bondcombo in self.bondcombos
             append = True
             all_indices = [idx[0:-1] for idx in dfn[1]]
             new_dfn = [dfn[0], list(dfn[1])]
@@ -1052,12 +1113,8 @@ class FixInternals(FixConstraint):
         forces[:, :] -= np.dot(T, np.row_stack(ff)).reshape(-1, 3)
 
     def __repr__(self):
-        constraints = repr(self.constraints)
-        return 'FixInternals(_copy_init=%s, epsilon=%s)' % (constraints,
-                                                            repr(self.epsilon))
-
-    def __str__(self):
-        return '\n'.join([repr(c) for c in self.constraints])
+        constraints = [repr(constr) for constr in self.constraints]
+        return f'FixInternals(_copy_init={constraints}, epsilon={self.epsilon})'
 
     # Classes for internal use in FixInternals
     class FixInternalsBase:
@@ -1066,7 +1123,7 @@ class FixInternals(FixConstraint):
         def __init__(self, targetvalue, indices, masses, cell, pbc):
             self.targetvalue = targetvalue  # constant target value
             self.indices = [defin[0:-1] for defin in indices]  # indices, defs
-            self.coefs = np.asarray([defin[-1] for defin in indices])  # coefs
+            self.coefs = np.asarray([defin[-1] for defin in indices])
             self.masses = masses
             self.jacobian = []  # geometric Jacobian matrix, Wilson B-matrix
             self.sigma = 1.  # difference between current and target value
@@ -1091,7 +1148,8 @@ class FixInternals(FixConstraint):
             newpos += dnewpos.reshape(newpos.shape)
 
         def adjust_forces(self, positions, forces):
-            self.projected_force = np.dot(self.jacobian, forces.ravel())
+            self.projected_forces = ((self.jacobian @ forces.ravel())
+                                     * self.jacobian)
             self.jacobian /= np.linalg.norm(self.jacobian)
 
     class FixBondCombo(FixInternalsBase):
@@ -1119,9 +1177,13 @@ class FixInternals(FixConstraint):
             self.sigma = value - self.targetvalue
             self.finalize_positions(newpos)
 
+        @staticmethod
+        def get_value(atoms, indices, mic):
+            return FixInternals.get_bondcombo(atoms, indices, mic)
+
         def __repr__(self):
-            return 'FixBondCombo({}, {}, {})'.format(repr(self.targetvalue),
-                                                     self.indices, self.coefs)
+            return (f'FixBondCombo({self.targetvalue}, {self.indices}, '
+                    '{self.coefs})')
 
     class FixBondLengthAlt(FixBondCombo):
         """Constraint subobject for fixing bond length within FixInternals.
@@ -1133,9 +1195,12 @@ class FixInternals(FixConstraint):
             indices = [list(indices) + [1.]]  # bond definition with coef 1.
             super().__init__(targetvalue, indices, masses, cell=cell, pbc=pbc)
 
+        @staticmethod
+        def get_value(atoms, indices, mic):
+            return atoms.get_distance(*indices, mic=mic)
+
         def __repr__(self):
-            return 'FixBondLengthAlt({}, {})'.format(self.targetvalue,
-                                                     *self.indices)
+            return f'FixBondLengthAlt({self.targetvalue}, {self.indices})'
 
     class FixAngle(FixInternalsBase):
         """Constraint subobject for fixing an angle within FixInternals.
@@ -1172,8 +1237,12 @@ class FixInternals(FixConstraint):
             self.sigma = value - self.targetvalue
             self.finalize_positions(newpos)
 
+        @staticmethod
+        def get_value(atoms, indices, mic):
+            return atoms.get_angle(*indices, mic=mic)
+
         def __repr__(self):
-            return 'FixAngle({}, {})'.format(self.targetvalue, *self.indices)
+            return f'FixAngle({self.targetvalue}, {self.indices})'
 
     class FixDihedral(FixInternalsBase):
         """Constraint subobject for fixing a dihedral angle within FixInternals.
@@ -1208,8 +1277,12 @@ class FixInternals(FixConstraint):
             self.sigma = (value - self.targetvalue + 180) % 360 - 180
             self.finalize_positions(newpos)
 
+        @staticmethod
+        def get_value(atoms, indices, mic):
+            return atoms.get_dihedral(*indices, mic=mic)
+
         def __repr__(self):
-            return 'FixDihedral({}, {})'.format(self.targetvalue, *self.indices)
+            return f'FixDihedral({self.targetvalue}, {self.indices})'
 
 
 class FixParametricRelations(FixConstraint):
@@ -1590,7 +1663,7 @@ class FixScaledParametricRelations(FixParametricRelations):
     def todict(self):
         """Create a dictionary representation of the constraint"""
         dct = super(FixScaledParametricRelations, self).todict()
-        del(dct["kwargs"]["use_cell"])
+        del dct["kwargs"]["use_cell"]
         return dct
 
 

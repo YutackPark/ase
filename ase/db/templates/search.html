@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded',
 <div class="container">
   {% block contenttitle %}
   <div class="row">
-    <h1>{{p.title}}</h1>
+    <h1>{{project.title}}</h1>
   </div>
   {% endblock %}
 
@@ -65,8 +65,8 @@ document.addEventListener('DOMContentLoaded',
       </small><br/>
       <div id="collapse1" class="collapse">
         <table class="table table-striped">
-        {% for key, (short, long, unit) in p.key_descriptions|dictsort %}
-          <tr><td>{{ key }}</td><td>{{ long }}</td><td>{{ unit|safe }}</td></tr>
+        {% for key, keydesc in project.key_descriptions|dictsort %}
+          <tr><td>{{ key }}</td><td>{{ keydesc.longdesc }}</td><td>{{ keydesc.unit|safe }}</td></tr>
         {% endfor %}
         </table>
       </div>

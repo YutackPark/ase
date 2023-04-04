@@ -5,6 +5,7 @@ import os
 import pytest
 
 from ase.build import bulk
+from ase.calculators.vasp.create_input import format_kpoints
 
 from .filecmp_ignore_whitespace import filecmp_ignore_whitespace
 
@@ -35,39 +36,38 @@ def write_kpoints(atoms):
     return _write_kpoints
 
 
-@calc('vasp')
-def test_vasp_kpoints_111(factory, write_kpoints):
+def test_vasp_kpoints_111(atoms):
     # Default to (1 1 1)
-    write_kpoints(factory, gamma=True)
-    check_kpoints_line(2, 'Gamma')
-    check_kpoints_line(3, '1 1 1')
+    string = format_kpoints(gamma=True, atoms=atoms, kpts=(1, 1, 1))
+    check_kpoints_string(string, 2, 'Gamma')
+    check_kpoints_string(string, 3, '1 1 1')
 
 
-@calc('vasp')
-def test_vasp_kpoints_3_tuple(factory, write_kpoints):
-
-    # 3-tuple prints mesh
-    write_kpoints(factory, gamma=False, kpts=(4, 4, 4))
-    check_kpoints_line(2, 'Monkhorst-Pack')
-    check_kpoints_line(3, '4 4 4')
+def test_vasp_kpoints_3_tuple(atoms):
+    string = format_kpoints(gamma=False, kpts=(4, 4, 4), atoms=atoms)
+    lines = string.split('\n')
+    assert lines[2] == 'Monkhorst-Pack'
+    assert lines[3] == '4 4 4'
 
 
-@calc('vasp')
-def test_vasp_kpoints_auto(factory, write_kpoints):
-    # Auto mode
-    write_kpoints(factory, kpts=20)
-    check_kpoints_line(1, '0')
-    check_kpoints_line(2, 'Auto')
-    check_kpoints_line(3, '20')
+def check_kpoints_string(string, lineno, value):
+    assert string.splitlines()[lineno].strip() == value
 
 
-@calc('vasp')
-def test_vasp_kpoints_1_element_list_gamma(factory, write_kpoints):
+def test_vasp_kpoints_auto(atoms):
+    string = format_kpoints(atoms=atoms, kpts=20)
+
+    check_kpoints_string(string, 1, '0')
+    check_kpoints_string(string, 2, 'Auto')
+    check_kpoints_string(string, 3, '20')
+
+
+def test_vasp_kpoints_1_element_list_gamma(atoms):
     # 1-element list ok, Gamma ok
-    write_kpoints(factory, kpts=[20], gamma=True)
-    check_kpoints_line(1, '0')
-    check_kpoints_line(2, 'Auto')
-    check_kpoints_line(3, '20')
+    string = format_kpoints(atoms=atoms, kpts=[20], gamma=True)
+    check_kpoints_string(string, 1, '0')
+    check_kpoints_string(string, 2, 'Auto')
+    check_kpoints_string(string, 3, '20')
 
 
 @calc('vasp')
@@ -87,12 +87,15 @@ def test_negative_kspacing_error(factory, write_kpoints):
         write_kpoints(factory, kspacing=-0.5)
 
 
-@calc('vasp')
-def test_weighted(factory, write_kpoints):
+def test_weighted(atoms, testdir):
     # Explicit weighted points with nested lists, Cartesian if not specified
-    write_kpoints(factory,
-                  kpts=[[0.1, 0.2, 0.3, 2], [0.0, 0.0, 0.0, 1],
-                        [0.0, 0.5, 0.5, 2]])
+    string = format_kpoints(
+        atoms=atoms,
+        kpts=[[0.1, 0.2, 0.3, 2], [0.0, 0.0, 0.0, 1],
+              [0.0, 0.5, 0.5, 2]])
+
+    with open('KPOINTS', 'w') as fd:
+        fd.write(string)
 
     with open('KPOINTS.ref', 'w') as fd:
         fd.write("""KPOINTS created by Atomic Simulation Environment
@@ -106,12 +109,15 @@ def test_weighted(factory, write_kpoints):
     assert filecmp_ignore_whitespace('KPOINTS', 'KPOINTS.ref')
 
 
-@calc('vasp')
-def test_explicit_auto_weight(factory, write_kpoints):
+def test_explicit_auto_weight(atoms, testdir):
     # Explicit points as list of tuples, automatic weighting = 1.
-    write_kpoints(factory,
-                  kpts=[(0.1, 0.2, 0.3), (0.0, 0.0, 0.0), (0.0, 0.5, 0.5)],
-                  reciprocal=True)
+    string = format_kpoints(
+        atoms=atoms,
+        kpts=[(0.1, 0.2, 0.3), (0.0, 0.0, 0.0), (0.0, 0.5, 0.5)],
+        reciprocal=True)
+
+    with open('KPOINTS', 'w') as fd:
+        fd.write(string)
 
     with open('KPOINTS.ref', 'w') as fd:
         fd.write("""KPOINTS created by Atomic Simulation Environment
