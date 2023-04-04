@@ -19,7 +19,7 @@ def test_orca_inputfile():
     atoms = Atoms('OHH', positions=[(0, 0, 0), (1, 0, 0), (0, 1, 0)])
 
     kw = dict(charge=0, mult=1,
-              orcasimpleinput='B3LYP def2-TZVPP',
+              orcasimpleinput='engrad B3LYP def2-TZVPP',
               orcablocks='%pal nprocs 4 end')
     write_orca('orca.inp', atoms, kw)
 
@@ -110,7 +110,7 @@ FINAL SINGLE POINT ENERGY       -76.422436201230
     with open('orcamolecule_test.out', 'w') as fd:
         fd.write(sample_outputfile)
 
-    with open('engrad', 'w') as engrad:
+    with open('orcamolecule_test.engrad', 'w') as engrad:
         engrad.write(sample_engradfile)
 
     results_sample = {
