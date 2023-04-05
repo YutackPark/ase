@@ -9,7 +9,7 @@ from ase.build import molecule
 
 
 @pytest.fixture(scope='module')
-def url():
+def url(mysql_port):
     pytest.importorskip('pymysql')
 
     on_ci_server = 'CI_PROJECT_DIR' in os.environ
@@ -19,7 +19,7 @@ def url():
         # instead of the default 3306 port. This is to test
         # for proper passing of the port for creating the
         # mysql connection
-        db_url = 'mysql://root:ase@mysql:3307/testase_mysql'
+        db_url = f'mysql://root:ase@mysql:{mysql_port}/testase_mysql'
         # HOST = 'mysql'
         # USER = 'root'
         # PASSWD = 'ase'
