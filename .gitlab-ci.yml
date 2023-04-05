@@ -117,7 +117,10 @@ calculators-lite:
   image: registry.gitlab.com/ase/ase:ase-full-monty
   script:
     - pip install --no-deps --editable .
-    - ase test calculator --calculators=auto --coverage --pytest -m calculator_lite --color=yes --durations=20
+    - >
+      ase test calculator --calculators=auto --coverage
+      --pytest -m calculator_lite --color=yes --durations=20
+      -W "ignore:The --rsyncdir command line argument"
     - mv ase/test/coverage-html coverage-calculators-lite
     - mv ase/test/.coverage coverage-calculators-lite/coverage.dat
   artifacts:
