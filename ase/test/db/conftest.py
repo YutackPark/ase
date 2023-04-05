@@ -5,8 +5,13 @@ import pytest
 from ase.db import connect
 
 
+@pytest.fixture(scope='session')
+def mysql_port():
+    return int(os.environ.get('MYSQL_TCP_PORT', 3306))
+
+
 @pytest.fixture()
-def get_db_name():
+def get_db_name(mysql_port):
     """ Fixture that returns a function to get the test db name
     for the different supported db types.
 
@@ -30,7 +35,7 @@ def get_db_name():
             if os.environ.get('CI_PROJECT_DIR'):  # gitlab-ci
                 # Note: testing of non-standard port by changing from default
                 # of 3306 to 3307
-                name = 'mysql://root:ase@mysql:3307/testase_mysql'
+                name = f'mysql://root:ase@mysql:{mysql_port}/testase_mysql'
             else:
                 name = os.environ.get('MYSQL_DB_URL')
         elif dbtype == 'mariadb':
@@ -38,7 +43,7 @@ def get_db_name():
             if os.environ.get('CI_PROJECT_DIR'):  # gitlab-ci
                 # Note: testing of non-standard port by changing from default
                 # of 3306 to 3307
-                name = 'mariadb://root:ase@mariadb:3307/testase_mysql'
+                name = f'mariadb://root:ase@mariadb:{mysql_port}/testase_mysql'
             else:
                 name = os.environ.get('MYSQL_DB_URL')
         elif dbtype == 'json':
