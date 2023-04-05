@@ -10,8 +10,11 @@ stages:
   - paperwork
   - deploy
 
-# Test a non-standard port (default is 3306) to prevent bugs like 
+# Test a non-standard port (default is 3306) to prevent bugs like
 # https://gitlab.com/ase/ase/-/merge_requests/2789 from reoccuring
+# UPDATE: MYSQL_TCP_PORT does not work at all with gitlab-runner.
+# No matter what the variable is set to, it errors out.
+# Thus (temporarily?) disabled as of April 2023.
 .database-configuration:
   variables:
     POSTGRES_DB: testase
@@ -19,7 +22,7 @@ stages:
     POSTGRES_PASSWORD: "ase"
     MYSQL_DATABASE: testase_mysql
     MYSQL_ROOT_PASSWORD: ase
-    MYSQL_TCP_PORT: 3307
+    # MYSQL_TCP_PORT: 3306
 
   services:
     - postgres:latest
@@ -79,18 +82,26 @@ main:
     POSTGRES_PASSWORD: "ase"
     MYSQL_DATABASE: testase_mysql
     MYSQL_ROOT_PASSWORD: ase
-    MYSQL_TCP_PORT: 3307
+    # MYSQL_TCP_PORT: 3306
 
   services:
     - postgres:latest
     - mysql:latest
     - mariadb:latest
+
+  # We ignore a DeprecationWarning about --rsyncdir from pytest-xdist.
+  # This seems to be internal between pytest libs.
   script:
     - python --version
     - pip install --no-deps --editable .
     - ase info --calculators
     - cd $CI_PROJECT_DIR
-    - ase test --calculators asap,eam,ff,lj,morse,tip3p,tip4p --coverage --pytest --color=yes --durations 20
+    - >
+      ase test
+      --calculators asap,eam,ff,lj,morse,tip3p,tip4p
+      --coverage --pytest --color=yes --durations 20
+      -W "ignore:The --rsyncdir command line argument"
+      -W "ignore:NumPy will stop allowing conversion of out-of-bound Python integers"
     - mv ase/test/coverage-html coverage-main
     - mv ase/test/.coverage coverage-main/coverage.dat
   artifacts:
