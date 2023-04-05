@@ -4,6 +4,7 @@ import pytest
 
 from ase.db import connect
 
+
 @pytest.fixture(scope='session')
 def mysql_port():
     return int(os.environ.get('MYSQL_TCP_PORT', 3306))
