@@ -3,6 +3,7 @@ import pytest
 from ase.build import molecule
 
 
+@pytest.mark.skip(reason='we do not know how to compile psi4')
 @pytest.mark.filterwarnings('once::DeprecationWarning')
 @pytest.mark.calculator_lite
 @pytest.mark.calculator('psi4')
