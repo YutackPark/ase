@@ -19,7 +19,7 @@ import numpy as np
 import numbers
 
 from ase.atoms import Atoms
-from ase.calculators.calculator import all_properties, Calculator
+from ase.calculators.calculator import all_properties, BaseCalculator
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.spacegroup.spacegroup import Spacegroup
 from ase.parallel import paropen
@@ -900,7 +900,7 @@ def write_xyz(fileobj, images, comment='', columns=None,
         if write_results:
             calculator = atoms.calc
             if (calculator is not None
-                    and isinstance(calculator, Calculator)):
+                    and isinstance(calculator, BaseCalculator)):
                 for key in all_properties:
                     value = calculator.results.get(key, None)
                     if value is None:

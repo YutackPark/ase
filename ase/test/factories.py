@@ -522,6 +522,27 @@ class OctopusFactory:
         return cls(config.executables['octopus'])
 
 
+@factory('orca')
+class OrcaFactory:
+    def __init__(self, executable):
+        self.executable = executable
+
+    def _profile(self):
+        from ase.calculators.orca import OrcaProfile
+        return OrcaProfile([self.executable])
+
+    def version(self):
+        return self._profile().version()
+
+    def calc(self, **kwargs):
+        from ase.calculators.orca import ORCA
+        return ORCA(**kwargs)
+
+    @classmethod
+    def fromconfig(cls, config):
+        return cls(config.executables['orca'])
+
+
 @factory('siesta')
 class SiestaFactory:
     def __init__(self, executable, pseudo_path):
@@ -620,7 +641,6 @@ class Factories:
         'hotbit',
         'lammpslib',
         'onetep',
-        'orca',
         'qchem',
         'turbomole',
     }
