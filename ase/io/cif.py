@@ -88,18 +88,13 @@ def parse_singletag(lines: List[str], line: str) -> Tuple[str, CIFDataValue]:
 
 
 def parse_cif_loop_headers(lines: List[str]) -> Iterator[str]:
-    header_pattern = r'\s*(_\S*)'
-
     while lines:
         line = lines.pop()
-        match = re.match(header_pattern, line)
+        tokens = line.split()
 
-        if match:
-            header = match.group(1).lower()
+        if len(tokens) == 1 and tokens[0].startswith('_'):
+            header = tokens[0].lower()
             yield header
-        elif re.match(r'\s*#', line):
-            # XXX we should filter comments out already.
-            continue
         else:
             lines.append(line)  # 'undo' pop
             return
