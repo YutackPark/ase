@@ -88,18 +88,13 @@ def parse_singletag(lines: List[str], line: str) -> Tuple[str, CIFDataValue]:
 
 
 def parse_cif_loop_headers(lines: List[str]) -> Iterator[str]:
-    header_pattern = r'\s*(_\S*)'
-
     while lines:
         line = lines.pop()
-        match = re.match(header_pattern, line)
+        tokens = line.split()
 
-        if match:
-            header = match.group(1).lower()
+        if len(tokens) == 1 and tokens[0].startswith('_'):
+            header = tokens[0].lower()
             yield header
-        elif re.match(r'\s*#', line):
-            # XXX we should filter comments out already.
-            continue
         else:
             lines.append(line)  # 'undo' pop
             return
@@ -362,7 +357,11 @@ class CIFBlock(collections.abc.Mapping):
 
         setting = 1
         spacegroup = 1
-        if sitesym is not None:
+        if sitesym:
+            # Special cases: sitesym can be None or an empty list.
+            # The empty list could be replaced with just the identity
+            # function, but it seems more correct to try to get the
+            # spacegroup number and derive the symmetries for that.
             subtrans = [(0.0, 0.0, 0.0)] if subtrans_included else None
             spacegroup = spacegroup_from_data(
                 no=no, symbol=hm_symbol, sitesym=sitesym, subtrans=subtrans,
