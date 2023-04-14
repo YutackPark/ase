@@ -69,6 +69,7 @@ def test_singlepoint_roundtrip(props):
     for prop in props1:
         assert props[prop] == pytest.approx(props1[prop])
 
+
 def test_output_mixin(props, rng):
     from ase.calculators.abc import GetOutputsMixin
 
@@ -89,7 +90,7 @@ def test_output_mixin(props, rng):
 
         assert getattr(tester, getter)() == pytest.approx(props[key])
 
-    assert tester.get_spin_polarized() == True
+        assert tester.get_spin_polarized() is True
 
     for spin in range(props['nspins']):
         for kpt_index in rng.choice(range(props['nkpts']), size=2):
