@@ -97,7 +97,7 @@ class GetOutputsMixin(ABC):
 
     def get_occupation_numbers(self, kpt=0, spin=0):
         occs = self._get('occupations')
-        return occs[kpt, spin]
+        return occs[spin, kpt]
 
     def get_number_of_bands(self):
         return self._eigshape()[2]
