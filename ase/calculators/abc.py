@@ -89,7 +89,7 @@ class GetOutputsMixin(ABC):
 
     def get_eigenvalues(self, kpt=0, spin=0):
         eigs = self._get('eigenvalues')
-        return eigs[kpt, spin]
+        return eigs[spin, kpt]
 
     def _eigshape(self):
         # We don't need this if we already have a Properties object.
