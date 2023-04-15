@@ -1281,7 +1281,7 @@ class PreconImages:
         """
         self.images = images
         self._spline = None
-        
+
         if isinstance(precon, list):
             if len(precon) != len(images):
                 raise ValueError(f'length mismatch: len(precon)={len(precon)} '
@@ -1293,8 +1293,7 @@ class PreconImages:
         for image in images[1:]:
             P = P0.copy()
             P.make_precon(image)
-            self.precon.append(P)
-        
+            self.precon.append(P)        
 
     def __len__(self):
         return len(self.precon)
