@@ -88,4 +88,3 @@ Listed in alphabetical order, for want of a better approach.
    equilibrium shapes of nanoparticles. WulffPack constructs both continuum
    models and atomistic structures for further modeling with, e.g., molecular
    dynamics or density functional theory.
-
