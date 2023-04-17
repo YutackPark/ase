@@ -138,7 +138,7 @@ The calculators included in ASE are used like this:
 where ``abc`` is the module name and ``ABC`` is the class name.
 
 
-.. _SCM: https://www.scm.com/doc/ASE/index.html
+.. _AMS: https://www.scm.com/doc/plams/examples/AMSCalculator/ASECalculator.html#asecalculatorexample
 .. _Asap: https://wiki.fysik.dtu.dk/asap
 .. _BigDFT: https://l_sim.gitlab.io/bigdft-suite/tutorials/Interoperability-Simulation.html#ASE-Interoperability
 .. _GPAW: https://wiki.fysik.dtu.dk/gpaw
