@@ -76,6 +76,12 @@ Listed in alphabetical order, for want of a better approach.
    e.g. ASE trajectory files), and then be used to perform
    optimization and molecular dynamics in ASE or LAMMPS.
 
+ * `PLAMS <https://github.com/SCM-NV/PLAMS>`_:
+   PLAMS is a collection of tools that aims to provide powerful, flexible and
+   easily extendable Python interface to molecular modeling programs. It takes
+   care of input preparation, job execution, file management and output
+   processing as well as helps with building more advanced data workflows.
+
  * `Sella <https://github.com/zadorlab/sella>`_:
    Sella is a saddle point refinement (optimization) tool which uses
    the `Optimize <ase/optimize.html>`_ API. Sella supports minimization and
@@ -88,3 +94,4 @@ Listed in alphabetical order, for want of a better approach.
    equilibrium shapes of nanoparticles. WulffPack constructs both continuum
    models and atomistic structures for further modeling with, e.g., molecular
    dynamics or density functional theory.
+
