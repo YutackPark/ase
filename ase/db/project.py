@@ -29,10 +29,14 @@ class DatabaseProject:
         # This is a very bad select() which loops over things that should be
         # available directly, and also, it uses
         # private variables of the row:
-        all_keys = set()
-        for row in database.select(
-                columns=['key_value_pairs'], include_data=False):
-            all_keys |= set(row._keys)
+        with database.managed_connection() as con:
+            cur = con.execute('SELECT DISTINCT key FROM keys;')
+            all_keys = set(row[0] for row in cur.fetchall())
+
+        # all_keys = set()
+        # for row in database.select(
+        #         columns=['key_value_pairs'], include_data=False):
+        #     all_keys |= set(row._keys)
 
         key_descriptions = {
             **{key: KeyDescription(key) for key in all_keys},
