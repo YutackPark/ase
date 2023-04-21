@@ -315,6 +315,18 @@ def _cubic_bulk(name, crystalstructure, a):
                                         (0, 0.5, 0.5), (0.5, 0.5, 0.5),
                                         (0.5, 0, 0.5), (0, 0, 0.5),
                                         (0.5, 0.5, 0), (0, 0.5, 0)])
+    elif crystalstructure == 'fluorite':
+        atoms = Atoms(
+            4 * name,
+            cell=(a, a, a),
+            pbc=True,
+            scaled_positions=[
+                (0.00, 0.00, 0.00), (0.25, 0.25, 0.25), (0.75, 0.75, 0.75),
+                (0.00, 0.50, 0.50), (0.25, 0.75, 0.75), (0.75, 0.25, 0.25),
+                (0.50, 0.00, 0.50), (0.75, 0.25, 0.75), (0.25, 0.75, 0.25),
+                (0.50, 0.50, 0.00), (0.75, 0.75, 0.25), (0.25, 0.25, 0.75),
+            ],
+        )
     else:
         raise incompatible_cell(want='cubic', have=crystalstructure)
 
