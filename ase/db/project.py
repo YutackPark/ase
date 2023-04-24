@@ -30,7 +30,8 @@ class DatabaseProject:
         # available directly, and also, it uses
         # private variables of the row:
         with database.managed_connection() as con:
-            cur = con.execute('SELECT DISTINCT key FROM keys;')
+            cur = con.cursor()
+            cur.execute('SELECT DISTINCT key FROM keys;')
             all_keys = set(row[0] for row in cur.fetchall())
 
         # all_keys = set()
