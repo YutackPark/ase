@@ -28,14 +28,9 @@ commands = dict(
 calc = pytest.mark.calculator
 
 
-# What is wrong with this?
-# espresso fails due to "cell_factor" being too small,
-# but from the log it appears that the CELL card is ignored
-# including the cell_factor.
-@pytest.mark.xfail
 @pytest.mark.calculator_lite
 @calc('espresso', ecutwfc=200 / Ry)
-# @calc('abinit', ecut=200, **abinit_boilerplate)
+@calc('abinit', ecut=200, **abinit_boilerplate)
 def test_socketio_espresso(factory):
     name = factory.name
     if name == 'abinit':
@@ -48,7 +43,6 @@ def test_socketio_espresso(factory):
 
     espresso = factory.calc(
         kpts=[2, 2, 2],
-        cell_factor=8.0,
     )
     template = commands[name]
     command = template.format(exe=exe, unixsocket=unixsocket)
