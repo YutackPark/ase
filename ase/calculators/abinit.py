@@ -36,6 +36,11 @@ class AbinitProfile:
         with open(directory / outputfile, 'wb') as fd:
             check_call(argv, stdout=fd, env=os.environ, cwd=directory)
 
+    def socketio_argv_unix(self, socket):
+        # XXX clean up the passing of the inputfile
+        inputfile = AbinitTemplate().input_file
+        return [*self.argv, inputfile, '--ipi', f'{socket}:UNIX']
+
 
 class AbinitTemplate(CalculatorTemplate):
     _label = 'abinit'  # Controls naming of files within calculation directory
