@@ -1491,7 +1491,7 @@ class GenerateVaspInput:
                 incar.write(f' {key.upper()} = {val}\n')
         for key, val in self.int_params.items():
             if val is not None:
-                incar.write(' %s = %d\n' % (key.upper(), val))
+                incar.write(f' {key.upper()} = {val}\n')
                 if key == 'ichain' and val > 0:
                     incar.write(' IBRION = 3\n POTIM = 0.0\n')
                     for key, val in self.int_params.items():
@@ -1507,8 +1507,8 @@ class GenerateVaspInput:
             if val is None:
                 pass
             else:
-                incar.write(' %s = ' % key.upper())
-                [incar.write('%s ' % _to_vasp_bool(x)) for x in val]
+                incar.write(f' {key.upper()} = ')
+                [incar.write(f'{_to_vasp_bool(x)} ') for x in val]
                 incar.write('\n')
 
         for key, val in self.list_int_params.items():
@@ -1517,8 +1517,8 @@ class GenerateVaspInput:
             elif key == 'ldaul' and (self.dict_params['ldau_luj'] is not None):
                 pass
             else:
-                incar.write(' %s = ' % key.upper())
-                [incar.write('%d ' % x) for x in val]
+                incar.write(f' {key.upper()} = ')
+                [incar.write(f'{x} ') for x in val]
                 incar.write('\n')
 
         for key, val in self.list_float_params.items():
@@ -1540,7 +1540,7 @@ class GenerateVaspInput:
                     self.spinpol = True
                     incar.write(' ispin = 2\n'.upper())
 
-                incar.write(' %s = ' % key.upper())
+                incar.write(f' {key.upper()} = ')
                 magmom_written = True
                 # Work out compact a*x b*y notation and write in this form
                 # Assume 1 magmom per atom, ordered as our atoms object
@@ -1558,28 +1558,23 @@ class GenerateVaspInput:
                     ['{:d}*{:.4f}'.format(mom[0], mom[1]) for mom in lst]))
                 incar.write('\n')
             else:
-                incar.write(' %s = ' % key.upper())
-                [incar.write('%.4f ' % x) for x in val]
+                incar.write(f' {key.upper()} = ')
+                [incar.write(f'{x:.4f} ' % x) for x in val]
                 incar.write('\n')
 
         for key, val in self.bool_params.items():
             if val is not None:
-                incar.write(' %s = ' % key.upper())
-                if val:
-                    incar.write('.TRUE.\n')
-                else:
-                    incar.write('.FALSE.\n')
+                incar.write(f' {key.upper()} = {_to_vasp_bool(val)}\n')
+                
         for key, val in self.special_params.items():
             if val is not None:
-                incar.write(' %s = ' % key.upper())
+                incar.write(f' {key.upper()} = ')
                 if key == 'lreal':
                     if isinstance(val, str):
                         incar.write(val + '\n')
                     elif isinstance(val, bool):
-                        if val:
-                            incar.write('.TRUE.\n')
-                        else:
-                            incar.write('.FALSE.\n')
+                        incar.write(f'{_to_vasp_bool(val)}\n')
+                        
         for key, val in self.dict_params.items():
             if val is not None:
                 if key == 'ldau_luj':
