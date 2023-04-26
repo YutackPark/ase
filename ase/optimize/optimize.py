@@ -49,6 +49,9 @@ class OptimizableWrapper:
         # of this to be the number of DOFs
         return len(self.atoms)
 
+    def is_neb(self):
+        return hasattr(self.atoms, 'springconstant')
+
 
 class Dynamics(IOContext):
     """Base-class for all MD and structure optimization classes."""
