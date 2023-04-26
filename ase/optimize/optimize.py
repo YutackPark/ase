@@ -16,6 +16,14 @@ class RestartError(RuntimeError):
     pass
 
 
+class OptimizableWrapper:
+    def __init__(self, atoms):
+        self._atoms = atoms
+
+    def get_forces(self):
+        return self._atoms.get_forces()
+
+
 class Dynamics(IOContext):
     """Base-class for all MD and structure optimization classes."""
 
@@ -50,6 +58,7 @@ class Dynamics(IOContext):
         """
 
         self.atoms = atoms
+        self.optimizable = OptimizableWrapper(atoms)
         self.logfile = self.openfile(logfile, mode='a', comm=world)
         self.observers = []
         self.nsteps = 0
@@ -119,7 +128,7 @@ class Dynamics(IOContext):
         """
 
         # compute initial structure and log the first step
-        self.atoms.get_forces()
+        self.optimizable.get_forces()
 
         # yield the first time to inspect before logging
         yield False
@@ -275,7 +284,7 @@ class Optimizer(Dynamics):
     def converged(self, forces=None):
         """Did the optimization converge?"""
         if forces is None:
-            forces = self.atoms.get_forces()
+            forces = self.optimizable.get_forces()
         if hasattr(self.atoms, "get_curvature"):
             return (forces ** 2).sum(
                 axis=1
@@ -284,7 +293,7 @@ class Optimizer(Dynamics):
 
     def log(self, forces=None):
         if forces is None:
-            forces = self.atoms.get_forces()
+            forces = self.optimizable.get_forces()
         fmax = sqrt((forces ** 2).sum(axis=1).max())
         e = self.atoms.get_potential_energy(
             force_consistent=self.force_consistent
