@@ -51,6 +51,10 @@ class OptimizableWrapper:
 
     def is_neb(self):
         return hasattr(self.atoms, 'springconstant')
+    
+    def get_chemical_symbols(self):
+        # XXX For Pyberny
+        return self.atoms.get_chemical_symbols()
 
 
 class Dynamics(IOContext):
