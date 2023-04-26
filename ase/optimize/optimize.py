@@ -18,10 +18,17 @@ class RestartError(RuntimeError):
 
 class OptimizableWrapper:
     def __init__(self, atoms):
-        self._atoms = atoms
+        self.atoms = atoms
 
     def get_forces(self):
-        return self._atoms.get_forces()
+        return self.atoms.get_forces()
+
+    def has_curvature(self):
+        return hasattr(self.atoms, "get_curvature")
+
+    def get_curvature(self):
+        # XXX only exists if we are using dimer method
+        return self.atoms.get_curvature()
 
 
 class Dynamics(IOContext):
@@ -285,10 +292,11 @@ class Optimizer(Dynamics):
         """Did the optimization converge?"""
         if forces is None:
             forces = self.optimizable.get_forces()
-        if hasattr(self.atoms, "get_curvature"):
+
+        if self.optimizable.has_curvature():
             return (forces ** 2).sum(
                 axis=1
-            ).max() < self.fmax ** 2 and self.atoms.get_curvature() < 0.0
+            ).max() < self.fmax ** 2 and self.optimizable.get_curvature() < 0.0
         return (forces ** 2).sum(axis=1).max() < self.fmax ** 2
 
     def log(self, forces=None):
