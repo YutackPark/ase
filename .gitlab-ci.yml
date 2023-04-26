@@ -240,6 +240,8 @@ windows_test:
     - .shared_windows_runners
   stage: test
   before_script:
+    # https://stackoverflow.com/questions/61791108/gitlab-ci-shared-windows-runner-for-python
+    # https://gitlab.com/gitlab-org/ci-cd/shared-runners/images/gcp/windows-containers/-/issues/13
     - Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
     - choco install python --version=3.8 -y -f
     - refreshenv
