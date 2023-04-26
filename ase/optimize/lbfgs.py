@@ -114,9 +114,9 @@ class LBFGS(Optimizer):
         then take it"""
 
         if forces is None:
-            forces = self.atoms.get_forces()
+            forces = self.optimizable.get_forces()
 
-        pos = self.atoms.get_positions()
+        pos = self.optimizable.get_positions()
 
         self.update(pos, forces, self.r0, self.f0)
 
@@ -151,7 +151,7 @@ class LBFGS(Optimizer):
             self.force_calls += 1
             self.function_calls += 1
             dr = self.determine_step(self.p) * self.damping
-        self.atoms.set_positions(pos + dr)
+        self.optimizable.set_positions(pos + dr)
 
         self.iteration += 1
         self.r0 = pos
@@ -214,17 +214,17 @@ class LBFGS(Optimizer):
 
     def func(self, x):
         """Objective function for use of the optimizers"""
-        self.atoms.set_positions(x.reshape(-1, 3))
+        self.optimizable.set_positions(x.reshape(-1, 3))
         self.function_calls += 1
-        return self.atoms.get_potential_energy(
+        return self.optimizable.get_potential_energy(
             force_consistent=self.force_consistent)
 
     def fprime(self, x):
         """Gradient of the objective function for use of the optimizers"""
-        self.atoms.set_positions(x.reshape(-1, 3))
+        self.optimizable.set_positions(x.reshape(-1, 3))
         self.force_calls += 1
         # Remember that forces are minus the gradient!
-        return - self.atoms.get_forces().reshape(-1)
+        return - self.optimizable.get_forces().reshape(-1)
 
     def line_search(self, r, g, e):
         self.p = self.p.ravel()
