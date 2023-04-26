@@ -62,7 +62,6 @@ def atoms2dict(atoms):
                 else:
                     if x is not None:
                         dct[prop] = x
-    print(dct)
     return dct
 
 
