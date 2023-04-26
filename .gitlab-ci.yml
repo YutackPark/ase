@@ -258,5 +258,3 @@ windows_test:
       -W "ignore:NumPy will stop allowing conversion of out-of-bound Python integers"
   rules:
     - if: $CI_PIPELINE_SOURCE == "schedule"
-
-  
