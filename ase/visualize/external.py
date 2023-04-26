@@ -119,6 +119,10 @@ class PyViewer:
     def ase(self, atoms, repeat):
         return _pipe_to_ase_gui(atoms, repeat)
 
+    def crystal_toolkit(self, atoms):
+        from ase.visualize.crystal_toolkit import view_crystal_toolkit
+        return view_crystal_toolkit(atoms)
+
     @classmethod
     def viewers(cls):
         return [
@@ -126,6 +130,7 @@ class PyViewer:
             cls('ngl'),
             cls('sage'),
             cls('x3d'),
+            cls('crystal_toolkit')
         ]
 
 
