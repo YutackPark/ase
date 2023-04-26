@@ -62,6 +62,7 @@ def atoms2dict(atoms):
                 else:
                     if x is not None:
                         dct[prop] = x
+    print(dct)
     return dct
 
 
@@ -218,11 +219,9 @@ class AtomsRow:
     @property
     def charge(self):
         """Total charge."""
-        charges = self.get('charges')
+        charges = self.get('initial_charges')
         if charges is None:
-            charges = self.get('initial_charges')
-            if charges is None:
-                return 0.0
+            return 0.0
         return charges.sum()
 
     def toatoms(self,
