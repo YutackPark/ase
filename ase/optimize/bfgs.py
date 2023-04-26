@@ -61,7 +61,7 @@ class BFGS(Optimizer):
 
     def initialize(self):
         # initial hessian
-        self.H0 = np.eye(3 * len(self.atoms)) * self.alpha
+        self.H0 = np.eye(3 * len(self.optimizable)) * self.alpha
 
         self.H = None
         self.pos0 = None
@@ -71,15 +71,15 @@ class BFGS(Optimizer):
         self.H, self.pos0, self.forces0, self.maxstep = self.load()
 
     def step(self, forces=None):
-        atoms = self.atoms
+        optimizable = self.optimizable
 
         if forces is None:
-            forces = atoms.get_forces()
+            forces = optimizable.get_forces()
 
-        pos = atoms.get_positions()
+        pos = optimizable.get_positions()
         dpos, steplengths = self.prepare_step(pos, forces)
         dpos = self.determine_step(dpos, steplengths)
-        atoms.set_positions(pos + dpos)
+        optimizable.set_positions(pos + dpos)
         self.dump((self.H, self.pos0, self.forces0, self.maxstep))
 
     def prepare_step(self, pos, forces):

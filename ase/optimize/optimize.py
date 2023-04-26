@@ -20,6 +20,12 @@ class OptimizableWrapper:
     def __init__(self, atoms):
         self.atoms = atoms
 
+    def get_positions(self):
+        return self.atoms.get_positions()
+
+    def set_positions(self, positions):
+        self.atoms.set_positions(positions)
+
     def get_forces(self):
         return self.atoms.get_forces()
 
@@ -33,6 +39,16 @@ class OptimizableWrapper:
     def get_potential_energy(self, force_consistent):
         return self.atoms.get_potential_energy(
             force_consistent=force_consistent)
+
+    def iterimages(self):
+        # XXX document purpose of iterimages
+        return self.atoms.iterimages()
+
+    def __len__(self):
+        # TODO: return 3 * len(self.atoms), because we want the length
+        # of this to be the number of DOFs
+        return len(self.atoms)
+
 
 class Dynamics(IOContext):
     """Base-class for all MD and structure optimization classes."""
@@ -81,7 +97,7 @@ class Dynamics(IOContext):
                 trajectory = self.closelater(Trajectory(
                     trajectory, mode=mode, master=master
                 ))
-            self.attach(trajectory, atoms=atoms)
+            self.attach(trajectory, atoms=self.optimizable)
 
     def get_number_of_steps(self):
         return self.nsteps
