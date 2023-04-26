@@ -30,6 +30,9 @@ class OptimizableWrapper:
         # XXX only exists if we are using dimer method
         return self.atoms.get_curvature()
 
+    def get_potential_energy(self, force_consistent):
+        return self.atoms.get_potential_energy(
+            force_consistent=force_consistent)
 
 class Dynamics(IOContext):
     """Base-class for all MD and structure optimization classes."""
@@ -303,7 +306,7 @@ class Optimizer(Dynamics):
         if forces is None:
             forces = self.optimizable.get_forces()
         fmax = sqrt((forces ** 2).sum(axis=1).max())
-        e = self.atoms.get_potential_energy(
+        e = self.optimizable.get_potential_energy(
             force_consistent=self.force_consistent
         )
         T = time.localtime()
@@ -348,7 +351,7 @@ class Optimizer(Dynamics):
         """Automatically sets force_consistent to True if force_consistent
         energies are supported by calculator; else False."""
         try:
-            self.atoms.get_potential_energy(force_consistent=True)
+            self.optimizable.get_potential_energy(force_consistent=True)
         except PropertyNotImplementedError:
             self.force_consistent = False
         else:
