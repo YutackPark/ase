@@ -444,13 +444,13 @@ class PointChargePotential:
         e *= Hartree
 
         f_lines = [s for s in lines if '199' in s]
-        assert(len(f_lines) == len(self.mmcharges)), \
+        assert len(f_lines) == len(self.mmcharges), \
             'Mismatch in number of point charges from FORCES_CHG.dat'
 
         pc_forces = np.zeros((len(self.mmcharges), 3))
         for i, l in enumerate(f_lines):
             first = l.split(str(i + 1) + ' 199  ')
-            assert(len(first) == 2), 'Problem reading FORCES_CHG.dat'
+            assert len(first) == 2, 'Problem reading FORCES_CHG.dat'
             f = first[-1].split()
             pc_forces[i] = [float(x) for x in f]
 

@@ -45,19 +45,17 @@ class BFGS(Optimizer):
             steps to converge might be less if a lower value is used. However,
             a lower value also means risk of instability.
         """
-        if maxstep is None:
+        self.maxstep = maxstep
+        if self.maxstep is None:
             self.maxstep = self.defaults['maxstep']
-        else:
-            self.maxstep = maxstep
 
         if self.maxstep > 1.0:
             warnings.warn('You are using a *very* large value for '
                           'the maximum step size: %.1f Å' % maxstep)
 
-        if alpha is None:
+        self.alpha = alpha
+        if self.alpha is None:
             self.alpha = self.defaults['alpha']
-        else:
-            self.alpha = alpha
 
         Optimizer.__init__(self, atoms, restart, logfile, trajectory, master)
 
@@ -66,21 +64,27 @@ class BFGS(Optimizer):
         self.H0 = np.eye(3 * len(self.atoms)) * self.alpha
 
         self.H = None
-        self.r0 = None
-        self.f0 = None
+        self.pos0 = None
+        self.forces0 = None
 
     def read(self):
-        self.H, self.r0, self.f0, self.maxstep = self.load()
+        self.H, self.pos0, self.forces0, self.maxstep = self.load()
 
-    def step(self, f=None):
+    def step(self, forces=None):
         atoms = self.atoms
 
-        if f is None:
-            f = atoms.get_forces()
+        if forces is None:
+            forces = atoms.get_forces()
 
-        r = atoms.get_positions()
-        f = f.reshape(-1)
-        self.update(r.flat, f, self.r0, self.f0)
+        pos = atoms.get_positions()
+        dpos, steplengths = self.prepare_step(pos, forces)
+        dpos = self.determine_step(dpos, steplengths)
+        atoms.set_positions(pos + dpos)
+        self.dump((self.H, self.pos0, self.forces0, self.maxstep))
+
+    def prepare_step(self, pos, forces):
+        forces = forces.reshape(-1)
+        self.update(pos.flat, forces, self.pos0, self.forces0)
         omega, V = eigh(self.H)
 
         # FUTURE: Log this properly
@@ -95,15 +99,13 @@ class BFGS(Optimizer):
         #         self.logfile.write(msg)
         #         self.logfile.flush()
 
-        dr = np.dot(V, np.dot(f, V) / np.fabs(omega)).reshape((-1, 3))
-        steplengths = (dr**2).sum(1)**0.5
-        dr = self.determine_step(dr, steplengths)
-        atoms.set_positions(r + dr)
-        self.r0 = r.flat.copy()
-        self.f0 = f.copy()
-        self.dump((self.H, self.r0, self.f0, self.maxstep))
+        dpos = np.dot(V, np.dot(forces, V) / np.fabs(omega)).reshape((-1, 3))
+        steplengths = (dpos**2).sum(1)**0.5
+        self.pos0 = pos.flat.copy()
+        self.forces0 = forces.copy()
+        return dpos, steplengths
 
-    def determine_step(self, dr, steplengths):
+    def determine_step(self, dpos, steplengths):
         """Determine step to take according to maxstep
 
         Normalize all steps as the largest step. This way
@@ -118,25 +120,24 @@ class BFGS(Optimizer):
             # )
             # print(msg, flush=True)
 
-            dr *= scale
+            dpos *= scale
+        return dpos
 
-        return dr
-
-    def update(self, r, f, r0, f0):
+    def update(self, pos, forces, pos0, forces0):
         if self.H is None:
             self.H = self.H0
             return
-        dr = r - r0
+        dpos = pos - pos0
 
-        if np.abs(dr).max() < 1e-7:
+        if np.abs(dpos).max() < 1e-7:
             # Same configuration again (maybe a restart):
             return
 
-        df = f - f0
-        a = np.dot(dr, df)
-        dg = np.dot(self.H, dr)
-        b = np.dot(dr, dg)
-        self.H -= np.outer(df, df) / a + np.outer(dg, dg) / b
+        dforces = forces - forces0
+        a = np.dot(dpos, dforces)
+        dg = np.dot(self.H, dpos)
+        b = np.dot(dpos, dg)
+        self.H -= np.outer(dforces, dforces) / a + np.outer(dg, dg) / b
 
     def replay_trajectory(self, traj):
         """Initialize hessian from old trajectory."""
@@ -145,26 +146,26 @@ class BFGS(Optimizer):
             traj = Trajectory(traj, 'r')
         self.H = None
         atoms = traj[0]
-        r0 = atoms.get_positions().ravel()
-        f0 = atoms.get_forces().ravel()
+        pos0 = atoms.get_positions().ravel()
+        forces0 = atoms.get_forces().ravel()
         for atoms in traj:
-            r = atoms.get_positions().ravel()
-            f = atoms.get_forces().ravel()
-            self.update(r, f, r0, f0)
-            r0 = r
-            f0 = f
+            pos = atoms.get_positions().ravel()
+            forces = atoms.get_forces().ravel()
+            self.update(pos, forces, pos0, forces0)
+            pos0 = pos
+            forces0 = forces
 
-        self.r0 = r0
-        self.f0 = f0
+        self.pos0 = pos0
+        self.forces0 = forces0
 
 
 class oldBFGS(BFGS):
-    def determine_step(self, dr, steplengths):
+    def determine_step(self, dpos, steplengths):
         """Old BFGS behaviour for scaling step lengths
 
         This keeps the behaviour of truncating individual steps. Some might
         depend of this as some absurd kind of stimulated annealing to find the
         global minimum.
         """
-        dr /= np.maximum(steplengths / self.maxstep, 1.0).reshape(-1, 1)
-        return dr
+        dpos /= np.maximum(steplengths / self.maxstep, 1.0).reshape(-1, 1)
+        return dpos

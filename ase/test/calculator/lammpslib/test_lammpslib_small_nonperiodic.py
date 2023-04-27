@@ -30,3 +30,8 @@ def test_lammpslib_small_nonperiodic(factory, dimer_params, calc_params_NiH):
     print("Computed forces:")
     print(np.array2string(forces))
     assert forces == pytest.approx(forces_ref, rel=1e-4)
+
+    energies = dimer.get_potential_energies()
+    assert len(energies) == len(dimer)
+    assert sum(energies) == pytest.approx(energy_ref, rel=1e-4)
+    assert energies[0] == pytest.approx(energies[1], rel=1e-4)

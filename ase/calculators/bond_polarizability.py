@@ -16,21 +16,29 @@ class LippincottStuttman:
     #   DOI: 10.1103/PhysRevB.55.2938
     # unit: Angstrom^3
     atomic_polarizability = {
+        'H': 0.592,
+        'Be': 3.802,
         'B': 1.358,
         'C': 0.978,
         'N': 0.743,
         'O': 0.592,
         'Al': 3.918,
         'Si': 2.988,
+        'P': 2.367,
+        'S': 1.820,
     }
     # reduced electronegativity Table I
     reduced_eletronegativity = {
-        'B': 0.538,
+        'H': 1.0,
+        'Be': 0.538,
+        'B': 0.758,
         'C': 0.846,
         'N': 0.927,
         'O': 1.0,
         'Al': 0.533,
         'Si': 0.583,
+        'P': 0.630,
+        'S': 0.688,
     }
 
     def __call__(self, el1: str, el2: str,

@@ -3,13 +3,29 @@ from ase.build import bulk
 from ase.calculators.espresso import EspressoProfile, Espresso
 
 
-def test_version():
-    txt = """
-     Program PWSCF v.6.4.1 starts on  5Aug2021 at 11: 2:26
+espresso_versions = [
+    ('6.4.1', """
+Program PWSCF v.6.4.1 starts on  5Aug2021 at 11: 2:26
 
-     This program is part of the open-source Quantum ESPRESSO suite
-    """
-    assert EspressoProfile.parse_version(txt) == '6.4.1'
+This program is part of the open-source Quantum ESPRESSO suite
+"""),
+    ('6.7MaX', """
+
+Program PWSCF v.6.7MaX starts on  1Oct2022 at 16:26:59
+
+This program is part of the open-source Quantum ESPRESSO suite
+""")]
+
+
+@pytest.mark.parametrize('version, txt', espresso_versions)
+def test_version(version, txt):
+    assert EspressoProfile.parse_version(txt) == version
+
+
+def test_version_integration(espresso_factory):
+    profile = EspressoProfile([espresso_factory.executable])
+    version = profile.version()
+    assert version[0].isdigit()
 
 
 def verify(calc):

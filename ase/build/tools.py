@@ -466,7 +466,7 @@ def reduce_lattice(atoms, eps=2e-4):
     the canonical form used for defining band paths but is otherwise
     physically equivalent.  The eps parameter is used as a tolerance
     for determining the cell's Bravais lattice."""
-    from ase.geometry.bravais_type_engine import identify_lattice
+    from ase.lattice import identify_lattice
     niggli_reduce(atoms)
     lat, op = identify_lattice(atoms.cell, eps=eps)
     update_cell_and_positions(atoms, lat.tocell(), np.linalg.inv(op))

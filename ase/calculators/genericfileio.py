@@ -95,9 +95,10 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
     def name(self):
         return self.template.name
 
-    def calculate(self, atoms, properties, system_changes):
+    def write_inputfiles(self, atoms, properties):
+        # SocketIOCalculators like to write inputfiles
+        # without calculating.
         self.directory.mkdir(exist_ok=True, parents=True)
-
         self.template.write_input(
             profile=self.profile,
             atoms=atoms,
@@ -105,6 +106,8 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
             properties=properties,
             directory=self.directory)
 
+    def calculate(self, atoms, properties, system_changes):
+        self.write_inputfiles(atoms, properties)
         self.template.execute(self.directory, self.profile)
         self.results = self.template.read_results(self.directory)
         # XXX Return something useful?

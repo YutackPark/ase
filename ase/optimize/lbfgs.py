@@ -107,18 +107,18 @@ class LBFGS(Optimizer):
             self.r0, self.f0, self.e0, self.task = self.load()
         self.load_restart = True
 
-    def step(self, f=None):
+    def step(self, forces=None):
         """Take a single step
 
         Use the given forces, update the history and calculate the next step --
         then take it"""
 
-        if f is None:
-            f = self.atoms.get_forces()
+        if forces is None:
+            forces = self.atoms.get_forces()
 
-        r = self.atoms.get_positions()
+        pos = self.atoms.get_positions()
 
-        self.update(r, f, self.r0, self.f0)
+        self.update(pos, forces, self.r0, self.f0)
 
         s = self.s
         y = self.y
@@ -129,7 +129,7 @@ class LBFGS(Optimizer):
         a = np.empty((loopmax,), dtype=np.float64)
 
         # ## The algorithm itself:
-        q = -f.reshape(-1)
+        q = -forces.reshape(-1)
         for i in range(loopmax - 1, -1, -1):
             a[i] = rho[i] * np.dot(s[i], q)
             q -= a[i] * y[i]
@@ -142,19 +142,19 @@ class LBFGS(Optimizer):
         self.p = - z.reshape((-1, 3))
         # ##
 
-        g = -f
+        g = -forces
         if self.use_line_search is True:
-            e = self.func(r)
-            self.line_search(r, g, e)
+            e = self.func(pos)
+            self.line_search(pos, g, e)
             dr = (self.alpha_k * self.p).reshape(len(self.atoms), -1)
         else:
             self.force_calls += 1
             self.function_calls += 1
             dr = self.determine_step(self.p) * self.damping
-        self.atoms.set_positions(r + dr)
+        self.atoms.set_positions(pos + dr)
 
         self.iteration += 1
-        self.r0 = r
+        self.r0 = pos
         self.f0 = -g
         self.dump((self.iteration, self.s, self.y,
                    self.rho, self.r0, self.f0, self.e0, self.task))
@@ -172,17 +172,17 @@ class LBFGS(Optimizer):
 
         return dr
 
-    def update(self, r, f, r0, f0):
+    def update(self, pos, forces, r0, f0):
         """Update everything that is kept in memory
 
         This function is mostly here to allow for replay_trajectory.
         """
         if self.iteration > 0:
-            s0 = r.reshape(-1) - r0.reshape(-1)
+            s0 = pos.reshape(-1) - r0.reshape(-1)
             self.s.append(s0)
 
             # We use the gradient which is minus the force!
-            y0 = f0.reshape(-1) - f.reshape(-1)
+            y0 = f0.reshape(-1) - forces.reshape(-1)
             self.y.append(y0)
 
             rho0 = 1.0 / np.dot(y0, s0)
@@ -203,11 +203,11 @@ class LBFGS(Optimizer):
         # The last element is not added, as we get that for free when taking
         # the first qn-step after the replay
         for i in range(0, len(traj) - 1):
-            r = traj[i].get_positions()
-            f = traj[i].get_forces()
-            self.update(r, f, r0, f0)
-            r0 = r.copy()
-            f0 = f.copy()
+            pos = traj[i].get_positions()
+            forces = traj[i].get_forces()
+            self.update(pos, forces, r0, f0)
+            r0 = pos.copy()
+            f0 = forces.copy()
             self.iteration += 1
         self.r0 = r0
         self.f0 = f0

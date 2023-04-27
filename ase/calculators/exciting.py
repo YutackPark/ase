@@ -115,7 +115,7 @@ class Exciting:
             reparsed = minidom.parseString(rough_string)
             return reparsed.toprettyxml(indent="\t")
 
-        if(self.paramdict):
+        if self.paramdict:
             self.dicttoxml(self.paramdict, root)
             fd = open('%s/input.xml' % self.dir, 'w')
             fd.write(prettify(root))
@@ -141,7 +141,7 @@ class Exciting:
                 for item in value:
                     self.dicttoxml(item, ET.SubElement(element, key))
             elif (isinstance(value, dict)):
-                if(element.findall(key) == []):
+                if element.findall(key) == []:
                     self.dicttoxml(value, ET.SubElement(element, key))
                 else:
                     self.dicttoxml(value, element.findall(key)[0])

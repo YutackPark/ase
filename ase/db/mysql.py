@@ -38,7 +38,7 @@ class Connection:
     def __init__(self, host=None, user=None, passwd=None, port=3306,
                  db_name=None, binary_prefix=False):
         self.con = connect(host=host, user=user, passwd=passwd, db=db_name,
-                           binary_prefix=binary_prefix)
+                           binary_prefix=binary_prefix, port=port)
 
     def cursor(self):
         return MySQLCursor(self.con.cursor())

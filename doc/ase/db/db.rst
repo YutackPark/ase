@@ -377,7 +377,7 @@ If you do this::
         db.write(mol, ...)
 
 the database will make sure that each molecule is written to permanent
-starage (typically a harddisk) before it moves on to the next molecule.  This
+storage (typically a harddisk) before it moves on to the next molecule.  This
 can be quite slow.  To speed this up, you can write all the molecules in a
 single transaction like this::
 

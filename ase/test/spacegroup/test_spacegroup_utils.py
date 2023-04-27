@@ -45,8 +45,8 @@ from ase.spacegroup import utils
     },
 ])
 def basis_tests(request):
-    """Fixture which returns a dictionary with some test inputs and expected values
-    for testing the `get_basis` function."""
+    """Fixture which returns a dictionary with some test inputs and
+    expected values for testing the `get_basis` function."""
     return request.param()
 
 

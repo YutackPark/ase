@@ -4,15 +4,15 @@ import numpy as np
 from ase.db.core import float_to_time_string, now
 
 
-all_columns = ['id', 'age', 'user', 'formula', 'calculator',
+all_columns = ('id', 'age', 'user', 'formula', 'calculator',
                'energy', 'natoms', 'fmax', 'pbc', 'volume',
-               'charge', 'mass', 'smax', 'magmom']
+               'charge', 'mass', 'smax', 'magmom')
 
 
 def get_sql_columns(columns):
     """ Map the names of table columns to names of columns in
     the SQL tables"""
-    sql_columns = columns[:]
+    sql_columns = list(columns)
     if 'age' in columns:
         sql_columns.remove('age')
         sql_columns += ['mtime', 'ctime']

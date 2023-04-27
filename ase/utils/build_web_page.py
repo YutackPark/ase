@@ -8,8 +8,12 @@ from pathlib import Path
 
 
 cmds = """\
+. /etc/bashrc
+module load Tkinter
 python3 -m venv venv
 . venv/bin/activate
+pip install -U pip
+pip install "sphinx<6.0"  # search broken in sphinx-6
 pip install sphinx-rtd-theme pillow
 git clone http://gitlab.com/ase/ase.git
 cd ase
@@ -26,7 +30,7 @@ def build():
         sys.exit('Locked')
     root.mkdir()
     os.chdir(root)
-    cmds2 = ' && '.join(cmds.splitlines())
+    cmds2 = ' && '.join(line.split('#')[0] for line in cmds.splitlines())
     p = subprocess.run(cmds2, shell=True)
     if p.returncode == 0:
         status = 'ok'

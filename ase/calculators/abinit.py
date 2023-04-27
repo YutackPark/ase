@@ -33,10 +33,14 @@ class AbinitProfile:
                             encoding='ascii').strip()
 
     def run(self, directory, inputfile, outputfile):
-        with open(outputfile, 'w') as fd:
-            check_call(self.argv + [str(inputfile)], stdout=fd,
-                       env=os.environ,
-                       cwd=directory)
+        argv = self.argv + [str(inputfile)]
+        with open(directory / outputfile, 'wb') as fd:
+            check_call(argv, stdout=fd, env=os.environ, cwd=directory)
+
+    def socketio_argv_unix(self, socket):
+        # XXX clean up the passing of the inputfile
+        inputfile = AbinitTemplate().input_file
+        return [*self.argv, inputfile, '--ipi', f'{socket}:UNIX']
 
     @classmethod
     def fromconfig(cls, cfg):

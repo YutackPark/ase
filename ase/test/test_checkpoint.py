@@ -32,7 +32,7 @@ def test_sqlite(testdir):
     assert a == op1a
     a, ra = CP(op2)(a, 2.0)
     assert a == op2a
-    assert(np.abs(ra - op2ra).max() < 1e-5)
+    assert np.abs(ra - op2ra).max() < 1e-5
 
 
 def rattle_calc(atoms, calc):
@@ -63,8 +63,8 @@ def rattle_calc(atoms, calc):
 
     assert e11 == e21
     assert e12 == e22
-    assert(np.abs(f11 - f21).max() < 1e-5)
-    assert(np.abs(f12 - f22).max() < 1e-5)
+    assert np.abs(f11 - f21).max() < 1e-5
+    assert np.abs(f12 - f22).max() < 1e-5
 
 
 def test_new_style_interface(testdir):

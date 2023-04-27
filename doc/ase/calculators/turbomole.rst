@@ -199,6 +199,17 @@ parameter:
   calc = Turbomole(restart=True, task='gradient', **params)
 
 
+Caveat about using the restart mode
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When restart mode is set, the calculator reads and parses all relevant data
+groups from the *control* file. The format of the `control` file, especially
+of some data groups, does not allow to guarantee that the parsing is always
+successful and correct. The parsing process may fail and raise an exception
+or the parameters read might be wrong. If you encounter errors due to restart
+mode please file an issue.
+
+
 Policies for files in the working directory
 -------------------------------------------
 

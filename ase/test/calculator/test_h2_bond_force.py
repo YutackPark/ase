@@ -22,6 +22,7 @@ k_refs = dict(
     cp2k=44,
     espresso=43,
     gpaw=39,
+    mopac=66,
     nwchem=42,
     siesta=45,
 )
@@ -34,6 +35,7 @@ calc = pytest.mark.calculator
 @calc('cp2k')
 @calc('espresso', tprnfor=True)
 @calc('gpaw', mode='pw', symmetry='off', txt=None)
+@calc('mopac', method='PM7', task='1SCF UHF GRADIENTS')
 @calc('nwchem')
 @calc('siesta')
 def test_h2_bond(factory, atoms):

@@ -259,7 +259,7 @@ class EspressoFactory:
         return EspressoProfile([self.executable], self.pseudo_dir)
 
     def version(self):
-        self._profile().version()
+        return self._profile().version()
 
     def calc(self, **kwargs):
         from ase.calculators.espresso import Espresso
@@ -297,6 +297,39 @@ class ExcitingFactory:
     @classmethod
     def fromconfig(cls, config):
         return cls(config.executables['exciting'])
+
+
+@factory('mopac')
+class MOPACFactory:
+    def __init__(self, executable):
+        self.executable = executable
+
+    def calc(self, **kwargs):
+        from ase.calculators.mopac import MOPAC
+        MOPAC.command = f'{self.executable} PREFIX.mop 2> /dev/null'
+        return MOPAC(**kwargs)
+
+    @classmethod
+    def fromconfig(cls, config):
+        return cls(config.executables['mopac'])
+
+    def version(self):
+        from ase import Atoms
+        from os import chdir
+        from pathlib import Path
+        import tempfile
+
+        cwd = Path('.').absolute()
+        with tempfile.TemporaryDirectory() as directory:
+            try:
+                chdir(directory)
+                h = Atoms('H')
+                h.calc = self.calc()
+                _ = h.get_potential_energy()
+            finally:
+                chdir(cwd)
+
+        return h.calc.results['version']
 
 
 @factory('vasp')
@@ -490,6 +523,27 @@ class OctopusFactory:
         return cls(config.executables['octopus'])
 
 
+@factory('orca')
+class OrcaFactory:
+    def __init__(self, executable):
+        self.executable = executable
+
+    def _profile(self):
+        from ase.calculators.orca import OrcaProfile
+        return OrcaProfile([self.executable])
+
+    def version(self):
+        return self._profile().version()
+
+    def calc(self, **kwargs):
+        from ase.calculators.orca import ORCA
+        return ORCA(**kwargs)
+
+    @classmethod
+    def fromconfig(cls, config):
+        return cls(config.executables['orca'])
+
+
 @factory('siesta')
 class SiestaFactory:
     def __init__(self, executable, pseudo_path):
@@ -587,9 +641,7 @@ class Factories:
         'gulp',
         'hotbit',
         'lammpslib',
-        'mopac',
         'onetep',
-        'orca',
         'qchem',
         'turbomole',
     }

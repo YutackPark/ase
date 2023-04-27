@@ -612,13 +612,13 @@ class OPLSStructure(Atoms):
 
         def next_entry():
             line = lines.pop(0).strip()
-            if(len(line) > 0):
+            if len(line) > 0:
                 lines.insert(0, line)
 
         def next_key():
-            while(len(lines)):
+            while len(lines):
                 line = lines.pop(0).strip()
-                if(len(line) > 0):
+                if len(line) > 0:
                     lines.pop(0)
                     return line
             return None
@@ -644,7 +644,7 @@ class OPLSStructure(Atoms):
         positions = np.empty((natoms, 3))
         for i in range(natoms):
             w = lines.pop(0).split()
-            assert(int(w[0]) == (i + 1))
+            assert int(w[0]) == (i + 1)
             positions[i] = np.array([float(w[4 + c]) for c in range(3)])
             # print(w, positions[i])
 
@@ -655,7 +655,7 @@ class OPLSStructure(Atoms):
             velocities = np.empty((natoms, 3))
             for i in range(natoms):
                 w = lines.pop(0).split()
-                assert(int(w[0]) == (i + 1))
+                assert int(w[0]) == (i + 1)
                 velocities[i] = np.array([float(w[1 + c]) for c in range(3)])
             key = next_key()
 
@@ -664,7 +664,7 @@ class OPLSStructure(Atoms):
             masses = np.empty((ntypes))
             for i in range(ntypes):
                 w = lines.pop(0).split()
-                assert(int(w[0]) == (i + 1))
+                assert int(w[0]) == (i + 1)
                 masses[i] = float(w[1])
 
             if update_types:
@@ -705,7 +705,7 @@ class OPLSStructure(Atoms):
                 return [], key
 
             lst = []
-            while(len(lines)):
+            while len(lines):
                 w = lines.pop(0).split()
                 if len(w) > length:
                     lst.append([(int(w[1 + c]) - 1) for c in range(length)])
@@ -724,14 +724,14 @@ class OPLSStructure(Atoms):
         }
 
         if 'bonds' in header:
-            assert(len(bonds) == header['bonds'])
+            assert len(bonds) == header['bonds']
             self.connectivities['bond types'] = list(
                 range(header['bond types']))
         if 'angles' in header:
-            assert(len(angles) == header['angles'])
+            assert len(angles) == header['angles']
             self.connectivities['angle types'] = list(
                 range(header['angle types']))
         if 'dihedrals' in header:
-            assert(len(dihedrals) == header['dihedrals'])
+            assert len(dihedrals) == header['dihedrals']
             self.connectivities['dihedral types'] = list(range(
                 header['dihedral types']))

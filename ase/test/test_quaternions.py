@@ -111,13 +111,13 @@ def test_quaternions_euler(rng):
             q_eul = Quaternion.from_euler_angles(*abc, mode=mode)
             rot_eul = eulang_rotm(*abc, mode=mode)
 
-            assert(np.allclose(rot_eul, q_eul.rotation_matrix()))
+            assert np.allclose(rot_eul, q_eul.rotation_matrix())
 
             # Test conversion back and forth
             abc_2 = q_eul.euler_angles(mode=mode)
             q_eul_2 = Quaternion.from_euler_angles(*abc_2, mode=mode)
 
-            assert(np.allclose(q_eul_2.q, q_eul.q))
+            assert np.allclose(q_eul_2.q, q_eul.q)
 
 
 def test_quaternions_rotm(rng):
@@ -131,10 +131,10 @@ def test_quaternions_rotm(rng):
         q1 = Quaternion.from_matrix(rotm1)
         q2 = Quaternion.from_matrix(rotm2)
 
-        assert(np.allclose(q1.rotation_matrix(), rotm1))
-        assert(np.allclose(q2.rotation_matrix(), rotm2))
-        assert(np.allclose((q1 * q2).rotation_matrix(), np.dot(rotm1, rotm2)))
-        assert(np.allclose((q1 * q2).rotation_matrix(), np.dot(rotm1, rotm2)))
+        assert np.allclose(q1.rotation_matrix(), rotm1)
+        assert np.allclose(q2.rotation_matrix(), rotm2)
+        assert np.allclose((q1 * q2).rotation_matrix(), np.dot(rotm1, rotm2))
+        assert np.allclose((q1 * q2).rotation_matrix(), np.dot(rotm1, rotm2))
 
 
 def test_quaternions_axang(rng):
@@ -142,7 +142,7 @@ def test_quaternions_axang(rng):
     # Sixth: test conversion to axis + angle
     q = Quaternion()
     n, theta = q.axis_angle()
-    assert(theta == 0)
+    assert theta == 0
 
     u = np.array([1, 0.5, 1])
     u /= np.linalg.norm(u)
@@ -151,5 +151,5 @@ def test_quaternions_axang(rng):
     q = Quaternion.from_matrix(axang_rotm(u, alpha))
     n, theta = q.axis_angle()
 
-    assert(np.isclose(theta, alpha))
-    assert(np.allclose(u, n))
+    assert np.isclose(theta, alpha)
+    assert np.allclose(u, n)

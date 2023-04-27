@@ -1,5 +1,4 @@
 import argparse
-import sys
 import textwrap
 from importlib import import_module
 
@@ -140,10 +139,3 @@ class Formatter(argparse.HelpFormatter):
                 out += textwrap.fill(block, width=width) + '\n'
             out += '\n'
         return out[:-1]
-
-
-def old():
-    cmd = sys.argv[0].split('-')[-1]
-    print('Please use "ase {cmd}" instead of "ase-{cmd}"'.format(cmd=cmd))
-    sys.argv[:1] = ['ase', cmd]
-    main()

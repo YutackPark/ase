@@ -7,13 +7,14 @@ from ase import Atoms
 from ase.build import surface, bulk
 from ase.io import write
 
+# Au example:
 s1 = surface('Au', (2, 1, 1), 9)
 s1.center(vacuum=10, axis=2)
-
+# Mo example:
 Mobulk = bulk('Mo', 'bcc', a=3.16, cubic=True)
 s2 = surface(Mobulk, (3, 2, 1), 9)
 s2.center(vacuum=10, axis=2)
-
+# Pt3Rh example:
 a = 4.0
 Pt3Rh = Atoms('Pt3Rh',
               scaled_positions=[(0, 0, 0),
@@ -28,6 +29,7 @@ s3.center(vacuum=10, axis=2)
 Pt3Rh.set_chemical_symbols('PtRhPt2')
 s4 = surface(Pt3Rh, (2, 1, 1), 9)
 s4.center(vacuum=10, axis=2)
+# Done
 
 for atoms, name in [(s1, 's1'), (s2, 's2'), (s3, 's3'), (s4, 's4')]:
     write(name + '.pov', atoms,

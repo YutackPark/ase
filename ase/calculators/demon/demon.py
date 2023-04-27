@@ -336,7 +336,7 @@ class Demon(FileIOCalculator):
 
             # print argument, here other options could change this
             value = self.parameters['print_out']
-            assert(isinstance(value, str))
+            assert isinstance(value, str)
             value = value + add_print
 
             if not len(value) == 0:
@@ -451,7 +451,7 @@ class Demon(FileIOCalculator):
 
             # if tag is set to 1 then we have a ghost atom,
             # set nuclear charge to 0
-            if(atoms.get_tags()[i] == 1):
+            if atoms.get_tags()[i] == 1:
                 nuc_charge = str(0)
             else:
                 nuc_charge = str(atoms.get_atomic_numbers()[i])
@@ -706,7 +706,7 @@ class Demon(FileIOCalculator):
             try:
                 line = lines[i].split()
 
-                if(len(line) > 0):
+                if len(line) > 0:
                     for symbol in ase.data.chemical_symbols:
                         found = None
                         if line[0].upper().rfind(symbol.upper()) > -1:
@@ -739,11 +739,11 @@ class Demon(FileIOCalculator):
         atoms = ase.Atoms(symbols=chemical_symbols, positions=xyz)
 
         # if atomic numbers were read in, set them
-        if(len(atomic_numbers) == natoms):
+        if len(atomic_numbers) == natoms:
             atoms.set_atomic_numbers(atomic_numbers)
 
         # if masses were read in, set them
-        if(len(masses) == natoms):
+        if len(masses) == natoms:
             atoms.set_masses(masses)
 
         return atoms

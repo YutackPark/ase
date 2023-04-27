@@ -253,9 +253,7 @@ class Pourbaix:
         result = linprog(c=energies,
                          A_eq=np.transpose(eq2),
                          b_eq=eq1,
-                         bounds=bounds,
-                         options={'lstsq': True,
-                                  'presolve': True})
+                         bounds=bounds)
 
         if verbose:
             print_results(zip(names, result.x, energies))

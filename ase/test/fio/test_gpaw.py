@@ -41,8 +41,14 @@ Forces in eV/Ang:
   0 Al    0.00000    0.00000   -0.00000
 """
 
+stress = """
+Stress tensor:
+     0.000000     0.000000     0.000000
+     0.000000     0.000000     0.000000
+     0.000000     0.000000     0.000000"""
+
 # Three configurations.  Only 1. and 3. has forces.
-text = header + atoms + forces + atoms + atoms + forces
+text = header + atoms + forces + atoms + atoms + forces + stress
 
 
 def test_gpaw_output():

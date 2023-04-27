@@ -1,8 +1,12 @@
 [flake8]
 ignore =
-    E741, # bad variable names like 'l' and 'I'
-    W503  # line break before binary operator
-    W504  # line break after binary operator
+    # bad variable names like 'l' and 'I'
+    E741,
+    # line break before binary operator
+    W503,
+    # line break after binary operator
+    W504
+
 max-line-length = 80
 
 exclude =

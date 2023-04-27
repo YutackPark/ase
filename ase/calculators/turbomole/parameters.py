@@ -75,6 +75,15 @@ class TurbomoleParameters(dict):
             'units': None,
             'updateable': True
         },
+        'default eht atomic orbitals': {
+            'comment': None,
+            'default': None,
+            'group': None,
+            'key': None,
+            'type': bool,
+            'units': None,
+            'updateable': False
+        },
         'density convergence': {
             'comment': None,
             'default': None,
@@ -562,8 +571,8 @@ class TurbomoleParameters(dict):
 
         define_str_tpl = (
             '\n__title__\na coord\n__inter__\n'
-            'bb all __basis_set__\n*\neht\ny\n__charge_str____occ_str__'
-            '__single_atom_str____norb_str____dft_str____ri_str__'
+            'bb all __basis_set__\n*\neht\n__eht_aos_str__y\n__charge_str__'
+            '__occ_str____single_atom_str____norb_str____dft_str____ri_str__'
             '__scfiterlimit____fermi_str____damp_str__q\n'
         )
 
@@ -657,6 +666,8 @@ class TurbomoleParameters(dict):
                 damp_str += par_str + '\n'
             damp_str += '\n'
 
+        eht_aos_str = 'y\n' if params['default eht atomic orbitals'] else ''
+
         define_str = define_str_tpl
         define_str = re.sub('__title__', params['title'], define_str)
         define_str = re.sub('__basis_set__', params['basis set name'],
@@ -672,6 +683,7 @@ class TurbomoleParameters(dict):
         define_str = re.sub('__scfiterlimit__', scfiter_str, define_str)
         define_str = re.sub('__fermi_str__', fermi_str, define_str)
         define_str = re.sub('__damp_str__', damp_str, define_str)
+        define_str = re.sub('__eht_aos_str__', eht_aos_str, define_str)
 
         return define_str
 

@@ -143,8 +143,8 @@ class ClusterFactory(ClusterBase):
         else:
             offset = np.array(center)
             if (offset > 1.0).any() or (offset < 0.0).any():
-                raise ValueError("Center offset must lie within the lattice unit \
-                                  cell.")
+                raise ValueError(
+                    "Center offset must lie within the lattice unit cell.")
 
         max = np.ones(3)
         min = -np.ones(3)

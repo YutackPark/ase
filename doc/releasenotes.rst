@@ -12,6 +12,9 @@ Git master branch
 * :func:`ase.build.bulk` now assigns initial magnetic moments
   to BCC Fe, Co, and Ni.
 
+* :func:`ase.build.make_supercell` can now control how to order the atoms in
+  the supercell via the option ``order``.
+
 * :meth:`~ase.cell.Cell.mask` returns the mask of nonzero cell vectors,
   an array of three booleans.
 
@@ -53,7 +56,19 @@ Calculators:
   https://openkim.org/doc/repository/kim-content/ for an explanation of types
   of OpenKIM models).
 
+* :class:`ase.calculators.mopac.MOPAC` updated to support MOPAC_
+  version 22, which was released under GPL in May 2022.  When using
+  this MOPAC version or newer, the output "final heat of formation"
+  will be interpreted as potential/free energy for ASE purposes.
+
 .. _Plumed: https://www.plumed.org/
+.. _MOPAC: https://doi.org/10.5281/zenodo.6511958
+
+Optimizers:
+
+* Add :class:`ase.optimize.climbfixinternals.ClimbFixInternals` class for
+  transition state search and optimization along internal reaction coordinates
+
 
 Version 3.22.1
 ==============

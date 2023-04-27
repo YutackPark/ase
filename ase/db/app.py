@@ -24,28 +24,12 @@ or this::
 
 import io
 import sys
-from typing import Dict, Any, Set
 from pathlib import Path
 
 from ase.db import connect
 from ase.db.core import Database
-from ase.formula import Formula
-from ase.db.web import create_key_descriptions, Session
-from ase.db.row import row2dct, AtomsRow
-from ase.db.table import all_columns
-
-
-def request2string(args) -> str:
-    """Converts request args to ase.db query string."""
-    return args['query']
-
-
-def row_to_dict(row: AtomsRow,
-                project: Dict[str, Any]) -> Dict[str, Any]:
-    """Convert row to dict for use in html template."""
-    dct = row2dct(row, project['key_descriptions'])
-    dct['formula'] = Formula(Formula(row.formula).format('abc')).format('html')
-    return dct
+from ase.db.web import Session
+from ase.db.project import DatabaseProject
 
 
 class DBApp:
@@ -53,42 +37,26 @@ class DBApp:
 
     def __init__(self):
         self.projects = {}
-        self.flask = new_app(self.projects)
 
-    def add_project(self, db: Database) -> None:
-        """Add database to projects with name 'default'."""
-        all_keys: Set[str] = set()
-        for row in db.select(columns=['key_value_pairs'], include_data=False):
-            all_keys.update(row._keys)
+        flask = new_app(self.projects)
+        self.flask = flask
 
-        key_descriptions = {key: (key, '', '') for key in all_keys}
+        # Other projects will want to control the routing of the front
+        # page, for which reasons we route it here in DBApp instead of
+        # already in new_app().
+        @flask.route('/')
+        def frontpage():
+            projectname = next(iter(self.projects))
+            return flask.view_functions['search'](projectname)
 
-        meta: Dict[str, Any] = db.metadata
-
-        if 'key_descriptions' in meta:
-            key_descriptions.update(meta['key_descriptions'])
-
-        default_columns = meta.get('default_columns')
-        if default_columns is None:
-            default_columns = all_columns[:]
-
-        self.projects['default'] = {
-            'name': 'default',
-            'title': meta.get('title', ''),
-            'uid_key': 'id',
-            'key_descriptions': create_key_descriptions(key_descriptions),
-            'database': db,
-            'row_to_dict_function': row_to_dict,
-            'handle_query_function': request2string,
-            'default_columns': default_columns,
-            'search_template': 'ase/db/templates/search.html',
-            'row_template': 'ase/db/templates/row.html',
-            'table_template': 'ase/db/templates/table.html'}
+    def add_project(self, name: str, db: Database) -> None:
+        self.projects[name] = DatabaseProject.load_db_as_ase_project(
+            name=name, database=db)
 
     @classmethod
     def run_db(cls, db):
         app = cls()
-        app.add_project(db)
+        app.add_project('default', db)
         app.flask.run(host='0.0.0.0', debug=True)
 
 
@@ -96,7 +64,6 @@ def new_app(projects):
     from flask import Flask, render_template, request
     app = Flask(__name__, template_folder=str(DBApp.root))
 
-    @app.route('/', defaults={'project_name': 'default'})
     @app.route('/<project_name>')
     @app.route('/<project_name>/')
     def search(project_name: str):
@@ -108,9 +75,9 @@ def new_app(projects):
             return '', 204, []  # 204: "No content"
         session = Session(project_name)
         project = projects[project_name]
-        return render_template(project['search_template'],
+        return render_template(str(project.get_search_template()),
                                q=request.args.get('query', ''),
-                               p=project,
+                               project=project,
                                session_id=session.id)
 
     @app.route('/update/<int:sid>/<what>/<x>/')
@@ -128,29 +95,27 @@ def new_app(projects):
         session = Session.get(sid)
         project = projects[session.project_name]
         session.update(what, x, request.args, project)
-        table = session.create_table(project['database'],
-                                     project['uid_key'],
-                                     keys=list(project['key_descriptions']))
-        return render_template(project['table_template'],
-                               t=table,
-                               p=project,
-                               s=session)
+        table = session.create_table(project.database,
+                                     project.uid_key,
+                                     keys=list(project.key_descriptions))
+        return render_template(str(project.get_table_template()),
+                               table=table,
+                               project=project,
+                               session=session)
 
     @app.route('/<project_name>/row/<uid>')
     def row(project_name: str, uid: str):
         """Show details for one database row."""
         project = projects[project_name]
-        uid_key = project['uid_key']
-        row = project['database'].get('{uid_key}={uid}'
-                                      .format(uid_key=uid_key, uid=uid))
-        dct = project['row_to_dict_function'](row, project)
-        return render_template(project['row_template'],
-                               d=dct, row=row, p=project, uid=uid)
+        row = project.uid_to_row(uid)
+        dct = project.row_to_dict(row)
+        return render_template(str(project.get_row_template()),
+                               dct=dct, row=row, project=project, uid=uid)
 
     @app.route('/atoms/<project_name>/<int:id>/<type>')
     def atoms(project_name: str, id: int, type: str):
         """Return atomic structure as cif, xyz or json."""
-        row = projects[project_name]['database'].get(id=id)
+        row = projects[project_name].database.get(id=id)
         a = row.toatoms()
         if type == 'cif':
             b = io.BytesIO()
@@ -179,7 +144,9 @@ def new_app(projects):
     def gui(id: int):
         """Pop ud ase gui window."""
         from ase.visualize import view
-        atoms = projects['default']['database'].get_atoms(id)
+        # XXX so broken
+        arbitrary_project = next(iter(projects))
+        atoms = projects[arbitrary_project].database.get_atoms(id)
         view(atoms)
         return '', 204, []
 
@@ -200,22 +167,6 @@ def new_app(projects):
                 200)
 
     return app
-
-
-# TODO: Issue deprecation warnings if someone accesses these variables.
-try:
-    import flask  # noqa
-except ImportError:
-    _global_dbapp = None
-    projects = {}
-    app = None
-    add_project = None
-else:
-    _global_dbapp = DBApp()
-    projects = _global_dbapp.projects
-    app = _global_dbapp.flask
-    add_project = _global_dbapp.add_project
-handle_query = request2string
 
 
 def main():

@@ -95,11 +95,11 @@ class BFGSLineSearch(Optimizer):
         self.e0 = None
         self.rep_count = 0
 
-    def step(self, f=None):
+    def step(self, forces=None):
         atoms = self.atoms
 
-        if f is None:
-            f = atoms.get_forces()
+        if forces is None:
+            forces = atoms.get_forces()
 
         from ase.neb import NEB
         if isinstance(atoms, NEB):
@@ -107,7 +107,7 @@ class BFGSLineSearch(Optimizer):
                             ' optimizer. Use BFGS or another optimizer.')
         r = atoms.get_positions()
         r = r.reshape(-1)
-        g = -f.reshape(-1) / self.alpha
+        g = -forces.reshape(-1) / self.alpha
         p0 = self.p
         self.update(r, g, self.r0, self.g0, p0)
         # o,v = np.linalg.eigh(self.B)
@@ -177,8 +177,8 @@ class BFGSLineSearch(Optimizer):
         self.force_calls += 1
         # Remember that forces are minus the gradient!
         # Scale the problem as SciPy uses I as initial Hessian.
-        f = self.atoms.get_forces().reshape(-1)
-        return - f / self.alpha
+        forces = self.atoms.get_forces().reshape(-1)
+        return - forces / self.alpha
 
     def replay_trajectory(self, traj):
         """Initialize hessian from old trajectory."""

@@ -120,7 +120,8 @@ def compare_atoms(atoms1, atoms2, tol=1e-15, excluded_properties=None):
 
 
 all_properties = ['energy', 'forces', 'stress', 'stresses', 'dipole',
-                  'charges', 'magmom', 'magmoms', 'free_energy', 'energies']
+                  'charges', 'magmom', 'magmoms', 'free_energy', 'energies',
+                  'dielectric_tensor', 'born_effective_charges', 'polarization']
 
 
 all_changes = ['positions', 'numbers', 'cell', 'pbc',

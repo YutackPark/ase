@@ -290,6 +290,8 @@ and dihedrals_deg.
 
 .. autoclass:: FixInternals
 
+    .. automethod:: get_bondcombo
+
 
 Example of use::
 

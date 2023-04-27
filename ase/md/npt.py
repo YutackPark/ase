@@ -655,7 +655,7 @@ class NPT(MolecularDynamics):
     # A few helper methods, which have been placed in separate methods
     # so they can be replaced in the parallel version.
     def _synchronize(self):
-        """Synchronizes eta, h and zeta on all processors in a parallel simulation.
+        """Synchronize eta, h and zeta on all processors.
 
         In a parallel simulation, eta, h and zeta are communicated
         from the master to all slaves, to prevent numerical noise from

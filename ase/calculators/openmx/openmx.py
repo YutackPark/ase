@@ -548,7 +548,7 @@ class OpenMX(FileIOCalculator):
             for i, kpath in enumerate(band_kpath):
                 end = False
                 nband = int(kpath[0])
-                if(band_nkpath == i):
+                if band_nkpath == i:
                     end = True
                     nband += 1
                 ini = np.array(kpath[1:4], dtype=float)

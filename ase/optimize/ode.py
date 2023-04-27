@@ -140,13 +140,14 @@ def ode12r(f, X0, h=None, verbose=1, fmax=1e-6, maxtol=1e3, steps=100,
             callback(X)
 
             # We check the residuals again
+            if Rn >= maxtol:
+                raise OptimizerConvergenceError(
+                    f"ODE12r: Residual {Rn} is too "
+                    f"large at iteration number {nit}")
+
             if converged(Fn, X):
                 log(f"ODE12r: terminates successfully "
                     f"after {nit} iterations.")
-                return X
-            if Rn >= maxtol:
-                log(f"ODE12r: Residual {Rn} is too "
-                    f"large at iteration number {nit}")
                 return X
 
             # Compute a new step size.

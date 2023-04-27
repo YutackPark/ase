@@ -61,3 +61,7 @@ cores for the simulation, e.g.::
 
 for a B3LYP/def2-TZVP calculation on 16 cores. 
 
+Class Definition
+================
+
+.. autoclass:: ORCA

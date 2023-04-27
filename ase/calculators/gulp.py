@@ -114,7 +114,9 @@ class GULP(FileIOCalculator):
                 s += ' {0:2} shel' \
                      ' {1:10.7f}  {2:10.7f}  {3:10.7f}\n' .format(symbol, *xyz)
 
-        s += '\nlibrary {0}\n'.format(p.library)
+        if p.library:
+            s += '\nlibrary {0}\n'.format(p.library)
+
         if p.options:
             for t in p.options:
                 s += '%s\n' % t
@@ -150,7 +152,7 @@ class GULP(FileIOCalculator):
             elif line.find('Final Cartesian derivatives') != -1:
                 s = i + 5
                 forces = []
-                while(True):
+                while True:
                     s = s + 1
                     if lines[s].find("------------") != -1:
                         break
@@ -165,7 +167,7 @@ class GULP(FileIOCalculator):
             elif line.find('Final internal derivatives') != -1:
                 s = i + 5
                 forces = []
-                while(True):
+                while True:
                     s = s + 1
                     if lines[s].find("------------") != -1:
                         break

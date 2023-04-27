@@ -6,12 +6,6 @@ import copy
 import pytest
 
 
-# Convenience functions to compute linear combinations of internal coordinates
-def get_bondcombo(atoms, bondcombo_def):
-    return sum([defin[2] * atoms.get_distance(*defin[0:2]) for
-                defin in bondcombo_def])
-
-
 def setup_atoms():
     atoms = molecule('CH3CH2OH', vacuum=5.0)
     atoms.rattle(stdev=0.3)
@@ -94,26 +88,34 @@ def setup_combos():
     # In other words, fulfil the following constraint:
     # 1.0 * atoms.get_distance(2, 1) + -1.0 * atoms.get_distance(2, 3) = const.
     bondcombo_def = [[2, 1, 1.0], [2, 3, -1.0]]
-    target_bondcombo = get_bondcombo(atoms, bondcombo_def)
+    target_bondcombo = FixInternals.get_bondcombo(atoms, bondcombo_def)
 
-    # Initialize constraint
-    constr = FixInternals(bondcombos=[(target_bondcombo, bondcombo_def)],
-                          epsilon=1e-10)
+    # Initialize constraint; 'None' value should be converted to current value
+    constr = FixInternals(bondcombos=[(None, bondcombo_def)], epsilon=1e-10)
     return atoms, constr, bondcombo_def, target_bondcombo,
 
 
 def test_combos():
     atoms, constr, bondcombo_def, target_bondcombo = setup_combos()
 
-    ref_bondcombo = get_bondcombo(atoms, bondcombo_def)
+    ref_bondcombo = FixInternals.get_bondcombo(atoms, bondcombo_def)
 
     atoms.calc = EMT()
     atoms.set_constraint(constr)
 
+    atoms2 = atoms.copy()  # check if 'None' value converts to current value
+    atoms2.set_positions(atoms2.get_positions())
+    checked_bondcombo = False
+    for subconstr in atoms2.constraints[0].constraints:
+        if repr(subconstr).startswith('FixBondCombo'):
+            assert subconstr.targetvalue == target_bondcombo
+            checked_bondcombo = True
+    assert checked_bondcombo
+
     opt = BFGS(atoms)
     opt.run(fmax=0.01)
 
-    new_bondcombo = get_bondcombo(atoms, bondcombo_def)
+    new_bondcombo = FixInternals.get_bondcombo(atoms, bondcombo_def)
     err_bondcombo = new_bondcombo - ref_bondcombo
 
     print('error in bondcombo:', repr(err_bondcombo))
@@ -161,7 +163,8 @@ def test_zero_distance_error():
     atoms.set_constraint(constr)
     opt = BFGS(atoms)
     with pytest.raises(ZeroDivisionError):
-        opt.run()
+        for i in opt.irun():
+            atoms.get_distance(1, 2)
 
 
 def test_planar_angle_error():
