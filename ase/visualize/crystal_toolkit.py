@@ -1,4 +1,5 @@
 from ase import Atoms
+from contextlib import contextmanager
 
 
 class CrystalToolKitDisplaySetting:
@@ -10,12 +11,58 @@ class CrystalToolKitDisplaySetting:
         self.with_bonds = True
         self.bond_nn_class = None
 
+    def apply(self, **kwargs):
+        """
+        Apply settings from called arguments
+
+        Example
+        
+            >>> settings.apply(with_bonds=False, bond_nn_class=CrystalNN)
+
+        """
+        for key, value in kwargs.items():
+            attr = getattr(self, key)
+            if isinstance(value, dict):
+                attr.update(value)
+            else:
+                setattr(self, key, value)
+
+    def to_dict(self):
+        """Return a dictionary of the settings"""
+
+        return {
+            'scene_kwargs': self.scene_kwargs,
+            'legend_kwargs': self.legend_kwargs,
+            'with_bonds': self.with_bonds,
+            'bond_nn_class': self.bond_nn_class,
+        }
+
+
 
 DISPLAY_SETTINGS = CrystalToolKitDisplaySetting()
 
+@contextmanager
+def display_option(**kwargs):
+    """
+    Context manage for applying display settings temporarily within a with block.
+
+    Example
+
+        >>> with display_option(with_bonds=False):
+                obj = view(atoms, viewer="crystal_toolkit")
+        >>> obj
+    """
+
+    backup = DISPLAY_SETTINGS.to_dict()
+    DISPLAY_SETTINGS.apply(**kwargs)
+    yield
+    DISPLAY_SETTINGS.apply(**backup)
+
 
 class CrystalToolKitDisplay:
-    """Display using Crystal-Toolkit"""
+    """
+    Display using Crystal-Toolkit
+    """
 
     def __init__(
         self,
@@ -25,7 +72,19 @@ class CrystalToolKitDisplay:
         scene_kwargs=None,
         legend_kwargs=None,
     ):
-        """Instantiate the object"""
+        """
+        Instantiate a CrystalToolKitDisplay object
+
+        Args:
+            atoms: The Atoms object to be viewed.
+            with_bond: Include the bonding in the display.
+            bond_nn_class: 
+                NearestNeighbour class to be used for constructing the connectivity.
+                Defaults to pymatgen.analysis.local_env import MinimumDistanceNN.
+            scene_kwargs: 
+                A dictionary containing the key words passed to get_structure_scene
+                or get_structure_graph_scene.
+        """
 
         from pymatgen.analysis.local_env import MinimumDistanceNN
         from pymatgen.io.ase import AseAtomsAdaptor
