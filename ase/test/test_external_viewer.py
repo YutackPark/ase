@@ -4,7 +4,7 @@ import pytest
 
 from ase.io import read
 from ase.visualize import view
-from ase.visualize.external import PyViewer, CLIViewer
+from ase.visualize.viewers import CLIViewer, CLI_VIEWERS, PY_VIEWERS, PyViewer
 from ase.build import bulk
 
 
@@ -37,11 +37,13 @@ def test_bad_viewer(atoms):
 
 
 def test_py_viewer_mock(atoms, monkeypatch):
-    def mock_view(self, atoms, repeat=None):
+    def mock_view(self, atoms, repeat=None, **kwargs):
+        if repeat is not None:
+            atoms = atoms.repeat(repeat)
         print(f'viewing {atoms} with mock "{self.name}"')
         return (atoms, self.name)
 
-    monkeypatch.setattr(PyViewer, 'sage', mock_view, raising=False)
+    monkeypatch.setattr(PyViewer, 'view', mock_view, raising=False)
 
     (atoms1, name1) = view(atoms, viewer='sage')
     assert name1 == 'sage'
@@ -52,7 +54,7 @@ def test_py_viewer_mock(atoms, monkeypatch):
     assert len(atoms2) == 8 * len(atoms)
 
 
-@pytest.mark.parametrize('viewer', CLIViewer.viewers())
+@pytest.mark.parametrize('viewer', CLI_VIEWERS.values())
 def test_cli_viewer_tempfile(atoms, viewer):
     with viewer.mktemp(atoms) as path:
         atoms1 = read(path)

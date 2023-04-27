@@ -221,6 +221,10 @@ define_viewer(
     "avogadro", "View atoms using avogradro.", cli=True, fmt="cube", argv=["avogadro"]
 )
 define_viewer(
+    "ase_gui_cli", "View atoms using ase gui.", cli=True, fmt="traj", 
+    argv=[sys.executable, '-m', 'ase.gui'],
+)
+define_viewer(
     "gopenmol",
     "View atoms using gopenmol.",
     cli=True,
@@ -231,7 +235,7 @@ define_viewer(
     "rasmol",
     "View atoms using rasmol.",
     cli=True,
-    fmt="proteinbank",
+    fmt="proteindatabank",
     argv=["rasmol", "-pdb"],
 )
 define_viewer("vmd", "View atoms using vmd.", cli=True, fmt="cube", argv=["vmd"])
@@ -244,6 +248,9 @@ define_viewer(
 )
 
 register_external_viewer_formats("ase.visualize")
+
+CLI_VIEWERS = {key: value for key,value in VIEWERS.items() if isinstance(value, CLIViewer)}
+PY_VIEWERS = {key: value for key,value in VIEWERS.items() if isinstance(value, PyViewer)}
 
 
 def cli_main():
