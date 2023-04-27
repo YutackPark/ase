@@ -61,6 +61,9 @@ def plot(atoms, data, contours):
     # Show the 3d plot:
     mlab.show()
 
+def view_mlab(atoms, *args, **kwargs):
+    return plot(atoms, *args, **kwargs)
+
 
 description = """\
 Plot iso-surfaces from a cube-file or a wave function or an electron

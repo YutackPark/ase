@@ -14,3 +14,10 @@ class ExternalIOFormat(NamedTuple):
     ext: Optional[Union[str, List[str]]] = None
     magic: Optional[Union[bytes, List[bytes]]] = None
     magic_regex: Optional[bytes] = None
+
+class ExternalViewer(NamedTuple):
+    desc: str
+    module: Optional[str] = None
+    cli: Optional[bool] = False
+    fmt: Optional[str] = None
+    argv: Optional[List[str]] = None

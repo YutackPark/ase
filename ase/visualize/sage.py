@@ -2,7 +2,7 @@ from ase.data.colors import jmol_colors
 from ase.data import covalent_radii
 
 
-def view_sage_jmol(atoms):
+def view_sage_jmol(atoms, *args, **kwargs):
     try:
         from .sage.plot.plot3d.shapes import ColorCube, Sphere
     except Exception:  # XXX Which kind of exception exactly?
@@ -18,3 +18,5 @@ def view_sage_jmol(atoms):
         model += Sphere(radius, color=color).translate(
             *(atom.position - atoms.cell.diagonal() / 2))
     model.show(aspect_ratio=1, frame=False)
+
+view_sage = view_sage_jmol
