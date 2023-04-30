@@ -31,9 +31,6 @@ class OptimizableWrapper:
     def get_forces(self):
         return self.atoms.get_forces()
 
-    def has_curvature(self):
-        return hasattr(self.atoms, "get_curvature")
-
     def get_potential_energy(self, force_consistent):
         return self.atoms.get_potential_energy(
             force_consistent=force_consistent)
