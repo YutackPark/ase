@@ -117,12 +117,7 @@ class Dynamics(IOContext):
         """
 
         self.atoms = atoms
-        if hasattr(atoms, '__ase_optimizable__'):
-            optimizable = atoms.__ase_optimizable__()
-        else:
-            sdfjkskdfj
-            optimizable = OptimizableAtoms(atoms)
-        self.optimizable = optimizable
+        self.optimizable = atoms.__ase_optimizable__()
         self.logfile = self.openfile(logfile, mode='a', comm=world)
         self.observers = []
         self.nsteps = 0
