@@ -76,7 +76,8 @@ def write_cube(file_obj, atoms, data=None, origin=None, comment=None):
 def read_cube(file_obj, read_data=True, program=None, verbose=False):
     """Read atoms and data from CUBE file.
 
-    file_obj : str or file -- location to the cube file.
+    file_obj : str or file
+        Location to the cube file.
     read_data : boolean
         If set true, the actual cube file content, i.e. an array
         containing the electronic density (or something else )on a grid
