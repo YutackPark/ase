@@ -2210,6 +2210,34 @@ class MirrorTorque(FixConstraint):
                            'min_angle': self.min_angle, 'fmax': self.fmax}}
 
 
+
+from ase.optimize.optimize import Optimizable
+
+
+class OptimizableFilter(Optimizable):
+    def __init__(self, filterobj):
+        self.filterobj = filterobj
+
+    def get_positions(self):
+        return self.filterobj.get_positions()
+
+    def set_positions(self, positions):
+        self.filterobj.set_positions(positions)
+
+    def get_forces(self):
+        return self.filterobj.get_forces()
+
+    def get_potential_energy(self, force_consistent):
+        return self.filterobj.get_potential_energy(
+            force_consistent=force_consistent)
+
+    def __len__(self):
+        return len(self.filterobj)
+
+    def iterimages(self):
+        return self.filterobj.iterimages()
+
+
 class Filter:
     """Subset filter class."""
 
@@ -2361,6 +2389,9 @@ class Filter:
     def __getitem__(self, i):
         'Return an atom.'
         return self.atoms[self.index[i]]
+
+    def __ase_optimizable__(self):
+        return OptimizableFilter(self)
 
 
 class StrainFilter(Filter):

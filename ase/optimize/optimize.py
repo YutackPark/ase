@@ -9,8 +9,6 @@ from os.path import isfile
 import numpy as np
 
 from ase.calculators.calculator import PropertyNotImplementedError
-from ase.io.jsonio import read_json, write_json
-from ase.io.trajectory import Trajectory
 from ase.parallel import barrier, world
 from ase.utils import IOContext
 
@@ -49,6 +47,9 @@ class Optimizable(collections.abc.Sized):
     @abstractmethod
     def iterimages(self):
         ...
+
+    def __ase_optimizable__(self):
+        return self
 
 
 class OptimizableAtoms(Optimizable):
@@ -119,6 +120,7 @@ class Dynamics(IOContext):
         if hasattr(atoms, '__ase_optimizable__'):
             optimizable = atoms.__ase_optimizable__()
         else:
+            sdfjkskdfj
             optimizable = OptimizableAtoms(atoms)
         self.optimizable = optimizable
         self.logfile = self.openfile(logfile, mode='a', comm=world)
@@ -129,6 +131,7 @@ class Dynamics(IOContext):
 
         if trajectory is not None:
             if isinstance(trajectory, str):
+                from ase.io.trajectory import Trajectory
                 mode = "a" if append_trajectory else "w"
                 trajectory = self.closelater(Trajectory(
                     trajectory, mode=mode, master=master
@@ -381,11 +384,13 @@ class Optimizer(Dynamics):
             self.logfile.flush()
 
     def dump(self, data):
+        from ase.io.jsonio import write_json
         if world.rank == 0 and self.restart is not None:
             with open(self.restart, 'w') as fd:
                 write_json(fd, data)
 
     def load(self):
+        from ase.io.jsonio import read_json
         with open(self.restart) as fd:
             try:
                 return read_json(fd, always_array=False)
