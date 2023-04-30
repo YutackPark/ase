@@ -1,6 +1,7 @@
 """Structure optimization. """
 
 import collections.abc
+from abc import abstractmethod
 import time
 from math import sqrt
 from os.path import isfile
@@ -18,7 +19,39 @@ class RestartError(RuntimeError):
     pass
 
 
-class OptimizableWrapper:
+class Optimizable(collections.abc.Sized):
+    @abstractmethod
+    def get_positions(self):
+        ...
+
+    @abstractmethod
+    def set_positions(self, positions):
+        ...
+
+    @abstractmethod
+    def get_forces(self):
+        ...
+
+    @abstractmethod
+    def get_potential_energy(self, force_consistent):
+        ...
+
+    @abstractmethod
+    def iterimages(self):
+        ...
+
+    def converged(self, forces, fmax):
+        return np.linalg.norm(forces, axis=1).max() < fmax
+
+    def is_neb(self):
+        return False
+
+    @abstractmethod
+    def iterimages(self):
+        ...
+
+
+class OptimizableWrapper(Optimizable):
     def __init__(self, atoms):
         self.atoms = atoms
 
@@ -44,15 +77,9 @@ class OptimizableWrapper:
         # of this to be the number of DOFs
         return len(self.atoms)
 
-    def is_neb(self):
-        return hasattr(self.atoms, 'springconstant')
-
     def get_chemical_symbols(self):
         # XXX For Pyberny
         return self.atoms.get_chemical_symbols()
-
-    def converged(self, forces, fmax):
-        return np.linalg.norm(forces, axis=1).max() < fmax
 
 
 class Dynamics(IOContext):
