@@ -13,7 +13,7 @@ from typing import Dict, Any
 
 import numpy as np
 
-from ase.optimize.optimize import Optimizer, OptimizableWrapper
+from ase.optimize.optimize import Optimizer, OptimizableAtoms
 from ase.parallel import world
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.utils import IOContext
@@ -22,7 +22,7 @@ from ase.utils import IOContext
 norm = np.linalg.norm
 
 
-class DimerOptimizable(OptimizableWrapper):
+class DimerOptimizable(OptimizableAtoms):
     def __init__(self, dimeratoms):
         self.dimeratoms = dimeratoms
         super().__init__(dimeratoms)

@@ -51,7 +51,7 @@ class Optimizable(collections.abc.Sized):
         ...
 
 
-class OptimizableWrapper(Optimizable):
+class OptimizableAtoms(Optimizable):
     def __init__(self, atoms):
         self.atoms = atoms
 
@@ -119,7 +119,7 @@ class Dynamics(IOContext):
         if hasattr(atoms, '__ase_optimizable__'):
             optimizable = atoms.__ase_optimizable__()
         else:
-            optimizable = OptimizableWrapper(atoms)
+            optimizable = OptimizableAtoms(atoms)
         self.optimizable = optimizable
         self.logfile = self.openfile(logfile, mode='a', comm=world)
         self.observers = []
