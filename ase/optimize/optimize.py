@@ -5,6 +5,8 @@ import time
 from math import sqrt
 from os.path import isfile
 
+import numpy as np
+
 from ase.calculators.calculator import PropertyNotImplementedError
 from ase.io.jsonio import read_json, write_json
 from ase.io.trajectory import Trajectory
@@ -53,8 +55,7 @@ class OptimizableWrapper:
         return self.atoms.get_chemical_symbols()
 
     def converged(self, forces, fmax):
-        maxforce_sqr = (forces ** 2).sum(axis=1).max()
-        return maxforce_sqr < fmax ** 2
+        return np.linalg.norm(forces, axis=1).max() < fmax
 
 
 class DimerOptimizable(OptimizableWrapper):
