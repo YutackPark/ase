@@ -19,6 +19,7 @@ def atoms(asap3):
     return atoms
 
 
+@pytest.mark.optimize
 @pytest.mark.parametrize('cellfilter', [UnitCellFilter, ExpCellFilter])
 def test_pressure(atoms, cellfilter):
     xcellfilter = cellfilter(atoms, scalar_pressure=10.0 * GPa)
@@ -44,6 +45,7 @@ def test_cellfilter(atoms, cellfilter):
 
 
 # XXX This test should have some assertions!  --askhl
+@pytest.mark.optimize
 def test_unitcellfilter(asap3, testdir):
     cu = bulk('Cu') * (6, 6, 6)
     cu.calc = asap3.EMT()
@@ -56,6 +58,7 @@ def test_unitcellfilter(asap3, testdir):
     # No assertions??
 
 
+@pytest.mark.optimize
 def test_unitcellfilter_hcp(asap3, testdir):
     cu = bulk('Cu', 'hcp', a=3.6 / 2.0**0.5)
     cu.cell[1, 0] -= 0.05

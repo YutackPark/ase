@@ -9,6 +9,7 @@ from ase.optimize import QuasiNewton, BFGS
 from ase.calculators.emt import EMT
 
 
+@pytest.mark.optimize
 def test_autoneb(asap3, testdir):
     EMT = asap3.EMT
     fmax = 0.02
@@ -56,6 +57,7 @@ def test_autoneb(asap3, testdir):
     assert abs(nebtools.get_barrier()[0] - 0.937) < 1e-3
 
 
+@pytest.mark.optimize
 def test_Au2Ag(testdir):
     def attach_calculators(images):
         for i in range(len(images)):

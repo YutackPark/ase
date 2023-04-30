@@ -7,6 +7,7 @@ from ase.io import read
 from ase.units import kB
 
 
+@pytest.mark.optimize
 @pytest.mark.slow
 def test_basin(testdir):
     # Global minima from

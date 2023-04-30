@@ -1,9 +1,12 @@
-def test_fixcom():
-    from ase.calculators.emt import EMT
-    from ase.optimize import BFGS
-    from ase.constraints import FixCom
-    from ase.build import molecule
+import pytest
+from ase.calculators.emt import EMT
+from ase.optimize import BFGS
+from ase.constraints import FixCom
+from ase.build import molecule
 
+
+@pytest.mark.optimize
+def test_fixcom():
     atoms = molecule('H2O')
     atoms.center(vacuum=4)
     atoms.calc = EMT()

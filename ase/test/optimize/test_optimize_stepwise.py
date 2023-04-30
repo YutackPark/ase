@@ -21,6 +21,7 @@ def atoms(atoms0):
     return atoms
 
 
+@pytest.mark.optimize
 def test_irun_start(atoms0, atoms):
     opt = BFGS(atoms)
     irun = opt.irun(fmax=0.0)
@@ -30,6 +31,7 @@ def test_irun_start(atoms0, atoms):
     assert compare_atoms(atoms0, atoms) == ['positions']
 
 
+@pytest.mark.optimize
 def test_attach_trajectory(tmp_path, atoms0, atoms):
     # Previously one needed to specify the same atoms object to
     # both trajectory and optimizer, if trajectory was opened separately.

@@ -8,6 +8,7 @@ from ase.constraints import FixBondLength, FixAtoms
 
 
 # @pytest.mark.skip('FAILS WITH PYAMG')
+@pytest.mark.optimize
 @pytest.mark.slow
 def test_preconlbfgs():
     N = 1

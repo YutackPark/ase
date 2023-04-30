@@ -1,3 +1,4 @@
+import pytest
 from ase import Atoms
 from ase.constraints import ExternalForce, FixBondLength
 from ase.optimize import FIRE
@@ -13,6 +14,7 @@ def optimize(atoms):
         opt.run(fmax=fmax)
 
 
+@pytest.mark.optimize
 def test_external_force():
     """Tests for class ExternalForce in ase/constraints.py"""
     f_ext = 0.2

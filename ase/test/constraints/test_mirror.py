@@ -1,10 +1,13 @@
-def test_mirror():
-    from ase.build import molecule
-    from ase.constraints import MirrorForce, FixBondLength, MirrorTorque
-    from ase.constraints import ExternalForce
-    from ase.optimize import FIRE
-    from ase.calculators.emt import EMT
+import pytest
+from ase.build import molecule
+from ase.constraints import MirrorForce, FixBondLength, MirrorTorque
+from ase.constraints import ExternalForce
+from ase.optimize import FIRE
+from ase.calculators.emt import EMT
 
+
+@pytest.mark.optimize
+def test_mirror():
     atoms = molecule('cyclobutene')
     dist = atoms.get_distance(0, 1)
     con1 = MirrorForce(2, 3, max_dist=5., fmax=0.05)

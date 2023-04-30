@@ -8,6 +8,7 @@ from ase.optimize import BFGS
 from ase.build import fcc111, add_adsorbate
 
 
+@pytest.mark.optimize
 @pytest.mark.slow
 @pytest.mark.parametrize('wrap', [False, True])
 def test_CO2_Au111(wrap, testdir):

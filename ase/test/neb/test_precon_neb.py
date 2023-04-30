@@ -14,6 +14,9 @@ from ase.geometry.geometry import get_distances
 from ase.utils.forcecurve import fit_images
 
 
+pytestmark = pytest.mark.optimize
+
+
 def calc():
     return MorsePotential(A=4.0, epsilon=1.0, r0=2.55)
 

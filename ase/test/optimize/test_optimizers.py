@@ -47,6 +47,7 @@ optclasses = [
 ]
 
 
+@pytest.mark.optimize
 @pytest.mark.parametrize('optcls', optclasses)
 @pytest.mark.filterwarnings('ignore: estimate_mu')
 def test_optimize(optcls, atoms, ref_atoms, testdir):

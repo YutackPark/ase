@@ -32,6 +32,7 @@ def test_stress_voigt_shape(atoms):
         assert atoms.get_stresses(voigt=False, **kw).shape == (len(atoms), 3, 3)
 
 
+@pytest.mark.optimize
 @pytest.mark.slow
 def test_stress(atoms):
     cell0 = atoms.get_cell()

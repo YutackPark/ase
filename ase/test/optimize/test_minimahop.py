@@ -1,9 +1,11 @@
+import pytest
 from ase import Atoms, Atom
 from ase.build import fcc111
 from ase.optimize.minimahopping import MinimaHopping
 from ase.constraints import FixAtoms
 
 
+@pytest.mark.optimize
 def test_minimahop(asap3, testdir):
     # Make Pt 111 slab with Cu2 adsorbate.
     atoms = fcc111('Pt', (2, 2, 1), vacuum=7., orthogonal=True)

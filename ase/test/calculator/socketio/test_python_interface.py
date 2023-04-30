@@ -7,6 +7,7 @@ from ase.calculators.socketio import SocketIOCalculator, PySocketIOClient
 from ase.calculators.emt import EMT
 
 
+@pytest.mark.optimize
 @pytest.mark.skipif(os.name != 'posix', reason='only posix')
 def test_socketio_python():
     from ase.build import bulk

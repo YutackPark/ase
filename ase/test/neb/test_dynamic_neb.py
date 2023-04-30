@@ -8,6 +8,7 @@ from ase.dyneb import DyNEB
 from ase.optimize import BFGS
 
 
+@pytest.mark.optimize
 @pytest.mark.slow
 def test_dynamic_neb():
     # Global counter of force evaluations:

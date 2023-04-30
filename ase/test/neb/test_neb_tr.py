@@ -6,6 +6,7 @@ from ase.neb import NEB, NEBTools, idpp_interpolate
 from ase.optimize import FIRE, BFGS
 
 
+@pytest.mark.optimize
 @pytest.mark.slow
 def test_neb_tr(testdir):
     nimages = 3

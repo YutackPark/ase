@@ -1,6 +1,7 @@
 import sys
 import numpy as np
 from math import factorial
+import pytest
 from pytest import approx, fixture
 
 from ase.build import molecule
@@ -24,6 +25,7 @@ def equal(x, y, tolerance=0, fail=True, msg=''):
             sys.stderr.write('WARNING: %s\n' % msg)
 
 
+@pytest.mark.optimize
 def test_franck_condon(testdir):
     # FCOverlap
 
@@ -107,6 +109,7 @@ def vibname(testdir, relaxed):
     return name
 
 
+@pytest.mark.optimize
 def test_ch4_all(forces_a, relaxed, vibname):
     """Evaluate Franck-Condon overlaps in
     a molecule suddenly exposed to a different potential"""
@@ -126,6 +129,7 @@ def test_ch4_all(forces_a, relaxed, vibname):
     assert len(freq[0]) == 2 * ndof + 1
 
 
+@pytest.mark.optimize
 def test_ch4_minfreq(forces_a, relaxed, vibname):
     # FC factor for relevant frequencies only
     fc = FranckCondon(relaxed, vibname, minfreq=2000)
