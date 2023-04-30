@@ -32,10 +32,6 @@ class OptimizableWrapper:
     def has_curvature(self):
         return hasattr(self.atoms, "get_curvature")
 
-    def get_curvature(self):
-        # XXX only exists if we are using dimer method
-        return self.atoms.get_curvature()
-
     def get_potential_energy(self, force_consistent):
         return self.atoms.get_potential_energy(
             force_consistent=force_consistent)
@@ -51,10 +47,24 @@ class OptimizableWrapper:
 
     def is_neb(self):
         return hasattr(self.atoms, 'springconstant')
-    
+
     def get_chemical_symbols(self):
         # XXX For Pyberny
         return self.atoms.get_chemical_symbols()
+
+    def converged(self, forces, fmax):
+        maxforce_sqr = (forces ** 2).sum(axis=1).max()
+        return maxforce_sqr < fmax ** 2
+
+
+class DimerOptimizable(OptimizableWrapper):
+    def __init__(self, dimeratoms):
+        self.dimeratoms = dimeratoms
+        super().__init__(dimeratoms)
+
+    def converged(self, forces, fmax):
+        forces_converged = super().converged(forces, fmax)
+        return forces_converged and self.dimeratoms.get_curvature() < 0.0
 
 
 class Dynamics(IOContext):
@@ -91,7 +101,11 @@ class Dynamics(IOContext):
         """
 
         self.atoms = atoms
-        self.optimizable = OptimizableWrapper(atoms)
+        if hasattr(atoms, '__ase_optimizable__'):
+            optimizable = atoms.__ase_optimizable__()
+        else:
+            optimizable = OptimizableWrapper(atoms)
+        self.optimizable = optimizable
         self.logfile = self.openfile(logfile, mode='a', comm=world)
         self.observers = []
         self.nsteps = 0
@@ -319,11 +333,7 @@ class Optimizer(Dynamics):
         if forces is None:
             forces = self.optimizable.get_forces()
 
-        if self.optimizable.has_curvature():
-            return (forces ** 2).sum(
-                axis=1
-            ).max() < self.fmax ** 2 and self.optimizable.get_curvature() < 0.0
-        return (forces ** 2).sum(axis=1).max() < self.fmax ** 2
+        return self.optimizable.converged(forces, self.fmax)
 
     def log(self, forces=None):
         if forces is None:

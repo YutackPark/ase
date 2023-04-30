@@ -566,6 +566,10 @@ class MinModeAtoms:
         self.logfile = self.control.get_logfile()
         self.mlogfile = self.control.get_eigenmode_logfile()
 
+    def __ase_optimizable__(self):
+        from ase.optimize.optimize import DimerOptimizable
+        return DimerOptimizable(self)
+
     def save_original_forces(self, force_calculation=False):
         """Store the forces (and energy) of the original state."""
         # NB: Would be nice if atoms.copy() took care of this.
