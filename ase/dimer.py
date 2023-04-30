@@ -13,13 +13,23 @@ from typing import Dict, Any
 
 import numpy as np
 
-from ase.optimize.optimize import Optimizer
+from ase.optimize.optimize import Optimizer, OptimizableWrapper
 from ase.parallel import world
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.utils import IOContext
 
 # Handy vector methods
 norm = np.linalg.norm
+
+
+class DimerOptimizable(OptimizableWrapper):
+    def __init__(self, dimeratoms):
+        self.dimeratoms = dimeratoms
+        super().__init__(dimeratoms)
+
+    def converged(self, forces, fmax):
+        forces_converged = super().converged(forces, fmax)
+        return forces_converged and self.dimeratoms.get_curvature() < 0.0
 
 
 def normalize(vector):
@@ -567,7 +577,6 @@ class MinModeAtoms:
         self.mlogfile = self.control.get_eigenmode_logfile()
 
     def __ase_optimizable__(self):
-        from ase.optimize.optimize import DimerOptimizable
         return DimerOptimizable(self)
 
     def save_original_forces(self, force_calculation=False):

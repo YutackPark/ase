@@ -58,16 +58,6 @@ class OptimizableWrapper:
         return np.linalg.norm(forces, axis=1).max() < fmax
 
 
-class DimerOptimizable(OptimizableWrapper):
-    def __init__(self, dimeratoms):
-        self.dimeratoms = dimeratoms
-        super().__init__(dimeratoms)
-
-    def converged(self, forces, fmax):
-        forces_converged = super().converged(forces, fmax)
-        return forces_converged and self.dimeratoms.get_curvature() < 0.0
-
-
 class Dynamics(IOContext):
     """Base-class for all MD and structure optimization classes."""
 
