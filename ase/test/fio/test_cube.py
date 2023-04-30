@@ -128,6 +128,84 @@ def test_cube_reading():
         assert (result["atoms"].get_pbc() == (True, True, False)).all()
 
 
+file_content_multiple = """ Benzene_Opt_Freq_B3LYP_6_31G_d_p_ MO=HOMO,LUMO
+ MO coefficients
+  -12   -8.797610   -9.151024   -6.512752    2
+    3    8.063676    0.000000    0.000000
+    3    0.000000    8.063676    0.000000
+    3    0.000000    0.000000    8.063676
+    6    6.000000   -2.284858   -1.319192    0.000000
+    6    6.000000   -2.284825    1.319137    0.000000
+    6    6.000000    0.000000   -2.638272    0.000000
+    6    6.000000    2.284845   -1.319103    0.000000
+    6    6.000000   -0.000008    2.638273    0.000000
+    6    6.000000    2.284870    1.319165    0.000000
+    1    1.000000   -4.062255   -2.345299    0.000000
+    1    1.000000   -0.000025   -4.690600    0.000000
+    1    1.000000   -4.062297    2.345119    0.000000
+    1    1.000000    0.000075    4.690601    0.000000
+    1    1.000000    4.062174    2.345444    0.000000
+    1    1.000000    4.062187   -2.345312    0.000000
+    2   21   22
+ -2.74760E-12 -8.90988E-12  5.59016E-10  1.81277E-09  8.76453E-16  2.84215E-15
+ -1.43957E-07 -2.02610E-07  2.92889E-05  4.12223E-05  4.59206E-11  6.46303E-11
+ -6.71453E-10  9.41323E-10  1.36612E-07 -1.91518E-07  2.14186E-13 -3.00272E-13
+  5.12861E-08  6.37111E-08 -1.04345E-05 -1.29624E-05 -1.63597E-11 -2.03231E-11
+ -3.53200E-05 -7.80160E-05  1.33966E-02  3.06849E-02  1.12667E-08  2.48862E-08
+ -3.26637E-06  4.17535E-06  6.66354E-04 -8.51133E-04  1.04193E-09 -1.33189E-09
+  8.90476E-11  1.24804E-10 -1.81173E-08 -2.53921E-08 -2.84052E-14 -3.98110E-14
+  3.14350E-06  1.73228E-06 -6.39634E-04 -3.52493E-04 -1.00274E-09 -5.52577E-10
+  6.74853E-09 -2.18944E-08 -1.37303E-06  4.45455E-06 -2.15271E-12  6.98406E-12"""
+
+
+def test_cube_reading_multiple():
+    with tempfile.NamedTemporaryFile(mode="r+") as cubefil:
+        # Write data to a file
+        cubefil.write(file_content_multiple)
+        cubefil.seek(0)
+
+        # read data using cube reading
+        result = read_cube(cubefil)
+        npt.assert_equal(
+            result["atoms"].get_atomic_numbers(), np.array([6, 6, 6, 6, 6, 6, 1, 1, 1, 1, 1, 1])
+        )
+
+        assert isinstance(result, dict)
+
+        # check data
+        assert result["data"].shape == (3, 3, 3)
+        
+        # and datas
+        assert len(result["datas"]) == 2
+        assert result["data"].shape == result["datas"][0].shape and result["datas"][0].shape == result["datas"][1].shape
+        
+        # check labels
+        assert result["labels"] == [21,22]
+
+        # check spacing
+        assert result["spacing"].shape == (3, 3)
+        # check that values are on the diagonal (correctness of order in reading)
+        npt.assert_almost_equal(
+            result["spacing"].diagonal() / Bohr,
+            np.array([8.063676, 8.063676, 8.063676]),
+        )
+        # check that sum is only 8.063676 for every column (correctness of value)
+        npt.assert_almost_equal(
+            result["spacing"].sum(axis=0) / Bohr,
+            np.array([8.063676, 8.063676, 8.063676]),
+        )
+
+        # check origin
+        assert result["origin"].shape == (3,)
+        npt.assert_almost_equal(
+            result["origin"], np.array([-8.797610, -9.151024, -6.512752]) * Bohr
+        )
+
+        # check PBC
+        # I don't know what this does so please check...
+        assert (result["atoms"].get_pbc() == (True, True, True)).all()
+
+
 def test_reading_using_io():
     with tempfile.NamedTemporaryFile(mode="r+") as cubefil:
         # Write data to a file

@@ -115,10 +115,23 @@ def read_cube(fileobj, read_data=True, program=None, verbose=False):
     # Third line contains actual system information:
     line = readline().split()
     natoms = int(line[0])
+    
+    # natoms can be negative, which indicates we have extra data to parse after the coordinate information.
+    has_labels = natoms < 0
+    natoms = abs(natoms)
+    
+    # There is an optional last field on this line which indicates the number of values at each point.
+    # It is typically 1 (the default) in which case it can be omitted, but it may also be > 1,
+    # for example if there are multiple orbitals stored in the same cube.
+    if len(line) == 5:
+        nval = int(line[4])
+        
+    else:
+        nval = 1
 
     # Origin around which the volumetric data is centered
     # (at least in FHI aims):
-    origin = np.array([float(x) * Bohr for x in line[1::]])
+    origin = np.array([float(x) * Bohr for x in line[1:4:]])
 
     cell = np.empty((3, 3))
     shape = []
@@ -154,21 +167,53 @@ def read_cube(fileobj, read_data=True, program=None, verbose=False):
         atoms.pbc = True
 
     dct = {"atoms": atoms}
+    
+    labels = []
+    
+    # If we originally had a negative natoms, parse the extra fields now.
+    # The first field of the first line tells us how many other fields there are to parse,
+    # but we have to guess how many rows this information is split over.
+    if has_labels:
+        # Can't think of a more elegant way of doing this...
+        fields = readline().split()
+        nfields = int(fields[0])
+        labels.extend(fields[1:])
+        
+        while len(labels) < nfields:
+            fields = readline().split()
+            labels.extend(fields)
+    
+    labels = [int(x) for x in labels]
 
     if read_data:
-        data = np.array([float(s)
-                        for s in fileobj.read().split()]).reshape(shape)
-        if axes != [0, 1, 2]:
-            data = data.transpose(axes).copy()
+        # Cube files can contain more than one density,
+        # so we need to be a little bit careful about where one ends and the next begins.
+        rawvolume = [float(s) for s in fileobj.read().split()]
+        # Split each value at each point into a separate list.
+        rawvolumes = [np.array(rawvolume[offset::nval]) for offset in range(0,nval)]
+        
+        datas = []
+        
+        # Adjust each volume in turn.
+        for data in rawvolumes:
+            data = data.reshape(shape)
+            if axes != [0, 1, 2]:
+                data = data.transpose(axes).copy()
+    
+            if program == "castep":
+                # Due to the PBC applied in castep2cube, the last entry along each
+                # dimension equals the very first one.
+                data = data[:-1, :-1, :-1]
+                
+            datas.append(data)
+            
+        datas = np.array(datas)
 
-        if program == "castep":
-            # Due to the PBC applied in castep2cube, the last entry along each
-            # dimension equals the very first one.
-            data = data[:-1, :-1, :-1]
-
-        dct["data"] = data
+        dct["data"] = datas[0]
         dct["origin"] = origin
         dct["spacing"] = spacing
+        dct["labels"] = labels
+        dct["datas"] = datas
 
     return dct
 
