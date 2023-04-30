@@ -44,10 +44,6 @@ class Optimizable(collections.abc.Sized):
     def is_neb(self):
         return False
 
-    @abstractmethod
-    def iterimages(self):
-        ...
-
     def __ase_optimizable__(self):
         return self
 
