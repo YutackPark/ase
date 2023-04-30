@@ -19,12 +19,12 @@ DATA = 'data'
 
 
 def write_cube(file_obj, atoms, data=None, origin=None, comment=None):
-    """
-    Function to write a cube file.
+    """Function to write a cube file.
 
     file_obj: str or file object
         File to which output is written.
-    atoms: Atoms object specifying the atomic configuration.
+    atoms: Atoms
+        The Atoms object specifying the atomic configuration.
     data : 3-dim numpy array, optional (default = None)
         Array containing volumetric data as e.g. electronic density
     origin : 3-tuple
