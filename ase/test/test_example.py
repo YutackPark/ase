@@ -5,6 +5,7 @@ from ase.io import Trajectory
 from ase.optimize import QuasiNewton
 from ase.calculators.morse import MorsePotential
 
+
 @pytest.mark.optimize
 def test_example(testdir):
     atoms = Atoms('H7',

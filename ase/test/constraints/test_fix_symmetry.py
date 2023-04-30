@@ -14,6 +14,7 @@ spglib = pytest.importorskip('spglib')
 
 pytestmark = pytest.mark.optimize
 
+
 class NoisyLennardJones(LennardJones):
     def __init__(self, *args, rng=None, **kwargs):
         self.rng = rng

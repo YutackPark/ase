@@ -8,6 +8,8 @@ from ase.geometry import (find_mic, wrap_positions, get_distances_derivatives,
 from ase.utils.parsemath import eval_expression
 from ase.stress import (full_3x3_to_voigt_6_stress,
                         voigt_6_to_full_3x3_stress)
+from ase.optimize.optimize import Optimizable
+
 
 __all__ = [
     'FixCartesian', 'FixBondLength', 'FixedMode',
@@ -2208,10 +2210,6 @@ class MirrorTorque(FixConstraint):
                            'a3': self.indices[2], 'a4': self.indices[3],
                            'max_angle': self.max_angle,
                            'min_angle': self.min_angle, 'fmax': self.fmax}}
-
-
-
-from ase.optimize.optimize import Optimizable
 
 
 class OptimizableFilter(Optimizable):

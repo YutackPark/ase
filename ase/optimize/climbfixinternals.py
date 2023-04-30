@@ -92,7 +92,8 @@ class BFGSClimbFixInternals(BFGS):
                          trajectory=trajectory, maxstep=maxstep, master=master,
                          alpha=alpha)
 
-        self.constr2climb = get_constr2climb(self.optimizable.atoms, climb_coordinate)
+        self.constr2climb = get_constr2climb(
+            self.optimizable.atoms, climb_coordinate)
         self.targetvalue = self.targetvalue or self.constr2climb.targetvalue
 
         self.optB = optB
@@ -129,7 +130,8 @@ class BFGSClimbFixInternals(BFGS):
         self.constr2climb.adjust_positions(pos, pos + dpos)  # update sigma
         self.targetvalue += self.constr2climb.sigma          # climb constraint
         self.constr2climb.targetvalue = self.targetvalue     # adjust positions
-        self.optimizable.set_positions(self.optimizable.get_positions())   # to targetvalue
+        self.optimizable.set_positions(
+            self.optimizable.get_positions())   # to targetvalue
 
     def relax_remaining_dof(self):
         """Optimize remaining degrees of freedom with optimizer 'B'."""
@@ -169,12 +171,14 @@ class BFGSClimbFixInternals(BFGS):
     def log(self, forces=None):
         forces = forces or self.get_total_forces()
         super().log(forces=forces)
-        
+
+
 def get_fixinternals(atoms):
     """Get pointer to the FixInternals constraint on the atoms object."""
     all_constr_types = list(map(type, atoms.constraints))
     index = all_constr_types.index(FixInternals)  # locate constraint
     return atoms.constraints[index]
+
 
 def get_constr2climb(atoms, climb_coordinate):
     """Get pointer to the subconstraint that is to be climbed.

@@ -101,7 +101,6 @@ class BFGSLineSearch(Optimizer):
         if forces is None:
             forces = optimizable.get_forces()
 
-        from ase.neb import NEB
         if optimizable.is_neb():
             raise TypeError('NEB calculations cannot use the BFGSLineSearch'
                             ' optimizer. Use BFGS or another optimizer.')
