@@ -451,7 +451,8 @@ class BaseNEB:
 
         # if this is the first force call, we need to build the preconditioners
         if (self.precon is None or isinstance(self.precon, str) or
-                isinstance(self.precon, Precon)):
+                isinstance(self.precon, Precon) or
+                isinstance(self.precon, list)):
             self.precon = PreconImages(self.precon, images)
 
         # apply preconditioners to transform forces
