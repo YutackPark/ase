@@ -452,13 +452,13 @@ def write_lammps_data(
         atoms = atoms[0]
 
     if hasattr(fd, "name"):
-        fd.write("{0} (written by ASE) \n\n".format(fd.name))
+        fd.write(f"{fd.name} (written by ASE) \n\n")
     else:
         fd.write("(written by ASE) \n\n")
 
     symbols = atoms.get_chemical_symbols()
     n_atoms = len(symbols)
-    fd.write("{0} \t atoms \n".format(n_atoms))
+    fd.write(f"{n_atoms} \t atoms \n")
 
     if specorder is None:
         # This way it is assured that LAMMPS atom types are always
@@ -469,7 +469,7 @@ def write_lammps_data(
         # (indices must correspond to order in the potential file)
         species = specorder
     n_atom_types = len(species)
-    fd.write("{0}  atom types\n".format(n_atom_types))
+    fd.write(f"{n_atom_types}  atom types\n")
 
     if prismobj is None:
         p = Prism(atoms.get_cell())
@@ -480,16 +480,12 @@ def write_lammps_data(
     xhi, yhi, zhi, xy, xz, yz = convert(p.get_lammps_prism(), "distance",
                                         "ASE", units)
 
-    fd.write("0.0 {0:23.17g}  xlo xhi\n".format(xhi))
-    fd.write("0.0 {0:23.17g}  ylo yhi\n".format(yhi))
-    fd.write("0.0 {0:23.17g}  zlo zhi\n".format(zhi))
+    fd.write(f"0.0 {xhi:23.17g}  xlo xhi\n")
+    fd.write(f"0.0 {yhi:23.17g}  ylo yhi\n")
+    fd.write(f"0.0 {zhi:23.17g}  zlo zhi\n")
 
     if force_skew or p.is_skewed():
-        fd.write(
-            "{0:23.17g} {1:23.17g} {2:23.17g}  xy xz yz\n".format(
-                xy, xz, yz
-            )
-        )
+        fd.write(f"{xy:23.17g} {xz:23.17g} {yz:23.17g}  xy xz yz\n")
     fd.write("\n\n")
 
     # Write (unwrapped) atomic positions.  If wrapping of atoms back into the
