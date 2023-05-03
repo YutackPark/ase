@@ -403,9 +403,16 @@ def read_lammps_data(fileobj, Z_of_type=None, style="full",
 
 
 @writer
-def write_lammps_data(fd, atoms, specorder=None, force_skew=False,
-                      prismobj=None, velocities=False, units="metal",
-                      atom_style='atomic'):
+def write_lammps_data(
+    fd,
+    atoms: Atoms,
+    specorder: list = None,
+    force_skew: bool = False,
+    prismobj: Prism = None,
+    velocities: bool = False,
+    units: str = "metal",
+    atom_style: str = "atomic",
+):
     """Write atomic structure data to a LAMMPS data file."""
 
     # FIXME: We should add a check here that the encoding of the file object
