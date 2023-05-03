@@ -4,7 +4,6 @@ from typing import Dict, Any
 import numpy as np
 
 from ase import Atoms
-from ase.constraints import dict2constraint
 from ase.calculators.calculator import (all_properties,
                                         PropertyNotImplementedError,
                                         kptdensity2monkhorstpack)
@@ -132,6 +131,7 @@ class AtomsRow:
     @property
     def constraints(self):
         """List of constraints."""
+        from ase.constraints import dict2constraint
         if not isinstance(self._constraints, list):
             # Lazy decoding:
             cs = decode(self._constraints)
