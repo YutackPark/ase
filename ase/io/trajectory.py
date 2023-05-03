@@ -5,7 +5,6 @@ import numpy as np
 
 from ase import __version__
 from ase.calculators.singlepoint import SinglePointCalculator, all_properties
-from ase.constraints import dict2constraint
 from ase.calculators.calculator import PropertyNotImplementedError
 from ase.atoms import Atoms
 from ase.io.jsonio import encode, decode
@@ -338,6 +337,7 @@ def read_atoms(backend,
                header: Tuple = None,
                traj: TrajectoryReader = None,
                _try_except: bool = True) -> Atoms:
+    from ase.constraints import dict2constraint
 
     if _try_except:
         try:
