@@ -413,7 +413,31 @@ def write_lammps_data(
     units: str = "metal",
     atom_style: str = "atomic",
 ):
-    """Write atomic structure data to a LAMMPS data file."""
+    """Write atomic structure data to a LAMMPS data file.
+
+    Parameters
+    ----------
+    fd : file|str
+        File to which the output will be written.
+    atoms : Atoms
+        Atoms to be written.
+    specorder : list[str], optional
+        Chemical symbols in the order of LAMMPS atom types, by default None
+    force_skew : bool, optional
+        Force to write the cell as a
+        `triclinic <https://docs.lammps.org/Howto_triclinic.html>`__ box,
+        by default False
+    prismobj : Prism|None, optional
+        Prism, by default None
+    velocities : bool, optional
+        Whether the atomic velocities are written or not, by default False
+    units : str, optional
+        `LAMMPS units <https://docs.lammps.org/units.html>`__,
+        by default "metal"
+    atom_style : {"atomic", "charge", "full"}, optional
+        `LAMMPS atom style <https://docs.lammps.org/atom_style.html>`__,
+        by default "atomic"
+    """
 
     # FIXME: We should add a check here that the encoding of the file object
     #        is actually ascii once the 'encoding' attribute of IOFormat objects
