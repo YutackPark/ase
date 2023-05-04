@@ -77,3 +77,22 @@ def test_wrap():
     new_atoms = ase.io.read('POSCAR')
     atoms.wrap()
     assert np.allclose(atoms.positions, new_atoms.positions)
+
+
+def test_constraints():
+    from ase.constraints import FixAtoms, FixScaled, FixedPlane, FixedLine
+    from ase.build import graphene_nanoribbon
+    
+    atoms = graphene_nanoribbon(2, 2, type='armchair', saturated=False)
+    atoms.cell = [[10, 0, 0], [0, 10, 0], [0, 0, 10]]
+    
+    
+    atoms.set_constraint(FixAtoms(indices=[0, 2]))
+    
+    atoms.write('POSCAR', direct=True)
+    new_atoms = ase.io.read('POSCAR')
+
+    # Assert that constraints are preserved
+    assert np.all(new_atoms.constraints[0].index == [0, 2])
+    
+
