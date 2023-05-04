@@ -1,51 +1,18 @@
 """Structure optimization. """
 
 import collections.abc
-from abc import abstractmethod
 import time
 from math import sqrt
 from os.path import isfile
 
-import numpy as np
-
 from ase.calculators.calculator import PropertyNotImplementedError
 from ase.parallel import barrier, world
 from ase.utils import IOContext
+from ase.utils.abc import Optimizable
 
 
 class RestartError(RuntimeError):
     pass
-
-
-class Optimizable(collections.abc.Sized):
-    @abstractmethod
-    def get_positions(self):
-        ...
-
-    @abstractmethod
-    def set_positions(self, positions):
-        ...
-
-    @abstractmethod
-    def get_forces(self):
-        ...
-
-    @abstractmethod
-    def get_potential_energy(self, force_consistent):
-        ...
-
-    @abstractmethod
-    def iterimages(self):
-        ...
-
-    def converged(self, forces, fmax):
-        return np.linalg.norm(forces, axis=1).max() < fmax
-
-    def is_neb(self):
-        return False
-
-    def __ase_optimizable__(self):
-        return self
 
 
 class OptimizableAtoms(Optimizable):

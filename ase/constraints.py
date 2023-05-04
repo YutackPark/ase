@@ -8,7 +8,7 @@ from ase.geometry import (find_mic, wrap_positions, get_distances_derivatives,
 from ase.utils.parsemath import eval_expression
 from ase.stress import (full_3x3_to_voigt_6_stress,
                         voigt_6_to_full_3x3_stress)
-from ase.optimize.optimize import Optimizable
+from ase.utils.abc import Optimizable
 
 
 __all__ = [

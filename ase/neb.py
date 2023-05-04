@@ -14,7 +14,8 @@ from ase.build import minimize_rotation_and_translation
 from ase.calculators.calculator import Calculator
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.optimize import MDMin
-from ase.optimize.optimize import Optimizer, Optimizable
+from ase.optimize.optimize import Optimizer
+from ase.utils.abc import Optimizable
 from ase.optimize.sciopt import OptimizerConvergenceError
 from ase.geometry import find_mic
 from ase.utils import lazyproperty, deprecated
