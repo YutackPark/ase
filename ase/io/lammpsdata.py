@@ -406,6 +406,7 @@ def read_lammps_data(fileobj, Z_of_type=None, style="full",
 def write_lammps_data(
     fd,
     atoms: Atoms,
+    *,
     specorder: list = None,
     force_skew: bool = False,
     prismobj: Prism = None,
