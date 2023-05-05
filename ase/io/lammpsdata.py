@@ -409,6 +409,7 @@ def write_lammps_data(
     specorder: list = None,
     force_skew: bool = False,
     prismobj: Prism = None,
+    masses: bool = False,
     velocities: bool = False,
     units: str = "metal",
     atom_style: str = "atomic",
@@ -429,6 +430,8 @@ def write_lammps_data(
         by default False
     prismobj : Prism|None, optional
         Prism, by default None
+    masses : bool, optional
+        Whether the atomic masses are written or not, by default False
     velocities : bool, optional
         Whether the atomic velocities are written or not, by default False
     units : str, optional
@@ -487,6 +490,9 @@ def write_lammps_data(
     if force_skew or p.is_skewed():
         fd.write(f"{xy:23.17g} {xz:23.17g} {yz:23.17g}  xy xz yz\n")
     fd.write("\n\n")
+
+    if masses:
+        _write_masses(fd, atoms, species, units)
 
     # Write (unwrapped) atomic positions.  If wrapping of atoms back into the
     # cell along periodic directions is desired, this should be done manually
@@ -569,3 +575,20 @@ def write_lammps_data(
             )
 
     fd.flush()
+
+
+def _write_masses(fd, atoms: Atoms, species: list, units: str):
+    symbols = atoms.get_chemical_symbols()
+    fd.write("Masses\n\n")
+    for i, s in enumerate(species):
+        # Skip if the system does not contain the element `s`.
+        if s not in symbols:
+            continue
+        # Find the first atom of the element `s` and extract its mass
+        # Cover by `float` to make a new object for safety
+        mass = float([_ for _ in atoms if _.symbol == s][0].mass)
+        # Convert mass from ASE units to LAMMPS units
+        mass = convert(mass, "mass", "ASE", units)
+        atom_type = i + 1
+        fd.write(f"{atom_type:>6} {mass:23.17g} # {s}\n")
+    fd.write("\n")
