@@ -455,13 +455,13 @@ def write_lammps_data(
         atoms = atoms[0]
 
     if hasattr(fd, "name"):
-        fd.write(f"{fd.name} (written by ASE) \n\n")
+        fd.write(f"{fd.name} (written by ASE)\n\n")
     else:
-        fd.write("(written by ASE) \n\n")
+        fd.write("(written by ASE)\n\n")
 
     symbols = atoms.get_chemical_symbols()
     n_atoms = len(symbols)
-    fd.write(f"{n_atoms} \t atoms \n")
+    fd.write(f"{n_atoms} atoms\n")
 
     if specorder is None:
         # This way it is assured that LAMMPS atom types are always
@@ -472,7 +472,7 @@ def write_lammps_data(
         # (indices must correspond to order in the potential file)
         species = specorder
     n_atom_types = len(species)
-    fd.write(f"{n_atom_types}  atom types\n")
+    fd.write(f"{n_atom_types} atom types\n\n")
 
     if prismobj is None:
         p = Prism(atoms.get_cell())
@@ -489,7 +489,7 @@ def write_lammps_data(
 
     if force_skew or p.is_skewed():
         fd.write(f"{xy:23.17g} {xz:23.17g} {yz:23.17g}  xy xz yz\n")
-    fd.write("\n\n")
+    fd.write("\n")
 
     if masses:
         _write_masses(fd, atoms, species, units)
@@ -497,7 +497,7 @@ def write_lammps_data(
     # Write (unwrapped) atomic positions.  If wrapping of atoms back into the
     # cell along periodic directions is desired, this should be done manually
     # on the Atoms object itself beforehand.
-    fd.write("Atoms \n\n")
+    fd.write("Atoms\n\n")
     pos = p.vector_to_lammps(atoms.get_positions(), wrap=False)
 
     if atom_style == 'atomic':
@@ -563,7 +563,7 @@ def write_lammps_data(
         raise NotImplementedError
 
     if velocities and atoms.get_velocities() is not None:
-        fd.write("\n\nVelocities \n\n")
+        fd.write("\n\nVelocities\n\n")
         vel = p.vector_to_lammps(atoms.get_velocities())
         for i, v in enumerate(vel):
             # Convert velocity from ASE units to LAMMPS units
