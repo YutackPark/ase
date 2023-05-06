@@ -498,7 +498,7 @@ def write_lammps_data(
     # Write (unwrapped) atomic positions.  If wrapping of atoms back into the
     # cell along periodic directions is desired, this should be done manually
     # on the Atoms object itself beforehand.
-    fd.write("Atoms\n\n")
+    fd.write(f"Atoms # {atom_style}\n\n")
     pos = p.vector_to_lammps(atoms.get_positions(), wrap=False)
 
     if atom_style == 'atomic':
