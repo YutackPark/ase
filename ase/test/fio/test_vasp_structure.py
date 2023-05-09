@@ -86,13 +86,50 @@ def test_constraints():
     atoms = graphene_nanoribbon(2, 2, type='armchair', saturated=False)
     atoms.cell = [[10, 0, 0], [0, 10, 0], [0, 0, 10]]
     
+    indices_to_constrain = [0, 2]
     
-    atoms.set_constraint(FixAtoms(indices=[0, 2]))
+    atoms.set_constraint(FixAtoms(indices=indices_to_constrain))
     
     atoms.write('POSCAR', direct=True)
     new_atoms = ase.io.read('POSCAR')
 
     # Assert that constraints are preserved
-    assert np.all(new_atoms.constraints[0].index == [0, 2])
+    assert isinstance(new_atoms.constraints[0], FixAtoms)
+    assert np.all(new_atoms.constraints[0].index == indices_to_constrain)
+    
+    # FixedLine
+    atoms.set_constraint()
+    atoms.set_constraint(FixedLine(indices=indices_to_constrain, direction=[1, 0, 0]))
+    atoms.write('POSCAR', direct=True)
+    new_atoms = ase.io.read('POSCAR')
+
+    # Assert that constraints are preserved
+    # FixedLine is converted to FixScaled. During a relaxation the
+    # results will be the same since they are equivalent if the
+    # direction is along a lattice vector in FixedLine
+
+    constrained_indices = []
+    for con in new_atoms.constraints:
+        constrained_indices.extend(con.index)
+    assert np.all(constrained_indices == indices_to_constrain)
+
+    # FixScaled
+    atoms.set_constraint()
+    atoms.set_constraint(FixScaled(indices_to_constrain, mask=[0, 1, 1]))
+    atoms.write('POSCAR', direct=True)
+    new_atoms = ase.io.read('POSCAR')
+    
+    # Assert that constraints are preserved
+    
+    constrained_indices = []
+    for con in new_atoms.constraints:
+        constrained_indices.extend(con.index)
+    assert np.all(constrained_indices == indices_to_constrain)
+    assert np.all(new_atoms.constraints[0].mask == [0, 1, 1])
+    
+    # FixedPlane
+    atoms.set_constraint()
+        
+    
     
 
