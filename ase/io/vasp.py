@@ -776,7 +776,7 @@ def write_vasp(filename,
                     raise RuntimeError(
                         'VASP requires that the direction of FixedPlane '
                         'constraints is parallel with one of the cell axis')
-                sflags[constr.a] = mask
+                sflags[constr.index] = mask
             elif isinstance(constr, FixedLine):
                 mask = np.all(np.abs(np.cross(constr.dir, atoms.cell)) < 1e-5,
                               axis=1)
