@@ -455,10 +455,7 @@ def write_lammps_data(
             )
         atoms = atoms[0]
 
-    if hasattr(fd, "name"):
-        fd.write(f"{fd.name} (written by ASE)\n\n")
-    else:
-        fd.write("(written by ASE)\n\n")
+    fd.write("(written by ASE)\n\n")
 
     symbols = atoms.get_chemical_symbols()
     n_atoms = len(symbols)
