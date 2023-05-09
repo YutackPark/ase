@@ -9,26 +9,8 @@ from ase.data import atomic_numbers
 from ase.io.lammpsdata import read_lammps_data, write_lammps_data
 
 
-@pytest.mark.parametrize("cubic", [False, True])
 @pytest.mark.parametrize("masses", [False, True])
-class TestWriteAndRead:
-    """Test write and read."""
-
-    def test_fcc(self, cubic: bool, masses: bool):
-        """Test fcc."""
-        atoms_ref = bulk("Cu", "fcc", a=1.0, cubic=cubic)
-        self._run(atoms_ref, masses)
-
-    def test_rocksalt(self, cubic: bool, masses: bool):
-        """Test rocksalt."""
-        atoms_ref = bulk("NaCl", "rocksalt", a=1.0, cubic=cubic)
-        self._run(atoms_ref, masses)
-
-    def test_fluorite(self, cubic: bool, masses: bool):
-        """Test fluorite."""
-        atoms_ref = bulk("CaF2", "fluorite", a=1.0, cubic=cubic)
-        self._run(atoms_ref, masses)
-
+class _Base:
     def _run(self, atoms_ref: Atoms, masses: bool):
         buf = io.StringIO()
         write_lammps_data(buf, atoms_ref, masses=masses)
@@ -46,3 +28,38 @@ class TestWriteAndRead:
         func = np.testing.assert_allclose
         func(atoms.get_masses(), atoms_ref.get_masses())
         func(atoms.get_scaled_positions(), atoms_ref.get_scaled_positions())
+
+
+@pytest.mark.parametrize("cubic", [False, True])
+class TestCubic(_Base):
+    """Test cubic structures."""
+
+    def test_bcc(self, cubic: bool, masses: bool):
+        """Test bcc."""
+        atoms_ref = bulk("Li", "bcc", cubic=cubic)
+        self._run(atoms_ref, masses)
+
+    def test_fcc(self, cubic: bool, masses: bool):
+        """Test fcc."""
+        atoms_ref = bulk("Cu", "fcc", cubic=cubic)
+        self._run(atoms_ref, masses)
+
+    def test_rocksalt(self, cubic: bool, masses: bool):
+        """Test rocksalt."""
+        atoms_ref = bulk("NaCl", "rocksalt", a=1.0, cubic=cubic)
+        self._run(atoms_ref, masses)
+
+    def test_fluorite(self, cubic: bool, masses: bool):
+        """Test fluorite."""
+        atoms_ref = bulk("CaF2", "fluorite", a=1.0, cubic=cubic)
+        self._run(atoms_ref, masses)
+
+
+@pytest.mark.parametrize("orthorhombic", [False, True])
+class TestOrthorhombic(_Base):
+    """Test orthorhombic structures."""
+
+    def test_hcp(self, masses: bool, orthorhombic: bool):
+        """Test hcp."""
+        atoms_ref = bulk("Mg", "hcp", orthorhombic=orthorhombic)
+        self._run(atoms_ref, masses)
