@@ -579,15 +579,15 @@ def write_lammps_data(
 
 
 def _write_masses(fd, atoms: Atoms, species: list, units: str):
-    symbols = atoms.get_chemical_symbols()
+    symbols_indices = atoms.symbols.indices()
     fd.write("Masses\n\n")
     for i, s in enumerate(species):
         # Skip if the system does not contain the element `s`.
-        if s not in symbols:
+        if s not in symbols_indices:
             continue
         # Find the first atom of the element `s` and extract its mass
         # Cover by `float` to make a new object for safety
-        mass = float([_ for _ in atoms if _.symbol == s][0].mass)
+        mass = float(atoms[symbols_indices[s][0]].mass)
         # Convert mass from ASE units to LAMMPS units
         mass = convert(mass, "mass", "ASE", units)
         atom_type = i + 1
