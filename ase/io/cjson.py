@@ -18,7 +18,7 @@ def contract(dictionary):
 
 
 def read_cjson(fileobj):
-    """Read a Chemical Json file as written by avogadro2
+    """Read a Chemical Json file as written by avogadro2 (>=1.93.0)
 
     See https://wiki.openchemistry.org/Chemical_JSON
     """
