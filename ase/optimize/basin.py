@@ -67,10 +67,11 @@ class BasinHopping(Dynamics):
         return d
 
     def initialize(self):
-        self.positions = 0.0 * self.atoms.get_positions()
-        self.Emin = self.get_energy(self.atoms.get_positions()) or 1.e32
-        self.rmin = self.atoms.get_positions()
-        self.positions = self.atoms.get_positions()
+        positions = self.optimizable.get_positions()
+        self.positions = np.zeros_like(positions)
+        self.Emin = self.get_energy(positions) or 1.e32
+        self.rmin = self.optimizable.get_positions()
+        self.positions = self.optimizable.get_positions()
         self.call_observers()
         self.log(-1, self.Emin, self.Emin)
 
@@ -89,7 +90,7 @@ class BasinHopping(Dynamics):
             if En < self.Emin:
                 # new minimum found
                 self.Emin = En
-                self.rmin = self.atoms.get_positions()
+                self.rmin = self.optimizable.get_positions()
                 self.call_observers()
             self.log(step, En, self.Emin)
 
@@ -106,9 +107,17 @@ class BasinHopping(Dynamics):
                            % (name, step, En, Emin))
         self.logfile.flush()
 
+    def _atoms(self):
+        from ase.optimize.optimize import OptimizableAtoms
+        assert isinstance(self.optimizable, OptimizableAtoms)
+        # Some parts of the basin code cannot work on Filter objects.
+        # They evidently need an actual Atoms object - at least until
+        # someone changes the code so it doesn't need that.
+        return self.optimizable.atoms
+
     def move(self, ro):
         """Move atoms by a random step."""
-        atoms = self.atoms
+        atoms = self._atoms()
         # displace coordinates
         disp = np.random.uniform(-1., 1., (len(atoms), 3))
         rn = ro + self.dr * disp
@@ -123,7 +132,7 @@ class BasinHopping(Dynamics):
 
     def get_minimum(self):
         """Return minimal energy and configuration."""
-        atoms = self.atoms.copy()
+        atoms = self._atoms().copy()
         atoms.set_positions(self.rmin)
         return self.Emin, atoms
 
@@ -131,14 +140,17 @@ class BasinHopping(Dynamics):
         """Return the energy of the nearest local minimum."""
         if np.sometrue(self.positions != positions):
             self.positions = positions
-            self.atoms.set_positions(positions)
+            self.optimizable.set_positions(positions)
 
-            with self.optimizer(self.atoms,
+            with self.optimizer(self.optimizable,
                                 logfile=self.optimizer_logfile) as opt:
                 opt.run(fmax=self.fmax)
             if self.lm_trajectory is not None:
-                self.lm_trajectory.write(self.atoms)
+                self.lm_trajectory.write(self.optimizable)
 
-            self.energy = self.atoms.get_potential_energy()
+            # XXX This forgets about force_consistent!
+            # Now we set the variable to False explicitly because the
+            # Optimizable interface requires this choice.
+            self.energy = self.optimizable.get_potential_energy(False)
 
         return self.energy
