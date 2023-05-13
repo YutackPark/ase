@@ -1000,10 +1000,11 @@ class MinModeAtoms:
 class MinModeTranslate(Optimizer):
     """An Optimizer specifically tailored to minimum mode following."""
 
-    def __init__(self, atoms, logfile='-', trajectory=None):
-        Optimizer.__init__(self, atoms, None, logfile, trajectory)
+    def __init__(self, dimeratoms, logfile='-', trajectory=None):
+        Optimizer.__init__(self, dimeratoms, None, logfile, trajectory)
 
-        self.control = atoms.get_control()
+        self.control = dimeratoms.get_control()
+        self.dimeratoms = dimeratoms
 
         # Make a header for the log
         if self.logfile is not None:
@@ -1030,7 +1031,7 @@ class MinModeTranslate(Optimizer):
 
     def step(self, f=None):
         """Perform the optimization step."""
-        atoms = self.atoms
+        atoms = self.dimeratoms
         if f is None:
             f = atoms.get_forces()
         r = atoms.get_positions()
@@ -1045,7 +1046,7 @@ class MinModeTranslate(Optimizer):
             step = direction * self.max_step
         else:
             r0t = r0 + direction * self.trial_step
-            f0tp = self.atoms.get_projected_forces(r0t)
+            f0tp = self.dimeratoms.get_projected_forces(r0t)
             F = np.vdot((f0tp + f0p), direction) / 2.0
             C = np.vdot((f0tp - f0p), direction) / self.trial_step
             step = (-F / C + self.trial_step / 2.0) * direction
@@ -1080,13 +1081,13 @@ class MinModeTranslate(Optimizer):
     def log(self, f=None, stepsize=None):
         """Log each step of the optimization."""
         if f is None:
-            f = self.atoms.get_forces()
+            f = self.dimeratoms.get_forces()
         if self.logfile is not None:
             T = time.localtime()
-            e = self.atoms.get_potential_energy()
+            e = self.dimeratoms.get_potential_energy()
             fmax = sqrt((f**2).sum(axis=1).max())
-            rotsteps = self.atoms.control.get_counter('rotcount')
-            curvature = self.atoms.get_curvature()
+            rotsteps = self.dimeratoms.control.get_counter('rotcount')
+            curvature = self.dimeratoms.get_curvature()
             l = ''
             if stepsize:
                 if isinstance(self.control, DimerControl):
