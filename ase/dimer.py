@@ -92,17 +92,17 @@ class DimerEigenmodeSearch:
 
     """
 
-    def __init__(self, atoms, control=None, eigenmode=None, basis=None,
+    def __init__(self, dimeratoms, control=None, eigenmode=None, basis=None,
                  **kwargs):
-        if hasattr(atoms, 'get_eigenmode'):
-            self.atoms = atoms
+        if hasattr(dimeratoms, 'get_eigenmode'):
+            self.dimeratoms = dimeratoms
         else:
             e = 'The atoms object must be a MinModeAtoms object'
             raise TypeError(e)
         self.basis = basis
 
         if eigenmode is None:
-            self.eigenmode = self.atoms.get_eigenmode()
+            self.eigenmode = self.dimeratoms.get_eigenmode()
         else:
             self.eigenmode = eigenmode
 
@@ -234,8 +234,10 @@ class DimerEigenmodeSearch:
         rot_force = perpendicular_vector((self.forces1 - self.forces2),
                                          self.eigenmode) / (2.0 * self.dR)
         if self.basis is not None:
-            if len(self.basis) == len(self.atoms) and len(self.basis[0]) == \
-               3 and isinstance(self.basis[0][0], float):
+            if (
+                    len(self.basis) == len(self.dimeratoms)
+                    and len(self.basis[0]) == 3
+                    and isinstance(self.basis[0][0], float)):
                 rot_force = perpendicular_vector(rot_force, self.basis)
             else:
                 for base in self.basis:
@@ -270,9 +272,9 @@ class DimerEigenmodeSearch:
 
     def update_center_forces(self):
         """Get the forces at the center of the dimer."""
-        self.atoms.set_positions(self.pos0)
-        self.forces0 = self.atoms.get_forces(real=True)
-        self.energy0 = self.atoms.get_potential_energy()
+        self.dimeratoms.set_positions(self.pos0)
+        self.forces0 = self.dimeratoms.get_forces(real=True)
+        self.energy0 = self.dimeratoms.get_potential_energy()
 
     def update_virtual_forces(self, extrapolated_forces=False):
         """Get the forces at the endpoints of the dimer."""
@@ -282,13 +284,13 @@ class DimerEigenmodeSearch:
         if extrapolated_forces:
             self.forces1 = self.forces1E.copy()
         else:
-            self.forces1 = self.atoms.get_forces(real=True, pos=self.pos1)
+            self.forces1 = self.dimeratoms.get_forces(real=True, pos=self.pos1)
 
         # Estimate / Calculate the forces at pos2
         if self.control.get_parameter('use_central_forces'):
             self.forces2 = 2 * self.forces0 - self.forces1
         else:
-            self.forces2 = self.atoms.get_forces(real=True, pos=self.pos2)
+            self.forces2 = self.dimeratoms.get_forces(real=True, pos=self.pos2)
 
     def update_virtual_positions(self):
         """Update the end point positions."""
@@ -297,7 +299,7 @@ class DimerEigenmodeSearch:
 
     def set_up_for_eigenmode_search(self):
         """Before eigenmode search, prepare for rotation."""
-        self.pos0 = self.atoms.get_positions()
+        self.pos0 = self.dimeratoms.get_positions()
         self.update_center_forces()
         self.update_virtual_positions()
         self.control.reset_counter('rotcount')
@@ -305,7 +307,7 @@ class DimerEigenmodeSearch:
 
     def set_up_for_optimization_step(self):
         """At the end of rotation, prepare for displacement of the dimer."""
-        self.atoms.set_positions(self.pos0)
+        self.dimeratoms.set_positions(self.pos0)
         self.forces1E = None
 
 
