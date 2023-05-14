@@ -187,6 +187,7 @@ class ODE12r(SciPyOptimizer):
         SciPyOptimizer.__init__(self, atoms, logfile, trajectory,
                                 callback_always, alpha, master,
                                 force_consistent)
+        self.atoms = atoms
         from ase.optimize.precon.precon import make_precon  # avoid circular dep
         self.precon = make_precon(precon)
         self.verbose = verbose
