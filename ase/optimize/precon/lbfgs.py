@@ -125,6 +125,8 @@ class PreconLBFGS(Optimizer):
             atoms = UnitCellFilter(atoms)
         Optimizer.__init__(self, atoms, restart, logfile, trajectory, master)
 
+        self.atoms = atoms
+
         # default preconditioner
         #   TODO: introduce a heuristic for different choices of preconditioners
         if precon == 'auto':

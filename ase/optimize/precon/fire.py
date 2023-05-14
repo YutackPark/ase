@@ -45,6 +45,8 @@ class PreconFIRE(Optimizer):
             atoms = UnitCellFilter(atoms)
         Optimizer.__init__(self, atoms, restart, logfile, trajectory, master)
 
+        self.atoms = atoms
+
         self.dt = dt
         self.Nsteps = 0
         self.maxmove = maxmove
