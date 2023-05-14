@@ -413,16 +413,3 @@ As           1.8043384632       1.0417352974      11.3518747709
 As          -0.0000000002       2.0834705948       9.9596183135""")
     atoms = ase.io.read('pbc-test.xyz')
     assert (atoms.pbc == atoms_pbc).all()
-
-
-@pytest.mark.parametrize("pbc", ("False True f", "f f f", "a b c", "ase"))
-def test_pbc_property_raises(pbc):
-    """Test that an incorrect specification of the ``pbc`` property raises."""
-    Path('pbc-test.xyz').write_text(f"""2
-Lattice="3.608 0.0 0.0 -1.804 3.125 0.0 0.0 0.0 21.3114930844" pbc="{pbc}"
-As           1.8043384632       1.0417352974      11.3518747709
-As          -0.0000000002       2.0834705948       9.9596183135""")
-    with pytest.raises(ValueError) as error:
-        ase.io.read('pbc-test.xyz')
-
-    assert "Found incorrect boolean formatting" in str(error.value)

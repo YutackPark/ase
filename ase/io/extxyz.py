@@ -163,18 +163,13 @@ def key_val_str_to_dict(string, sep=None):
                         value = boolvalue[0]
                     else:
                         value = boolvalue
-                except KeyError as exception:
+                except KeyError:
                     # Try to parse JSON
                     if value.startswith("_JSON "):
                         d = json.loads(value.replace("_JSON ", "", 1))
                         value = np.array(d)
                         if value.dtype.kind not in ['i', 'f', 'b']:
                             value = d
-                    else:
-                        raise ValueError(
-                            f'Found incorrect boolean formatting for {key} '
-                            'property: {ValueError}'
-                        ) from exception
 
         kv_dict[key] = value
 
