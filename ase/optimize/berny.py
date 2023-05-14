@@ -49,7 +49,9 @@ class Berny(Optimizer):
 
         self._restart_data = None  # Optimizer.__init__() may overwrite
         Optimizer.__init__(self, atoms, restart, logfile, trajectory, master)
-        geom = Geometry(self.optimizable.get_chemical_symbols(),
+
+        # Only works with actual Atoms objects since it needs chemical symbols
+        geom = Geometry(self.optimizable.atoms.get_chemical_symbols(),
                         self.optimizable.get_positions())
         self._berny = _Berny(
             geom,
