@@ -181,6 +181,8 @@ class ContourExploration(Dynamics):
                           append_trajectory=append_trajectory,
                           )
 
+        self.atoms = atoms
+
         # we need velocities or NaNs will be produced,
         # if none are provided we make random ones
         velocities = self.atoms.get_velocities()
