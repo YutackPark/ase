@@ -403,10 +403,45 @@ def read_lammps_data(fileobj, Z_of_type=None, style="full",
 
 
 @writer
-def write_lammps_data(fd, atoms, specorder=None, force_skew=False,
-                      prismobj=None, velocities=False, units="metal",
-                      atom_style='atomic'):
-    """Write atomic structure data to a LAMMPS data file."""
+def write_lammps_data(
+    fd,
+    atoms: Atoms,
+    *,
+    specorder: list = None,
+    force_skew: bool = False,
+    prismobj: Prism = None,
+    masses: bool = False,
+    velocities: bool = False,
+    units: str = "metal",
+    atom_style: str = "atomic",
+):
+    """Write atomic structure data to a LAMMPS data file.
+
+    Parameters
+    ----------
+    fd : file|str
+        File to which the output will be written.
+    atoms : Atoms
+        Atoms to be written.
+    specorder : list[str], optional
+        Chemical symbols in the order of LAMMPS atom types, by default None
+    force_skew : bool, optional
+        Force to write the cell as a
+        `triclinic <https://docs.lammps.org/Howto_triclinic.html>`__ box,
+        by default False
+    prismobj : Prism|None, optional
+        Prism, by default None
+    masses : bool, optional
+        Whether the atomic masses are written or not, by default False
+    velocities : bool, optional
+        Whether the atomic velocities are written or not, by default False
+    units : str, optional
+        `LAMMPS units <https://docs.lammps.org/units.html>`__,
+        by default "metal"
+    atom_style : {"atomic", "charge", "full"}, optional
+        `LAMMPS atom style <https://docs.lammps.org/atom_style.html>`__,
+        by default "atomic"
+    """
 
     # FIXME: We should add a check here that the encoding of the file object
     #        is actually ascii once the 'encoding' attribute of IOFormat objects
@@ -420,14 +455,11 @@ def write_lammps_data(fd, atoms, specorder=None, force_skew=False,
             )
         atoms = atoms[0]
 
-    if hasattr(fd, "name"):
-        fd.write("{0} (written by ASE) \n\n".format(fd.name))
-    else:
-        fd.write("(written by ASE) \n\n")
+    fd.write("(written by ASE)\n\n")
 
     symbols = atoms.get_chemical_symbols()
     n_atoms = len(symbols)
-    fd.write("{0} \t atoms \n".format(n_atoms))
+    fd.write(f"{n_atoms} atoms\n")
 
     if specorder is None:
         # This way it is assured that LAMMPS atom types are always
@@ -438,7 +470,7 @@ def write_lammps_data(fd, atoms, specorder=None, force_skew=False,
         # (indices must correspond to order in the potential file)
         species = specorder
     n_atom_types = len(species)
-    fd.write("{0}  atom types\n".format(n_atom_types))
+    fd.write(f"{n_atom_types} atom types\n\n")
 
     if prismobj is None:
         p = Prism(atoms.get_cell())
@@ -449,22 +481,21 @@ def write_lammps_data(fd, atoms, specorder=None, force_skew=False,
     xhi, yhi, zhi, xy, xz, yz = convert(p.get_lammps_prism(), "distance",
                                         "ASE", units)
 
-    fd.write("0.0 {0:23.17g}  xlo xhi\n".format(xhi))
-    fd.write("0.0 {0:23.17g}  ylo yhi\n".format(yhi))
-    fd.write("0.0 {0:23.17g}  zlo zhi\n".format(zhi))
+    fd.write(f"0.0 {xhi:23.17g}  xlo xhi\n")
+    fd.write(f"0.0 {yhi:23.17g}  ylo yhi\n")
+    fd.write(f"0.0 {zhi:23.17g}  zlo zhi\n")
 
     if force_skew or p.is_skewed():
-        fd.write(
-            "{0:23.17g} {1:23.17g} {2:23.17g}  xy xz yz\n".format(
-                xy, xz, yz
-            )
-        )
-    fd.write("\n\n")
+        fd.write(f"{xy:23.17g} {xz:23.17g} {yz:23.17g}  xy xz yz\n")
+    fd.write("\n")
+
+    if masses:
+        _write_masses(fd, atoms, species, units)
 
     # Write (unwrapped) atomic positions.  If wrapping of atoms back into the
     # cell along periodic directions is desired, this should be done manually
     # on the Atoms object itself beforehand.
-    fd.write("Atoms \n\n")
+    fd.write(f"Atoms # {atom_style}\n\n")
     pos = p.vector_to_lammps(atoms.get_positions(), wrap=False)
 
     if atom_style == 'atomic':
@@ -530,7 +561,7 @@ def write_lammps_data(fd, atoms, specorder=None, force_skew=False,
         raise NotImplementedError
 
     if velocities and atoms.get_velocities() is not None:
-        fd.write("\n\nVelocities \n\n")
+        fd.write("\n\nVelocities\n\n")
         vel = p.vector_to_lammps(atoms.get_velocities())
         for i, v in enumerate(vel):
             # Convert velocity from ASE units to LAMMPS units
@@ -542,3 +573,20 @@ def write_lammps_data(fd, atoms, specorder=None, force_skew=False,
             )
 
     fd.flush()
+
+
+def _write_masses(fd, atoms: Atoms, species: list, units: str):
+    symbols_indices = atoms.symbols.indices()
+    fd.write("Masses\n\n")
+    for i, s in enumerate(species):
+        # Skip if the system does not contain the element `s`.
+        if s not in symbols_indices:
+            continue
+        # Find the first atom of the element `s` and extract its mass
+        # Cover by `float` to make a new object for safety
+        mass = float(atoms[symbols_indices[s][0]].mass)
+        # Convert mass from ASE units to LAMMPS units
+        mass = convert(mass, "mass", "ASE", units)
+        atom_type = i + 1
+        fd.write(f"{atom_type:>6} {mass:23.17g} # {s}\n")
+    fd.write("\n")
