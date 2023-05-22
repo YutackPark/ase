@@ -365,7 +365,7 @@ F('castep-phonon', 'CASTEP phonon file', '1F',
 F('cfg', 'AtomEye configuration', '1F')
 F('cif', 'CIF-file', '+B', ext='cif')
 F('cmdft', 'CMDFT-file', '1F', glob='*I_info')
-F('cml', 'Chemical json file', '1F', ext='cml')
+F('cjson', 'Chemical json file', '1F', ext='cjson')
 F('cp2k-dcd', 'CP2K DCD file', '+B',
   module='cp2k', ext='dcd')
 F('cp2k-restart', 'CP2K restart file', '1F',
