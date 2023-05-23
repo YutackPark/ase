@@ -140,7 +140,10 @@ calculators:
   script:
     - pip install --no-deps --editable .
     - ase info --calculators
-    - ase test calculator --calculators abinit,asap,cp2k,dftb,espresso,gpaw,kim,lammpslib,lammpsrun,mopac,nwchem,octopus,siesta --coverage --pytest --color=yes --durations 20
+    - >
+      ase test calculator --calculators abinit,asap,cp2k,dftb,espresso,gpaw,kim,lammpslib,lammpsrun,mopac,nwchem,octopus,siesta
+      --coverage --pytest --color=yes --durations 20
+      -W "ignore:The --rsyncdir command line argument"
     - mv ase/test/coverage-html coverage-calculators
     - mv ase/test/.coverage coverage-calculators/coverage.dat
   when: manual
