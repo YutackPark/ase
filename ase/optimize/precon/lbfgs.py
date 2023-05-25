@@ -125,7 +125,7 @@ class PreconLBFGS(Optimizer):
             atoms = UnitCellFilter(atoms)
         Optimizer.__init__(self, atoms, restart, logfile, trajectory, master)
 
-        self.atoms = atoms
+        self._actual_atoms = atoms
 
         # default preconditioner
         #   TODO: introduce a heuristic for different choices of preconditioners
@@ -202,10 +202,10 @@ class PreconLBFGS(Optimizer):
 
         Use the given forces, update the history and calculate the next step --
         then take it"""
-        r = self.atoms.get_positions()
+        r = self._actual_atoms.get_positions()
 
         if f is None:
-            f = self.atoms.get_forces()
+            f = self._actual_atoms.get_forces()
 
         previously_reset_hessian = self._just_reset_hessian
         self.update(r, f, self.r0, self.f0)
@@ -230,7 +230,7 @@ class PreconLBFGS(Optimizer):
             else:
                 z = H0 * q
         else:
-            self.precon.make_precon(self.atoms)
+            self.precon.make_precon(self._actual_atoms)
             z = self.precon.solve(q)
 
         for i in range(loopmax):
@@ -246,10 +246,10 @@ class PreconLBFGS(Optimizer):
         else:
             e = self.func(r)
         self.line_search(r, g, e, previously_reset_hessian)
-        dr = (self.alpha_k * self.p).reshape(len(self.atoms), -1)
+        dr = (self.alpha_k * self.p).reshape(len(self._actual_atoms), -1)
 
         if self.alpha_k != 0.0:
-            self.atoms.set_positions(r + dr)
+            self._actual_atoms.set_positions(r + dr)
 
         self.iteration += 1
         self.r0 = r
@@ -300,21 +300,21 @@ class PreconLBFGS(Optimizer):
 
     def func(self, x):
         """Objective function for use of the optimizers"""
-        self.atoms.set_positions(x.reshape(-1, 3))
-        potl = self.atoms.get_potential_energy()
+        self._actual_atoms.set_positions(x.reshape(-1, 3))
+        potl = self._actual_atoms.get_potential_energy()
         return potl
 
     def fprime(self, x):
         """Gradient of the objective function for use of the optimizers"""
-        self.atoms.set_positions(x.reshape(-1, 3))
+        self._actual_atoms.set_positions(x.reshape(-1, 3))
         # Remember that forces are minus the gradient!
-        return -self.atoms.get_forces().reshape(-1)
+        return -self._actual_atoms.get_forces().reshape(-1)
 
     def line_search(self, r, g, e, previously_reset_hessian):
         self.p = self.p.ravel()
         p_size = np.sqrt((self.p ** 2).sum())
-        if p_size <= np.sqrt(len(self.atoms) * 1e-10):
-            self.p /= (p_size / np.sqrt(len(self.atoms) * 1e-10))
+        if p_size <= np.sqrt(len(self._actual_atoms) * 1e-10):
+            self.p /= (p_size / np.sqrt(len(self._actual_atoms) * 1e-10))
         g = g.ravel()
         r = r.ravel()
 
@@ -368,10 +368,10 @@ class PreconLBFGS(Optimizer):
 
     def log(self, forces=None):
         if forces is None:
-            forces = self.atoms.get_forces()
-        if isinstance(self.atoms, UnitCellFilter):
-            natoms = len(self.atoms.atoms)
-            forces, stress = forces[:natoms], self.atoms.stress
+            forces = self._actual_atoms.get_forces()
+        if isinstance(self._actual_atoms, UnitCellFilter):
+            natoms = len(self._actual_atoms.atoms)
+            forces, stress = forces[:natoms], self._actual_atoms.stress
             fmax = sqrt((forces**2).sum(axis=1).max())
             smax = sqrt((stress**2).max())
         else:
@@ -380,11 +380,11 @@ class PreconLBFGS(Optimizer):
             # reuse energy at end of line search to avoid extra call
             e = self.e1
         else:
-            e = self.atoms.get_potential_energy()
+            e = self._actual_atoms.get_potential_energy()
         T = time.localtime()
         if self.logfile is not None:
             name = self.__class__.__name__
-            if isinstance(self.atoms, UnitCellFilter):
+            if isinstance(self._actual_atoms, UnitCellFilter):
                 self.logfile.write(
                     '%s: %3d  %02d:%02d:%02d %15.6f %12.4f %12.4f\n' %
                     (name, self.nsteps, T[3], T[4], T[5], e, fmax, smax))
@@ -398,10 +398,10 @@ class PreconLBFGS(Optimizer):
     def converged(self, forces=None):
         """Did the optimization converge?"""
         if forces is None:
-            forces = self.atoms.get_forces()
-        if isinstance(self.atoms, UnitCellFilter):
-            natoms = len(self.atoms.atoms)
-            forces, stress = forces[:natoms], self.atoms.stress
+            forces = self._actual_atoms.get_forces()
+        if isinstance(self._actual_atoms, UnitCellFilter):
+            natoms = len(self._actual_atoms.atoms)
+            forces, stress = forces[:natoms], self._actual_atoms.stress
             fmax_sq = (forces**2).sum(axis=1).max()
             smax_sq = (stress**2).max()
             return (fmax_sq < self.fmax**2 and smax_sq < self.smax**2)
