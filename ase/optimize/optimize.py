@@ -51,6 +51,7 @@ class Dynamics(IOContext):
 
         self.atoms = atoms
         self.logfile = self.openfile(logfile, mode='a', comm=world)
+        self.trajectory = trajectory
         self.observers = []
         self.nsteps = 0
         # maximum number of steps placeholder with maxint
