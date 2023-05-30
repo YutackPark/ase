@@ -236,7 +236,7 @@ def write_proteindatabank(fileobj, images, write_arrays=True):
             bf = bfactor[a]
             resname = residuenames[a]
             resseq = residuenumbers[a]
-            name=names[a]
-            fileobj.write(format % ((a+1) % MAXNUM, name, resname, resseq,
+            name = names[a]
+            fileobj.write(format % ((a + 1) % MAXNUM, name, resname, resseq,
                                     x, y, z, occ, bf, symbols[a].upper()))
         fileobj.write('ENDMDL\n')
