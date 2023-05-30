@@ -216,6 +216,9 @@ def write_proteindatabank(fileobj, images, write_arrays=True):
             p = p.dot(rot_t.T)
         occupancy = np.ones(len(atoms))
         bfactor = np.zeros(len(atoms))
+        residuenames = ['MOL'] * len(atoms)
+        residuenumbers = np.ones(len(atoms))
+        names = atoms.get_chemical_symbols()
         if write_arrays:
             if 'occupancy' in atoms.arrays:
                 occupancy = atoms.get_array('occupancy')
