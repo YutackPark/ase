@@ -31,7 +31,7 @@ def read_atom_line(line_full):
         name = line[12:16].strip()
 
         altloc = line[16]
-        resname = line[17:20]
+        resname = line[17:21]
         # chainid = line[21]        # Not used
 
         seq = line[22:26].split()
