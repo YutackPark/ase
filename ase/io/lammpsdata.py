@@ -8,8 +8,8 @@ from ase.utils import reader, writer
 
 
 @reader
-def read_lammps_data(fileobj, Z_of_type=None, style="full",
-                     sort_by_id=True, units="metal"):
+def read_lammps_data(fileobj, Z_of_type: dict = None, style: str = "full",
+                     sort_by_id: bool = True, units: str = "metal"):
     """Method which reads a LAMMPS data file.
 
     sort_by_id: Order the particles according to their id. Might be faster to
