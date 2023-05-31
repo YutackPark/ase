@@ -1203,7 +1203,11 @@ class AimsOutCalcChunk(AimsOutChunk):
         from ase.stress import full_3x3_to_voigt_6_stress
 
         line_start = self.reverse_search_for(
-            ["Analytical stress tensor - Symmetrized"]
+            [
+                "Analytical stress tensor - Symmetrized",
+                "Numerical stress tensor",
+            ]
+
         )  # Offest to relevant lines
         if line_start == LINE_NOT_FOUND:
             return
@@ -1614,11 +1618,20 @@ def get_aims_out_chunks(fd, header_chunk):
         lines = []
         while chunk_end_line not in line or ignore_chunk_end_line:
             lines.append(line)
-            # If SCF cycle not converged, don't end chunk on next
-            # Re-initialization
-            pattern = ("Self-consistency cycle not yet converged - "
-                       "restarting mixer to attempt better convergence.")
-            if pattern in line:
+            # If SCF cycle not converged or numerical stresses are requested,
+            # don't end chunk on next Re-initialization
+            patterns = [
+                (
+                    "Self-consistency cycle not yet converged -"
+                    " restarting mixer to attempt better convergence."
+                ),
+                (
+                    "Components of the stress tensor (for mathematical "
+                    "background see comments in numerical_stress.f90)."
+                ),
+                "Calculation of numerical stress completed",
+            ]
+            if any([pattern in line for pattern in patterns]):
                 ignore_chunk_end_line = True
             elif "Begin self-consistency loop: Re-initialization" in line:
                 ignore_chunk_end_line = False
@@ -1670,7 +1683,7 @@ def read_aims_output(fd, index=-1, non_convergence_ok=False):
 @reader
 def read_aims_results(fd, index=-1, non_convergence_ok=False):
     """Import FHI-aims output files and summarize all relevant information
-into a dictionary"""
+    into a dictionary"""
     header_chunk = get_header_chunk(fd)
     chunks = list(get_aims_out_chunks(fd, header_chunk))
     check_convergence(chunks, non_convergence_ok)

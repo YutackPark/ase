@@ -170,3 +170,14 @@ def test_preamble_failed(testdir):
     outfile = parent / "testdata/aims/preamble_fail.out"
     with pytest.raises(ParseError, match='No SCF steps'):
         read(outfile, format="aims-output")
+
+def test_numerical_stress(testdir):
+    outfile = parent / "testdata/aims/numerical_stress.out"
+
+    atoms = read(outfile, format="aims-output")
+    stress = atoms.get_stress()
+    stress_actual = [
+        0.00244726, 0.00267442, 0.00258710, 0.00000005, -0.00000026, -0.00000007
+    ]
+
+    assert np.allclose(stress, stress_actual)
