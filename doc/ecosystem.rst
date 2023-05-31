@@ -39,6 +39,10 @@ Listed in alphabetical order, for want of a better approach.
    reactions, such as how much force is required to break a chemical
    bond.
 
+ * `effmass <https://github.com/lucydot/effmass/>`_:
+   Calculates various definitions of effective mass from the electronic 
+   bandstructure of a semiconductor.
+
  * `evgraf <https://github.com/pmla/evgraf>`_:
    A python library for crystal reduction (i.e. finding primitive cells), and
    identification and symmetrization of structures with inversion
@@ -76,12 +80,22 @@ Listed in alphabetical order, for want of a better approach.
    e.g. ASE trajectory files), and then be used to perform
    optimization and molecular dynamics in ASE or LAMMPS.
 
+ * `QuAcc <https://github.com/Quantum-Accelerators/quacc>`_:
+   A flexible platform for high-throughput, database-driven computational 
+   materials science and quantum chemistry workflows built around ASE.
+
+ * `SchNet Pack <https://github.com/Quantum-Accelerators/quacc>`_:
+   Deep Neural Networks for Atomistic Systems
+
  * `Sella <https://github.com/zadorlab/sella>`_:
    Sella is a saddle point refinement (optimization) tool which uses
    the `Optimize <ase/optimize.html>`_ API. Sella supports minimization and
    refinement of arbitrary-order saddle points with constraints.
    Additionally, Sella can perform intrinsic reaction coordinate (IRC)
    calculations.
+
+ * `TorchANI <https://github.com/aiqm/torchani>`_:
+   Accurate Neural Network Potential on PyTorch
 
  * `Wulffpack <https://wulffpack.materialsmodeling.org/>`_:
    Python package for making Wulff constructions, typically for finding
