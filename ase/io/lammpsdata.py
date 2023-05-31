@@ -36,17 +36,16 @@ def read_lammps_data(fileobj, Z_of_type: dict = None, style: str = "full",
 
     # begin read_lammps_data
     comment = None
-    N = None
-    # N_types = None
-    xlo = None
-    xhi = None
-    ylo = None
-    yhi = None
-    zlo = None
-    zhi = None
-    xy = None
-    xz = None
-    yz = None
+
+    # default values (https://docs.lammps.org/read_data.html)
+    # in most cases these will be updated below
+    N = 0
+    # N_types = 0
+    xlo, xhi = -0.5, 0.5
+    ylo, yhi = -0.5, 0.5
+    zlo, zhi = -0.5, 0.5
+    xy, xz, yz = 0.0, 0.0, 0.0
+
     pos_in = {}
     travel_in = {}
     mol_id_in = {}
