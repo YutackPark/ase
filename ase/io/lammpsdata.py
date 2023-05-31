@@ -303,18 +303,9 @@ def read_lammps_data(fileobj, Z_of_type: dict = None, style: str = "full",
         travel = np.zeros((N, 3), int)
     else:
         travel = None
-    if len(bonds_in) > 0:
-        bonds = [""] * N
-    else:
-        bonds = None
-    if len(angles_in) > 0:
-        angles = [""] * N
-    else:
-        angles = None
-    if len(dihedrals_in) > 0:
-        dihedrals = [""] * N
-    else:
-        dihedrals = None
+    bonds = [""] * N if len(bonds_in) > 0 else None
+    angles = [""] * N if len(angles_in) > 0 else None
+    dihedrals = [""] * N if len(dihedrals_in) > 0 else None
 
     ind_of_id = {}
     # copy per-atom quantities from read-in values
