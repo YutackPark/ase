@@ -66,9 +66,7 @@ class Exciting:
         self.write(atoms)
 
     def get_potential_energy(self, atoms):
-        """
-        returns potential Energy
-        """
+        """Returns potential Energy."""
         self.update(atoms)
         return self.energy
 
