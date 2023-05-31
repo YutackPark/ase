@@ -12,9 +12,23 @@ def read_lammps_data(fileobj, Z_of_type: dict = None, style: str = "full",
                      sort_by_id: bool = True, units: str = "metal"):
     """Method which reads a LAMMPS data file.
 
-    sort_by_id: Order the particles according to their id. Might be faster to
-    switch it off.
-    Units are set by default to the style=metal setting in LAMMPS.
+    Parameters
+    ----------
+    fileobj : file | str
+        File from which data should be read.
+    Z_of_type : dict[int, int], optional
+        Mapping from LAMMPS atom types (typically starting from 1) to atomic
+        numbers. If None, atomic numbers of 1 (H), 2 (He), ... are assigned to
+        atom types of 1, 2, ... Default is None.
+    sort_by_id : bool, optional
+        Order the particles according to their id. Might be faster to set it
+        False. Default is True.
+    units : str, optional
+        `LAMMPS units <https://docs.lammps.org/units.html>`__. Default is
+        "metal".
+    style : {"atomic", "charge", "full"} etc., optional
+        `LAMMPS atom style <https://docs.lammps.org/atom_style.html>`__.
+        Default is "full".
     """
     # load everything into memory
     lines = fileobj.readlines()
