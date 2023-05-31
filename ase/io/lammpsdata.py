@@ -283,26 +283,11 @@ def read_lammps_data(fileobj, Z_of_type: dict = None, style: str = "full",
     numbers = np.zeros((N), int)
     ids = np.zeros((N), int)
     types = np.zeros((N), int)
-    if len(vel_in) > 0:
-        velocities = np.zeros((N, 3))
-    else:
-        velocities = None
-    if len(mass_in) > 0:
-        masses = np.zeros((N))
-    else:
-        masses = None
-    if len(mol_id_in) > 0:
-        mol_id = np.zeros((N), int)
-    else:
-        mol_id = None
-    if len(charge_in) > 0:
-        charge = np.zeros((N), float)
-    else:
-        charge = None
-    if len(travel_in) > 0:
-        travel = np.zeros((N, 3), int)
-    else:
-        travel = None
+    velocities = np.zeros((N, 3)) if len(vel_in) > 0 else None
+    masses = np.zeros((N)) if len(mass_in) > 0 else None
+    mol_id = np.zeros((N), int) if len(mol_id_in) > 0 else None
+    charge = np.zeros((N), float) if len(charge_in) > 0 else None
+    travel = np.zeros((N, 3), int) if len(travel_in) > 0 else None
     bonds = [""] * N if len(bonds_in) > 0 else None
     angles = [""] * N if len(angles_in) > 0 else None
     dihedrals = [""] * N if len(dihedrals_in) > 0 else None
