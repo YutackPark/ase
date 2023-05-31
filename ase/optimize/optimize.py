@@ -64,6 +64,8 @@ class Dynamics(IOContext):
                 ))
             self.attach(trajectory, atoms=atoms)
 
+        self.trajectory = trajectory
+
     def get_number_of_steps(self):
         return self.nsteps
 
