@@ -435,10 +435,11 @@ class IdealGasThermo(ThermoChem):
         self.atoms = atoms
         self.sigma = symmetrynumber
         self.spin = spin
-        if natoms is None:
-            if atoms:
-                natoms = len(atoms)
+        if natoms is None and atoms:
+            natoms = len(atoms)
         # Cut the vibrations to those needed from the geometry.
+        vib_energies.sort(key=np.imag)
+        vib_energies.sort(key=np.real)
         if natoms:
             if geometry == 'nonlinear':
                 self.vib_energies = vib_energies[-(3 * natoms - 6):]
