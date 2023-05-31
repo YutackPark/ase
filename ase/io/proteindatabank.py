@@ -190,7 +190,7 @@ def write_proteindatabank(fileobj, images, write_arrays=True):
         images = [images]
 
     #     1234567 123 6789012345678901   89   67   456789012345678901234567 890
-    format = ('ATOM  %5d %4s %3s  %4d    %8.3f%8.3f%8.3f%6.2f%6.2f'
+    format = ('ATOM  %5d %4s %4s %4d    %8.3f%8.3f%8.3f%6.2f%6.2f'
               '          %2s  \n')
 
     # RasMol complains if the atom index exceeds 100000. There might
