@@ -207,18 +207,21 @@ class HinderedThermo(ThermoChem):
             if np.real(v) != 0 and np.imag(v) != 0:
                 raise ValueError("Each vibrational energy can only have one non-zero real or imaginary part.")
 
+        if natoms is None and atoms:
+            self.natoms = len(atoms)
+        else:
+            self.natoms = natoms
+
         # Sort the vibrations
         vib_energies = list(vib_energies)
         vib_energies.sort(key=np.imag)
         vib_energies.sort(key=np.real)
 
         # Keep only the relevant vibrational energies (3N-3)
-        if natoms is None:
-            self.natoms = len(atoms)
+        if self.natoms:
+            self.vib_energies = vib_energies[-(3 * self.natoms - 3):]
         else:
-            self.natoms = natoms
-
-        self.vib_energies = vib_energies[-(3 * self.natoms - 3):]
+            self.vib_energies = vib_energies
 
         # Make sure no imaginary frequencies remain.
         if sum(np.iscomplex(self.vib_energies)):
