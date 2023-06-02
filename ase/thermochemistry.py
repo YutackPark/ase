@@ -453,10 +453,12 @@ class IdealGasThermo(ThermoChem):
             if np.real(v) != 0 and np.imag(v) != 0:
                 raise ValueError("Each vibrational energy can only have one non-zero real or imaginary part.")
 
-        # Cut the vibrations to those needed from the geometry.
+        # Sort the vibrations
         vib_energies = list(vib_energies)
         vib_energies.sort(key=np.imag)
         vib_energies.sort(key=np.real)
+
+        # Cut the vibrations to those needed from the geometry.
         if natoms:
             if geometry == 'nonlinear':
                 self.vib_energies = vib_energies[-(3 * natoms - 6):]
@@ -466,11 +468,13 @@ class IdealGasThermo(ThermoChem):
                 self.vib_energies = []
         else:
             self.vib_energies = vib_energies
+
         # Make sure no imaginary frequencies remain.
         if sum(np.iscomplex(self.vib_energies)):
             raise ValueError('Imaginary frequencies are present.')
         else:
             self.vib_energies = np.real(self.vib_energies)  # clear +0.j
+
         self.referencepressure = 1.0e5  # Pa
 
     def get_enthalpy(self, temperature, verbose=True):
