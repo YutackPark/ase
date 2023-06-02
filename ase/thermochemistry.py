@@ -222,12 +222,10 @@ class HinderedThermo(ThermoChem):
 
         # Keep only the relevant vibrational energies (3N-3)
         if self.natoms:
-            self.vib_energies = vib_energies[-(3 * self.natoms - 3):]
-        else:
-            self.vib_energies = vib_energies
+            vib_energies = vib_energies[-(3 * self.natoms - 3):]
 
         # Make sure no imaginary frequencies remain.
-        if sum(np.iscomplex(self.vib_energies)):
+        if sum(np.iscomplex(vib_energies)):
             raise ValueError('Imaginary frequencies are present.')
 
         self.trans_barrier_energy = trans_barrier_energy * units._e
@@ -254,10 +252,10 @@ class HinderedThermo(ThermoChem):
                                'atoms must be specified.')
 
         # Make sure no imaginary frequencies remain.
-        if sum(np.iscomplex(self.vib_energies)):
+        if sum(np.iscomplex(vib_energies)):
             raise ValueError('Imaginary frequencies are present.')
         
-        self.vib_energies = np.real(self.vib_energies)  # clear +0.j
+        self.vib_energies = np.real(vib_energies)  # clear +0.j
 
         # Calculate hindered translational and rotational frequencies
         self.freq_t = np.sqrt(self.trans_barrier_energy / (2 * self.mass *
@@ -480,19 +478,17 @@ class IdealGasThermo(ThermoChem):
         # Cut the vibrations to those needed from the geometry.
         if self.natoms:
             if geometry == 'nonlinear':
-                self.vib_energies = vib_energies[-(3 * self.natoms - 6):]
+                vib_energies = vib_energies[-(3 * self.natoms - 6):]
             elif geometry == 'linear':
-                self.vib_energies = vib_energies[-(3 * self.natoms - 5):]
+                vib_energies = vib_energies[-(3 * self.natoms - 5):]
             elif geometry == 'monatomic':
-                self.vib_energies = []
-        else:
-            self.vib_energies = vib_energies
+                vib_energies = []
 
         # Make sure no imaginary frequencies remain.
-        if sum(np.iscomplex(self.vib_energies)):
+        if sum(np.iscomplex(vib_energies)):
             raise ValueError('Imaginary frequencies are present.')
 
-        self.vib_energies = np.real(self.vib_energies)  # clear +0.j
+        self.vib_energies = np.real(vib_energies)  # clear +0.j
 
         self.referencepressure = 1.0e5  # Pa
 
