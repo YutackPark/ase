@@ -216,7 +216,7 @@ def write_proteindatabank(fileobj, images, write_arrays=True):
             p = p.dot(rot_t.T)
         occupancy = np.ones(len(atoms))
         bfactor = np.zeros(len(atoms))
-        residuenames = ['MOL'] * len(atoms)
+        residuenames = ['MOL '] * len(atoms)
         residuenumbers = np.ones(len(atoms))
         names = atoms.get_chemical_symbols()
         if write_arrays:
@@ -234,7 +234,7 @@ def write_proteindatabank(fileobj, images, write_arrays=True):
             x, y, z = p[a]
             occ = occupancy[a]
             bf = bfactor[a]
-            resname = residuenames[a]
+            resname = residuenames[a].ljust(4)
             resseq = residuenumbers[a]
             name = names[a]
             fileobj.write(format % ((a + 1) % MAXNUM, name, resname, resseq,
