@@ -475,7 +475,6 @@ class IdealGasThermo(ThermoChem):
         # Make sure no imaginary frequencies remain.
         if sum(np.iscomplex(vib_energies)):
             raise ValueError('Imaginary frequencies are present.')
-
         self.vib_energies = np.real(vib_energies)  # clear +0.j
 
         self.referencepressure = 1.0e5  # Pa
