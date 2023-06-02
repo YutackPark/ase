@@ -472,6 +472,8 @@ class IdealGasThermo(ThermoChem):
                 vib_energies = vib_energies[-(3 * natoms - 5):]
             elif geometry == 'monatomic':
                 vib_energies = []
+            else:
+                raise ValueError(f"Unsupported geometry: {geometry}")
 
         # Make sure no imaginary frequencies remain.
         if sum(np.iscomplex(vib_energies)):
