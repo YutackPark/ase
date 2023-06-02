@@ -67,7 +67,6 @@ class HarmonicThermo(ThermoChem):
 
     def __init__(self, vib_energies, potentialenergy=0.):
         self.vib_energies = vib_energies
-
         # Check for imaginary frequencies.
         if sum(np.iscomplex(self.vib_energies)):
             raise ValueError('Imaginary vibrational energies are present.')
@@ -456,10 +455,9 @@ class IdealGasThermo(ThermoChem):
         self.atoms = atoms
         self.sigma = symmetrynumber
         self.spin = spin
+        self.natoms = natoms
         if natoms is None and atoms:
-            self.natoms = len(atoms)
-        else:
-            self.natoms = natoms
+            natoms = len(atoms)
 
         # Make sure all vibrations are valid
         for v in vib_energies:
@@ -472,11 +470,11 @@ class IdealGasThermo(ThermoChem):
         vib_energies.sort(key=np.real)
 
         # Cut the vibrations to those needed from the geometry.
-        if self.natoms:
+        if natoms:
             if geometry == 'nonlinear':
-                vib_energies = vib_energies[-(3 * self.natoms - 6):]
+                vib_energies = vib_energies[-(3 * natoms - 6):]
             elif geometry == 'linear':
-                vib_energies = vib_energies[-(3 * self.natoms - 5):]
+                vib_energies = vib_energies[-(3 * natoms - 5):]
             elif geometry == 'monatomic':
                 vib_energies = []
 
