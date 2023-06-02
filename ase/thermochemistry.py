@@ -14,10 +14,7 @@ class ThermoChem:
 
     def get_ZPE_correction(self):
         """Returns the zero-point vibrational energy correction in eV."""
-        zpe = 0.
-        for energy in self.vib_energies:
-            zpe += 0.5 * energy
-        return zpe
+        return 0.5 * np.sum(self.vib_energies)
 
     def _vibrational_energy_contribution(self, temperature):
         """Calculates the change in internal energy due to vibrations from
