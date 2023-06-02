@@ -198,12 +198,13 @@ class HinderedThermo(ThermoChem):
 
     def __init__(self, vib_energies, trans_barrier_energy, rot_barrier_energy,
                  sitedensity, rotationalminima, potentialenergy=0.,
-                 mass=None, inertia=None, atoms=None, symmetrynumber=1, natoms=None):
-    
+                 mass=None, inertia=None, atoms=None, symmetrynumber=1,
+                 natoms=None):
+
         # Make sure all vibrations are valid
         for v in vib_energies:
             if np.real(v) != 0 and np.imag(v) != 0:
-                raise ValueError("Each vibrational energy can only have one non-zero real or imaginary part.")
+                raise ValueError("Multiple non-zero components in frequency.")
 
         if natoms is None and atoms:
             natoms = len(atoms)
