@@ -9,7 +9,7 @@ from ase.phonons import Phonons
 from ase.thermochemistry import (IdealGasThermo, HarmonicThermo,
                                  CrystalThermo, HinderedThermo)
 from ase.calculators.emt import EMT
-
+import pytest
 
 def test_ideal_gas_thermo(testdir):
     atoms = Atoms('N2',
@@ -20,14 +20,20 @@ def test_ideal_gas_thermo(testdir):
     vib = Vibrations(atoms, name='idealgasthermo-vib')
     vib.run()
     vib_energies = vib.get_energies()
+    assert len(vib_energies) == len(atoms)*3
+    assert vib_energies[0] == pytest.approx(0.0)
+    assert vib_energies[-1] == pytest.approx(1.52647479e-01)
 
     thermo = IdealGasThermo(vib_energies=vib_energies, geometry='linear',
                             atoms=atoms, symmetrynumber=2, spin=0,
                             potentialenergy=energy)
     thermo.get_gibbs_energy(temperature=298.15, pressure=2 * 101325.)
-
-    # Harmonic thermo.
-
+    assert thermo.atoms == atoms
+    assert thermo.geometry == 'linear'
+    assert thermo.get_ZPE_correction() == pytest.approx(0.07632373926263808)
+    assert thermo.get_enthalpy(1000) == pytest.approx(0.6719935644272014)
+    assert thermo.get_entropy(1000,1e8) == pytest.approx(0.6719935644272014)
+    assert thermo.get_gibbs_energy(1000,1e8) == pytest.approx(thermo.get_enthalpy(1000)-1000* thermo.get_entropy(1000,1e8))
 
 def test_harmonic_thermo(testdir):
     atoms = fcc100('Cu', (2, 2, 2), vacuum=10.)
@@ -117,5 +123,4 @@ def test_hindered_thermo():
                             inertia=inertia)
 
     helmholtz = thermo.get_helmholtz_energy(temperature=298.15)
-    target = 1.593  # Taken from documentation example.
-    assert (helmholtz - target) < 0.001
+    assert helmholtz ==pytest.approx(1.593, abs=1e-3)
