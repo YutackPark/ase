@@ -456,7 +456,7 @@ class IdealGasThermo(ThermoChem):
         self.atoms = atoms
         self.sigma = symmetrynumber
         self.spin = spin
-        if natoms is None:
+        if natoms is None and atoms:
             self.natoms = len(atoms)
         else:
             self.natoms = natoms
