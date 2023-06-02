@@ -202,7 +202,18 @@ class HinderedThermo(ThermoChem):
     def __init__(self, vib_energies, trans_barrier_energy, rot_barrier_energy,
                  sitedensity, rotationalminima, potentialenergy=0.,
                  mass=None, inertia=None, atoms=None, symmetrynumber=1):
-        self.vib_energies = sorted(vib_energies, reverse=True)[:-3]
+    
+        # Make sure all vibrations are valid
+        for v in vib_energies:
+            if np.real(v) != 0 and np.imag(v) != 0:
+                raise ValueError("Each vibrational energy can only have one non-zero real or imaginary part.")
+
+        # Sort the vibrations to those needed from the geometry.
+        vib_energies = list(vib_energies)
+        vib_energies.sort(key=np.imag)
+        vib_energies.sort(key=np.real)
+
+        self.vib_energies = vib_energies[-3:]
         self.trans_barrier_energy = trans_barrier_energy * units._e
         self.rot_barrier_energy = rot_barrier_energy * units._e
         self.area = 1. / sitedensity / 100.0**2
@@ -437,6 +448,12 @@ class IdealGasThermo(ThermoChem):
         self.spin = spin
         if natoms is None and atoms:
             natoms = len(atoms)
+
+        # Make sure all vibrations are valid
+        for v in vib_energies:
+            if np.real(v) != 0 and np.imag(v) != 0:
+                raise ValueError("Each vibrational energy can only have one non-zero real or imaginary part.")
+
         # Cut the vibrations to those needed from the geometry.
         vib_energies = list(vib_energies)
         vib_energies.sort(key=np.imag)
