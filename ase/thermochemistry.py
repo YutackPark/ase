@@ -162,11 +162,7 @@ class HinderedThermo(ThermoChem):
 
     vib_energies : list
         a list of all the vibrational energies of the adsorbate (e.g., from
-        ase.vibrations.Vibrations.get_energies). The number of energies
-        should match the number of degrees of freedom of the adsorbate;
-        i.e., 3*n, where n is the number of atoms. Note that this class does
-        not check that the user has supplied the correct number of energies.
-        Units of energies are eV.
+        ase.vibrations.Vibrations.get_energies). Units of energies are eV.
     trans_barrier_energy : float
         the translational energy barrier in eV. This is the barrier for an
         adsorbate to diffuse on the surface.
@@ -208,12 +204,15 @@ class HinderedThermo(ThermoChem):
             if np.real(v) != 0 and np.imag(v) != 0:
                 raise ValueError("Each vibrational energy can only have one non-zero real or imaginary part.")
 
-        # Sort the vibrations to those needed from the geometry.
+        # Sort the vibrations
         vib_energies = list(vib_energies)
         vib_energies.sort(key=np.imag)
         vib_energies.sort(key=np.real)
 
-        self.vib_energies = vib_energies[-3:]
+        # Keep only the relevant vibrational energies (3N-3)
+        natoms = len(atoms)
+        self.vib_energies = vib_energies[-(3 * natoms - 3):]
+
         self.trans_barrier_energy = trans_barrier_energy * units._e
         self.rot_barrier_energy = rot_barrier_energy * units._e
         self.area = 1. / sitedensity / 100.0**2
