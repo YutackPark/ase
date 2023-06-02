@@ -206,9 +206,7 @@ class HinderedThermo(ThermoChem):
                 raise ValueError("Each vibrational energy can only have one non-zero real or imaginary part.")
 
         if natoms is None and atoms:
-            self.natoms = len(atoms)
-        else:
-            self.natoms = natoms
+            natoms = len(atoms)
 
         # Sort the vibrations
         vib_energies = list(vib_energies)
@@ -216,12 +214,15 @@ class HinderedThermo(ThermoChem):
         vib_energies.sort(key=np.real)
 
         # Keep only the relevant vibrational energies (3N-3)
-        if self.natoms:
+        if natoms:
             vib_energies = vib_energies[-(3 * self.natoms - 3):]
 
         # Make sure no imaginary frequencies remain.
         if sum(np.iscomplex(vib_energies)):
             raise ValueError('Imaginary frequencies are present.')
+
+        self.vib_energies = np.real(vib_energies)  # clear +0.j
+
 
         self.trans_barrier_energy = trans_barrier_energy * units._e
         self.rot_barrier_energy = rot_barrier_energy * units._e
@@ -245,12 +246,6 @@ class HinderedThermo(ThermoChem):
             raise RuntimeError('Either mass and inertia of the '
                                'adsorbate must be specified or '
                                'atoms must be specified.')
-
-        # Make sure no imaginary frequencies remain.
-        if sum(np.iscomplex(vib_energies)):
-            raise ValueError('Imaginary frequencies are present.')
-        
-        self.vib_energies = np.real(vib_energies)  # clear +0.j
 
         # Calculate hindered translational and rotational frequencies
         self.freq_t = np.sqrt(self.trans_barrier_energy / (2 * self.mass *
