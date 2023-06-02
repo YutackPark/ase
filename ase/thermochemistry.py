@@ -70,13 +70,12 @@ class HarmonicThermo(ThermoChem):
     """
 
     def __init__(self, vib_energies, potentialenergy=0.):
-        
-        self.vib_energies = vib_energies
 
         # Check for imaginary frequencies.
-        if sum(np.iscomplex(self.vib_energies)):
+        if sum(np.iscomplex(vib_energies)):
             raise ValueError('Imaginary vibrational energies are present.')
-        self.vib_energies = np.real(self.vib_energies)  # clear +0.j
+
+        self.vib_energies = np.real(vib_energies)  # clear +0.j
 
         self.potentialenergy = potentialenergy
 
