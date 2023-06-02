@@ -220,9 +220,7 @@ class HinderedThermo(ThermoChem):
         # Make sure no imaginary frequencies remain.
         if sum(np.iscomplex(vib_energies)):
             raise ValueError('Imaginary frequencies are present.')
-
         self.vib_energies = np.real(vib_energies)  # clear +0.j
-
 
         self.trans_barrier_energy = trans_barrier_energy * units._e
         self.rot_barrier_energy = rot_barrier_energy * units._e
@@ -230,6 +228,7 @@ class HinderedThermo(ThermoChem):
         self.rotationalminima = rotationalminima
         self.potentialenergy = potentialenergy
         self.atoms = atoms
+        self.natoms = natoms
         self.symmetry = symmetrynumber
 
         if (mass or atoms) and (inertia or atoms):
