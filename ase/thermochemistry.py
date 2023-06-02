@@ -457,7 +457,7 @@ class IdealGasThermo(ThermoChem):
         # Make sure all vibrations are valid
         for v in vib_energies:
             if np.real(v) != 0 and np.imag(v) != 0:
-                raise ValueError("Each vibrational energy can only have one non-zero real or imaginary part.")
+                raise ValueError("Multiple non-zero components in frequency.")
 
         # Sort the vibrations
         vib_energies = list(vib_energies)
