@@ -213,6 +213,10 @@ class HinderedThermo(ThermoChem):
         natoms = len(atoms)
         self.vib_energies = vib_energies[-(3 * natoms - 3):]
 
+        # Make sure no imaginary frequencies remain.
+        if sum(np.iscomplex(self.vib_energies)):
+            raise ValueError('Imaginary frequencies are present.')
+
         self.trans_barrier_energy = trans_barrier_energy * units._e
         self.rot_barrier_energy = rot_barrier_energy * units._e
         self.area = 1. / sitedensity / 100.0**2
@@ -239,8 +243,8 @@ class HinderedThermo(ThermoChem):
         # Make sure no imaginary frequencies remain.
         if sum(np.iscomplex(self.vib_energies)):
             raise ValueError('Imaginary frequencies are present.')
-        else:
-            self.vib_energies = np.real(self.vib_energies)  # clear +0.j
+        
+        self.vib_energies = np.real(self.vib_energies)  # clear +0.j
 
         # Calculate hindered translational and rotational frequencies
         self.freq_t = np.sqrt(self.trans_barrier_energy / (2 * self.mass *
