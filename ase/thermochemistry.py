@@ -194,11 +194,16 @@ class HinderedThermo(ThermoChem):
         For example, propane bound through its end carbon has a symmetry
         number of 1 but propane bound through its middle carbon has a symmetry
         number of 2. (if symmetrynumber is unspecified, then the default is 1)
+    natoms : integer
+        the number of atoms, used along with 'geometry' to determine how
+        many vibrations to use. (Not needed if an atoms object is supplied
+        in 'atoms' or if the user desires the entire list of vibrations
+        to be used.)
     """
 
     def __init__(self, vib_energies, trans_barrier_energy, rot_barrier_energy,
                  sitedensity, rotationalminima, potentialenergy=0.,
-                 mass=None, inertia=None, atoms=None, symmetrynumber=1):
+                 mass=None, inertia=None, atoms=None, symmetrynumber=1, natoms=None):
     
         # Make sure all vibrations are valid
         for v in vib_energies:
@@ -211,8 +216,12 @@ class HinderedThermo(ThermoChem):
         vib_energies.sort(key=np.real)
 
         # Keep only the relevant vibrational energies (3N-3)
-        natoms = len(atoms)
-        self.vib_energies = vib_energies[-(3 * natoms - 3):]
+        if natoms is None:
+            self.natoms = len(atoms)
+        else:
+            self.natoms = natoms
+
+        self.vib_energies = vib_energies[-(3 * self.natoms - 3):]
 
         # Make sure no imaginary frequencies remain.
         if sum(np.iscomplex(self.vib_energies)):
@@ -450,8 +459,10 @@ class IdealGasThermo(ThermoChem):
         self.atoms = atoms
         self.sigma = symmetrynumber
         self.spin = spin
-        if natoms is None and atoms:
-            natoms = len(atoms)
+        if natoms is None:
+            self.natoms = len(atoms)
+        else:
+            self.natoms = natoms
 
         # Make sure all vibrations are valid
         for v in vib_energies:
@@ -464,11 +475,11 @@ class IdealGasThermo(ThermoChem):
         vib_energies.sort(key=np.real)
 
         # Cut the vibrations to those needed from the geometry.
-        if natoms:
+        if self.natoms:
             if geometry == 'nonlinear':
-                self.vib_energies = vib_energies[-(3 * natoms - 6):]
+                self.vib_energies = vib_energies[-(3 * self.natoms - 6):]
             elif geometry == 'linear':
-                self.vib_energies = vib_energies[-(3 * natoms - 5):]
+                self.vib_energies = vib_energies[-(3 * self.natoms - 5):]
             elif geometry == 'monatomic':
                 self.vib_energies = []
         else:
