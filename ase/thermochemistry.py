@@ -207,7 +207,7 @@ class HinderedThermo(ThermoChem):
             if np.real(v) != 0 and np.imag(v) != 0:
                 raise ValueError("Each vibrational energy can only have one non-zero real or imaginary part.")
 
-        if natoms is None and atoms:
+        if not natoms and atoms:
             self.natoms = len(atoms)
         else:
             self.natoms = natoms
@@ -459,7 +459,7 @@ class IdealGasThermo(ThermoChem):
         self.atoms = atoms
         self.sigma = symmetrynumber
         self.spin = spin
-        if natoms is None and atoms:
+        if not natoms and atoms:
             self.natoms = len(atoms)
         else:
             self.natoms = natoms
@@ -542,7 +542,7 @@ class IdealGasThermo(ThermoChem):
         """Returns the entropy, in eV/K, in the ideal gas approximation
         at a specified temperature (K) and pressure (Pa)."""
 
-        if self.atoms is None or self.sigma is None or self.spin is None:
+        if not self.atoms or not self.sigma or not self.spin:
             raise RuntimeError('atoms, symmetrynumber, and spin must be '
                                'specified for entropy and free energy '
                                'calculations.')
