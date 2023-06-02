@@ -14,10 +14,7 @@ class ThermoChem:
 
     def get_ZPE_correction(self):
         """Returns the zero-point vibrational energy correction in eV."""
-        zpe = 0.
-        for energy in self.vib_energies:
-            zpe += 0.5 * energy
-        return zpe
+        return 0.5 * np.sum(self.vib_energies)
 
     def _vibrational_energy_contribution(self, temperature):
         """Calculates the change in internal energy due to vibrations from
@@ -73,8 +70,7 @@ class HarmonicThermo(ThermoChem):
         # Check for imaginary frequencies.
         if sum(np.iscomplex(self.vib_energies)):
             raise ValueError('Imaginary vibrational energies are present.')
-        else:
-            self.vib_energies = np.real(self.vib_energies)  # clear +0.j
+        self.vib_energies = np.real(self.vib_energies)  # clear +0.j
 
         self.potentialenergy = potentialenergy
 
@@ -162,11 +158,7 @@ class HinderedThermo(ThermoChem):
 
     vib_energies : list
         a list of all the vibrational energies of the adsorbate (e.g., from
-        ase.vibrations.Vibrations.get_energies). The number of energies
-        should match the number of degrees of freedom of the adsorbate;
-        i.e., 3*n, where n is the number of atoms. Note that this class does
-        not check that the user has supplied the correct number of energies.
-        Units of energies are eV.
+        ase.vibrations.Vibrations.get_energies). Units of energies are eV.
     trans_barrier_energy : float
         the translational energy barrier in eV. This is the barrier for an
         adsorbate to diffuse on the surface.
@@ -197,18 +189,47 @@ class HinderedThermo(ThermoChem):
         For example, propane bound through its end carbon has a symmetry
         number of 1 but propane bound through its middle carbon has a symmetry
         number of 2. (if symmetrynumber is unspecified, then the default is 1)
+    natoms : integer
+        the number of atoms, used along with 'geometry' to determine how
+        many vibrations to use. (Not needed if an atoms object is supplied
+        in 'atoms' or if the user desires the entire list of vibrations
+        to be used.)
     """
 
     def __init__(self, vib_energies, trans_barrier_energy, rot_barrier_energy,
                  sitedensity, rotationalminima, potentialenergy=0.,
-                 mass=None, inertia=None, atoms=None, symmetrynumber=1):
-        self.vib_energies = sorted(vib_energies, reverse=True)[:-3]
+                 mass=None, inertia=None, atoms=None, symmetrynumber=1,
+                 natoms=None):
+
+        # Make sure all vibrations are valid
+        for v in vib_energies:
+            if np.real(v) != 0 and np.imag(v) != 0:
+                raise ValueError("Multiple non-zero components in frequency.")
+
+        if natoms is None and atoms:
+            natoms = len(atoms)
+
+        # Sort the vibrations
+        vib_energies = list(vib_energies)
+        vib_energies.sort(key=np.imag, reverse=True)
+        vib_energies.sort(key=np.real)
+
+        # Keep only the relevant vibrational energies (3N-3)
+        if natoms:
+            vib_energies = vib_energies[-(3 * self.natoms - 3):]
+
+        # Make sure no imaginary frequencies remain.
+        if sum(np.iscomplex(vib_energies)):
+            raise ValueError('Imaginary frequencies are present.')
+        self.vib_energies = np.real(vib_energies)  # clear +0.j
+
         self.trans_barrier_energy = trans_barrier_energy * units._e
         self.rot_barrier_energy = rot_barrier_energy * units._e
         self.area = 1. / sitedensity / 100.0**2
         self.rotationalminima = rotationalminima
         self.potentialenergy = potentialenergy
         self.atoms = atoms
+        self.natoms = natoms
         self.symmetry = symmetrynumber
 
         if (mass or atoms) and (inertia or atoms):
@@ -225,12 +246,6 @@ class HinderedThermo(ThermoChem):
             raise RuntimeError('Either mass and inertia of the '
                                'adsorbate must be specified or '
                                'atoms must be specified.')
-
-        # Make sure no imaginary frequencies remain.
-        if sum(np.iscomplex(self.vib_energies)):
-            raise ValueError('Imaginary frequencies are present.')
-        else:
-            self.vib_energies = np.real(self.vib_energies)  # clear +0.j
 
         # Calculate hindered translational and rotational frequencies
         self.freq_t = np.sqrt(self.trans_barrier_energy / (2 * self.mass *
@@ -435,26 +450,39 @@ class IdealGasThermo(ThermoChem):
         self.atoms = atoms
         self.sigma = symmetrynumber
         self.spin = spin
+        self.natoms = natoms
         if natoms is None and atoms:
             natoms = len(atoms)
+
+        # Make sure all vibrations are valid
+        for v in vib_energies:
+            if np.real(v) != 0 and np.imag(v) != 0:
+                raise ValueError("Multiple non-zero components in frequency.")
+
+        # Sort the vibrations
+        vib_energies = list(vib_energies)
+        vib_energies.sort(key=np.imag, reverse=True)
+        vib_energies.sort(key=np.real)
+
         # Cut the vibrations to those needed from the geometry.
         vib_energies = vib_energies.tolist()
         vib_energies.sort(key=np.imag)
         vib_energies.sort(key=np.real)
         if natoms:
             if geometry == 'nonlinear':
-                self.vib_energies = vib_energies[-(3 * natoms - 6):]
+                vib_energies = vib_energies[-(3 * natoms - 6):]
             elif geometry == 'linear':
-                self.vib_energies = vib_energies[-(3 * natoms - 5):]
+                vib_energies = vib_energies[-(3 * natoms - 5):]
             elif geometry == 'monatomic':
-                self.vib_energies = []
-        else:
-            self.vib_energies = vib_energies
+                vib_energies = []
+            else:
+                raise ValueError(f"Unsupported geometry: {geometry}")
+
         # Make sure no imaginary frequencies remain.
-        if sum(np.iscomplex(self.vib_energies)):
+        if sum(np.iscomplex(vib_energies)):
             raise ValueError('Imaginary frequencies are present.')
-        else:
-            self.vib_energies = np.real(self.vib_energies)  # clear +0.j
+        self.vib_energies = np.real(vib_energies)  # clear +0.j
+
         self.referencepressure = 1.0e5  # Pa
 
     def get_enthalpy(self, temperature, verbose=True):
