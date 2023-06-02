@@ -14,7 +14,6 @@ class ThermoChem:
 
     def get_ZPE_correction(self):
         """Returns the zero-point vibrational energy correction in eV."""
-
         return 0.5 * np.sum(self.vib_energies)
 
     def _vibrational_energy_contribution(self, temperature):
@@ -42,7 +41,6 @@ class ThermoChem:
 
     def _vprint(self, text):
         """Print output if verbose flag True."""
-
         if self.verbose:
             sys.stdout.write(text + os.linesep)
 
