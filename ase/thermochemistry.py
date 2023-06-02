@@ -22,7 +22,6 @@ class ThermoChem:
         0K to the specified temperature for a set of vibrations given in
         eV and a temperature given in Kelvin. Returns the energy change
         in eV."""
-
         kT = units.kB * temperature
         dU = 0.
         for energy in self.vib_energies:
@@ -33,7 +32,6 @@ class ThermoChem:
         """Calculates the entropy due to vibrations for a set of vibrations
         given in eV and a temperature given in Kelvin.  Returns the entropy
         in eV/K."""
-
         kT = units.kB * temperature
         S_v = 0.
         for energy in self.vib_energies:
@@ -70,12 +68,12 @@ class HarmonicThermo(ThermoChem):
     """
 
     def __init__(self, vib_energies, potentialenergy=0.):
+        self.vib_energies = vib_energies
 
         # Check for imaginary frequencies.
-        if sum(np.iscomplex(vib_energies)):
+        if sum(np.iscomplex(self.vib_energies)):
             raise ValueError('Imaginary vibrational energies are present.')
-
-        self.vib_energies = np.real(vib_energies)  # clear +0.j
+        self.vib_energies = np.real(self.vib_energies)  # clear +0.j
 
         self.potentialenergy = potentialenergy
 
