@@ -211,7 +211,7 @@ class HinderedThermo(ThermoChem):
 
         # Sort the vibrations
         vib_energies = list(vib_energies)
-        vib_energies.sort(key=-np.imag)
+        vib_energies.sort(key=np.imag, reverse=True)
         vib_energies.sort(key=np.real)
 
         # Keep only the relevant vibrational energies (3N-3)
@@ -461,7 +461,7 @@ class IdealGasThermo(ThermoChem):
 
         # Sort the vibrations
         vib_energies = list(vib_energies)
-        vib_energies.sort(key=-np.imag)
+        vib_energies.sort(key=np.imag, reverse=True)
         vib_energies.sort(key=np.real)
 
         # Cut the vibrations to those needed from the geometry.
