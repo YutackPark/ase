@@ -82,5 +82,5 @@ def test_pdb_unfilled_optional_fields():
     assert not ('occupancy' in atoms.__dict__['arrays'])
     assert all(atoms.get_array('bfactor') == np.array([0., 0.]))
     assert all(atoms.get_array('atomtypes') == np.array(['', '']))
-    assert all(atoms.get_array('residuenames') == np.array(['    ', '    ']))
+    assert all(atoms.get_array('residuenames') == np.array(['', '']))
     assert all(atoms.get_array('residuenumbers') == np.array([1, 1]))
