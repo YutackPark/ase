@@ -72,7 +72,7 @@ def test_pdb_filled_optional_fields():
     assert all(atoms.get_array('occupancy') == np.array([1., 1.]))
     assert all(atoms.get_array('bfactor') == np.array([0., 0.]))
     assert all(atoms.get_array('atomtypes') == np.array(['C', 'O']))
-    assert all(atoms.get_array('residuenames') == np.array(['MOL ', 'MOL ']))
+    assert all(atoms.get_array('residuenames') == np.array(['MOL', 'MOL']))
     assert all(atoms.get_array('residuenumbers') == np.array([1, 1]))
 
 
