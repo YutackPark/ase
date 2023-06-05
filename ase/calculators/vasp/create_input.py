@@ -19,9 +19,9 @@ http://cms.mpi.univie.ac.at/vasp/
 """
 
 import os
-import shutil
 import warnings
-from os.path import isfile, islink, join
+import shutil
+from os.path import join, isfile, islink
 from typing import List, Sequence, Tuple
 
 import numpy as np
