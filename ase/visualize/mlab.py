@@ -61,6 +61,7 @@ def plot(atoms, data, contours):
     # Show the 3d plot:
     mlab.show()
 
+
 def view_mlab(atoms, *args, **kwargs):
     return plot(atoms, *args, **kwargs)
 

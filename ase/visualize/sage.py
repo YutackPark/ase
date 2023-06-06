@@ -23,4 +23,5 @@ def view_sage_jmol(atoms, repeat=None, *args, **kwargs):
             *(atom.position - atoms.cell.diagonal() / 2))
     model.show(aspect_ratio=1, frame=False)
 
+
 view_sage = view_sage_jmol

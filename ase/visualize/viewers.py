@@ -1,8 +1,8 @@
 """
 Module for managing viewers
 
-View plugins can be registered through the entrypoint system in with the following
-in a module, such as a `viewer.py` file:
+View plugins can be registered through the entrypoint system in with the
+following in a module, such as a `viewer.py` file:
 
 ```python3
 VIEWER_ENTRYPOINT = ExternalViewer(
@@ -44,7 +44,6 @@ from ase.io.formats import ioformats
 from ase.io import write
 
 
-from ase.atoms import Atoms
 from ase.utils.plugins import ExternalViewer
 from importlib import import_module
 
@@ -134,7 +133,8 @@ class CLIViewer(AbstractViewer):
             atoms = atoms.repeat(repeat)
 
         proc = subprocess.Popen(
-            [sys.executable, "-m", "ase.visualize.viewers"], stdin=subprocess.PIPE
+            [sys.executable, "-m", "ase.visualize.viewers"],
+            stdin=subprocess.PIPE
         )
 
         pickle.dump((self, atoms, data), proc.stdin)
@@ -170,8 +170,8 @@ def define_viewer(
         fmt = CLIViewer(name, fmt, argv)
     else:
         if name == "ase":
-            # Special case if the viewer is named `ase` then we use the _pipe_to_ase_gui as the
-            # viewer method
+            # Special case if the viewer is named `ase` then we use
+            # the _pipe_to_ase_gui as the viewer method
             fmt = PyViewer(name, desc, module_name=None)
             fmt.view = _pipe_to_ase_gui
         else:
@@ -192,7 +192,8 @@ def define_external_viewer(entry_point):
             f"in format {entry_point.name}, expected "
             "ExternalViewer"
         )
-    define_viewer(entry_point.name, **viewer_def._asdict(), external=True)  # type: ignore
+    define_viewer(entry_point.name, **viewer_def._asdict(),
+                  external=True)  # type: ignore
 
 
 def register_external_viewer_formats(group):
@@ -206,7 +207,8 @@ def register_external_viewer_formats(group):
             define_external_viewer(entry_point)
         except Exception as exc:
             warnings.warn(
-                "Failed to register external " f"Viewer {entry_point.name}: {exc}"
+                "Failed to register external "
+                f"Viewer {entry_point.name}: {exc}"
             )
 
 
@@ -218,10 +220,11 @@ define_viewer("x3d", "View atoms using x3d.")
 
 # CLI viweers that are internally supported
 define_viewer(
-    "avogadro", "View atoms using avogradro.", cli=True, fmt="cube", argv=["avogadro"]
+    "avogadro", "View atoms using avogradro.", cli=True, fmt="cube",
+    argv=["avogadro"]
 )
 define_viewer(
-    "ase_gui_cli", "View atoms using ase gui.", cli=True, fmt="traj", 
+    "ase_gui_cli", "View atoms using ase gui.", cli=True, fmt="traj",
     argv=[sys.executable, '-m', 'ase.gui'],
 )
 define_viewer(
@@ -238,7 +241,8 @@ define_viewer(
     fmt="proteindatabank",
     argv=["rasmol", "-pdb"],
 )
-define_viewer("vmd", "View atoms using vmd.", cli=True, fmt="cube", argv=["vmd"])
+define_viewer("vmd", "View atoms using vmd.", cli=True, fmt="cube",
+              argv=["vmd"])
 define_viewer(
     "xmakemol",
     "View atoms using xmakemol.",
@@ -249,8 +253,10 @@ define_viewer(
 
 register_external_viewer_formats("ase.visualize")
 
-CLI_VIEWERS = {key: value for key,value in VIEWERS.items() if isinstance(value, CLIViewer)}
-PY_VIEWERS = {key: value for key,value in VIEWERS.items() if isinstance(value, PyViewer)}
+CLI_VIEWERS = {key: value for key, value in VIEWERS.items()
+               if isinstance(value, CLIViewer)}
+PY_VIEWERS = {key: value for key, value in VIEWERS.items()
+              if isinstance(value, PyViewer)}
 
 
 def cli_main():

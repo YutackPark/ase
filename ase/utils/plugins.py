@@ -15,6 +15,7 @@ class ExternalIOFormat(NamedTuple):
     magic: Optional[Union[bytes, List[bytes]]] = None
     magic_regex: Optional[bytes] = None
 
+
 class ExternalViewer(NamedTuple):
     desc: str
     module: Optional[str] = None
