@@ -1,6 +1,5 @@
 from functools import partial
 
-import os
 import pytest
 
 from ase.calculators.emt import EMT
