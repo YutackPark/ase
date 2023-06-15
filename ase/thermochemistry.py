@@ -3,6 +3,7 @@ outputs."""
 
 import os
 import sys
+
 import numpy as np
 
 from ase import units
@@ -158,7 +159,12 @@ class HinderedThermo(ThermoChem):
 
     vib_energies : list
         a list of all the vibrational energies of the adsorbate (e.g., from
-        ase.vibrations.Vibrations.get_energies). Units of energies are eV.
+        ase.vibrations.Vibrations.get_energies). If atoms is not provided,
+        then the number of energies must match the number of degrees of freedom
+        of the adsorbate; i.e., 3*n, where n is the number of atoms. Note
+        that this class does not check that the user has supplied the
+        correct number of energies.
+        Units of energies are eV.
     trans_barrier_energy : float
         the translational energy barrier in eV. This is the barrier for an
         adsorbate to diffuse on the surface.
@@ -189,39 +195,11 @@ class HinderedThermo(ThermoChem):
         For example, propane bound through its end carbon has a symmetry
         number of 1 but propane bound through its middle carbon has a symmetry
         number of 2. (if symmetrynumber is unspecified, then the default is 1)
-    natoms : integer
-        the number of atoms, used along with 'geometry' to determine how
-        many vibrations to use. (Not needed if an atoms object is supplied
-        in 'atoms' or if the user desires the entire list of vibrations
-        to be used.)
     """
 
     def __init__(self, vib_energies, trans_barrier_energy, rot_barrier_energy,
                  sitedensity, rotationalminima, potentialenergy=0.,
-                 mass=None, inertia=None, atoms=None, symmetrynumber=1,
-                 natoms=None):
-
-        # Make sure all vibrations are valid
-        for v in vib_energies:
-            if np.real(v) != 0 and np.imag(v) != 0:
-                raise ValueError("Multiple non-zero components in frequency.")
-
-        if natoms is None and atoms:
-            natoms = len(atoms)
-
-        # Sort the vibrations
-        vib_energies = list(vib_energies)
-        vib_energies.sort(key=np.imag, reverse=True)
-        vib_energies.sort(key=np.real)
-
-        # Keep only the relevant vibrational energies (3N-3)
-        if natoms:
-            vib_energies = vib_energies[-(3 * self.natoms - 3):]
-
-        # Make sure no imaginary frequencies remain.
-        if sum(np.iscomplex(vib_energies)):
-            raise ValueError('Imaginary frequencies are present.')
-        self.vib_energies = np.real(vib_energies)  # clear +0.j
+                 mass=None, inertia=None, atoms=None, symmetrynumber=1):
 
         self.trans_barrier_energy = trans_barrier_energy * units._e
         self.rot_barrier_energy = rot_barrier_energy * units._e
@@ -229,8 +207,28 @@ class HinderedThermo(ThermoChem):
         self.rotationalminima = rotationalminima
         self.potentialenergy = potentialenergy
         self.atoms = atoms
-        self.natoms = natoms
         self.symmetry = symmetrynumber
+
+        # Make sure all vibrations are valid
+        for v in vib_energies:
+            if np.real(v) != 0 and np.imag(v) != 0:
+                raise ValueError("Multiple non-zero components in frequency.")
+
+        # Sort the vibrations
+        vib_energies = list(vib_energies)
+        vib_energies.sort(key=np.imag, reverse=True)
+        vib_energies.sort(key=np.real)
+
+        # Keep only the relevant vibrational energies (3N-3)
+        if atoms:
+            vib_energies = vib_energies[-(3 * len(atoms) - 3):]
+        else:
+            vib_energies = vib_energies[-(len(vib_energies)-3):]
+
+        # Make sure no imaginary frequencies remain.
+        if sum(np.iscomplex(vib_energies)):
+            raise ValueError('Imaginary frequencies are present.')
+        self.vib_energies = np.real(vib_energies)  # clear +0.j
 
         if (mass or atoms) and (inertia or atoms):
             if mass:
@@ -465,7 +463,7 @@ class IdealGasThermo(ThermoChem):
         vib_energies.sort(key=np.real)
 
         # Cut the vibrations to those needed from the geometry.
-        vib_energies = vib_energies.tolist()
+        vib_energies = list(vib_energies)
         vib_energies.sort(key=np.imag)
         vib_energies.sort(key=np.real)
         if natoms:
