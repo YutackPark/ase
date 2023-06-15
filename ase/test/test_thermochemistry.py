@@ -232,7 +232,7 @@ def test_hindered_thermo():
         mass=mass,
         inertia=inertia,
     )
-    assert len(thermo.vib_energies) == len(vib_energies)-3
+    assert len(thermo.vib_energies) == len(vib_energies) - 3
     helmholtz = thermo.get_helmholtz_energy(temperature=298.15)
     assert helmholtz == pytest.approx(1.5932242071261076)
 
@@ -250,10 +250,10 @@ def test_hindered_thermo():
     )
 
     helmholtz = thermo.get_helmholtz_energy(temperature=298.15)
-    assert len(thermo.vib_energies) == len(vib_energies)-3
+    assert len(thermo.vib_energies) == len(vib_energies) - 3
     assert helmholtz == pytest.approx(1.5932242071261076)
 
-    atoms = bulk("Cu")*(2, 2, 2)
+    atoms = bulk("Cu") * (2, 2, 2)
     thermo = HinderedThermo(
         vib_energies=vib_energies,
         trans_barrier_energy=trans_barrier_energy,
@@ -263,9 +263,9 @@ def test_hindered_thermo():
         symmetrynumber=symmetrynumber,
         mass=mass,
         inertia=inertia,
-        atoms=atoms
+        atoms=atoms,
     )
-    assert len(thermo.vib_energies) == 3*len(atoms)-3
+    assert len(thermo.vib_energies) == 3 * len(atoms) - 3
 
     with pytest.raises(ValueError):
         thermo = HinderedThermo(

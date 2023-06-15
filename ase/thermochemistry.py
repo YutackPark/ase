@@ -223,7 +223,7 @@ class HinderedThermo(ThermoChem):
         if atoms:
             vib_energies = vib_energies[-(3 * len(atoms) - 3):]
         else:
-            vib_energies = vib_energies[-(len(vib_energies)-3):]
+            vib_energies = vib_energies[-(len(vib_energies) - 3):]
 
         # Make sure no imaginary frequencies remain.
         if sum(np.iscomplex(vib_energies)):
