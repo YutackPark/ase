@@ -76,5 +76,3 @@ def test_optimize(optcls, atoms, ref_atoms, testdir):
 
     assert final_fmax < fmax
     assert e_err < 1.75e-5  # (This tolerance is arbitrary)
-    if os.path.exists("test.traj"):
-        os.remove("test.traj")
