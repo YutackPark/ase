@@ -204,9 +204,9 @@ class HinderedThermo(ThermoChem):
         number of 1 but propane bound through its middle carbon has a symmetry
         number of 2. (if symmetrynumber is unspecified, then the default is 1)
     ignore_imag_modes : bool
-        If True, imaginary frequencies present after the 3N-3 cut will be ignored.
-        If False (default), an error will be raised if imaginary frequencies are
-        present.
+        If True, imaginary frequencies present after the 3N-3 cut will be
+        ignored. If False (default), an error will be raised if imaginary
+        frequencies are present.
     """
 
     def __init__(self, vib_energies, trans_barrier_energy, rot_barrier_energy,
