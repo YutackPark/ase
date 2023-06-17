@@ -99,7 +99,7 @@ def test_ideal_gas_thermo(testdir):
     # vibrational frequencies to deal with to make sure
     # the correct values are cut. This structure is not a
     # minimum or TS and has several imaginary modes. However
-    # if we just the first 6 modes, it'd look like all are
+    # if we cut the first 6 modes, it'd look like all are
     # real when they are not. We need to cut based on
     # np.abs() of the vibrational energies.
 
