@@ -297,7 +297,7 @@ def test_crystal_thermo(asap3, testdir):
         potentialenergy=energy,
         formula_units=4,
     )
-    h = thermo.get_helmholtz_energy(temperature=298.15)
+    thermo.get_helmholtz_energy(temperature=298.15)
 
 
 def test_hindered_thermo():
