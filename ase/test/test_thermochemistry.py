@@ -1,3 +1,6 @@
+import os
+from shutil import rmtree
+
 import numpy as np
 import pytest
 
@@ -16,18 +19,35 @@ from ase.thermochemistry import (
 from ase.vibrations import Vibrations
 
 
+def teardown_module():
+    for f in os.listdir(os.getcwd()):
+        if "-vib" in f:
+            rmtree(f)
+
+
 def test_ideal_gas_thermo(testdir):
+    # TEST 1: We do a basic test on N2
     atoms = Atoms("N2", positions=[(0, 0, 0), (0, 0, 1.1)])
     atoms.calc = EMT()
     QuasiNewton(atoms).run(fmax=0.01)
     energy = atoms.get_potential_energy()
-    vib = Vibrations(atoms, name="idealgasthermo-vib")
+    vib = Vibrations(atoms, name="igt-vib1")
     vib.run()
     vib_energies = vib.get_energies()
     assert len(vib_energies) == 6
     assert vib_energies[0] == pytest.approx(0.0)
     assert vib_energies[-1] == pytest.approx(1.52647479e-01)
 
+    # ---------------------
+    #   #    meV     cm^-1
+    # ---------------------
+    #   0    0.0       0.0 <--- remove!
+    #   1    0.0       0.0 <--- remove!
+    #   2    0.0       0.0 <--- remove!
+    #   3    1.7      13.5 <--- remove!
+    #   4    1.7      13.5 <--- remove!
+    #   5  152.6    1231.2
+    # ---------------------
     thermo = IdealGasThermo(
         vib_energies=vib_energies,
         geometry="linear",
@@ -47,74 +67,71 @@ def test_ideal_gas_thermo(testdir):
         thermo.get_enthalpy(1000) - 1000 * thermo.get_entropy(1000, 1e8)
     )
 
+    # TEST 2: We make sure the 3N-6 cutting is done right!
+    # It must be based on np.abs() of the frequencies.
     atoms = molecule("CH3")
     atoms.calc = EMT()
-    QuasiNewton(atoms).run(fmax=0.01)
     energy = atoms.get_potential_energy()
-    vib = Vibrations(atoms, name="idealgasthermo-vib2")
+    vib = Vibrations(atoms, name="igt-vib2")
     vib.run()
     vib_energies = vib.get_energies()
     assert len(vib_energies) == 12
-    assert vib_energies[0] == pytest.approx(0.013170007749561785j)
-    assert vib_energies[-1] == pytest.approx(0.3323345144618613)
+    assert vib_energies[0] == pytest.approx(0.09599611291404943j)
+    assert vib_energies[-1] == pytest.approx(0.39035516516367375)
+
+    # ---------------------
+    #   #    meV     cm^-1
+    # ---------------------
+    #   0   63.8i    514.8i
+    #   1   63.3i    510.7i
+    #   2   42.4i    342.3i
+    #   3    5.3i     43.1i <--- remove!
+    #   4    0.0       0.0  <--- remove!
+    #   5    0.0       0.0  <--- remove!
+    #   6    0.0       0.0  <--- remove!
+    #   7    5.6      45.5  <--- remove!
+    #   8    6.0      48.1  <--- remove!
+    #   9  507.9    4096.1
+    #  10  547.2    4413.8
+    #  11  547.7    4417.3
+    # ---------------------
+    with pytest.raises(ValueError):
+        # Imaginary frequencies present
+        thermo = IdealGasThermo(
+            vib_energies=vib_energies,
+            geometry="nonlinear",
+            atoms=atoms,
+            symmetrynumber=6,
+            potentialenergy=energy,
+            spin=0.5,
+        )
+
+    # TEST 3: We feed in a custom set of vibrational energies
+    # and make sure things are correct. These vibrational modes
+    # were chosen completely arbitrarily here. We expect only
+    # 3*4-6 = 6 modes to be kept but we passed in 9. The 3 lowest
+    # should be removed: 0.05, 0.08, 0.1
     thermo = IdealGasThermo(
-        vib_energies=vib_energies,
+        vib_energies=[1.0, 0.05, 0.08, 0.1, 0.2, 0.3, 0.4, 0.35, 0.12],
         geometry="nonlinear",
-        atoms=atoms,
+        atoms=molecule("CH3"),
         symmetrynumber=6,
-        potentialenergy=energy,
+        potentialenergy=9,
         spin=0.5,
     )
     assert len(thermo.vib_energies) == 6
-    assert thermo.vib_energies[0] == vib_energies[6]
-    assert thermo.vib_energies[-1] == vib_energies[-1]
+    assert list(thermo.vib_energies) == [0.12, 0.2, 0.3, 0.35, 0.4, 1.0]
     assert thermo.atoms == atoms
     assert thermo.geometry == "nonlinear"
-    assert thermo.get_ZPE_correction() == pytest.approx(0.4794163027968802)
-    assert thermo.get_enthalpy(1000) == pytest.approx(2.912700987111111)
-    assert thermo.get_entropy(1000, 1e8) == pytest.approx(0.0029295583320900396)
+    assert thermo.get_ZPE_correction() == pytest.approx(1.185)
+    assert thermo.get_enthalpy(1000) == pytest.approx(10.610695269124156)
+    assert thermo.get_entropy(1000, 1e8) == pytest.approx(0.0019310086280219891)
     assert thermo.get_gibbs_energy(1000, 1e8) == pytest.approx(
         thermo.get_enthalpy(1000) - 1000 * thermo.get_entropy(1000, 1e8)
     )
 
-    thermo = IdealGasThermo(
-        vib_energies=vib_energies[-12:],
-        geometry="nonlinear",
-        atoms=atoms,
-        symmetrynumber=6,
-        potentialenergy=energy,
-        spin=0.5,
-    )
-    assert len(thermo.vib_energies) == 6
-    assert thermo.atoms == atoms
-    assert thermo.geometry == "nonlinear"
-    assert thermo.get_ZPE_correction() == pytest.approx(0.4794163027968802)
-    assert thermo.get_enthalpy(1000) == pytest.approx(2.912700987111111)
-    assert thermo.get_entropy(1000, 1e8) == pytest.approx(0.0029295583320900396)
-    assert thermo.get_gibbs_energy(1000, 1e8) == pytest.approx(
-        thermo.get_enthalpy(1000) - 1000 * thermo.get_entropy(1000, 1e8)
-    )
-
-    vib_energies = list(vib_energies)
-    vib_energies.sort(reverse=True)
-    thermo = IdealGasThermo(
-        vib_energies=vib_energies,
-        geometry="nonlinear",
-        atoms=atoms,
-        symmetrynumber=6,
-        potentialenergy=energy,
-        spin=0.5,
-    )
-    assert len(thermo.vib_energies) == 6
-    assert thermo.atoms == atoms
-    assert thermo.geometry == "nonlinear"
-    assert thermo.get_ZPE_correction() == pytest.approx(0.4794163027968802)
-    assert thermo.get_enthalpy(1000) == pytest.approx(2.912700987111111)
-    assert thermo.get_entropy(1000, 1e8) == pytest.approx(0.0029295583320900396)
-    assert thermo.get_gibbs_energy(1000, 1e8) == pytest.approx(
-        thermo.get_enthalpy(1000) - 1000 * thermo.get_entropy(1000, 1e8)
-    )
-
+    # TEST 4: Do a sanity check if given nonsensical vibrational energies
+    # with real and imag parts
     with pytest.raises(ValueError):
         thermo = IdealGasThermo(
             vib_energies=[100 + 0.1j] * len(vib_energies),
@@ -136,7 +153,7 @@ def test_harmonic_thermo(testdir):
     QuasiNewton(atoms).run(fmax=0.01)
     vib = Vibrations(
         atoms,
-        name="harmonicthermo-vib",
+        name="harmonic-vib1",
         indices=[atom.index for atom in atoms if atom.symbol != "Cu"],
     )
     vib.run()

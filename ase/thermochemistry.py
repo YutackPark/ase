@@ -216,8 +216,7 @@ class HinderedThermo(ThermoChem):
 
         # Sort the vibrations
         vib_energies = list(vib_energies)
-        vib_energies.sort(key=np.imag, reverse=True)
-        vib_energies.sort(key=np.real)
+        vib_energies.sort(key=np.abs)
 
         # Keep only the relevant vibrational energies (3N-3)
         if atoms:
@@ -459,13 +458,9 @@ class IdealGasThermo(ThermoChem):
 
         # Sort the vibrations
         vib_energies = list(vib_energies)
-        vib_energies.sort(key=np.imag, reverse=True)
-        vib_energies.sort(key=np.real)
+        vib_energies.sort(key=np.abs)
 
         # Cut the vibrations to those needed from the geometry.
-        vib_energies = list(vib_energies)
-        vib_energies.sort(key=np.imag)
-        vib_energies.sort(key=np.real)
         if natoms:
             if geometry == 'nonlinear':
                 vib_energies = vib_energies[-(3 * natoms - 6):]
