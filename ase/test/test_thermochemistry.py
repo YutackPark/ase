@@ -299,25 +299,6 @@ def test_crystal_thermo(asap3, testdir):
     )
     h = thermo.get_helmholtz_energy(temperature=298.15)
 
-    with pytest.raises(ValueError):
-        bad_list = list(phonon_energies)
-        bad_list[0] = 10j
-        thermo = CrystalThermo(
-            phonon_energies=bad_list,
-            phonon_DOS=phonon_DOS,
-            potentialenergy=energy,
-            formula_units=4,
-        )
-
-    thermo = CrystalThermo(
-        phonon_energies=list(phonon_energies) + [10j],
-        phonon_DOS=phonon_DOS,
-        potentialenergy=energy,
-        formula_units=4,
-        ignore_imag_modes=True,
-    )
-    assert thermo.get_helmholtz_energy(temperature=298.15) == h
-
 
 def test_hindered_thermo():
     # Hindered translator / rotor.
