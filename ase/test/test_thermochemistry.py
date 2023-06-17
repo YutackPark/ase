@@ -67,17 +67,41 @@ def test_ideal_gas_thermo(testdir):
         thermo.get_enthalpy(1000) - 1000 * thermo.get_entropy(1000, 1e8)
     )
 
-    # TEST 2: We make sure the 3N-6 cutting is done right!
-    # It must be based on np.abs() of the frequencies.
-    atoms = molecule("CH3")
-    atoms.calc = EMT()
-    energy = atoms.get_potential_energy()
-    vib = Vibrations(atoms, name="igt-vib2")
-    vib.run()
-    vib_energies = vib.get_energies()
-    assert len(vib_energies) == 12
-    assert vib_energies[0] == pytest.approx(0.09599611291404943j)
-    assert vib_energies[-1] == pytest.approx(0.39035516516367375)
+    # TEST 2: Now we try something a bit harder. Let's consider a
+    # CH3 molecule, such that there should be 3*4-6 = 6 modes
+    # for calculating the thermochemistry. We will also provide
+    # the modes in an unsorted list to make sure the correct
+    # values are cut. Note that these vibrational energies
+    # are simply toy values.
+
+    # Input: [1.0, 0.05, 0.08, 0.1, 0.2, 0.3, 0.4, 0.35, 0.12]
+    # Expected: [0.12, 0.2, 0.3, 0.35, 0.4, 1.0]
+    thermo = IdealGasThermo(
+        vib_energies=[1.0, 0.05, 0.08, 0.1, 0.2, 0.3, 0.4, 0.35, 0.12],
+        geometry="nonlinear",
+        atoms=molecule("CH3"),
+        symmetrynumber=6,
+        potentialenergy=9,
+        spin=0.5,
+    )
+    assert len(thermo.vib_energies) == 6
+    assert list(thermo.vib_energies) == [0.12, 0.2, 0.3, 0.35, 0.4, 1.0]
+    assert thermo.atoms == molecule("CH3")
+    assert thermo.geometry == "nonlinear"
+    assert thermo.get_ZPE_correction() == pytest.approx(1.185)
+    assert thermo.get_enthalpy(1000) == pytest.approx(10.610695269124156)
+    assert thermo.get_entropy(1000, 1e8) == pytest.approx(0.0019310086280219891)
+    assert thermo.get_gibbs_energy(1000, 1e8) == pytest.approx(
+        thermo.get_enthalpy(1000) - 1000 * thermo.get_entropy(1000, 1e8)
+    )
+
+    # TEST 3: Now we give the module a more complicated set of
+    # vibrational frequencies to deal with to make sure
+    # the correct values are cut. This structure is not a
+    # minimum or TS and has several imaginary modes. However
+    # if we just the first 6 modes, it'd look like all are
+    # real when they are not. We need to cut based on
+    # np.abs() of the vibrational energies.
 
     # ---------------------
     #   #    meV     cm^-1
@@ -95,42 +119,70 @@ def test_ideal_gas_thermo(testdir):
     #  10  547.2    4413.8
     #  11  547.7    4417.3
     # ---------------------
+    vib_energies = [
+        63.8j,
+        63.3j,
+        42.4j,
+        5.3j,
+        0.0,
+        0.0,
+        0.0,
+        5.6,
+        6.0,
+        507.9,
+        547.2,
+        547.7,
+    ]
     with pytest.raises(ValueError):
-        # Imaginary frequencies present
+        # Imaginary frequencies present!!!
+        thermo = IdealGasThermo(
+            vib_energies=vib_energies,
+            geometry="nonlinear",
+            atoms=molecule("CH3"),
+            symmetrynumber=6,
+            potentialenergy=0.0,
+            spin=0.5,
+        )
+
+    # TEST 4: Let's do another test like above, just for fun.
+    # Again, this is not a minimum or TS and has several
+    # imaginary modes.
+    atoms = molecule("CH3")
+    atoms.calc = EMT()
+    vib = Vibrations(atoms, name="igt-vib2")
+    vib.run()
+    vib_energies = vib.get_energies()
+    assert len(vib_energies) == 12
+    assert vib_energies[0] == pytest.approx(0.09599611291404943j)
+    assert vib_energies[-1] == pytest.approx(0.39035516516367375)
+
+    # ---------------------
+    #   #    meV     cm^-1
+    # ---------------------
+    #   0   96.0i    774.3i
+    #   1   89.4i    721.0i
+    #   2   89.3i    720.4i
+    #   3   85.5i    689.7i <-- remove!
+    #   4   85.4i    689.1i <-- remove!
+    #   5   85.4i    689.1i <-- remove!
+    #   6    0.0       0.0 <-- remove!
+    #   7    0.0       0.0 <-- remove!
+    #   8    0.0       0.0 <-- remove!
+    #   9  369.4    2979.1
+    #  10  369.4    2979.3
+    #  11  390.4    3148.4
+    # ---------------------
+    with pytest.raises(ValueError):
         thermo = IdealGasThermo(
             vib_energies=vib_energies,
             geometry="nonlinear",
             atoms=atoms,
             symmetrynumber=6,
-            potentialenergy=energy,
+            potentialenergy=0.0,
             spin=0.5,
         )
 
-    # TEST 3: We feed in a custom set of vibrational energies
-    # and make sure things are correct. These vibrational modes
-    # were chosen completely arbitrarily here. We expect only
-    # 3*4-6 = 6 modes to be kept but we passed in 9. The 3 lowest
-    # should be removed: 0.05, 0.08, 0.1
-    thermo = IdealGasThermo(
-        vib_energies=[1.0, 0.05, 0.08, 0.1, 0.2, 0.3, 0.4, 0.35, 0.12],
-        geometry="nonlinear",
-        atoms=molecule("CH3"),
-        symmetrynumber=6,
-        potentialenergy=9,
-        spin=0.5,
-    )
-    assert len(thermo.vib_energies) == 6
-    assert list(thermo.vib_energies) == [0.12, 0.2, 0.3, 0.35, 0.4, 1.0]
-    assert thermo.atoms == atoms
-    assert thermo.geometry == "nonlinear"
-    assert thermo.get_ZPE_correction() == pytest.approx(1.185)
-    assert thermo.get_enthalpy(1000) == pytest.approx(10.610695269124156)
-    assert thermo.get_entropy(1000, 1e8) == pytest.approx(0.0019310086280219891)
-    assert thermo.get_gibbs_energy(1000, 1e8) == pytest.approx(
-        thermo.get_enthalpy(1000) - 1000 * thermo.get_entropy(1000, 1e8)
-    )
-
-    # TEST 4: Do a sanity check if given nonsensical vibrational energies
+    # TEST 5: Do a sanity check if given nonsensical vibrational energies
     # with real and imag parts
     with pytest.raises(ValueError):
         thermo = IdealGasThermo(
