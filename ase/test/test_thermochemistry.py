@@ -95,6 +95,30 @@ def test_ideal_gas_thermo(testdir):
         thermo.get_enthalpy(1000) - 1000 * thermo.get_entropy(1000, 1e8)
     )
 
+    # TEST 2.5: Let's do the same as above but provide only
+    # the 6 modes to use.
+
+    # Input: [0.12, 0.2, 0.3, 0.35, 0.4, 1.0]
+    # Expected: [0.12, 0.2, 0.3, 0.35, 0.4, 1.0]
+    thermo = IdealGasThermo(
+        vib_energies=[0.12, 0.2, 0.3, 0.35, 0.4, 1.0],
+        geometry="nonlinear",
+        atoms=molecule("CH3"),
+        symmetrynumber=6,
+        potentialenergy=9,
+        spin=0.5,
+    )
+    assert len(thermo.vib_energies) == 6
+    assert list(thermo.vib_energies) == [0.12, 0.2, 0.3, 0.35, 0.4, 1.0]
+    assert thermo.atoms == molecule("CH3")
+    assert thermo.geometry == "nonlinear"
+    assert thermo.get_ZPE_correction() == pytest.approx(1.185)
+    assert thermo.get_enthalpy(1000) == pytest.approx(10.610695269124156)
+    assert thermo.get_entropy(1000, 1e8) == pytest.approx(0.0019310086280219891)
+    assert thermo.get_gibbs_energy(1000, 1e8) == pytest.approx(
+        thermo.get_enthalpy(1000) - 1000 * thermo.get_entropy(1000, 1e8)
+    )
+
     # TEST 3: Now we give the module a more complicated set of
     # vibrational frequencies to deal with to make sure
     # the correct values are cut. This structure is not a
