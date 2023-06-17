@@ -64,14 +64,22 @@ class HarmonicThermo(ThermoChem):
         the potential energy in eV (e.g., from atoms.get_potential_energy)
         (if potentialenergy is unspecified, then the methods of this
         class can be interpreted as the energy corrections)
+    ignore_imag_modes : bool
+        If True, imaginary frequencies will be ignored. If False (default),
+        an error will be raised if imaginary frequencies are present.
     """
 
-    def __init__(self, vib_energies, potentialenergy=0.):
-        self.vib_energies = vib_energies
+    def __init__(self, vib_energies, potentialenergy=0.,
+                 ignore_imag_modes=False):
+        self.ignore_imag_modes = ignore_imag_modes
+
         # Check for imaginary frequencies.
-        if sum(np.iscomplex(self.vib_energies)):
-            raise ValueError('Imaginary vibrational energies are present.')
-        self.vib_energies = np.real(self.vib_energies)  # clear +0.j
+        if self.ignore_imag_modes:
+            vib_energies = [v for v in vib_energies if np.real(v) > 0]
+        else:
+            if sum(np.iscomplex(vib_energies)):
+                raise ValueError('Imaginary vibrational energies are present.')
+        self.vib_energies = np.real(vib_energies)  # clear +0.j
 
         self.potentialenergy = potentialenergy
 
@@ -195,11 +203,15 @@ class HinderedThermo(ThermoChem):
         For example, propane bound through its end carbon has a symmetry
         number of 1 but propane bound through its middle carbon has a symmetry
         number of 2. (if symmetrynumber is unspecified, then the default is 1)
+    ignore_imag_modes : bool
+        If True, imaginary frequencies will be ignored. If False (default),
+        an error will be raised if imaginary frequencies are present.
     """
 
     def __init__(self, vib_energies, trans_barrier_energy, rot_barrier_energy,
                  sitedensity, rotationalminima, potentialenergy=0.,
-                 mass=None, inertia=None, atoms=None, symmetrynumber=1):
+                 mass=None, inertia=None, atoms=None, symmetrynumber=1,
+                 ignore_imag_modes=False):
 
         self.trans_barrier_energy = trans_barrier_energy * units._e
         self.rot_barrier_energy = rot_barrier_energy * units._e
@@ -208,11 +220,7 @@ class HinderedThermo(ThermoChem):
         self.potentialenergy = potentialenergy
         self.atoms = atoms
         self.symmetry = symmetrynumber
-
-        # Make sure all vibrations are valid
-        for v in vib_energies:
-            if np.real(v) != 0 and np.imag(v) != 0:
-                raise ValueError("Multiple non-zero components in frequency.")
+        self.ignore_imag_modes = ignore_imag_modes
 
         # Sort the vibrations
         vib_energies = list(vib_energies)
@@ -225,7 +233,9 @@ class HinderedThermo(ThermoChem):
             vib_energies = vib_energies[-(len(vib_energies) - 3):]
 
         # Make sure no imaginary frequencies remain.
-        if sum(np.iscomplex(vib_energies)):
+        if self.ignore_imag_modes:
+            vib_energies = [v for v in vib_energies if np.real(v) > 0]
+        elif sum(np.iscomplex(vib_energies)):
             raise ValueError('Imaginary frequencies are present.')
         self.vib_energies = np.real(vib_energies)  # clear +0.j
 
@@ -438,23 +448,23 @@ class IdealGasThermo(ThermoChem):
         the total electronic spin. (0 for molecules in which all electrons
         are paired, 0.5 for a free radical with a single unpaired electron,
         1.0 for a triplet with two unpaired electrons, such as O_2.)
+    ignore_imag_modes : bool
+        If True, imaginary frequencies will be ignored. If False (default),
+        an error will be raised if imaginary frequencies are present.
     """
 
     def __init__(self, vib_energies, geometry, potentialenergy=0.,
-                 atoms=None, symmetrynumber=None, spin=None, natoms=None):
+                 atoms=None, symmetrynumber=None, spin=None, natoms=None,
+                 ignore_imag_modes=False):
         self.potentialenergy = potentialenergy
         self.geometry = geometry
         self.atoms = atoms
         self.sigma = symmetrynumber
         self.spin = spin
         self.natoms = natoms
+        self.ignore_imag_modes = ignore_imag_modes
         if natoms is None and atoms:
             natoms = len(atoms)
-
-        # Make sure all vibrations are valid
-        for v in vib_energies:
-            if np.real(v) != 0 and np.imag(v) != 0:
-                raise ValueError("Multiple non-zero components in frequency.")
 
         # Sort the vibrations
         vib_energies = list(vib_energies)
@@ -472,7 +482,9 @@ class IdealGasThermo(ThermoChem):
                 raise ValueError(f"Unsupported geometry: {geometry}")
 
         # Make sure no imaginary frequencies remain.
-        if sum(np.iscomplex(vib_energies)):
+        if self.ignore_imag_modes:
+            vib_energies = [v for v in vib_energies if np.real(v) > 0]
+        elif sum(np.iscomplex(vib_energies)):
             raise ValueError('Imaginary frequencies are present.')
         self.vib_energies = np.real(vib_energies)  # clear +0.j
 

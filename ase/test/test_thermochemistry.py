@@ -168,6 +168,19 @@ def test_ideal_gas_thermo(testdir):
             spin=0.5,
         )
 
+    # Test 3.5: Same as above, but let's try ignoring the
+    # imag modes. This should just use: 507.9, 547.2, 547.7
+    thermo = IdealGasThermo(
+        vib_energies=vib_energies,
+        geometry="nonlinear",
+        atoms=molecule("CH3"),
+        symmetrynumber=6,
+        potentialenergy=0.0,
+        spin=0.5,
+        ignore_imag_modes=True,
+    )
+    assert list(thermo.vib_energies) == [507.9, 547.2, 547.7]
+
     # TEST 4: Let's do another test like above, just for fun.
     # Again, this is not a minimum or TS and has several
     # imaginary modes.
@@ -250,6 +263,19 @@ def test_harmonic_thermo(testdir):
     helmholtz = thermo.get_helmholtz_energy(temperature=298.15)
     assert helmholtz == pytest.approx(4.060698673180732)
 
+    with pytest.raises(ValueError):
+        thermo = HarmonicThermo(
+            vib_energies=[10j], potentialenergy=atoms.get_potential_energy()
+        )
+
+    thermo = HarmonicThermo(
+        vib_energies=list(vib_energies) + [10j],
+        potentialenergy=atoms.get_potential_energy(),
+        ignore_imag_modes=True,
+    )
+    helmholtz = thermo.get_helmholtz_energy(temperature=298.15)
+    assert helmholtz == pytest.approx(4.060698673180732)
+
 
 def test_crystal_thermo(asap3, testdir):
     atoms = bulk("Al", "fcc", a=4.05)
@@ -271,7 +297,26 @@ def test_crystal_thermo(asap3, testdir):
         potentialenergy=energy,
         formula_units=4,
     )
-    thermo.get_helmholtz_energy(temperature=298.15)
+    h = thermo.get_helmholtz_energy(temperature=298.15)
+
+    with pytest.raises(ValueError):
+        bad_list = list(phonon_energies)
+        bad_list[0] = 10j
+        thermo = CrystalThermo(
+            phonon_energies=bad_list,
+            phonon_DOS=phonon_DOS,
+            potentialenergy=energy,
+            formula_units=4,
+        )
+
+    thermo = CrystalThermo(
+        phonon_energies=list(phonon_energies) + [10j],
+        phonon_DOS=phonon_DOS,
+        potentialenergy=energy,
+        formula_units=4,
+        ignore_imag_modes=True,
+    )
+    assert thermo.get_helmholtz_energy(temperature=298.15) == h
 
 
 def test_hindered_thermo():
@@ -345,6 +390,19 @@ def test_hindered_thermo():
     helmholtz = thermo.get_helmholtz_energy(temperature=298.15)
     assert len(thermo.vib_energies) == len(vib_energies) - 3
     assert helmholtz == pytest.approx(1.5932242071261076)
+
+    thermo = HinderedThermo(
+        vib_energies=list(vib_energies) + [10j],
+        trans_barrier_energy=trans_barrier_energy,
+        rot_barrier_energy=rot_barrier_energy,
+        sitedensity=sitedensity,
+        rotationalminima=rotationalminima,
+        symmetrynumber=symmetrynumber,
+        mass=mass,
+        inertia=inertia,
+        ignore_imag_modes=True,
+    )
+    assert thermo.get_helmholtz_energy(temperature=298.15) == helmholtz
 
     atoms = bulk("Cu") * (2, 2, 2)
     thermo = HinderedThermo(
