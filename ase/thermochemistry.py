@@ -239,6 +239,7 @@ class HinderedThermo(ThermoChem):
             vib_energies = vib_energies[-(len(vib_energies) - 3):]
 
         # Make sure no imaginary frequencies remain.
+        self.n_imag = None
         if self.ignore_imag_modes:
             n_vib_energies = len(vib_energies)
             vib_energies = [v for v in vib_energies if np.real(v) > 0]
@@ -493,6 +494,7 @@ class IdealGasThermo(ThermoChem):
                 raise ValueError(f"Unsupported geometry: {geometry}")
 
         # Make sure no imaginary frequencies remain.
+        self.n_imag = None
         if self.ignore_imag_modes:
             n_vib_energies = len(vib_energies)
             vib_energies = [v for v in vib_energies if np.real(v) > 0]
