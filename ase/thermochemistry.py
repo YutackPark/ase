@@ -72,7 +72,6 @@ class HarmonicThermo(ThermoChem):
     def __init__(self, vib_energies, potentialenergy=0.,
                  ignore_imag_modes=False):
         self.ignore_imag_modes = ignore_imag_modes
-        self.n_imag = None
 
         # Check for imaginary frequencies.
         if self.ignore_imag_modes:
@@ -84,6 +83,7 @@ class HarmonicThermo(ThermoChem):
         else:
             if sum(np.iscomplex(vib_energies)):
                 raise ValueError('Imaginary vibrational energies are present.')
+            self.n_imag = 0
         self.vib_energies = np.real(vib_energies)  # clear +0.j
 
         self.potentialenergy = potentialenergy
@@ -239,15 +239,16 @@ class HinderedThermo(ThermoChem):
             vib_energies = vib_energies[-(len(vib_energies) - 3):]
 
         # Make sure no imaginary frequencies remain.
-        self.n_imag = None
         if self.ignore_imag_modes:
             n_vib_energies = len(vib_energies)
             vib_energies = [v for v in vib_energies if np.real(v) > 0]
             self.n_imag = len(vib_energies) - n_vib_energies
             if self.n_imag > 0:
                 print(f"{self.n_imag} imag modes removed")
-        elif sum(np.iscomplex(vib_energies)):
-            raise ValueError('Imaginary frequencies are present.')
+        else:
+            if sum(np.iscomplex(vib_energies)):
+                raise ValueError('Imaginary vibrational energies are present.')
+            self.n_imag = 0
         self.vib_energies = np.real(vib_energies)  # clear +0.j
 
         if (mass or atoms) and (inertia or atoms):
@@ -494,15 +495,16 @@ class IdealGasThermo(ThermoChem):
                 raise ValueError(f"Unsupported geometry: {geometry}")
 
         # Make sure no imaginary frequencies remain.
-        self.n_imag = None
         if self.ignore_imag_modes:
             n_vib_energies = len(vib_energies)
             vib_energies = [v for v in vib_energies if np.real(v) > 0]
             self.n_imag = len(vib_energies) - n_vib_energies
             if self.n_imag > 0:
                 print(f"{self.n_imag} imag modes removed")
-        elif sum(np.iscomplex(vib_energies)):
-            raise ValueError('Imaginary frequencies are present.')
+        else:
+            if sum(np.iscomplex(vib_energies)):
+                raise ValueError('Imaginary vibrational energies are present.')
+            self.n_imag = 0
         self.vib_energies = np.real(vib_energies)  # clear +0.j
 
         self.referencepressure = 1.0e5  # Pa
