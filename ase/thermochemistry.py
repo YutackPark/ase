@@ -80,7 +80,7 @@ class HarmonicThermo(ThermoChem):
             vib_energies = [v for v in vib_energies if np.real(v) > 0]
             self.n_imag = len(vib_energies) - n_vib_energies
             if self.n_imag > 0:
-                print(f"{n_imag} imag modes removed")
+                print(f"{self.n_imag} imag modes removed")
         else:
             if sum(np.iscomplex(vib_energies)):
                 raise ValueError('Imaginary vibrational energies are present.')
@@ -245,7 +245,7 @@ class HinderedThermo(ThermoChem):
             vib_energies = [v for v in vib_energies if np.real(v) > 0]
             self.n_imag = len(vib_energies) - n_vib_energies
             if self.n_imag > 0:
-                print(f"{n_imag} imag modes removed")
+                print(f"{self.n_imag} imag modes removed")
         elif sum(np.iscomplex(vib_energies)):
             raise ValueError('Imaginary frequencies are present.')
         self.vib_energies = np.real(vib_energies)  # clear +0.j
@@ -500,7 +500,7 @@ class IdealGasThermo(ThermoChem):
             vib_energies = [v for v in vib_energies if np.real(v) > 0]
             self.n_imag = len(vib_energies) - n_vib_energies
             if self.n_imag > 0:
-                print(f"{n_imag} imag modes removed")
+                print(f"{self.n_imag} imag modes removed")
         elif sum(np.iscomplex(vib_energies)):
             raise ValueError('Imaginary frequencies are present.')
         self.vib_energies = np.real(vib_energies)  # clear +0.j
