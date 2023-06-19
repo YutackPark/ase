@@ -80,7 +80,7 @@ class HarmonicThermo(ThermoChem):
             vib_energies = [v for v in vib_energies if np.real(v) > 0]
             if len(vib_energies) < n_vib_energies:
                 warn(f"{n_vib_energies-len(vib_energies)}"
-                        " imaginary modes were ignored.")
+                      " imaginary modes were ignored.")
         else:
             if sum(np.iscomplex(vib_energies)):
                 raise ValueError('Imaginary vibrational energies are present.')
@@ -244,7 +244,7 @@ class HinderedThermo(ThermoChem):
             vib_energies = [v for v in vib_energies if np.real(v) > 0]
             if len(vib_energies) < n_vib_energies:
                 warn(f"{n_vib_energies-len(vib_energies)}"
-                    " imaginary modes were ignored.")
+                      " imaginary modes were ignored.")
         elif sum(np.iscomplex(vib_energies)):
             raise ValueError('Imaginary frequencies are present.')
         self.vib_energies = np.real(vib_energies)  # clear +0.j
@@ -498,7 +498,7 @@ class IdealGasThermo(ThermoChem):
             vib_energies = [v for v in vib_energies if np.real(v) > 0]
             if len(vib_energies) < n_vib_energies:
                 warn(f"{n_vib_energies-len(vib_energies)}"
-                    " imaginary modes were ignored.")
+                      " imaginary modes were ignored.")
         elif sum(np.iscomplex(vib_energies)):
             raise ValueError('Imaginary frequencies are present.')
         self.vib_energies = np.real(vib_energies)  # clear +0.j
