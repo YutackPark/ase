@@ -118,6 +118,7 @@ def test_ideal_gas_thermo(testdir):
     assert thermo.get_gibbs_energy(1000, 1e8) == pytest.approx(
         thermo.get_enthalpy(1000) - 1000 * thermo.get_entropy(1000, 1e8)
     )
+    assert thermo.n_imag == 0
 
     # TEST 3: Now we give the module a more complicated set of
     # vibrational frequencies to deal with to make sure
@@ -170,16 +171,18 @@ def test_ideal_gas_thermo(testdir):
 
     # Test 3.5: Same as above, but let's try ignoring the
     # imag modes. This should just use: 507.9, 547.2, 547.7
-    thermo = IdealGasThermo(
-        vib_energies=vib_energies,
-        geometry="nonlinear",
-        atoms=molecule("CH3"),
-        symmetrynumber=6,
-        potentialenergy=0.0,
-        spin=0.5,
-        ignore_imag_modes=True,
-    )
+    with pytest.warns(UserWarning):
+        thermo = IdealGasThermo(
+            vib_energies=vib_energies,
+            geometry="nonlinear",
+            atoms=molecule("CH3"),
+            symmetrynumber=6,
+            potentialenergy=0.0,
+            spin=0.5,
+            ignore_imag_modes=True,
+        )
     assert list(thermo.vib_energies) == [507.9, 547.2, 547.7]
+    assert thermo.n_imag == 3
 
     # TEST 4: Let's do another test like above, just for fun.
     # Again, this is not a minimum or TS and has several
@@ -262,19 +265,22 @@ def test_harmonic_thermo(testdir):
     )
     helmholtz = thermo.get_helmholtz_energy(temperature=298.15)
     assert helmholtz == pytest.approx(4.060698673180732)
+    assert thermo.n_imag == 0
 
     with pytest.raises(ValueError):
         thermo = HarmonicThermo(
             vib_energies=[10j], potentialenergy=atoms.get_potential_energy()
         )
 
-    thermo = HarmonicThermo(
-        vib_energies=list(vib_energies) + [10j],
-        potentialenergy=atoms.get_potential_energy(),
-        ignore_imag_modes=True,
-    )
+    with pytest.warns(UserWarning):
+        thermo = HarmonicThermo(
+            vib_energies=list(vib_energies) + [10j],
+            potentialenergy=atoms.get_potential_energy(),
+            ignore_imag_modes=True,
+        )
     helmholtz = thermo.get_helmholtz_energy(temperature=298.15)
     assert helmholtz == pytest.approx(4.060698673180732)
+    assert thermo.n_imag == 1
 
 
 def test_crystal_thermo(asap3, testdir):
@@ -371,19 +377,22 @@ def test_hindered_thermo():
     helmholtz = thermo.get_helmholtz_energy(temperature=298.15)
     assert len(thermo.vib_energies) == len(vib_energies) - 3
     assert helmholtz == pytest.approx(1.5932242071261076)
+    assert thermo.n_imag == 0
 
-    thermo = HinderedThermo(
-        vib_energies=list(vib_energies) + [10j],
-        trans_barrier_energy=trans_barrier_energy,
-        rot_barrier_energy=rot_barrier_energy,
-        sitedensity=sitedensity,
-        rotationalminima=rotationalminima,
-        symmetrynumber=symmetrynumber,
-        mass=mass,
-        inertia=inertia,
-        ignore_imag_modes=True,
-    )
+    with pytest.warns(UserWarning):
+        thermo = HinderedThermo(
+            vib_energies=list(vib_energies) + [10j],
+            trans_barrier_energy=trans_barrier_energy,
+            rot_barrier_energy=rot_barrier_energy,
+            sitedensity=sitedensity,
+            rotationalminima=rotationalminima,
+            symmetrynumber=symmetrynumber,
+            mass=mass,
+            inertia=inertia,
+            ignore_imag_modes=True,
+        )
     assert thermo.get_helmholtz_energy(temperature=298.15) == helmholtz
+    assert thermo.n_imag == 1
 
     atoms = bulk("Cu") * (2, 2, 2)
     thermo = HinderedThermo(
