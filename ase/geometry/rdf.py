@@ -137,4 +137,4 @@ def get_containing_cell_length(atoms: Atoms) -> np.ndarray:
 
 
 def get_volume_estimate(atoms: Atoms) -> float:
-    return np.product(get_containing_cell_length(atoms))
+    return np.prod(get_containing_cell_length(atoms))
