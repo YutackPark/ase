@@ -22,7 +22,7 @@ def get_max_containing_cell_length(images: List[Atoms]):
 
 
 def get_max_volume_estimate(images: List[Atoms]) -> float:
-    return np.product(get_max_containing_cell_length(images))
+    return np.prod(get_max_containing_cell_length(images))
 
 
 class Analysis:
