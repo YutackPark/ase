@@ -66,8 +66,9 @@ class HarmonicThermo(ThermoChem):
         (if potentialenergy is unspecified, then the methods of this
         class can be interpreted as the energy corrections)
     ignore_imag_modes : bool
-        If True, imaginary frequencies will be ignored. If False (default),
-        an error will be raised if imaginary frequencies are present.
+        If True, any imaginary frequencies will be ignored in the calculation
+        of the thermochemical properties. If False (default), an error will
+        be raised if any imaginary frequencies are present.
     """
 
     def __init__(self, vib_energies, potentialenergy=0.,
@@ -210,9 +211,10 @@ class HinderedThermo(ThermoChem):
         number of 1 but propane bound through its middle carbon has a symmetry
         number of 2. (if symmetrynumber is unspecified, then the default is 1)
     ignore_imag_modes : bool
-        If True, imaginary frequencies present after the 3N-3 cut will be
-        ignored. If False (default), an error will be raised if imaginary
-        frequencies are present.
+        If True, any imaginary frequencies present after the 3N-3 cut will not
+        be included in the calculation of the thermochemical properties. If
+        False (default), an error will be raised if imaginary frequencies are
+        present after the 3N-3 cut.
     """
 
     def __init__(self, vib_energies, trans_barrier_energy, rot_barrier_energy,
@@ -462,9 +464,10 @@ class IdealGasThermo(ThermoChem):
         are paired, 0.5 for a free radical with a single unpaired electron,
         1.0 for a triplet with two unpaired electrons, such as O_2.)
     ignore_imag_modes : bool
-        If True, imaginary frequencies present after the 3N-5/3N-6 cut will
-        be ignored. If False (default), a ValueError will be raised if
-        imaginary frequencies are present.
+        If True, any imaginary frequencies present after the 3N-5/3N-6 cut
+        will not be included in the calculation of the thermochemical
+        properties. If False (default), a ValueError will be raised if
+        any imaginary frequencies remain after the 3N-5/3N-6 cut.
     """
 
     def __init__(self, vib_energies, geometry, potentialenergy=0.,
