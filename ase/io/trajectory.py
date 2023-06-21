@@ -55,7 +55,7 @@ class TrajectoryWriter:
     """Writes Atoms objects to a .traj file."""
 
     def __init__(self, filename, mode='w', atoms=None, properties=None,
-                 master=None):
+                 extra=[], master=None):
         """A Trajectory writer, in write or append mode.
 
         Parameters:
