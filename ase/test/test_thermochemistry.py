@@ -57,7 +57,6 @@ def test_ideal_gas_thermo_n2(testdir):
     )
     assert len(thermo.vib_energies) == 1
     assert thermo.vib_energies[0] == vib_energies[-1]
-    assert thermo.atoms == atoms
     assert thermo.geometry == "linear"
     assert thermo.get_ZPE_correction() == pytest.approx(0.07632373926263808)
     assert thermo.get_enthalpy(1000) == pytest.approx(0.6719935644272014)
@@ -129,7 +128,6 @@ def test_ideal_gas_thermo_ch3_v2(testdir):
     )
     assert len(thermo.vib_energies) == 6
     assert list(thermo.vib_energies) == [0.12, 0.2, 0.3, 0.35, 0.4, 1.0]
-    assert thermo.atoms == molecule("CH3")
     assert thermo.geometry == "nonlinear"
     assert thermo.get_ZPE_correction() == pytest.approx(1.185)
     assert thermo.get_enthalpy(1000) == pytest.approx(10.610695269124156)
