@@ -478,10 +478,10 @@ class IdealGasThermo(ThermoChem):
         self.atoms = atoms
         self.sigma = symmetrynumber
         self.spin = spin
-        self.natoms = natoms
         self.ignore_imag_modes = ignore_imag_modes
         if natoms is None and atoms:
             natoms = len(atoms)
+        self.natoms = natoms
 
         # Sort the vibrations
         vib_energies = list(vib_energies)
