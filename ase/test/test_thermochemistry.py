@@ -5,9 +5,8 @@ import numpy as np
 import pytest
 
 from ase import Atoms
-from ase.build import add_adsorbate, bulk, fcc100, molecule
+from ase.build import bulk, molecule
 from ase.calculators.emt import EMT
-from ase.constraints import FixAtoms
 from ase.optimize import QuasiNewton
 from ase.phonons import Phonons
 from ase.thermochemistry import (
@@ -189,7 +188,8 @@ def test_ideal_gas_thermo_ch3_v3(testdir):
     # Same as above, but let's try ignoring the
     # imag modes. This should just use: 507.9, 547.2, 547.7
     with pytest.warns(UserWarning):
-        thermo = ideal_gas_thermo_ch3(vib_energies=vib_energies, ignore_imag_modes=True)
+        thermo = ideal_gas_thermo_ch3(vib_energies=vib_energies,
+                                      ignore_imag_modes=True)
     assert list(thermo.vib_energies) == [507.9, 547.2, 547.7]
     assert thermo.n_imag == 3
 
@@ -266,7 +266,8 @@ def test_harmonic_thermo(testdir):
 
     with pytest.warns(UserWarning):
         thermo = harmonic_thermo(
-            vib_energies=list(VIB_ENERGIES_HARMONIC) + [10j], ignore_imag_modes=True
+            vib_energies=list(VIB_ENERGIES_HARMONIC) + [10j],
+            ignore_imag_modes=True
         )
     helmholtz = thermo.get_helmholtz_energy(temperature=298.15)
     assert helmholtz == pytest.approx(4.060698673180732)
@@ -383,7 +384,8 @@ def test_hindered_thermo3():
     "Now add an imaginary mode and make sure it is removed"
     with pytest.warns(UserWarning):
         thermo = hindered_thermo(
-            vib_energies=list(VIB_ENERGIES_HINDERED) + [10j], ignore_imag_modes=True
+            vib_energies=list(VIB_ENERGIES_HINDERED) + [10j],
+            ignore_imag_modes=True
         )
     assert thermo.get_helmholtz_energy(temperature=298.15) == pytest.approx(
         1.5932242071261076
