@@ -365,7 +365,10 @@ def hindered_thermo(
         ignore_imag_modes=ignore_imag_modes,
     )
 
+
 HELMHOLTZ_HINDERED = 1.5932242071261076
+
+
 def test_hindered_thermo1():
     """
     Hindered translator / rotor.
