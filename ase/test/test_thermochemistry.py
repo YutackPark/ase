@@ -18,12 +18,6 @@ from ase.thermochemistry import (
 from ase.vibrations import Vibrations
 
 
-def teardown_module():
-    for f in os.listdir(os.getcwd()):
-        if "-vib" in f:
-            rmtree(f)
-
-
 def test_ideal_gas_thermo_n2(testdir):
     "We do a basic test on N2"
     atoms = Atoms("N2", positions=[(0, 0, 0), (0, 0, 1.1)])
@@ -88,6 +82,14 @@ def ideal_gas_thermo_ch3(
     )
 
 
+CH3_THERMO = {
+    "ZPE": 1.185,
+    "enthalpy": 10.610695269124156,
+    "entropy": 0.0019310086280219891,
+    "gibbs": 8.678687641495167,
+}
+
+
 def test_ideal_gas_thermo_ch3(testdir):
     """
     Now we try something a bit harder. Let's consider a
@@ -107,9 +109,9 @@ def test_ideal_gas_thermo_ch3(testdir):
     assert len(thermo.vib_energies) == 6
     assert list(thermo.vib_energies) == [0.12, 0.2, 0.3, 0.35, 0.4, 1.0]
     assert thermo.geometry == "nonlinear"
-    assert thermo.get_ZPE_correction() == pytest.approx(1.185)
-    assert thermo.get_enthalpy(1000) == pytest.approx(10.610695269124156)
-    assert thermo.get_entropy(1000, 1e8) == pytest.approx(0.0019310086280219891)
+    assert thermo.get_ZPE_correction() == pytest.approx(CH3_THERMO["ZPE"])
+    assert thermo.get_enthalpy(1000) == pytest.approx(CH3_THERMO["enthalpy"])
+    assert thermo.get_entropy(1000, 1e8) == pytest.approx(CH3_THERMO["entropy"])
     assert thermo.get_gibbs_energy(1000, 1e8) == pytest.approx(
         thermo.get_enthalpy(1000) - 1000 * thermo.get_entropy(1000, 1e8)
     )
@@ -129,9 +131,9 @@ def test_ideal_gas_thermo_ch3_v2(testdir):
     assert len(thermo.vib_energies) == 6
     assert list(thermo.vib_energies) == [0.12, 0.2, 0.3, 0.35, 0.4, 1.0]
     assert thermo.geometry == "nonlinear"
-    assert thermo.get_ZPE_correction() == pytest.approx(1.185)
-    assert thermo.get_enthalpy(1000) == pytest.approx(10.610695269124156)
-    assert thermo.get_entropy(1000, 1e8) == pytest.approx(0.0019310086280219891)
+    assert thermo.get_ZPE_correction() == pytest.approx(CH3_THERMO["ZPE"])
+    assert thermo.get_enthalpy(1000) == pytest.approx(CH3_THERMO["enthalpy"])
+    assert thermo.get_entropy(1000, 1e8) == pytest.approx(CH3_THERMO["entropy"])
     assert thermo.get_gibbs_energy(1000, 1e8) == pytest.approx(
         thermo.get_enthalpy(1000) - 1000 * thermo.get_entropy(1000, 1e8)
     )
@@ -186,8 +188,7 @@ def test_ideal_gas_thermo_ch3_v3(testdir):
     # Same as above, but let's try ignoring the
     # imag modes. This should just use: 507.9, 547.2, 547.7
     with pytest.warns(UserWarning):
-        thermo = ideal_gas_thermo_ch3(vib_energies=vib_energies,
-                                      ignore_imag_modes=True)
+        thermo = ideal_gas_thermo_ch3(vib_energies=vib_energies, ignore_imag_modes=True)
     assert list(thermo.vib_energies) == [507.9, 547.2, 547.7]
     assert thermo.n_imag == 3
 
@@ -247,28 +248,40 @@ def harmonic_thermo(
     )
 
 
+HELMHOLTZ = 4.060698673180732
+
+
 def test_harmonic_thermo(testdir):
+    "Basic test of harmonic thermochemistry"
     thermo = harmonic_thermo()
     helmholtz = thermo.get_helmholtz_energy(temperature=298.15)
-    assert helmholtz == pytest.approx(4.060698673180732)
+    assert helmholtz == pytest.approx(HELMHOLTZ)
 
+
+def test_harmonic_thermo_v2(testdir):
+    "Test with a reversed list giving the same results"
     vib_energies = list(VIB_ENERGIES_HARMONIC)
     vib_energies.sort(reverse=True)
     thermo = harmonic_thermo(vib_energies=vib_energies)
     helmholtz = thermo.get_helmholtz_energy(temperature=298.15)
-    assert helmholtz == pytest.approx(4.060698673180732)
+    assert helmholtz == pytest.approx(HELMHOLTZ)
     assert thermo.n_imag == 0
 
+
+def test_harmonic_thermo_v3(testdir):
+    "Test that a proper error is raised with imag modes"
     with pytest.raises(ValueError):
         thermo = harmonic_thermo(vib_energies=[10j])
 
+
+def test_harmonic_thermo_v4(testdir):
+    "Test that a proper warning is raised with non-crucial imag modes"
     with pytest.warns(UserWarning):
         thermo = harmonic_thermo(
-            vib_energies=list(VIB_ENERGIES_HARMONIC) + [10j],
-            ignore_imag_modes=True
+            vib_energies=list(VIB_ENERGIES_HARMONIC) + [10j], ignore_imag_modes=True
         )
     helmholtz = thermo.get_helmholtz_energy(temperature=298.15)
-    assert helmholtz == pytest.approx(4.060698673180732)
+    assert helmholtz == pytest.approx(HELMHOLTZ)
     assert thermo.n_imag == 1
 
 
@@ -341,6 +354,7 @@ def hindered_thermo(
     ignore_imag_modes=False,
 ):
     return HinderedThermo(
+        atoms=atoms,
         vib_energies=vib_energies if vib_energies else VIB_ENERGIES_HINDERED,
         trans_barrier_energy=trans_barrier_energy,
         rot_barrier_energy=rot_barrier_energy,
@@ -382,8 +396,7 @@ def test_hindered_thermo3():
     "Now add an imaginary mode and make sure it is removed"
     with pytest.warns(UserWarning):
         thermo = hindered_thermo(
-            vib_energies=list(VIB_ENERGIES_HINDERED) + [10j],
-            ignore_imag_modes=True
+            vib_energies=list(VIB_ENERGIES_HINDERED) + [10j], ignore_imag_modes=True
         )
     assert thermo.get_helmholtz_energy(temperature=298.15) == pytest.approx(
         1.5932242071261076
