@@ -246,14 +246,14 @@ def harmonic_thermo(
     )
 
 
-HELMHOLTZ = 4.060698673180732
+HELMHOLTZ_HARMONIC = 4.060698673180732
 
 
 def test_harmonic_thermo(testdir):
     "Basic test of harmonic thermochemistry"
     thermo = harmonic_thermo()
     helmholtz = thermo.get_helmholtz_energy(temperature=298.15)
-    assert helmholtz == pytest.approx(HELMHOLTZ)
+    assert helmholtz == pytest.approx(HELMHOLTZ_HARMONIC)
 
 
 def test_harmonic_thermo_v2(testdir):
@@ -262,7 +262,7 @@ def test_harmonic_thermo_v2(testdir):
     vib_energies.sort(reverse=True)
     thermo = harmonic_thermo(vib_energies=vib_energies)
     helmholtz = thermo.get_helmholtz_energy(temperature=298.15)
-    assert helmholtz == pytest.approx(HELMHOLTZ)
+    assert helmholtz == pytest.approx(HELMHOLTZ_HARMONIC)
     assert thermo.n_imag == 0
 
 
@@ -280,7 +280,7 @@ def test_harmonic_thermo_v4(testdir):
             ignore_imag_modes=True
         )
     helmholtz = thermo.get_helmholtz_energy(temperature=298.15)
-    assert helmholtz == pytest.approx(HELMHOLTZ)
+    assert helmholtz == pytest.approx(HELMHOLTZ_HARMONIC)
     assert thermo.n_imag == 1
 
 
@@ -365,7 +365,7 @@ def hindered_thermo(
         ignore_imag_modes=ignore_imag_modes,
     )
 
-
+HELMHOLTZ_HINDERED = 1.5932242071261076
 def test_hindered_thermo1():
     """
     Hindered translator / rotor.
@@ -374,7 +374,7 @@ def test_hindered_thermo1():
     thermo = hindered_thermo()
     assert len(thermo.vib_energies) == 21
     helmholtz = thermo.get_helmholtz_energy(temperature=298.15)
-    assert helmholtz == pytest.approx(1.5932242071261076)
+    assert helmholtz == pytest.approx(HELMHOLTZ_HINDERED)
 
 
 def test_hindered_thermo2():
@@ -387,7 +387,7 @@ def test_hindered_thermo2():
 
     helmholtz = thermo.get_helmholtz_energy(temperature=298.15)
     assert len(thermo.vib_energies) == 21
-    assert helmholtz == pytest.approx(1.5932242071261076)
+    assert helmholtz == pytest.approx(HELMHOLTZ_HINDERED)
     assert thermo.n_imag == 0
 
 
@@ -399,7 +399,7 @@ def test_hindered_thermo3():
             ignore_imag_modes=True
         )
     assert thermo.get_helmholtz_energy(temperature=298.15) == pytest.approx(
-        1.5932242071261076
+        HELMHOLTZ_HINDERED
     )
     assert thermo.n_imag == 1
 
