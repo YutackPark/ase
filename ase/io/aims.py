@@ -1131,8 +1131,12 @@ class AimsOutCalcChunk(AimsOutChunk):
         line_start += 1
 
         line_end = self.reverse_search_for(
-            ['Writing the current geometry to file "geometry.in.next_step"'],
-            line_start)
+            [
+                'Next atomic structure:',
+                'Writing the current geometry to file "geometry.in.next_step"'
+            ],
+            line_start
+        )
         if line_end == LINE_NOT_FOUND:
             line_end = len(self.lines)
 
