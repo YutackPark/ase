@@ -26,6 +26,10 @@ Listed in alphabetical order, for want of a better approach.
    with first-principles codes via ASE as well as other Python
    libraries.
 
+ * `CHGNet <https://github.com/CederGroupHub/chgnet>`_:
+   A pretrained universal neural network potential for charge-informed
+   atomistic modeling
+
  * `CLEASE <https://gitlab.com/computationalmaterials/clease#clease>`_:
    CLuster Expansion in Atomic Simulation Environment (CLEASE) is a package
    that automates the cumbersome setup and construction procedure of cluster
@@ -73,6 +77,9 @@ Listed in alphabetical order, for want of a better approach.
    cluster expansions. It supports a wide range of regression and
    validation techniques, and includes a Monte Carlo module with
    support for many different thermodynamic ensembles.
+
+ * `matgl` <https://github.com/materialsvirtuallab/matgl>:
+   Graph deep learning library for materials
 
  * `NequIP <https://github.com/mir-group/nequip>`_:
    Euclidian Equivariant neural network potentials.  Nequip can fit
