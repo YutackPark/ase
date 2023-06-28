@@ -1,6 +1,7 @@
 from ase.build import minimize_rotation_and_translation
 import numpy as np
 
+
 def test_with_pbc():
     from ase.build import bulk
 
@@ -20,6 +21,7 @@ def test_with_pbc():
     atoms_end.wrap()
 
     assert np.allclose(atoms_end.get_positions(), atoms_start.get_positions())
+
 
 def test_without_pbc():
     from ase.build import molecule
