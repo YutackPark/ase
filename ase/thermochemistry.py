@@ -46,6 +46,7 @@ class ThermoChem:
         if self.verbose:
             sys.stdout.write(text + os.linesep)
 
+
 class HarmonicThermo(ThermoChem):
     """Class for calculating thermodynamic properties in the approximation
     that all degrees of freedom are treated harmonically. Often used for
@@ -787,7 +788,7 @@ class CrystalThermo(ThermoChem):
         return F
 
 
-def _clean_vib_energies(vib_energies,ignore_imag_modes=False):
+def _clean_vib_energies(vib_energies, ignore_imag_modes=False):
     """Checks for presence of imaginary vibrational modes and removes
     them if ignore_imag_modes is True. Also removes +0.j from real
     vibrational energies.
@@ -807,7 +808,7 @@ def _clean_vib_energies(vib_energies,ignore_imag_modes=False):
     vib_energies : list
         a list of the cleaned vibrational energies with imaginary frequencies
         removed if ignore_imag_modes is True.
-    
+
     n_imag : int
         the number of imaginary frequencies removed
     """
