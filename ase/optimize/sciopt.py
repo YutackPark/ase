@@ -114,7 +114,8 @@ class SciPyOptimizer(Optimizer):
         self.call_observers()
         if self.converged(f):
             raise Converged
-        self.nsteps += 1
+        if self.nsteps + 1 <= self.max_steps:
+            self.nsteps += 1
 
     def run(self, fmax=0.05, steps=100000000):
         if self.force_consistent is None:
@@ -122,9 +123,10 @@ class SciPyOptimizer(Optimizer):
         self.fmax = fmax
         try:
             # As SciPy does not log the zeroth iteration, we do that manually
+            self.max_steps = steps
             self.callback(None)
             # Scale the problem as SciPy uses I as initial Hessian.
-            self.call_fmin(fmax / self.H0, steps)
+            self.call_fmin(fmax / self.H0, self.max_steps)
         except Converged:
             pass
         return self.converged()
