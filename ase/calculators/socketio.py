@@ -595,8 +595,10 @@ class SocketIOCalculator(Calculator, IOContext):
 
         In order to correctly close the sockets, it is
         recommended to use this class within a with-block:
+        
+        >>> from ase.calculators.socketio import SocketIOCalculator
 
-        >>> with SocketIOCalculator(...) as calc:
+        >>> with SocketIOCalculator(...) as calc:  # doctest:+SKIP
         ...    atoms.calc = calc
         ...    atoms.get_forces()
         ...    atoms.rattle()

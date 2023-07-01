@@ -74,11 +74,11 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore
                 Default is 'vasp.out'
 
                 - Examples:
-
-                    >>> Vasp(label='mylabel', txt='vasp.out') # Redirect stdout
-                    >>> Vasp(txt='myfile.txt') # Redirect stdout
-                    >>> Vasp(txt='-') # Print vasp output to stdout
-                    >>> Vasp(txt=None)  # Suppress txt output
+                    >>> from ase.calculators.vasp import Vasp
+                    >>> calc = Vasp(label='mylabel', txt='vasp.out') # Redirect stdout
+                    >>> calc = Vasp(txt='myfile.txt') # Redirect stdout
+                    >>> calc = Vasp(txt='-') # Print vasp output to stdout
+                    >>> calc = Vasp(txt=None)  # Suppress txt output
 
             command: str
                 Custom instructions on how to execute VASP. Has priority over
@@ -650,7 +650,9 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore
         """Reads a file in the directory, and returns the lines
 
         Example:
-        >>> outcar = load_file('OUTCAR')
+        >>> from ase.calculators.vasp import Vasp
+        >>> calc = Vasp()
+        >>> outcar = calc.load_file('OUTCAR')
         """
         filename = self._indir(filename)
         with open(filename, 'r') as fd:

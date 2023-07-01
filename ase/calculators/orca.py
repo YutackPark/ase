@@ -79,10 +79,15 @@ class ORCA(GenericFileIOCalculator):
         ========
         Use default values:
 
-
-        >>> h = Atoms('H', calculator=Orca(charge=0,mult=1,directory='water',
-        orcasimpleinput='B3LYP def2-TZVP',
-        orcablocks='%pal nprocs 16 end')
+        >>> from ase.calculators.orca import ORCA
+        >>> h = Atoms(
+        ...     'H',
+        ...     calculator=ORCA(
+        ...         charge=0,
+        ...         mult=1,
+        ...         directory='water',
+        ...         orcasimpleinput='B3LYP def2-TZVP',
+        ...         orcablocks='%pal nprocs 16 end'))
 
         """
 
