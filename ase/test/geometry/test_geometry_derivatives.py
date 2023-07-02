@@ -27,18 +27,30 @@ def test_atoms_angle():
                 if mode == 'distance':
                     minus = np.linalg.norm(pos[1] - pos[0])
                 elif mode == 'angle':
-                    minus = get_angles([pos[0] - pos[1]], [pos[2] - pos[1]])
+                    minus = get_angles(
+                        [pos[0] - pos[1]],
+                        [pos[2] - pos[1]],
+                    )[0]  # size-1 array -> scalar
                 elif mode == 'dihedral':
-                    minus = get_dihedrals([pos[1] - pos[0]], [pos[2] - pos[1]],
-                                          [pos[3] - pos[2]])
+                    minus = get_dihedrals(
+                        [pos[1] - pos[0]],
+                        [pos[2] - pos[1]],
+                        [pos[3] - pos[2]],
+                    )[0]  # size-1 array -> scalar
                 pos[i, j] += 2 * epsilon
                 if mode == 'distance':
                     plus = np.linalg.norm(pos[1] - pos[0])
                 elif mode == 'angle':
-                    plus = get_angles([pos[0] - pos[1]], [pos[2] - pos[1]])
+                    plus = get_angles(
+                        [pos[0] - pos[1]],
+                        [pos[2] - pos[1]],
+                    )[0]  # size-1 array -> scalar
                 elif mode == 'dihedral':
-                    plus = get_dihedrals([pos[1] - pos[0]], [pos[2] - pos[1]],
-                                         [pos[3] - pos[2]])
+                    plus = get_dihedrals(
+                        [pos[1] - pos[0]],
+                        [pos[2] - pos[1]],
+                        [pos[3] - pos[2]],
+                    )[0]  # size-1 array -> scalar
                 derivs[i, j] = (plus - minus) / (2 * epsilon)
         return derivs
 
