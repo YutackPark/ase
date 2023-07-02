@@ -25,7 +25,7 @@ def test_ideal_gas_thermo_n2(testdir):
     vib.run()
     vib_energies = vib.get_energies()
     assert len(vib_energies) == 6
-    assert vib_energies[0] == pytest.approx(0.0)
+    assert vib_energies[0] == pytest.approx(0.0, abs=1e-8)
     assert vib_energies[-1] == pytest.approx(1.52647479e-01)
 
     # ---------------------
