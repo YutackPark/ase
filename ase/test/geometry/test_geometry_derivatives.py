@@ -1,11 +1,10 @@
-def test_atoms_angle():
-    from ase.geometry import (get_angles, get_dihedrals,
-                              get_distances_derivatives,
-                              get_angles_derivatives,
-                              get_dihedrals_derivatives)
-    import numpy as np
-    import pytest
+import numpy as np
+import pytest
+from ase.geometry import (get_angles, get_angles_derivatives, get_dihedrals,
+                          get_dihedrals_derivatives, get_distances_derivatives)
 
+
+def test_atoms_angle():
     # example: positions for H2O2 molecule
     pos = np.asarray([[0.840, 0.881, 0.237],     # H
                       [0., 0.734, -0.237],       # O
