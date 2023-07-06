@@ -652,7 +652,7 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore
         Example:
         >>> from ase.calculators.vasp import Vasp
         >>> calc = Vasp()
-        >>> outcar = calc.load_file('OUTCAR')
+        >>> outcar = calc.load_file('OUTCAR')  # doctest: +SKIP
         """
         filename = self._indir(filename)
         with open(filename, 'r') as fd:
