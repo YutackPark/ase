@@ -43,46 +43,46 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore
     """ASE interface for the Vienna Ab initio Simulation Package (VASP),
     with the Calculator interface.
 
-        Parameters:
+    Parameters:
 
-            atoms:  object
-                Attach an atoms object to the calculator.
+    atoms:  object
+        Attach an atoms object to the calculator.
 
-            label: str
-                Prefix for the output file, and sets the working directory.
-                Default is 'vasp'.
+    label: str
+        Prefix for the output file, and sets the working directory.
+        Default is 'vasp'.
 
-            directory: str
-                Set the working directory. Is prepended to ``label``.
+    directory: str
+        Set the working directory. Is prepended to ``label``.
 
-            restart: str or bool
-                Sets a label for the directory to load files from.
-                if :code:`restart=True`, the working directory from
-                ``directory`` is used.
+    restart: str or bool
+        Sets a label for the directory to load files from.
+        if :code:`restart=True`, the working directory from
+        ``directory`` is used.
 
-            txt: bool, None, str or writable object
-                - If txt is None, output stream will be supressed
+    txt: bool, None, str or writable object
+        - If txt is None, output stream will be supressed
 
-                - If txt is '-' the output will be sent through stdout
+        - If txt is '-' the output will be sent through stdout
 
-                - If txt is a string a file will be opened,\
-                    and the output will be sent to that file.
+        - If txt is a string a file will be opened,\
+            and the output will be sent to that file.
 
-                - Finally, txt can also be a an output stream,\
-                    which has a 'write' attribute.
+        - Finally, txt can also be a an output stream,\
+            which has a 'write' attribute.
 
-                Default is 'vasp.out'
+        Default is 'vasp.out'
 
-                - Examples:
-                    >>> from ase.calculators.vasp import Vasp
-                    >>> calc = Vasp(label='mylabel', txt='vasp.out') # Redirect stdout
-                    >>> calc = Vasp(txt='myfile.txt') # Redirect stdout
-                    >>> calc = Vasp(txt='-') # Print vasp output to stdout
-                    >>> calc = Vasp(txt=None)  # Suppress txt output
+        - Examples:
+            >>> from ase.calculators.vasp import Vasp
+            >>> calc = Vasp(label='mylabel', txt='vasp.out') # Redirect stdout
+            >>> calc = Vasp(txt='myfile.txt') # Redirect stdout
+            >>> calc = Vasp(txt='-') # Print vasp output to stdout
+            >>> calc = Vasp(txt=None)  # Suppress txt output
 
-            command: str
-                Custom instructions on how to execute VASP. Has priority over
-                environment variables.
+    command: str
+        Custom instructions on how to execute VASP. Has priority over
+        environment variables.
     """
     name = 'vasp'
     ase_objtype = 'vasp_calculator'  # For JSON storage
@@ -652,7 +652,7 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore
         Example:
         >>> from ase.calculators.vasp import Vasp
         >>> calc = Vasp()
-        >>> outcar = calc.load_file('OUTCAR')
+        >>> outcar = calc.load_file('OUTCAR')  # doctest: +SKIP
         """
         filename = self._indir(filename)
         with open(filename, 'r') as fd:
