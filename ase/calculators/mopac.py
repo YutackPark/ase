@@ -53,6 +53,7 @@ class MOPAC(FileIOCalculator):
 
         >>> from ase.build import molecule
         >>> from ase.calculators.mopac import MOPAC
+        >>>
         >>> atoms = molecule('O2')
         >>> atoms.calc = MOPAC(label='O2')
         >>> atoms.get_potential_energy()
