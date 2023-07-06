@@ -102,8 +102,7 @@ class IPIProtocol:
     def recvposdata(self):
         cell = self.recv((3, 3), np.float64).T.copy()
         icell = self.recv((3, 3), np.float64).T.copy()
-        natoms = self.recv(1, np.int32)
-        natoms = int(natoms)
+        natoms = self.recv(1, np.int32)[0]
         positions = self.recv((natoms, 3), np.float64)
         return cell * units.Bohr, icell / units.Bohr, positions * units.Bohr
 
@@ -113,12 +112,11 @@ class IPIProtocol:
         msg = self.recvmsg()
         assert msg == 'FORCEREADY', msg
         e = self.recv(1, np.float64)[0]
-        natoms = self.recv(1, np.int32)
+        natoms = self.recv(1, np.int32)[0]
         assert natoms >= 0
         forces = self.recv((int(natoms), 3), np.float64)
         virial = self.recv((3, 3), np.float64).T.copy()
-        nmorebytes = self.recv(1, np.int32)
-        nmorebytes = int(nmorebytes)
+        nmorebytes = self.recv(1, np.int32)[0]
         morebytes = self.recv(nmorebytes, np.byte)
         return (e * units.Ha, (units.Ha / units.Bohr) * forces,
                 units.Ha * virial, morebytes)
