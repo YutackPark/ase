@@ -13,7 +13,7 @@ Git master branch
   to BCC Fe, Co, and Ni.
 
 * :func:`ase.build.make_supercell` can now control how to order the atoms in
-  the supercell via the option ``order``.
+  the supercell via the option ``order`` (:mr:`2800`).
 
 * :meth:`~ase.cell.Cell.mask` returns the mask of nonzero cell vectors,
   an array of three booleans.
