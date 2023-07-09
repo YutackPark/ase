@@ -9,6 +9,7 @@ module_names = """\
 ase.atoms
 ase.build.tools
 ase.cell
+ase.calculators.vasp.vasp
 ase.collections.collection
 ase.dft.kpoints
 ase.eos

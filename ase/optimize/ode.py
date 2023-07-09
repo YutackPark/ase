@@ -101,7 +101,7 @@ def ode12r(f, X0, h=None, verbose=1, fmax=1e-6, maxtol=1e3, steps=100,
         h = 0.5 * rtol ** 0.5 / r  # Chose a stepsize based on that force
         h = max(h, hmin)  # Make sure the step size is not too big
 
-    for nit in range(1, steps):
+    for nit in range(1, steps + 1):
         Xnew = X + h * Fp  # Pick a new position
         Fn_new = f(Xnew)  # Calculate the new forces at this position
         Rn_new = residual(Fn_new, Xnew)

@@ -130,7 +130,7 @@ class FreeElectrons(Calculator):
         K-point specification.
 
     Example:
-
+    >>> from ase.calculators.test import FreeElectrons
     >>> calc = FreeElectrons(nvalence=1, kpts={'path': 'GXL'})
     """
 
