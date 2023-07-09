@@ -1,7 +1,7 @@
 import re
+
 import ase.io.orca as io
-from ase.calculators.genericfileio import (CalculatorTemplate,
-                                           GenericFileIOCalculator)
+from ase.calculators.genericfileio import CalculatorTemplate, GenericFileIOCalculator
 
 
 def get_version_from_orca_header(orca_header):
@@ -57,7 +57,7 @@ class ORCA(GenericFileIOCalculator):
 
     Example:
 
-      calc = Orca(charge=0, mult=1, orcasimpleinput='B3LYP def2-TZVP',
+      calc = ORCA(charge=0, mult=1, orcasimpleinput='B3LYP def2-TZVP',
         orcablocks='%pal nprocs 16 end')
     """
 
@@ -80,7 +80,7 @@ class ORCA(GenericFileIOCalculator):
         Use default values:
 
 
-        >>> h = Atoms('H', calculator=Orca(charge=0,mult=1,directory='water',
+        >>> h = Atoms('H', calculator=ORCA(charge=0,mult=1,directory='water',
         orcasimpleinput='B3LYP def2-TZVP',
         orcablocks='%pal nprocs 16 end')
 
