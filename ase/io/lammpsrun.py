@@ -88,6 +88,8 @@ def lammps_data_to_ase_atoms(
     :rtype: Atoms
 
     """
+    if len(data.shape) == 1:
+        data = data[np.newaxis, :]
 
     # read IDs if given and order if needed
     if "id" in colnames:
