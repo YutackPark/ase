@@ -87,7 +87,7 @@ def check_symmetry(atoms, symprec=1.0e-6, verbose=False):
     """
     Check symmetry of `atoms` with precision `symprec` using `spglib`
 
-    Prints a summary and returns result of `spglib.get\_symmetry\_dataset()`
+    Prints a summary and returns result of `spglib.get_symmetry_dataset()`
     """
     import spglib
     dataset = spglib.get_symmetry_dataset(atoms_to_spglib_cell(atoms),
