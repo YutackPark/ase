@@ -1,5 +1,4 @@
 import re
-
 import ase.io.orca as io
 from ase.calculators.genericfileio import (CalculatorTemplate,
                                            GenericFileIOCalculator)
