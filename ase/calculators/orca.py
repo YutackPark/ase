@@ -57,7 +57,7 @@ class ORCA(GenericFileIOCalculator):
 
     Example:
 
-      calc = Orca(charge=0, mult=1, orcasimpleinput='B3LYP def2-TZVP',
+      calc = ORCA(charge=0, mult=1, orcasimpleinput='B3LYP def2-TZVP',
         orcablocks='%pal nprocs 16 end')
     """
 
