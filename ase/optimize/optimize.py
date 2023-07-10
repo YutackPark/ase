@@ -263,14 +263,14 @@ class Optimizer(Dynamics):
     def irun(self, fmax=0.05, steps=None):
         """ call Dynamics.irun and keep track of fmax"""
         self.fmax = fmax
-        if steps:
+        if steps is not None:
             self.max_steps = steps
         return Dynamics.irun(self)
 
     def run(self, fmax=0.05, steps=None):
         """ call Dynamics.run and keep track of fmax"""
         self.fmax = fmax
-        if steps:
+        if steps is not None:
             self.max_steps = steps
         return Dynamics.run(self)
 
