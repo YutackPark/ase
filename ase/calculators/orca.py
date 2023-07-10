@@ -53,7 +53,7 @@ class OrcaTemplate(CalculatorTemplate):
 
 
 class ORCA(GenericFileIOCalculator):
-    """Class for doing Orca calculations.
+    """Class for doing ORCA calculations.
 
     Example:
 
