@@ -43,7 +43,7 @@ Git master branch
 * :class:`ase.phonons.Displacement` now has a `comm` keyword argument to
   better support parallelization.
 
-* Fix :funcc:`ase.build.rotate.minimize_rotation_and_translation` for
+* Fix :func:`ase.build.rotate.minimize_rotation_and_translation` for
   systems with periodic boundary conditions.
 
 * Fix :func:`ase.io.db.row.AtomsRow.charge`, which was looking for
