@@ -125,8 +125,6 @@ I/O:
   :class:`ase.io.trajectory.TrajectoryReader` and
   :class:`ase.io.trajectory.TrajectoryWriter`.
 
-* The correct file extension is now used for cjson files supported by Avogadro2.
-
 * Add an option to :func:`ase.io.lammpsdata.write_lamps_data` to print
   the atomic masses.
 
