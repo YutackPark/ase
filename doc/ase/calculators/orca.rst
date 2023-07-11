@@ -10,7 +10,7 @@ calculations, and more.
 
 
 It is closed source, but free for academic users. Register on the forum to receive 
-a download link for the binaries, as well as access ot the latest manual.
+a download link for the binaries, as well as access to the latest manual.
 
 
 Many input examples are available at the 
@@ -41,21 +41,23 @@ Setup and usage
 The default command that ASE will use to start ORCA is
 ``orca PREFIX.inp > PREFIX.out``. 
 
-You can change this command by setting the
-environment variable :envvar:`$ASE_ORCA_COMMAND`. (For example, add a line
-to your ``.bashrc`` with ``export ASE_ORCA_COMMAND="my new command"``). 
-This can be useful since the parallel MPI version of orca can require the full
-path to the executable to be specified. 
+For parallel calculations, you will need to specify the full path to the ORCA
+executable. This can be done by defining an `OrcaProfile` like the example below:
+
+  from ase.calculators.orca import OrcaProfile
+
+  MyOrcaProfile = OrcaProfile(["/full/path/to/my/orca"])
+  calc = ORCA(profile=MyOrcaProfile)
 
 .. highlight:: python
 
-Orca wants to decide which sub-processes to parallelize via MPI itself, so you'd
+ORCA decides which sub-processes to parallelize via MPI by itself, so you'll
 almost always want a string in your ``orcablocks`` specifying the number of 
 cores for the simulation, e.g.::
 
   from ase.calculators.orca import ORCA
 
-  calc = ORCA(label='orcacalc', 
+  calc = ORCA(profile=MyOrcaProfile, 
               orcasimpleinput='B3LYP def2-TZVP'
               orcablocks='%pal nprocs 16 end'
 
