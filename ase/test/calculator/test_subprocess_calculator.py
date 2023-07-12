@@ -83,3 +83,19 @@ def test_subprocess_calculator_mpi(factory):
         assert isinstance(nt_g, np.ndarray)
         assert nt_g.dtype == float
         assert all(dim > 10 for dim in nt_g.shape)
+
+
+def parallel_dummy_function(a, b):
+    # (Not actually doing any parallel work.)
+    print('a and b', a, b)
+    return a + b
+
+
+def test_function_evaluation():
+    from ase.calculators.subprocesscalculator import (
+        ParallelDispatch, MPICommand)
+
+    with ParallelDispatch(MPICommand.serial()) as parallel:
+        result = parallel.call(parallel_dummy_function, 2, b=3)
+
+    assert result == 5

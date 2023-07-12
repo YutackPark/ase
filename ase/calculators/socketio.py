@@ -102,8 +102,7 @@ class IPIProtocol:
     def recvposdata(self):
         cell = self.recv((3, 3), np.float64).T.copy()
         icell = self.recv((3, 3), np.float64).T.copy()
-        natoms = self.recv(1, np.int32)
-        natoms = int(natoms)
+        natoms = self.recv(1, np.int32)[0]
         positions = self.recv((natoms, 3), np.float64)
         return cell * units.Bohr, icell / units.Bohr, positions * units.Bohr
 
@@ -113,17 +112,12 @@ class IPIProtocol:
         msg = self.recvmsg()
         assert msg == 'FORCEREADY', msg
         e = self.recv(1, np.float64)[0]
-        natoms = self.recv(1, np.int32)
+        natoms = self.recv(1, np.int32)[0]
         assert natoms >= 0
         forces = self.recv((int(natoms), 3), np.float64)
         virial = self.recv((3, 3), np.float64).T.copy()
-        nmorebytes = self.recv(1, np.int32)
-        nmorebytes = int(nmorebytes)
-        if nmorebytes > 0:
-            # Receiving 0 bytes will block forever on python2.
-            morebytes = self.recv(nmorebytes, np.byte)
-        else:
-            morebytes = b''
+        nmorebytes = self.recv(1, np.int32)[0]
+        morebytes = self.recv(nmorebytes, np.byte)
         return (e * units.Ha, (units.Ha / units.Bohr) * forces,
                 units.Ha * virial, morebytes)
 
@@ -191,9 +185,8 @@ class IPIProtocol:
         e, forces, virial, morebytes = self.sendrecv_force()
         r = dict(energy=e,
                  forces=forces,
-                 virial=virial)
-        if morebytes:
-            r['morebytes'] = morebytes
+                 virial=virial,
+                 morebytes=morebytes)
         return r
 
 
@@ -229,17 +222,21 @@ class FileIOSocketClientLauncher:
 
     def __call__(self, atoms, properties=None, port=None, unixsocket=None):
         assert self.calc is not None
-        self.calc.write_input(atoms, properties=properties,
-                              system_changes=all_changes)
         cwd = self.calc.directory
         profile = getattr(self.calc, 'profile', None)
         if profile is not None:
+            # New GenericFileIOCalculator:
+            self.calc.write_inputfiles(atoms, properties)
             if unixsocket is not None:
                 argv = profile.socketio_argv_unix(socket=unixsocket)
             else:
                 argv = profile.socketio_argv_inet(port=port)
-            return Popen(argv, cwd=cwd)
+            import os
+            return Popen(argv, cwd=cwd, env=os.environ)
         else:
+            # Old FileIOCalculator:
+            self.calc.write_input(atoms, properties=properties,
+                                  system_changes=all_changes)
             cmd = self.calc.command.replace('PREFIX', self.calc.prefix)
             cmd = cmd.format(port=port, unixsocket=unixsocket)
             return Popen(cmd, shell=True, cwd=cwd)
@@ -597,7 +594,9 @@ class SocketIOCalculator(Calculator, IOContext):
         In order to correctly close the sockets, it is
         recommended to use this class within a with-block:
 
-        >>> with SocketIOCalculator(...) as calc:
+        >>> from ase.calculators.socketio import SocketIOCalculator
+
+        >>> with SocketIOCalculator(...) as calc:  # doctest:+SKIP
         ...    atoms.calc = calc
         ...    atoms.get_forces()
         ...    atoms.rattle()

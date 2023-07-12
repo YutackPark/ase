@@ -51,6 +51,53 @@ def get_monkhorst_pack_size_and_offset(kpts):
     raise ValueError('Not an ASE-style Monkhorst-Pack grid!')
 
 
+def mindistance2monkhorstpack(atoms, *,
+                              min_distance,
+                              maxperdim=16,
+                              even=True):
+    """Find a Monkhorst-Pack grid (nx, ny, nz) with lowest number of
+       k-points in the *reducible* Brillouin zone, which still satisfying
+       a given minimum distance (`min_distance`) condition in real space
+       (nx, ny, nz)-supercell.
+
+       Compared to ase.calculators.calculator kptdensity2monkhorstpack
+       routine, this metric is based on a physical quantity (real space
+       distance), and it doesn't depend on non-physical quantities, such as
+       the cell vectors, since basis vectors can be always transformed
+       with integer determinant one matrices. In other words, it is
+       invariant to particular choice of cell representations.
+
+       On orthogonal cells, min_distance = 2 * np.pi * kptdensity.
+    """
+    return _mindistance2monkhorstpack(atoms.cell, atoms.pbc,
+                                      min_distance, maxperdim, even)
+
+
+def _mindistance2monkhorstpack(cell, pbc_c, min_distance, maxperdim, even):
+    from ase import Atoms
+    from ase.neighborlist import NeighborList
+
+    step = 2 if even else 1
+    nl = NeighborList([min_distance / 2], skin=0.0,
+                      self_interaction=False, bothways=False)
+
+    def check(nkpts_c):
+        nl.update(Atoms('H', cell=cell @ np.diag(nkpts_c), pbc=pbc_c))
+        return len(nl.get_neighbors(0)[1]) == 0
+
+    def generate_mpgrids():
+        ranges = [range(step, maxperdim + 1, step)
+                  if pbc else range(1, 2) for pbc in pbc_c]
+        nkpts_nc = np.column_stack([*map(np.ravel, np.meshgrid(*ranges))])
+        yield from sorted(nkpts_nc, key=lambda nkpts_c: np.prod(nkpts_c))
+
+    try:
+        return next(filter(check, generate_mpgrids()))
+    except StopIteration:
+        raise ValueError('Could not find a proper k-point grid for the system.'
+                         ' Try running with a larger maxperdim.')
+
+
 def get_monkhorst_shape(kpts):
     warnings.warn('Use get_monkhorst_pack_size_and_offset()[0] instead.')
     return get_monkhorst_pack_size_and_offset(kpts)[0]

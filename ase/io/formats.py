@@ -342,6 +342,8 @@ def define_external_io_format(entry_point):
 # B=like F, but opens in binary mode
 
 F = define_io_format
+F('abinit-gsr', 'ABINIT GSR file', '1S',
+  module='abinit', glob='*o_GSR.nc')
 F('abinit-in', 'ABINIT input file', '1F',
   module='abinit', magic=b'*znucl *')
 F('abinit-out', 'ABINIT output file', '1F',
@@ -363,7 +365,7 @@ F('castep-phonon', 'CASTEP phonon file', '1F',
 F('cfg', 'AtomEye configuration', '1F')
 F('cif', 'CIF-file', '+B', ext='cif')
 F('cmdft', 'CMDFT-file', '1F', glob='*I_info')
-F('cml', 'Chemical json file', '1F', ext='cml')
+F('cjson', 'Chemical json file', '1F', ext='cjson')
 F('cp2k-dcd', 'CP2K DCD file', '+B',
   module='cp2k', ext='dcd')
 F('cp2k-restart', 'CP2K restart file', '1F',
@@ -395,7 +397,8 @@ F('espresso-in', 'Quantum espresso in file', '1F',
   module='espresso', ext='pwi', magic=[b'*\n&system', b'*\n&SYSTEM'])
 F('espresso-out', 'Quantum espresso out file', '+F',
   module='espresso', ext=['pwo', 'out'], magic=b'*Program PWSCF')
-F('exciting', 'exciting input', '1F', glob='input.xml')
+F('exciting', 'exciting input', '1F', module='exciting', glob='input.xml')
+F('exciting', 'exciting output', '1F', module='exciting', glob='INFO.out')
 F('extxyz', 'Extended XYZ file', '+F', ext='xyz')
 F('findsym', 'FINDSYM-format', '+F')
 F('gamess-us-out', 'GAMESS-US output file', '1F',
@@ -744,10 +747,10 @@ def read(
         Default is to read on master and broadcast to slaves.  Use
         parallel=False to read on all slaves.
     do_not_split_by_at_sign: bool
-        If False (default) ``filename`` is splited by at sign ``@``
+        If False (default) ``filename`` is splitted by at sign ``@``
 
     Many formats allow on open file-like object to be passed instead
-    of ``filename``. In this case the format cannot be auto-decected,
+    of ``filename``. In this case the format cannot be auto-detected,
     so the ``format`` argument should be explicitly given."""
 
     if isinstance(filename, PurePath):

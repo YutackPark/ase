@@ -75,14 +75,20 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
     def name(self):
         return self.template.name
 
-    def calculate(self, atoms, properties, system_changes):
-        directory = self.directory
-        directory.mkdir(exist_ok=True, parents=True)
+    def write_inputfiles(self, atoms, properties):
+        # SocketIOCalculators like to write inputfiles
+        # without calculating.
+        self.directory.mkdir(exist_ok=True, parents=True)
+        self.template.write_input(
+            atoms=atoms,
+            parameters=self.parameters,
+            properties=properties,
+            directory=self.directory)
 
-        self.template.write_input(directory, atoms, self.parameters,
-                                  properties)
-        self.template.execute(directory, self.profile)
-        self.results = self.template.read_results(directory)
+    def calculate(self, atoms, properties, system_changes):
+        self.write_inputfiles(atoms, properties)
+        self.template.execute(self.directory, self.profile)
+        self.results = self.template.read_results(self.directory)
         # XXX Return something useful?
 
     def _outputmixin_get_results(self):

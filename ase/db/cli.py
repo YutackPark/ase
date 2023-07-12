@@ -245,8 +245,7 @@ def main(args):
             return
         check_jsmol()
         import ase.db.app as app
-        app.add_project(db)
-        app.app.run(host='0.0.0.0', debug=True)
+        app.DBApp().run_db(db)
         return
 
     columns = list(all_columns)
@@ -282,7 +281,7 @@ def main(args):
 
 
 def row2str(row) -> str:
-    t = row2dct(row)
+    t = row2dct(row, key_descriptions={})
     S = [t['formula'] + ':',
          'Unit cell in Ang:',
          'axis|periodic|          x|          y|          z|' +

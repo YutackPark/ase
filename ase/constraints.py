@@ -604,10 +604,12 @@ class FixLinearTriatomic(FixConstraint):
 
 class FixedMode(FixConstraint):
     """Constrain atoms to move along directions orthogonal to
-    a given mode only."""
+    a given mode only. Initialize with a mode, such as one produced by
+    ase.vibrations.Vibrations.get_mode()."""
 
     def __init__(self, mode):
-        self.mode = (np.asarray(mode) / np.sqrt((mode**2).sum())).reshape(-1)
+        mode = np.asarray(mode)
+        self.mode = (mode / np.sqrt((mode**2).sum())).reshape(-1)
 
     def get_removed_dof(self, atoms):
         return len(atoms)

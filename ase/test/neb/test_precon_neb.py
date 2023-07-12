@@ -201,6 +201,28 @@ def test_single_precon_initialisation(setup_images):
     assert mep.precon[0].mu == mep.precon[1].mu
 
 
+def test_list_precon_initialisation(setup_images):
+    images, _, _ = setup_images
+
+    precon = Exp()
+    mep = NEB(images, method='spline', precon=precon)
+    mep.get_forces()
+
+    # the tested scenario is saving computed precon
+    # for restarting of a calculation
+
+    # saving as PreconImages object
+    mep_restart = NEB(images, method='spline', precon=mep.precon)
+    mep_restart.get_forces()
+    assert len(mep_restart.precon) == len(mep_restart.images)
+    assert mep_restart.precon[0].mu == mep_restart.precon[1].mu
+    # saving as a list of precon objects
+    mep_restart = NEB(images, method='spline', precon=mep.precon.precon)
+    mep_restart.get_forces()
+    assert len(mep_restart.precon) == len(mep_restart.images)
+    assert mep_restart.precon[0].mu == mep_restart.precon[1].mu
+
+
 def test_precon_assembly(setup_images):
     images, _, _ = setup_images
     neb = NEB(images, method='spline', precon='Exp')

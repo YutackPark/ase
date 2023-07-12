@@ -24,6 +24,9 @@ def get_aims_version(string):
 
 class AimsProfile:
     def __init__(self, argv):
+        if isinstance(argv, str):
+            argv = argv.split()
+
         self.argv = argv
 
     def run(self, directory, outputname):
@@ -32,6 +35,12 @@ class AimsProfile:
         with open(directory / outputname, "w") as fd:
             check_call(self.argv, stdout=fd, cwd=directory,
                        env=os.environ)
+
+    def socketio_argv_unix(self, socket):
+        return list(self.argv)
+
+    def socketio_argv_inet(self, port):
+        return list(self.argv)
 
 
 class AimsTemplate(CalculatorTemplate):
@@ -174,7 +183,12 @@ class Aims(GenericFileIOCalculator):
         """
 
         if profile is None:
-            profile = AimsProfile(["aims"])
+            profile = AimsProfile(
+                kwargs.pop(
+                    "run_command",
+                    os.getenv("ASE_AIMS_COMMAND", "aims.x")
+                )
+            )
 
         super().__init__(template=AimsTemplate(),
                          profile=profile,

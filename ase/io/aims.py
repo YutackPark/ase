@@ -12,6 +12,7 @@ from ase.calculators.calculator import kpts2mp
 from ase.calculators.singlepoint import SinglePointDFTCalculator
 from ase.constraints import FixAtoms, FixCartesian
 from ase.data import atomic_numbers
+from ase.io import ParseError
 from ase.units import Ang, fs
 from ase.utils import lazymethod, lazyproperty, reader, writer
 
@@ -1130,8 +1131,12 @@ class AimsOutCalcChunk(AimsOutChunk):
         line_start += 1
 
         line_end = self.reverse_search_for(
-            ['Writing the current geometry to file "geometry.in.next_step"'],
-            line_start)
+            [
+                'Next atomic structure:',
+                'Writing the current geometry to file "geometry.in.next_step"'
+            ],
+            line_start
+        )
         if line_end == LINE_NOT_FOUND:
             line_end = len(self.lines)
 
@@ -1202,7 +1207,11 @@ class AimsOutCalcChunk(AimsOutChunk):
         from ase.stress import full_3x3_to_voigt_6_stress
 
         line_start = self.reverse_search_for(
-            ["Analytical stress tensor - Symmetrized"]
+            [
+                "Analytical stress tensor - Symmetrized",
+                "Numerical stress tensor",
+            ]
+
         )  # Offest to relevant lines
         if line_start == LINE_NOT_FOUND:
             return
@@ -1339,6 +1348,7 @@ class AimsOutCalcChunk(AimsOutChunk):
                 "What follows are estimated values for band gap, "
                 "HOMO, LUMO, etc.",
                 "Current spin moment of the entire structure :",
+                "Highest occupied state (VBM)"
             ],
             line_start,
         )
@@ -1363,10 +1373,12 @@ class AimsOutCalcChunk(AimsOutChunk):
         )
         kpt_def = self.search_for_all("K-point: ", line_start, line_end)
 
-        if self.n_k_points:
+        if len(kpt_def) > 0:
             kpt_inds = [int(self.lines[ll].split()[1]) - 1 for ll in kpt_def]
-        else:
+        elif (self.n_k_points is None) or (self.n_k_points == 1):
             kpt_inds = [0]
+        else:
+            raise ParseError("Cannot find k-point definitions")
 
         assert len(kpt_inds) == len(occupation_block_start)
         spins = [0] * len(occupation_block_start)
@@ -1574,7 +1586,10 @@ def get_header_chunk(fd):
         try:
             line = next(fd).strip()  # Raises StopIteration on empty file
         except StopIteration:
-            return
+            raise ParseError(
+                "No SCF steps present, calculation failed at setup."
+            )
+
         header.append(line)
     return AimsOutHeaderChunk(header)
 
@@ -1607,11 +1622,20 @@ def get_aims_out_chunks(fd, header_chunk):
         lines = []
         while chunk_end_line not in line or ignore_chunk_end_line:
             lines.append(line)
-            # If SCF cycle not converged, don't end chunk on next
-            # Re-initialization
-            pattern = ("Self-consistency cycle not yet converged - "
-                       "restarting mixer to attempt better convergence.")
-            if pattern in line:
+            # If SCF cycle not converged or numerical stresses are requested,
+            # don't end chunk on next Re-initialization
+            patterns = [
+                (
+                    "Self-consistency cycle not yet converged -"
+                    " restarting mixer to attempt better convergence."
+                ),
+                (
+                    "Components of the stress tensor (for mathematical "
+                    "background see comments in numerical_stress.f90)."
+                ),
+                "Calculation of numerical stress completed",
+            ]
+            if any([pattern in line for pattern in patterns]):
                 ignore_chunk_end_line = True
             elif "Begin self-consistency loop: Re-initialization" in line:
                 ignore_chunk_end_line = False
@@ -1640,7 +1664,7 @@ def check_convergence(chunks, non_convergence_ok=False):
         True if the calculation is converged
     """
     if not non_convergence_ok and not chunks[-1].converged:
-        raise ValueError("The calculation did not complete successfully")
+        raise ParseError("The calculation did not complete successfully")
     return True
 
 
@@ -1663,7 +1687,7 @@ def read_aims_output(fd, index=-1, non_convergence_ok=False):
 @reader
 def read_aims_results(fd, index=-1, non_convergence_ok=False):
     """Import FHI-aims output files and summarize all relevant information
-into a dictionary"""
+    into a dictionary"""
     header_chunk = get_header_chunk(fd)
     chunks = list(get_aims_out_chunks(fd, header_chunk))
     check_convergence(chunks, non_convergence_ok)

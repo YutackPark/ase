@@ -1173,7 +1173,7 @@ class Atoms:
                 raise ValueError('Cannot repeat along undefined lattice '
                                  'vector')
 
-        M = np.product(m)
+        M = np.prod(m)
         n = len(self)
 
         for name, a in self.arrays.items():

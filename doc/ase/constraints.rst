@@ -485,4 +485,4 @@ Since bcc is unstable with respect to fcc with a Lennard Jones model, the
 unsymmetrised case relaxes to fcc, while the constraint keeps the original
 symmetry.
 
--.. literalinclude:: fix_symmetry_example.py
+.. literalinclude:: fix_symmetry_example.py

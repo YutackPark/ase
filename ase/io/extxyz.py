@@ -19,7 +19,7 @@ import numpy as np
 import numbers
 
 from ase.atoms import Atoms
-from ase.calculators.calculator import all_properties, Calculator
+from ase.calculators.calculator import all_properties, BaseCalculator
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.spacegroup.spacegroup import Spacegroup
 from ase.parallel import paropen
@@ -145,19 +145,26 @@ def key_val_str_to_dict(string, sep=None):
 
             # parse special strings as boolean or JSON
             if isinstance(value, str):
-                # Parse boolean values: 'T' -> True, 'F' -> False,
-                #                       'T T F' -> [True, True, False]
-                str_to_bool = {'T': True, 'F': False}
-
+                # Parse boolean values:
+                # T or [tT]rue or TRUE -> True
+                # F or [fF]alse or FALSE -> False
+                # For list: 'T T F' -> [True, True, False]
+                # Cannot use `.lower()` to reduce `str_to_bool` mapping because
+                # 't'/'f' not accepted
+                str_to_bool = {
+                    'T': True, 'F': False, 'true': True, 'false': False,
+                    'True': True, 'False': False, 'TRUE': True, 'FALSE': False
+                }
                 try:
                     boolvalue = [str_to_bool[vpart] for vpart in
                                  re.findall(r'[^\s,]+', value)]
+
                     if len(boolvalue) == 1:
                         value = boolvalue[0]
                     else:
                         value = boolvalue
                 except KeyError:
-                    # parse JSON
+                    # Try to parse JSON
                     if value.startswith("_JSON "):
                         d = json.loads(value.replace("_JSON ", "", 1))
                         value = np.array(d)
@@ -380,8 +387,7 @@ def _read_xyz_frame(lines, natoms, properties_parser=key_val_str_to_dict,
 
     pbc = None
     if 'pbc' in info:
-        pbc = info['pbc']
-        del info['pbc']
+        pbc = info.pop('pbc')
     elif 'Lattice' in info:
         # default pbc for extxyz file containing Lattice
         # is True in all directions
@@ -900,7 +906,7 @@ def write_xyz(fileobj, images, comment='', columns=None,
         if write_results:
             calculator = atoms.calc
             if (calculator is not None
-                    and isinstance(calculator, Calculator)):
+                    and isinstance(calculator, BaseCalculator)):
                 for key in all_properties:
                     value = calculator.results.get(key, None)
                     if value is None:

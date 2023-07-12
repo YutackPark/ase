@@ -45,11 +45,11 @@ def detect(name):
         return d
 
     if name in python_modules:
-        loader = importlib.find_loader(python_modules[name])
-        if loader is not None:
+        spec = importlib.util.find_spec(python_modules[name])
+        if spec is not None:
             d['type'] = 'python'
             d['module'] = python_modules[name]
-            d['path'] = loader.get_filename()
+            d['path'] = spec.loader.get_filename()
             return d
 
     envvar = get_executable_env_var(name)

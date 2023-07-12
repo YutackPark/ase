@@ -181,13 +181,13 @@ class SinglePointDFTCalculator(SinglePointCalculator):
         """Return HOMO and LUMO energies."""
         if self.kpts is None:
             raise RuntimeError('No kpts')
-        eHs = []
-        eLs = []
-        for kpt in self.kpts:
-            eH, eL = self.get_homo_lumo_by_spin(kpt.s)
-            eHs.append(eH)
-            eLs.append(eL)
-        return np.array(eHs).max(), np.array(eLs).min()
+        eH = -np.inf
+        eL = np.inf
+        for spin in range(self.get_number_of_spins()):
+            homo, lumo = self.get_homo_lumo_by_spin(spin)
+            eH = max(eH, homo)
+            eL = min(eL, lumo)
+        return eH, eL
 
     def get_homo_lumo_by_spin(self, spin=0):
         """Return HOMO and LUMO energies for a given spin."""

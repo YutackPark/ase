@@ -66,6 +66,7 @@ def catch_warnings():
 
 
 def all_tested_formats():
+    """Define all the ASE calculator formats to use in the tests."""
     skip = []
 
     # Someone should do something ...
@@ -88,6 +89,12 @@ def all_tested_formats():
 
     if not netCDF4:
         skip += ['netcdftrajectory']
+
+    # Check if excitingtools is installed, if not skip exciting tests.
+    try:
+        __import__('excitingtools')
+    except ModuleNotFoundError:
+        skip += ['exciting']
 
     return sorted(set(all_formats) - set(skip))
 

@@ -1,13 +1,13 @@
 import ase.parallel as parallel
-from ase.visualize.external import viewers
+from ase.visualize.viewers import VIEWERS
 
 
-def view(atoms, data=None, viewer='ase', repeat=None, block=False):
+def view(atoms, data=None, viewer='ase', repeat=None, block=False, **kwargs):
     if parallel.world.size > 1:
         return
 
-    vwr = viewers[viewer.lower()]
-    handle = vwr.view(atoms, data=data, repeat=repeat)
+    vwr = VIEWERS[viewer.lower()]
+    handle = vwr.view(atoms, data=data, repeat=repeat, **kwargs)
 
     if block and hasattr(handle, 'wait'):
         status = handle.wait()

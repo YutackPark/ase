@@ -12,6 +12,9 @@ Git master branch
 * :func:`ase.build.bulk` now assigns initial magnetic moments
   to BCC Fe, Co, and Ni.
 
+* :func:`ase.build.make_supercell` can now control how to order the atoms in
+  the supercell via the option ``order`` (:mr:`2800`).
+
 * :meth:`~ase.cell.Cell.mask` returns the mask of nonzero cell vectors,
   an array of three booleans.
 
@@ -37,6 +40,16 @@ Git master branch
   configuration. This entry point only accepts objects of the type
   :class:`~ase.utils.plugins.ExternalIOFormat`.
 
+* :class:`ase.phonons.Displacement` now has a `comm` keyword argument to
+  better support parallelization.
+
+* Fix :func:`ase.build.rotate.minimize_rotation_and_translation` for
+  systems with periodic boundary conditions.
+
+* Fix :func:`ase.io.db.row.AtomsRow.charge`, which was looking for
+  `inital_charges` instead of `initial_charges`.
+
+
 Calculators:
 
 * Created new module :mod:`ase.calculators.harmonic` with the
@@ -58,6 +71,25 @@ Calculators:
   this MOPAC version or newer, the output "final heat of formation"
   will be interpreted as potential/free energy for ASE purposes.
 
+* Add numerical stress skips for SCF re-initialization in
+  :class:`ase.io.aims.AimsOutCalcChunk`.
+
+* Fix `ValueError` that was raised when using quaternions with
+  :func:`ase.io.lammpsrun.lammps_data_to_ase_atoms`.
+
+* Fix ordering of kpoint and spin indices in
+  :func:`ase.calulators.abc.GetOutputsMixin.get_eigenvalues`
+
+* The :class:`ase.calculators.orca.ORCA` calculator has been
+  refactored to be based on :class:`ase.calculators.GenericFileIOCalculator`.
+
+* The :class:`ase.calculators.abinit.AbinitProfile` now correctly executes in
+  the user-specified directory.
+
+* :class:`ase.io.castep.CASTEP` now suports reading `.castep` force blocks
+
+* :class:`ase.io.castep.CASTEP` no longer reads symmetry operations.
+
 .. _Plumed: https://www.plumed.org/
 .. _MOPAC: https://doi.org/10.5281/zenodo.6511958
 
@@ -65,6 +97,47 @@ Optimizers:
 
 * Add :class:`ase.optimize.climbfixinternals.ClimbFixInternals` class for
   transition state search and optimization along internal reaction coordinates
+
+* The `.run` and `.irun` methods of :class:`ase.optimize.Optimizers` now respect
+  `steps=0`.
+
+* Added the `.trajectory` attribute to :class:`ase.optimize.optimize.Dynamics`.
+
+* Fixed a bug when `PreconImages` is initialized with a list of `precon` objects
+  in :class:`ase.optimize.precon.precon.PreconImages`
+
+Thermochemistry:
+
+* All thermochemistry modules now sort the vibrational energies before
+  cutting them down to the physically appropriate amount.
+
+I/O:
+
+* Reading of "chemical json" file types is assigned to names ``*.cjson``
+  as used in avogadro2_
+
+* :class:`ase.calculators.vasp.Vasp` now supports the `efermi` and `nelmgw`.
+
+* Fixes `IndexError` when :func:`lammps_data_to_ase_atoms` is run on a system
+  with 1 atom.
+
+* Added several missing `__init__` parameters to `self` in
+  :class:`ase.io.trajectory.TrajectoryReader` and
+  :class:`ase.io.trajectory.TrajectoryWriter`.
+
+* Add an option to :func:`ase.io.lammpsdata.write_lamps_data` to print
+  the atomic masses.
+
+* Add support for reading CUBE files with "negative" number of atoms, as is common
+  in Gaussian.
+
+* Fix parsing of periodic boundary conditions for `extxyz` format.
+
+* Increase compatibility of CIF parser
+
+* Extended XYZ writer now works with `GenericFileIOCalculator`
+
+.. _avogadro2: https://www.openchemistry.org/projects/avogadro2
 
 
 Version 3.22.1
@@ -149,6 +222,7 @@ I/O:
   extracts all variables from the input file.
 
 * Reading of "chemical json" file types with name ``*.cml`` is enabled.
+
 * LAMMPS dump: Reading of elements column added, with priority over types
   if given. All four of the position specifier columns read correctly now.
 

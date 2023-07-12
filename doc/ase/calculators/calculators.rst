@@ -40,7 +40,7 @@ Supported calculators
 
 The calculators can be divided in four groups:
 
-1) Asap_, BigDFT_, DeePMD-kit_, DFTD3_, DFTD4_, DFTK_, FLEUR_, GPAW_, Hotbit_, TBLite_, and XTB_
+1) AMS_, Asap_, BigDFT_, DeePMD-kit_, DFTD3_, DFTD4_, DFTK_, FLEUR_, GPAW_, Hotbit_, TBLite_, and XTB_
    have their own native or external ASE interfaces.
 
 2) ABINIT, AMBER, CP2K, CASTEP, deMon2k, DFTB+, ELK, EXCITING, FHI-aims, GAUSSIAN,
@@ -65,6 +65,7 @@ The calculators can be divided in four groups:
 ========================================= ===========================================
 name                                      description
 ========================================= ===========================================
+AMS_                                      Amsterdam Modeling Suite
 Asap_                                     Highly efficient EMT code
 BigDFT_                                   Wavelet based code for DFT
 DeePMD-kit_                               A deep learning package for many-body potential energy representation
@@ -137,6 +138,7 @@ The calculators included in ASE are used like this:
 where ``abc`` is the module name and ``ABC`` is the class name.
 
 
+.. _AMS: https://www.scm.com/doc/plams/examples/AMSCalculator/ASECalculator.html#asecalculatorexample
 .. _Asap: https://wiki.fysik.dtu.dk/asap
 .. _BigDFT: https://l_sim.gitlab.io/bigdft-suite/tutorials/Interoperability-Simulation.html#ASE-Interoperability
 .. _GPAW: https://wiki.fysik.dtu.dk/gpaw

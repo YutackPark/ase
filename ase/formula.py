@@ -11,7 +11,7 @@ Tree = Union[str, Tuple['Tree', int], List['Tree']]  # type: ignore
 
 class Formula:
     def __init__(self,
-                 formula: str = '',
+                 formula: Union[str, 'Formula'] = '',
                  *,
                  strict: bool = False,
                  format: str = '',
@@ -52,13 +52,20 @@ class Formula:
         ValueError
             on malformed formula
         """
+
+        # Be sure that Formula(x) works the same whether x is string or Formula
+        assert isinstance(formula, (str, Formula))
+        formula = str(formula)
+
         if format:
             assert _tree is None and _count is None
             if format not in {'hill', 'metal', 'abc', 'reduce', 'ab2', 'a2b',
                               'periodic'}:
                 raise ValueError(f'Illegal format: {format}')
             formula = Formula(formula).format(format)
+
         self._formula = formula
+
         self._tree = _tree or parse(formula)
         self._count = _count or count_tree(self._tree)
         if strict:

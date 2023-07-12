@@ -257,7 +257,7 @@ class EspressoFactory:
         return EspressoProfile([self.executable])
 
     def version(self):
-        self._profile().version()
+        return self._profile().version()
 
     def calc(self, **kwargs):
         from ase.calculators.espresso import Espresso
@@ -285,13 +285,26 @@ class EspressoFactory:
 
 @factory('exciting')
 class ExcitingFactory:
+    """Factory to run exciting tests."""
     def __init__(self, executable):
-        # XXX species path
         self.executable = executable
 
     def calc(self, **kwargs):
-        from ase.calculators.exciting import Exciting
-        return Exciting(bin=self.executable, **kwargs)
+        """Get instance of Exciting Ground state calculator."""
+        from ase.calculators.exciting.exciting import (
+            ExcitingGroundStateCalculator)
+        return ExcitingGroundStateCalculator(
+            ground_state_input=kwargs, species_path=self.species_path)
+
+    def _profile(self):
+        """Get instance of ExcitingProfile."""
+        from ase.calculators.exciting.exciting import ExcitingProfile
+        return ExcitingProfile(
+            exciting_root=self.executable, species_path=self.species_path)
+
+    def version(self):
+        """Get exciting executable version."""
+        return self._profile().version
 
     @classmethod
     def fromconfig(cls, config):
@@ -522,6 +535,27 @@ class OctopusFactory:
         return cls(config.executables['octopus'])
 
 
+@factory('orca')
+class OrcaFactory:
+    def __init__(self, executable):
+        self.executable = executable
+
+    def _profile(self):
+        from ase.calculators.orca import OrcaProfile
+        return OrcaProfile([self.executable])
+
+    def version(self):
+        return self._profile().version()
+
+    def calc(self, **kwargs):
+        from ase.calculators.orca import ORCA
+        return ORCA(**kwargs)
+
+    @classmethod
+    def fromconfig(cls, config):
+        return cls(config.executables['orca'])
+
+
 @factory('siesta')
 class SiestaFactory:
     def __init__(self, executable, pseudo_path):
@@ -620,7 +654,6 @@ class Factories:
         'hotbit',
         'lammpslib',
         'onetep',
-        'orca',
         'qchem',
         'turbomole',
     }

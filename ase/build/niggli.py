@@ -25,12 +25,16 @@ def _pad_nonpbc(cell):
 
 def niggli_reduce_cell(cell, epsfactor=None):
     from ase.cell import Cell
+
     cell = Cell.new(cell)
-    npbc = cell.any(1).sum()
+    npbc = cell.rank
 
     if epsfactor is None:
         epsfactor = 1e-5
-    eps = epsfactor * cell.volume**(1. / 3.)
+
+    vol_normalization_exponent = 1 if npbc == 0 else 1 / npbc
+    vol_normalization = cell.complete().volume**vol_normalization_exponent
+    eps = epsfactor * vol_normalization
 
     g0 = cellvector_products(cell)
     g, C = _niggli_reduce(g0, eps)

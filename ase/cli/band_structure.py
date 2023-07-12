@@ -16,15 +16,17 @@ def read_band_structure(filename):
 
 def main(args, parser):
     import matplotlib.pyplot as plt
+
     bs = read_band_structure(args.calculation)
     emin, emax = (float(e) for e in args.range)
-    fig = plt.gcf()
-    fig.canvas.set_window_title(args.calculation)
+    fig = plt.figure(args.calculation)
     ax = fig.gca()
+
     bs.plot(ax=ax,
             filename=args.output,
             emin=emin + bs.reference,
             emax=emax + bs.reference)
+
     if args.output is None:
         plt.show()
 

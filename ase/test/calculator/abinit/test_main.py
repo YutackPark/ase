@@ -55,7 +55,18 @@ def test_au(factory, pps):
     )
     # Somewhat awkward to set pawecutdg also when we are not doing paw,
     # but it's an error to pass None as pawecutdg.
-    run(atoms)
+    dict_abo = run(atoms)
+
+    # test the read_abinit_gsr function
+    from ase.io.abinit import read_abinit_gsr
+    dict_gsr = read_abinit_gsr(atoms.calc.directory / 'abinito_GSR.nc')
+
+    atoms_gsr = dict_gsr["atoms"]
+    assert atoms_gsr.cell == pytest.approx(atoms.cell, 1e-5)
+    assert atoms_gsr.positions == pytest.approx(atoms.positions, 1e-5)
+
+    for key in required_quantities:
+        assert dict_gsr[key] == pytest.approx(dict_abo[key], 1e-3)
 
 
 @pytest.fixture

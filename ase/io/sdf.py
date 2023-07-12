@@ -2,22 +2,30 @@
 
 See https://en.wikipedia.org/wiki/Chemical_table_file#SDF
 """
+from typing import TextIO
+
 from ase.atoms import Atoms
 from ase.utils import reader
 
 
+def get_num_atoms_sdf_v2000(first_line: str) -> int:
+    """Parse the first line extracting the number of atoms."""
+    return int(first_line[0:3])  # first three characters
+    # http://biotech.fyicenter.com/1000024_SDF_File_Format_Specification.html
+
+
 @reader
-def read_sdf(fileobj):
-    lines = fileobj.readlines()
+def read_sdf(file_obj: TextIO) -> Atoms:
+    """Read the sdf data and compose the corresponding Atoms object."""
+    lines = file_obj.readlines()
     # first three lines header
     del lines[:3]
 
-    L1 = lines.pop(0).split()
-    natoms = int(L1[0])
+    num_atoms = get_num_atoms_sdf_v2000(lines.pop(0))
     positions = []
     symbols = []
-    for line in lines[:natoms]:
+    for line in lines[:num_atoms]:
         x, y, z, symbol = line.split()[:4]
         symbols.append(symbol)
-        positions.append([float(x), float(y), float(z)])
+        positions.append((float(x), float(y), float(z)))
     return Atoms(symbols=symbols, positions=positions)
