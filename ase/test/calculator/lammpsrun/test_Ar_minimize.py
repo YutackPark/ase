@@ -60,8 +60,7 @@ def test_Ar_minimize_multistep(factory, ar_nc, params):
         assert_allclose(ar_nc.get_forces(), F1_numer,
                         atol=1e-4, rtol=1e-4)
 
-        params['minimize'] = '1.0e-15 1.0e-6 2000 4000'   # add minimize
-        calc.parameters = params
+        calc.set(minimize='1.0e-15 1.0e-6 2000 4000')
 
         # set_atoms=True to read final coordinates after minimization
         calc.run(set_atoms=True)
