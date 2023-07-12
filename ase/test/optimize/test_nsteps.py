@@ -13,10 +13,9 @@ def opt():
     return BFGS(atoms)
 
 
-# XXX Fails with steps=0.
 # It is also a little bit questionable whether there should be
 # three steps when we set steps=1.
-@pytest.mark.parametrize('steps', [1, 4])
+@pytest.mark.parametrize('steps', [0, 1, 4])
 def test_nsteps(opt, steps):
     irun = opt.irun(fmax=0, steps=steps)
 
