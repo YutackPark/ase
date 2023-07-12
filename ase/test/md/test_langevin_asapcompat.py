@@ -20,9 +20,8 @@ def test_langevin_asapcompat():
 
     MaxwellBoltzmannDistribution(atoms, temperature_K=T)
     Stationary(atoms)
-    dyn = Langevin(atoms, dt * units.fs, temperature_K=T, friction=0.02)
-
-    dyn.run(1)
+    with Langevin(atoms, dt * units.fs, temperature_K=T, friction=0.02) as dyn:
+        dyn.run(1)
 
     for attrib in ('temp', 'fr', 'c1', 'c2', 'c3', 'c4',
                    'c5', 'v', 'rnd_pos', 'rnd_vel'):
