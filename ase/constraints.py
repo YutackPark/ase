@@ -225,6 +225,12 @@ class FixCom(FixConstraint):
         d = old_cm - new_cm
         new += d
 
+    def adjust_momenta(self, atoms, momenta):
+        """Adjust momenta so that the center-of-mass velocity is zero."""
+        masses = atoms.get_masses()
+        velocity_com = momenta.sum(axis=0) / masses.sum()
+        momenta -= masses[:, None] * velocity_com
+
     def adjust_forces(self, atoms, forces):
         m = atoms.get_masses()
         mm = np.tile(m, (3, 1)).T
