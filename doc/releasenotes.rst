@@ -16,7 +16,7 @@ Git master branch
   to BCC Fe, Co, and Ni.
 
 * :func:`ase.build.make_supercell` can now control how to order the atoms in
-  the supercell via the option ``order`` (:mr:`2800`).
+  the supercell via the option ``order`` (:mr:`2800`)
 
 * :meth:`~ase.cell.Cell.mask` returns the mask of nonzero cell vectors,
   an array of three booleans.
@@ -94,6 +94,9 @@ Git master branch
   (:mr:`2632`)
 
 Calculators:
+
+* Remove `ase.calculators.vasp.vasp_auxiliary.xdat2traj`. Use `ase.io` instead
+  (:mr:`2948`)
 
 * Created new module :mod:`ase.calculators.harmonic` with the
   :class:`ase.calculators.harmonic.HarmonicCalculator`
