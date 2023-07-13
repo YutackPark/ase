@@ -365,6 +365,10 @@ def read_vasp_xml(filename='vasprun.xml', index=-1):
 
     Reads unit cell, atom positions, energies, forces, and constraints
     from vasprun.xml file
+
+    Examples:
+        >>> import ase.io
+        >>> ase.io.write("out.traj", ase.io.read("vasprun.xml", index=":"))
     """
 
     import xml.etree.ElementTree as ET
