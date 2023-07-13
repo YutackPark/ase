@@ -49,6 +49,37 @@ Git master branch
 * Fix :func:`ase.io.db.row.AtomsRow.charge`, which was looking for
   `inital_charges` instead of `initial_charges`.
 
+* Fixed definition of the Lennard-Jones potential in :mod:`ase.utils.ff`
+  (:mr:`2842`)
+
+* The `x3d` viewer has improved aesthetics (:mr:`2831`)
+
+* Added a function, :func:`ase.dft.kpoints.mindistance2monkhorstpack`, to
+  construct a Monkhorst-Pack grid (:mr:`2811`)
+
+* Fixed turbomole calculator parsing issues when `=` are present in data
+  groups (:mr:`2808`)
+
+* Fixed round-trip dict (de)serialization with `FixedMode` constraint
+  (:mr:`2801`)
+
+* Show total number of rows in ASE database (:mr:`2797`)
+
+* Fix units of magnetic moments in ASE database (:mr:`2793`)
+
+* General improvements to POVRay colors (:mr:`2775`, :mr:`2767`)
+
+* Remove deprecated CLI functions, such as the old `ase-gui` command
+  (:mr:`2770`)
+
+* Fix calculation of stresses in `:func:ase.stress.full_3x3_to_voigt_6_stress`
+  (:mr:`2765`)
+
+* Add polarization parser for FHI-AIMS calculator (:mr:`2763`)
+
+* Fix bug in :func:`ase.atoms.Atoms.get_center_of_mass` (:mr:`2712`)
+
+* Fix multiprocessing bug with :class:`ase.neb.NEB` (:mr:`2695`)
 
 Calculators:
 
@@ -71,14 +102,10 @@ Calculators:
   this MOPAC version or newer, the output "final heat of formation"
   will be interpreted as potential/free energy for ASE purposes.
 
-* Add numerical stress skips for SCF re-initialization in
-  :class:`ase.io.aims.AimsOutCalcChunk`.
-
-* Fix `ValueError` that was raised when using quaternions with
-  :func:`ase.io.lammpsrun.lammps_data_to_ase_atoms`.
-
 * Fix ordering of kpoint and spin indices in
   :func:`ase.calulators.abc.GetOutputsMixin.get_eigenvalues`
+
+* :class:`ase.calculators.vasp.Vasp` now supports the `efermi` and `nelmgw`.
 
 * The :class:`ase.calculators.orca.ORCA` calculator has been
   refactored to be based on :class:`ase.calculators.GenericFileIOCalculator`.
@@ -86,9 +113,34 @@ Calculators:
 * The :class:`ase.calculators.abinit.AbinitProfile` now correctly executes in
   the user-specified directory.
 
-* :class:`ase.io.castep.CASTEP` now suports reading `.castep` force blocks
+* Fix reading of eigenvalues in :mod:`ase.calculators.dftb` (:mr:`2819`)
 
-* :class:`ase.io.castep.CASTEP` no longer reads symmetry operations.
+* Added an `energies` property to the `lammpslib` calculator (:mr:`2799`)
+
+* Fix `lsubsrot` typo in VASP calculator to `lsubrot` (:mr:`2762`)
+
+* Fix atomic polarizability for boron in
+  :class:`ase.calculators.bond_polarizability.LippincottStuttman` (:mr:`2759`)
+
+* `dielectric_tensor` and `born_effective_charges` parsing have been added to
+  the aims and VASP calculators (:mr:`2750`)
+
+* Update MOPAC calculator to support v22 (:mr:`2745`)
+
+* Fix ordering of forces in `lammpsrun` calculator when used with MPI (:mr:`2737`)
+
+* FLEUR calculator has been removed in favor of external package (:mr:`2736`)
+
+* Compatability fixes for newer versions of Octopus (:mr:`2734`)
+
+* Fixed conversion of force units between LAMMPS and ASE (:mr:`2720`)
+
+* ORCA calculator now returns the correct energy in internal geometry
+  optimizations (:mr:`2699`)
+
+* Support for 24Mar2022 version of LAMMPS in `lammpsrun` calculator (:mr:`2693`)
+
+* DFTB+ calculator now supports the use of an xTB Hamiltonian (:mr:`2682`)
 
 .. _Plumed: https://www.plumed.org/
 .. _MOPAC: https://doi.org/10.5281/zenodo.6511958
@@ -116,8 +168,6 @@ I/O:
 * Reading of "chemical json" file types is assigned to names ``*.cjson``
   as used in avogadro2_
 
-* :class:`ase.calculators.vasp.Vasp` now supports the `efermi` and `nelmgw`.
-
 * Fixes `IndexError` when :func:`lammps_data_to_ase_atoms` is run on a system
   with 1 atom.
 
@@ -136,6 +186,41 @@ I/O:
 * Increase compatibility of CIF parser
 
 * Extended XYZ writer now works with `GenericFileIOCalculator`
+
+* Add numerical stress skips for SCF re-initialization in
+  :class:`ase.io.aims.AimsOutCalcChunk`.
+
+* Fix `ValueError` that was raised when using quaternions with
+  :func:`ase.io.lammpsrun.lammps_data_to_ase_atoms`.
+
+* :class:`ase.io.castep.CASTEP` now suports reading `.castep` force blocks
+
+* :class:`ase.io.castep.CASTEP` no longer reads symmetry operations.
+
+* Added :func:`ase.io.abinit.read_abinit_gsr` to read a netcdf file (:mr:`2855`)
+
+* SDF reader can now read file with >100 atoms (:mr:`2845`)
+
+* :func:`ase.io.v_sim.read_v_sim` now properly accounts for periodic boundary
+  conditions (:mr:`2835`)
+
+* Bug fix in the :mod:`ase.io.aims` parser for reading the eigenvalues (:mr:`2825`)
+
+* Recognize `.castep` files from Materials Studio (:mr:`2822`)
+
+* Enable reading of GPAW stresses from gpaw-out file (:mr:`2798`)
+
+* Add support for reading a VASP VTST CENTCAR file (:mr:`2751`)
+
+* Fix I/O for FHI-aims when the minimal basis set is used (:mr:`2738`)
+
+* Fix XYZ read/write round-trip when initial and final charges are set (:mr:`2692`)
+
+* CASTEP I/O can now read/write custom masses (:mr:`2686`)
+
+* Default dmol3 extension for arc files is now .arc (:mr:`2686`)
+
+* Add PBC support for :mod:`ase.io.cube` (:mr:`2679`)
 
 .. _avogadro2: https://www.openchemistry.org/projects/avogadro2
 
