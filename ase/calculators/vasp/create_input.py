@@ -1312,6 +1312,14 @@ class GenerateVaspInput:
                 pass
         return setups, special_setups
 
+    def _set_spinpol(self, atoms):
+        if self.int_params['ispin'] is None:
+            self.spinpol = atoms.get_initial_magnetic_moments().any()
+        else:
+            # VASP runs non-spin-polarized calculations when `ispin=1`,
+            # regardless if `magmom` is specified or not.
+            self.spinpol = (self.int_params['ispin'] == 2)
+
     def initialize(self, atoms):
         """Initialize a VASP calculation
 
@@ -1335,8 +1343,7 @@ class GenerateVaspInput:
         self.all_symbols = atoms.get_chemical_symbols()
         self.natoms = len(atoms)
 
-        self.spinpol = (atoms.get_initial_magnetic_moments().any()
-                        or self.int_params['ispin'] == 2)
+        self._set_spinpol(atoms)
 
         setups, special_setups = self._get_setups()
 
