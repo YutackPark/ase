@@ -12,8 +12,8 @@ from ase.calculators.vasp.vasp import (check_atoms, check_pbc, check_cell,
                                        check_atoms_type)
 
 
-@pytest.fixture
-def atoms():
+@pytest.fixture(name="atoms")
+def fixture_atoms():
     return molecule('H2', vacuum=5, pbc=True)
 
 
@@ -107,6 +107,25 @@ def test_vasp_no_cell(testdir):
     atoms.calc = calc
     with pytest.raises(CalculatorSetupError):
         atoms.get_total_energy()
+
+
+def test_spinpol_vs_ispin():
+    """Test if `spinpol` is consistent with `ispin`"""
+    atoms = molecule("O2")
+    atoms.set_initial_magnetic_moments([1.0, 1.0])
+
+    calc = Vasp(ispin=1)
+    calc._set_spinpol(atoms)
+    assert not calc.spinpol
+
+    calc = Vasp(ispin=2)
+    calc._set_spinpol(atoms)
+    assert calc.spinpol
+
+    # when `ispin` is not specified, `spinpol` is determined by `magmom`
+    calc = Vasp()
+    calc._set_spinpol(atoms)
+    assert calc.spinpol
 
 
 def test_read_magnetic_moment():
