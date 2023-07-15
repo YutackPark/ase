@@ -109,6 +109,16 @@ def test_vasp_no_cell(testdir):
         atoms.get_total_energy()
 
 
+def test_read_magnetic_moment():
+    """Test if the magnetization line in OUTCAR is parsed correctly."""
+    # ISPIN 1
+    ln1 = " number of electron       8.0000000 magnetization \n"
+    assert Vasp()._read_magnetic_moment([ln1]) == 0.0
+    # ISPIN 2
+    ln2 = " number of electron       8.0000000 magnetization       2.0000000\n"
+    assert Vasp()._read_magnetic_moment([ln2]) == 2.0
+
+
 def test_vasp_name():
     """Test the calculator class has the expected name"""
     expected = 'vasp'
