@@ -42,7 +42,7 @@ The default command that ASE will use to start ORCA is
 ``orca PREFIX.inp > PREFIX.out``. 
 
 For parallel calculations, you will need to specify the full path to the ORCA
-executable. This can be done by defining an `OrcaProfile` like the example below:
+executable. This can be done by defining an ``OrcaProfile`` like the example below::
 
   from ase.calculators.orca import OrcaProfile
 
@@ -59,7 +59,7 @@ cores for the simulation, e.g.::
 
   calc = ORCA(profile=MyOrcaProfile, 
               orcasimpleinput='B3LYP def2-TZVP'
-              orcablocks='%pal nprocs 16 end'
+              orcablocks='%pal nprocs 16 end')
 
 for a B3LYP/def2-TZVP calculation on 16 cores. 
 
