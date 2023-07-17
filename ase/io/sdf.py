@@ -9,9 +9,15 @@ from ase.utils import reader
 
 
 def get_num_atoms_sdf_v2000(first_line: str) -> int:
-    """Parse the first line extracting the number of atoms."""
+    """Parse the first line extracting the number of atoms.
+
+    The V2000 dialect uses a fixed field length of 3, which means there
+    won't be space between the numbers if there are 100+ atoms, and
+    the format doesn't support 1000+ atoms at all.
+
+    http://biotech.fyicenter.com/1000024_SDF_File_Format_Specification.html
+    """
     return int(first_line[0:3])  # first three characters
-    # http://biotech.fyicenter.com/1000024_SDF_File_Format_Specification.html
 
 
 @reader
