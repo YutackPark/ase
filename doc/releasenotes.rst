@@ -81,6 +81,15 @@ Git master branch
 
 * Fix multiprocessing bug with :class:`ase.neb.NEB` (:mr:`2695`)
 
+* NEB calculations now call `get_forces()` instead of `get_potential_energy()`
+  followed by `get_forces()` to prevent duplicate work (:mr:`2678`)
+
+* Improve performance of :func:`ase.build.supercells.make_supercell` for
+  large supercells (:mr:`2639`)
+
+* Fix conservation of momentum in :class:`ase.md.langevin.Langevin`
+  (:mr:`1044`)
+
 Calculators:
 
 * Created new module :mod:`ase.calculators.harmonic` with the
@@ -142,6 +151,33 @@ Calculators:
 
 * DFTB+ calculator now supports the use of an xTB Hamiltonian (:mr:`2682`)
 
+* Fix WIEN2K writer when `rmt` is not `None` (:mr:`2677`)
+
+* CP2K calculator support for libcx inputs (:mr:`2676`)
+
+* Fix bug in `ase run --equation-of-state` (:mr:`2675`)
+
+* Support PBCs in Plumed calculator (:mr:`2671`)
+
+* Support z-matrix format for `FixCartesian` constraints in Siesta (:mr:`2669`)
+
+* Support spin-orbit coupling and non-colinear calculations in Siesta
+  (:mr:`2665`, :mr:`2665`)
+
+* Support `k_grid_density` keyword in FHI-AIMS calculator (:mr:`2662`)
+
+* Fix storing of `special_params` in VASP calculator (:mr:`2661`)
+
+* Fix VASP OUTCAR parsing for systems with over 10 unique elements (:mr:`2658`)
+
+* Cache all available properties in the mixing calculators (:mr:`2646`)
+
+* Refactoring and bug fixes for :class:`ase.calculators.dftd3.DFTD3` (:mr:`2615`)
+
+* Added :func:`ase.calculators.vasp.Vasp.read_vib_modes` and
+  :func:`ase.calculators.vasp.Vasp.get_vibrations` to read VASP-calculated
+  vibrational modes (:mr:`2605`)
+
 .. _Plumed: https://www.plumed.org/
 .. _MOPAC: https://doi.org/10.5281/zenodo.6511958
 
@@ -164,6 +200,8 @@ Thermochemistry:
   cutting them down to the physically appropriate amount.
 
 I/O:
+
+* GaussView-formatted `.mol` files can now be read (:mr:`2956`)
 
 * Reading of "chemical json" file types is assigned to names ``*.cjson``
   as used in avogadro2_
@@ -221,6 +259,17 @@ I/O:
 * Default dmol3 extension for arc files is now .arc (:mr:`2686`)
 
 * Add PBC support for :mod:`ase.io.cube` (:mr:`2679`)
+
+* Fix `sort_by_id=True` setting in :func:`ase.io.lammpsdata.read_lammps_data`
+  (:mr:`2660`)
+
+* More robust GPAW log file reading (:mr:`2609`)
+
+* Fix for PDB file I/O involving trajectories (:mr:`2598`)
+
+* Improved XCrysden file I/O (:mr:`2594`)
+
+* Fix JSON encoder for Atoms objects with `FixAtoms` constraints (:mr:`2592`)
 
 .. _avogadro2: https://www.openchemistry.org/projects/avogadro2
 
