@@ -88,7 +88,7 @@ Git master branch
   large supercells (:mr:`2639`)
 
 * Fix conservation of momentum in :class:`ase.md.langevin.Langevin`
-  (:mr:`1044`)
+  (:mr:`2632`)
 
 Calculators:
 
