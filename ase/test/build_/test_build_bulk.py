@@ -73,3 +73,10 @@ def _check_cubic(symbol: str):
     atoms = bulk(symbol, cubic=True)
     lattice = atoms.cell.get_bravais_lattice()
     assert lattice.name == 'CUB', lattice
+
+
+@pytest.mark.parametrize('structure', ['sc'])
+@pytest.mark.parametrize('symbol', chemical_symbols)
+def test_crystal_structures(symbol: str, structure: str):
+    """Test crystal structures"""
+    bulk(symbol, structure, a=1.0)
