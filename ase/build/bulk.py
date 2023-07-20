@@ -67,7 +67,7 @@ def bulk(
     xref = ''
     ref: Any = {}
 
-    if name in chemical_symbols:
+    if name in chemical_symbols:  # single element
         atomic_number = atomic_numbers[name]
         ref = reference_states[atomic_number]
         if ref is None:
@@ -75,21 +75,17 @@ def bulk(
         else:
             xref = ref['symmetry']
 
-            # If user did not specify crystal structure, and no basis
-            # is given, and the reference state says we need one, but
-            # does not have one, then we can't proceed.
-            if (crystalstructure is None and basis is None
-                    and 'basis' in ref and ref['basis'] is None):
-                # XXX This is getting much too complicated, we need to split
-                # this function up.  A lot.
-                raise RuntimeError('This structure requires an atomic basis')
-
-        if xref == 'cubic':
-            # P and Mn are listed as 'cubic' but the lattice constants
-            # are 7 and 9.  They must be something other than simple cubic
-            # then. We used to just return the cubic one but that must
-            # have been wrong somehow.  --askhl
-            raise RuntimeError('Only simple cubic ("sc") supported')
+        if crystalstructure is None:
+            # `ref` requires `basis` but not given and not pre-defined
+            if basis is None and 'basis' in ref and ref['basis'] is None:
+                raise ValueError('This structure requires an atomic basis')
+            if xref == 'cubic':
+                # P and Mn are listed as 'cubic' but the lattice constants
+                # are 7 and 9.  They must be something other than simple cubic
+                # then. We used to just return the cubic one but that must
+                # have been wrong somehow.  --askhl
+                raise ValueError(
+                    f'The reference structure of {name} is not implemented')
 
     # Mapping of name to number of atoms in primitive cell.
     structures = {'sc': 1, 'fcc': 1, 'bcc': 1,

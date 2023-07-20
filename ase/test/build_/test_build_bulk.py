@@ -80,3 +80,10 @@ def _check_cubic(symbol: str):
 def test_crystal_structures(symbol: str, structure: str):
     """Test crystal structures"""
     bulk(symbol, structure, a=1.0)
+
+
+@pytest.mark.parametrize('symbol', ['Mn', 'P'])
+def test_complex_cubic(symbol: str):
+    """Test elements with complex cubic reference states"""
+    with pytest.raises(ValueError):
+        bulk(symbol)
