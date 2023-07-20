@@ -1,52 +1,75 @@
+"""Tests for `bulk`"""
+import pytest
+from ase.build import bulk
+from ase.data import chemical_symbols, reference_states
+
+lat_map = {
+    'fcc': 'FCC',
+    'bcc': 'BCC',
+    'hcp': 'HEX',
+    'bct': 'BCT',
+    'diamond': 'FCC',
+    # 'sc': 'CUB',
+    # 'orthorhombic': 'ORC',
+    'rhombohedral': 'RHL',
+}
+
+
 def test_build_bulk():
-    from ase.data import chemical_symbols, reference_states
-    from ase.build import bulk
+    """Test reference states"""
+    lat_counts: dict = {}
 
-    lat_map = dict(fcc='FCC',
-                   bcc='BCC',
-                   hcp='HEX',
-                   bct='BCT',
-                   diamond='FCC',
-                   # sc='CUB',
-                   # orthorhombic='ORC',
-                   rhombohedral='RHL')
-    lat_counts = {}
+    for symbol in chemical_symbols:
+        atomic_number = chemical_symbols.index(symbol)
+        ref = reference_states[atomic_number]
 
-    for Z, ref in enumerate(reference_states):
         if ref is None:
             continue
 
-        structure = ref['symmetry']
+        structure = str(ref['symmetry'])
         if structure not in lat_map:
             continue
 
-        sym = chemical_symbols[Z]
-        if sym in {'B', 'Se', 'Te'}:
+        if symbol in {'B', 'Se', 'Te'}:
             continue
-        lat_counts.setdefault(structure, []).append(sym)
+        lat_counts.setdefault(structure, []).append(symbol)
 
-        atoms = bulk(sym)
-        lat = atoms.cell.get_bravais_lattice()
-        print(Z, atoms.symbols[0], structure, lat, atoms.cell.lengths())
-        par1 = lat.tocell().niggli_reduce()[0].cellpar()
+        atoms = bulk(symbol)
+        lattice = atoms.cell.get_bravais_lattice()
+        print(
+            atomic_number,
+            atoms.symbols[0],
+            structure,
+            lattice,
+            atoms.cell.lengths(),
+        )
+        par1 = lattice.tocell().niggli_reduce()[0].cellpar()
         par2 = atoms.cell.niggli_reduce()[0].cellpar()
         assert abs(par2 - par1).max() < 1e-10
-        assert lat_map[structure] == lat.name
+        assert lat_map[structure] == lattice.name
 
-        if lat.name in ['RHL', 'BCT']:
+        if lattice.name in ['RHL', 'BCT']:
             continue
 
-        orth_atoms = bulk(sym, orthorhombic=True)
-        orc_lat = orth_atoms.cell.get_bravais_lattice()
-        angles = orc_lat.cellpar()[3:]
-        assert abs(angles - 90).max() < 1e-10
+        _check_orthorhombic(symbol)
 
-        if lat.name in ['HEX', 'TET', 'ORC']:
+        if lattice.name in ['HEX', 'TET', 'ORC']:
             continue
 
-        cub_atoms = bulk(sym, cubic=True)
-        cub_lat = cub_atoms.cell.get_bravais_lattice()
-        assert cub_lat.name == 'CUB', cub_lat
+        _check_cubic(symbol)
 
-    for key, val in lat_counts.items():
-        print(key, len(val), ''.join(val))
+        for key, val in lat_counts.items():
+            print(key, len(val), ''.join(val))
+
+
+def _check_orthorhombic(symbol: str):
+    atoms = bulk(symbol, orthorhombic=True)
+    lattice = atoms.cell.get_bravais_lattice()
+    angles = lattice.cellpar()[3:]
+    assert abs(angles - 90.0).max() < 1e-10
+
+
+def _check_cubic(symbol: str):
+    atoms = bulk(symbol, cubic=True)
+    lattice = atoms.cell.get_bravais_lattice()
+    assert lattice.name == 'CUB', lattice
