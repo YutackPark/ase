@@ -2,8 +2,10 @@
 import math
 
 import numpy as np
+import pytest
 from ase import Atoms, Atom
-from ase.build import fcc111, fcc211, add_adsorbate, bulk, surface
+from ase.build import (fcc111, fcc211, add_adsorbate, bulk, surface,
+                       mx2, graphene)
 
 
 def test_surface():
@@ -45,3 +47,12 @@ def test_surface():
     assert (list(surface_fcc.pbc) == [True, True, True])
     expected_length = 4.05 * 3**0.5  # for FCC with a=4.05
     assert math.isclose(surface_fcc.cell[2][2], expected_length)
+
+
+@pytest.mark.parametrize("vacuum", [None, 10.0])
+def test_others(vacuum):
+    """Test if other types of `surface` functions (at least) run."""
+    mx2(kind='2H', vacuum=vacuum)
+    mx2(kind='1T', vacuum=vacuum)
+    graphene(vacuum=vacuum)
+    graphene(thickness=0.5, vacuum=vacuum)

@@ -503,10 +503,17 @@ def mx2(formula='MoS2', kind='2H', a=3.18, thickness=3.19,
     return atoms
 
 
-def graphene(formula='C2', a=2.460, size=(1, 1, 1), vacuum=None):
-    """Create a graphene monolayer structure."""
+def graphene(formula='C2', a=2.460, thickness=0.0,
+             size=(1, 1, 1), vacuum=None):
+    """Create a graphene monolayer structure.
+
+    Parameters
+    ----------
+    thickness : float, default: 0.0
+        Thickness of the layer; maybe for a buckled structure like silicene.
+    """
     cell = [[a, 0, 0], [-a / 2, a * 3**0.5 / 2, 0], [0, 0, 0]]
-    basis = [[0, 0, 0], [2 / 3, 1 / 3, 0]]
+    basis = [[0, 0, -0.5 * thickness], [2 / 3, 1 / 3, 0.5 * thickness]]
     atoms = Atoms(formula, cell=cell, pbc=(1, 1, 0))
     atoms.set_scaled_positions(basis)
     if vacuum is not None:
