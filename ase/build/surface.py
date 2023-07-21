@@ -477,11 +477,18 @@ def mx2(formula='MoS2', kind='2H', a=3.18, thickness=3.19,
         size=(1, 1, 1), vacuum=None):
     """Create three-layer 2D materials with hexagonal structure.
 
-    For metal dichalcogenites, etc.
+    This can be used for e.g. metal dichalcogenides :mol:`MX_2` 2D structures
+    such as :mol:`MoS_2`.
 
-    The kind argument accepts '2H', which gives a mirror plane symmetry
-    and '1T', which gives an inversion symmetry."""
+    https://en.wikipedia.org/wiki/Transition_metal_dichalcogenide_monolayers
 
+    Parameters
+    ----------
+    kind : {'2H', '1T'}, default: '2H'
+
+        - '2H': mirror-plane symmetry
+        - '1T': inversion symmetry
+    """
     if kind == '2H':
         basis = [(0, 0, 0),
                  (2 / 3, 1 / 3, 0.5 * thickness),
