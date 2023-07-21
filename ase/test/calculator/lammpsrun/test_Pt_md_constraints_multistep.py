@@ -32,7 +32,8 @@ def test_Pt_md_constraints_multistep(factory, pt_eam_potential_file):
         params['timestep'] = 0.0005
         params['dump_period'] = 10
         params['write_velocities'] = True
-        calc.parameters = params
+        calc.set(**params)
+
         # set_atoms=True to read final coordinates and velocities after
         # NVE simulation
         calc.run(set_atoms=True)

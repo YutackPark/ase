@@ -44,9 +44,9 @@ class CP2K(Calculator):
     mpiexec-process.
 
     The command used by the calculator to launch the CP2K-shell is
-    ``cp2k_shell``. To run a parallelized simulation use something like this:
+    ``cp2k_shell``. To run a parallelized simulation use something like this::
 
-    >>> CP2K.command="env OMP_NUM_THREADS=2 mpiexec -np 4 cp2k_shell.psmp"
+        CP2K.command="env OMP_NUM_THREADS=2 mpiexec -np 4 cp2k_shell.psmp"
 
     Arguments:
 
@@ -95,21 +95,21 @@ class CP2K(Calculator):
         zone integration. The example below illustrates some common
         options::
 
-           >>> inp = '''&FORCE_EVAL
-           >>>    &DFT
-           >>>      &KPOINTS
-           >>>        SCHEME MONKHORST-PACK 12 12 8
-           >>>      &END KPOINTS
-           >>>      &SCF
-           >>>        ADDED_MOS 10
-           >>>        &SMEAR
-           >>>          METHOD FERMI_DIRAC
-           >>>          ELECTRONIC_TEMPERATURE [K] 500.0
-           >>>        &END SMEAR
-           >>>      &END SCF
-           >>>    &END DFT
-           >>>  &END FORCE_EVAL
-           >>>  '''
+            inp = '''&FORCE_EVAL
+               &DFT
+                 &KPOINTS
+                   SCHEME MONKHORST-PACK 12 12 8
+                 &END KPOINTS
+                 &SCF
+                   ADDED_MOS 10
+                   &SMEAR
+                     METHOD FERMI_DIRAC
+                     ELECTRONIC_TEMPERATURE [K] 500.0
+                   &END SMEAR
+                 &END SCF
+               &END DFT
+             &END FORCE_EVAL
+            '''
 
     max_scf: int
         Maximum number of SCF iteration to be performed for

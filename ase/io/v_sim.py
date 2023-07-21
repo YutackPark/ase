@@ -118,7 +118,7 @@ def write_v_sim(fd, atoms):
     # Use v_sim 3.5 keywords to indicate scaled positions, etc.
     fd.write('#keyword: reduced\n')
     fd.write('#keyword: angstroem\n')
-    if np.alltrue(atoms.pbc):
+    if np.all(atoms.pbc):
         fd.write('#keyword: periodic\n')
     elif not np.any(atoms.pbc):
         fd.write('#keyword: freeBC\n')

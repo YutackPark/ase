@@ -224,7 +224,6 @@ float_keys = [
     'dvvvnorm0',  # Undocumented parameter
     'dvvminpotim',  # Undocumented parameter
     'dvvmaxpotim',  # Undocumented parameter
-    'efermi',  # Undocumented parameter
     'enchg',  # Undocumented charge fitting parameter
     'tau0',  # Undocumented charge fitting parameter
     'encut4o',  # Cutoff energy for 4-center integrals (HF)
@@ -291,6 +290,7 @@ string_keys = [
     'radeq',  # Which type of radial equations to use for rel. core calcs.
     'localized_basis',  # Basis to use in CRPA
     'proutine',  # Select profiling routine
+    'efermi',  # Sets the FERMI level in VASP 6.4.0+
 ]
 
 int_keys = [

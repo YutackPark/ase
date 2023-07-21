@@ -127,15 +127,15 @@ attribute access (*i.e*. ``calc.param.keyword = ...`` or
 Getting Started:
 ================
 
-Set the environment variables appropriately for your system.
+Set the environment variables appropriately for your system::
 
->>> export CASTEP_COMMAND=' ... '
->>> export CASTEP_PP_PATH=' ... '
+    export CASTEP_COMMAND=' ... '
+    export CASTEP_PP_PATH=' ... '
 
 Note: alternatively to CASTEP_PP_PATH one can set PSPOT_DIR
-as CASTEP consults this by default, i.e.
+as CASTEP consults this by default, i.e.::
 
->>> export PSPOT_DIR=' ... '
+    export PSPOT_DIR=' ... '
 
 
 Running the Calculator
