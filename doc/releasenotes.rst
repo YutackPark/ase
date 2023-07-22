@@ -9,6 +9,9 @@ Git master branch
 
 :git:`master <>`.
 
+* :func:`ase.build.surface.graphene` now takes a `thickness` argument
+  (:mr:`2963`)
+
 * :func:`ase.build.bulk` now assigns initial magnetic moments
   to BCC Fe, Co, and Ni.
 
