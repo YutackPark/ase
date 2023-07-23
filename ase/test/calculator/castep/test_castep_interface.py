@@ -272,7 +272,7 @@ def test_castep_param(testing_keywords):
         cparam.basis_precision = 'FINE'
 
 
-@pytest.mark.skipif(os.name == "nt")
+@pytest.mark.skipif(os.name == "nt", reason="No symlink on Windows")
 def test_workflow(testing_calculator):
     c = testing_calculator
     c._build_missing_pspots = False
