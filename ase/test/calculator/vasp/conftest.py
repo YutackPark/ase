@@ -37,7 +37,7 @@ def atoms_nh3():
 
 
 @pytest.fixture
-def mock_vasp_calculate(mocker):
+def mock_vasp_calculate(monkeypatch):
     """Fixture which mocks the VASP run method, so a calculation cannot run.
     Acts as a safeguard for tests which want to test VASP,
     but avoid accidentally launching a calculation"""
@@ -47,7 +47,7 @@ def mock_vasp_calculate(mocker):
 
     # Patch the calculate and run methods, so we're certain
     # calculations aren't accidentally launched
-    mocker.patch('ase.calculators.vasp.Vasp._run', _mock_run)
+    monkeypatch.setattr('ase.calculators.vasp.Vasp._run', _mock_run)
     yield
 
 
