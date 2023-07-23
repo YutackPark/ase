@@ -271,7 +271,8 @@ def test_castep_param(testing_keywords):
     with pytest.warns(UserWarning):
         cparam.basis_precision = 'FINE'
 
-@pytest.mark.skipif(os.name=="nt", reason="Windows does not have symlink support")
+
+@pytest.mark.skipif(os.name == "nt")
 def test_workflow(testing_calculator):
     c = testing_calculator
     c._build_missing_pspots = False
