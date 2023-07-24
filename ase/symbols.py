@@ -1,6 +1,7 @@
 from typing import List, Sequence, Set, Dict, Union, Iterator
 import warnings
 import collections.abc
+import numbers
 
 import numpy as np
 
@@ -76,7 +77,7 @@ dtype=bool)
 
     def __getitem__(self, key) -> Union['Symbols', str]:
         num = self.numbers[key]
-        if np.isscalar(num):
+        if isinstance(num, numbers.Integral):
             return chemical_symbols[num]
         return Symbols(num)
 

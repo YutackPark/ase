@@ -21,12 +21,13 @@ class MinimalDOSData(DOSData):
 
 class TestDosData:
     """Test the abstract base class for DOS data"""
-    sample_info = [(None, {}),
-                   ({}, {}),
-                   ({'symbol': 'C', 'index': '2', 'strangekey': 'isallowed'},
-                    {'symbol': 'C', 'index': '2', 'strangekey': 'isallowed'}),
-                   ('notadict', TypeError),
-                   (False, TypeError)]  # type: List[Tuple[Any,Any]]
+    sample_info: List[Tuple[Any, Any]] = [
+        (None, {}),
+        ({}, {}),
+        ({'symbol': 'C', 'index': '2', 'strangekey': 'isallowed'},
+         {'symbol': 'C', 'index': '2', 'strangekey': 'isallowed'}),
+        ('notadict', TypeError),
+        (False, TypeError)]
 
     @pytest.mark.parametrize('info, expected', sample_info)
     def test_dosdata_init_info(self, info, expected):

@@ -988,17 +988,6 @@ def test_calc_occupancies(calc_chunk, eigenvalues_occupancies):
 
 
 @pytest.fixture
-def molecular_positions():
-    return np.array(
-        [
-            [0.00000000, 0.00000000, 0.00000000],
-            [0.95840000, 0.00000000, 0.00000000],
-            [-0.24000000, 0.92790000, 0.00000000],
-        ]
-    )
-
-
-@pytest.fixture
 def molecular_header_chunk():
     lines = """
         | Number of atoms                   :        3
