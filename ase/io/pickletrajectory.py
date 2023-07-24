@@ -5,12 +5,6 @@ import pickle
 import warnings
 import collections
 
-# Python 3 stuff:
-try:
-    unicode
-except NameError:
-    unicode = str
-
 # pass for WindowsError on non-Win platforms
 try:
     WindowsError
