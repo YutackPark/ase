@@ -56,19 +56,10 @@ class AbinitFactory:
     def __init__(self, executable, pp_paths):
         self.executable = executable
         self.pp_paths = pp_paths
-        self._version = None
 
     def version(self):
         from ase.calculators.abinit import get_abinit_version
-        # XXX Ugly
-        if self._version is None:
-            self._version = get_abinit_version(self.executable)
-        return self._version
-
-    def is_legacy_version(self):
-        version = self.version()
-        major_ver = int(version.split('.')[0])
-        return major_ver < 9
+        return get_abinit_version(self.executable)
 
     def _base_kw(self):
         return dict(pp_paths=self.pp_paths,
@@ -81,9 +72,6 @@ class AbinitFactory:
 
         profile = AbinitProfile([self.executable])
 
-        if self.is_legacy_version():
-            raise RuntimeError('Sorry, Abinit 9+ is required.')
-
         kw = self._base_kw()
         assert kw['pp_paths'] is not None
         kw.update(kwargs)
@@ -92,11 +80,8 @@ class AbinitFactory:
 
     @classmethod
     def fromconfig(cls, config):
-        factory = AbinitFactory(config.executables['abinit'],
-                                config.datafiles['abinit'])
-        # XXX Hack
-        factory._version = factory.version()
-        return factory
+        return AbinitFactory(config.executables['abinit'],
+                             config.datafiles['abinit'])
 
 
 @factory('aims')
@@ -788,14 +773,6 @@ class CalculatorInputs:
             parameters = {}
         self.parameters = parameters
         self.factory = factory
-
-    def require_version(self, version):
-        from ase.utils import tokenize_version
-        installed_version = self.factory.version()
-        old = tokenize_version(installed_version) < tokenize_version(version)
-        if old:
-            pytest.skip('Version too old: Requires {}; got {}'
-                        .format(version, installed_version))
 
     @property
     def name(self):

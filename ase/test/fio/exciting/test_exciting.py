@@ -82,6 +82,7 @@ def structure_xml_to_ase_atoms(file_path):
     return atoms
 
 
+@pytest.mark.xfail(reason='excitingtools version conflict')
 def test_write_input_xml_file(
         tmp_path, nitrogen_trioxide_atoms, excitingtools):
     """Test writing input.xml file using write_input_xml_file()."""
@@ -113,6 +114,7 @@ def test_write_input_xml_file(
     assert parsed_calc_params.get("tforce") == 'true'
 
 
+@pytest.mark.xfail(reason='excitingtools version conflict')
 def test_ase_atoms_from_exciting_input_xml(
         tmp_path, nitrogen_trioxide_atoms, excitingtools):
     """Test reading the of the exciting input.xml file into ASE atoms obj."""
