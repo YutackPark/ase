@@ -23,11 +23,10 @@ class _Base:
         self._compare(atoms, atoms_ref)
 
     def _compare(self, atoms: Atoms, atoms_ref: Atoms):
-        func = np.testing.assert_array_equal
-        func(atoms.get_atomic_numbers(), atoms_ref.get_atomic_numbers())
-        func = np.testing.assert_allclose
-        func(atoms.get_masses(), atoms_ref.get_masses())
-        func(atoms.get_scaled_positions(), atoms_ref.get_scaled_positions())
+        assert all(atoms.numbers == atoms_ref.numbers)
+        assert atoms.get_masses() == pytest.approx(atoms_ref.get_masses())
+        assert atoms.get_scaled_positions() == pytest.approx(
+            atoms_ref.get_scaled_positions())
 
 
 @pytest.mark.parametrize("cubic", [False, True])
