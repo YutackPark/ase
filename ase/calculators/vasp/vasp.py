@@ -1022,9 +1022,10 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore
         if not lines:
             lines = self.load_file('OUTCAR')
 
-        for n, line in enumerate(lines):
+        for line in lines:
             if 'number of electron  ' in line:
-                magnetic_moment = float(line.split()[-1])
+                _ = line.split()[-1]
+                magnetic_moment = 0.0 if _ == "magnetization" else float(_)
         return magnetic_moment
 
     def read_nbands(self, lines=None):
