@@ -18,8 +18,9 @@ def read_lammps_data(fileobj, Z_of_type: dict = None, style: str = "full",
         File from which data should be read.
     Z_of_type : dict[int, int], optional
         Mapping from LAMMPS atom types (typically starting from 1) to atomic
-        numbers. If None, atomic numbers of 1 (H), 2 (He), ... are assigned to
-        atom types of 1, 2, ... Default is None.
+        numbers. If None, if there is the "Masses" section, atomic numbers are
+        guessed from the atomic masses. Otherwise, atomic numbers of 1 (H), 2
+        (He), etc. are assigned to atom types of 1, 2, etc. Default is None.
     sort_by_id : bool, optional
         Order the particles according to their id. Might be faster to set it
         False. Default is True.
@@ -352,6 +353,11 @@ def read_lammps_data(fileobj, Z_of_type: dict = None, style: str = "full",
     if velocities is not None:
         velocities = convert(velocities, "velocity", units, "ASE")
 
+    # guess atomic numbers from atomic masses
+    # this must be after the above mass-unit conversion
+    if Z_of_type is None and masses is not None:
+        numbers = _masses2numbers(masses)
+
     # create ase.Atoms
     at = Atoms(
         positions=positions,
@@ -415,6 +421,11 @@ def read_lammps_data(fileobj, Z_of_type: dict = None, style: str = "full",
     at.info["comment"] = comment
 
     return at
+
+
+def _masses2numbers(masses):
+    """Guess atomic numbers from atomic masses."""
+    return np.argmin(np.abs(atomic_masses - masses[:, None]), axis=1)
 
 
 @writer
