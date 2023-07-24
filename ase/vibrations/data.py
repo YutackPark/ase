@@ -61,9 +61,10 @@ class VibrationsData:
                  ) -> None:
 
         if indices is None:
-            self._indices = self.indices_from_constraints(atoms)
-        else:
-            self._indices = np.array(indices, dtype=int)
+            indices = np.asarray(self.indices_from_constraints(atoms),
+                                 dtype=int)
+
+        self._indices = np.array(indices, dtype=int)
 
         n_atoms = self._check_dimensions(atoms, np.asarray(hessian),
                                          indices=self._indices)
@@ -157,7 +158,7 @@ class VibrationsData:
     @staticmethod
     def _check_dimensions(atoms: Atoms,
                           hessian: np.ndarray,
-                          indices: Sequence[int],
+                          indices: Union[np.ndarray, Sequence[int]],
                           two_d: bool = False) -> int:
         """Sanity check on array shapes from input data
 
