@@ -774,14 +774,6 @@ class CalculatorInputs:
         self.parameters = parameters
         self.factory = factory
 
-    def require_version(self, version):
-        from ase.utils import tokenize_version
-        installed_version = self.factory.version()
-        old = tokenize_version(installed_version) < tokenize_version(version)
-        if old:
-            pytest.skip('Version too old: Requires {}; got {}'
-                        .format(version, installed_version))
-
     @property
     def name(self):
         return self.factory.name

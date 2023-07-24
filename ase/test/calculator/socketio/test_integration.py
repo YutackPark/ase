@@ -23,10 +23,6 @@ abinit_boilerplate = dict(
 @pytest.mark.calculator('espresso', ecutwfc=200 / Ry)
 @pytest.mark.calculator('abinit', ecut=200, **abinit_boilerplate)
 def test_socketio_espresso(factory):
-    name = factory.name
-    if name == 'abinit':
-        factory.require_version('9.4')
-
     atoms = bulk('Si')
     espresso = factory.calc(kpts=[2, 2, 2])
     atoms.rattle(stdev=.2, seed=42)
@@ -35,7 +31,7 @@ def test_socketio_espresso(factory):
             pytest.warns(UserWarning, match='Subprocess exited'), \
             SocketIOCalculator(
                 espresso,
-                unixsocket=f'ase_test_socketio_{name}') as calc:
+                unixsocket=f'ase_test_socketio_{factory.name}') as calc:
         atoms.calc = calc
         for _ in opt.irun(fmax=0.05):
             e = atoms.get_potential_energy()
