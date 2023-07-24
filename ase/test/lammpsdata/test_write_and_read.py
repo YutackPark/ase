@@ -11,6 +11,12 @@ from ase.io.lammpsdata import read_lammps_data, write_lammps_data
 @pytest.mark.parametrize("masses", [False, True])
 class _Base:
     def _run(self, atoms_ref: Atoms, masses: bool):
+        self._check_explicit_numbers(atoms_ref, masses)
+        if masses:
+            self._check_masses2numbers(atoms_ref)
+
+    def _check_explicit_numbers(self, atoms_ref: Atoms, masses: bool):
+        """Check if write-read is consistent when giving Z_of_type."""
         buf = io.StringIO()
         write_lammps_data(buf, atoms_ref, masses=masses)
         buf.seek(0)
@@ -19,6 +25,14 @@ class _Base:
         species = sorted(set(atoms_ref.get_chemical_symbols()))
         Z_of_type = {i + 1: atomic_numbers[s] for i, s in enumerate(species)}
         atoms = read_lammps_data(buf, Z_of_type=Z_of_type, style="atomic")
+        self._compare(atoms, atoms_ref)
+
+    def _check_masses2numbers(self, atoms_ref: Atoms):
+        """Check if write-read is consistent when guessing atomic numbers."""
+        buf = io.StringIO()
+        write_lammps_data(buf, atoms_ref, masses=True)
+        buf.seek(0)
+        atoms = read_lammps_data(buf, style="atomic")
         self._compare(atoms, atoms_ref)
 
     def _compare(self, atoms: Atoms, atoms_ref: Atoms):

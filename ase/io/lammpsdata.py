@@ -8,30 +8,44 @@ from ase.utils import reader, writer
 
 
 @reader
-def read_lammps_data(fileobj, Z_of_type=None, style="full",
-                     sort_by_id=True, units="metal"):
+def read_lammps_data(fileobj, Z_of_type: dict = None, style: str = "full",
+                     sort_by_id: bool = True, units: str = "metal"):
     """Method which reads a LAMMPS data file.
 
-    sort_by_id: Order the particles according to their id. Might be faster to
-    switch it off.
-    Units are set by default to the style=metal setting in LAMMPS.
+    Parameters
+    ----------
+    fileobj : file | str
+        File from which data should be read.
+    Z_of_type : dict[int, int], optional
+        Mapping from LAMMPS atom types (typically starting from 1) to atomic
+        numbers. If None, if there is the "Masses" section, atomic numbers are
+        guessed from the atomic masses. Otherwise, atomic numbers of 1 (H), 2
+        (He), etc. are assigned to atom types of 1, 2, etc. Default is None.
+    sort_by_id : bool, optional
+        Order the particles according to their id. Might be faster to set it
+        False. Default is True.
+    units : str, optional
+        `LAMMPS units <https://docs.lammps.org/units.html>`__. Default is
+        "metal".
+    style : {"atomic", "charge", "full"} etc., optional
+        `LAMMPS atom style <https://docs.lammps.org/atom_style.html>`__.
+        Default is "full".
     """
     # load everything into memory
     lines = fileobj.readlines()
 
     # begin read_lammps_data
     comment = None
-    N = None
-    # N_types = None
-    xlo = None
-    xhi = None
-    ylo = None
-    yhi = None
-    zlo = None
-    zhi = None
-    xy = None
-    xz = None
-    yz = None
+
+    # default values (https://docs.lammps.org/read_data.html)
+    # in most cases these will be updated below
+    N = 0
+    # N_types = 0
+    xlo, xhi = -0.5, 0.5
+    ylo, yhi = -0.5, 0.5
+    zlo, zhi = -0.5, 0.5
+    xy, xz, yz = 0.0, 0.0, 0.0
+
     pos_in = {}
     travel_in = {}
     mol_id_in = {}
@@ -269,38 +283,14 @@ def read_lammps_data(fileobj, Z_of_type=None, style="full",
     numbers = np.zeros((N), int)
     ids = np.zeros((N), int)
     types = np.zeros((N), int)
-    if len(vel_in) > 0:
-        velocities = np.zeros((N, 3))
-    else:
-        velocities = None
-    if len(mass_in) > 0:
-        masses = np.zeros((N))
-    else:
-        masses = None
-    if len(mol_id_in) > 0:
-        mol_id = np.zeros((N), int)
-    else:
-        mol_id = None
-    if len(charge_in) > 0:
-        charge = np.zeros((N), float)
-    else:
-        charge = None
-    if len(travel_in) > 0:
-        travel = np.zeros((N, 3), int)
-    else:
-        travel = None
-    if len(bonds_in) > 0:
-        bonds = [""] * N
-    else:
-        bonds = None
-    if len(angles_in) > 0:
-        angles = [""] * N
-    else:
-        angles = None
-    if len(dihedrals_in) > 0:
-        dihedrals = [""] * N
-    else:
-        dihedrals = None
+    velocities = np.zeros((N, 3)) if len(vel_in) > 0 else None
+    masses = np.zeros((N)) if len(mass_in) > 0 else None
+    mol_id = np.zeros((N), int) if len(mol_id_in) > 0 else None
+    charge = np.zeros((N), float) if len(charge_in) > 0 else None
+    travel = np.zeros((N, 3), int) if len(travel_in) > 0 else None
+    bonds = [""] * N if len(bonds_in) > 0 else None
+    angles = [""] * N if len(angles_in) > 0 else None
+    dihedrals = [""] * N if len(dihedrals_in) > 0 else None
 
     ind_of_id = {}
     # copy per-atom quantities from read-in values
@@ -337,6 +327,11 @@ def read_lammps_data(fileobj, Z_of_type=None, style="full",
         masses = convert(masses, "mass", units, "ASE")
     if velocities is not None:
         velocities = convert(velocities, "velocity", units, "ASE")
+
+    # guess atomic numbers from atomic masses
+    # this must be after the above mass-unit conversion
+    if Z_of_type is None and masses is not None:
+        numbers = _masses2numbers(masses)
 
     # create ase.Atoms
     at = Atoms(
@@ -401,6 +396,11 @@ def read_lammps_data(fileobj, Z_of_type=None, style="full",
     at.info["comment"] = comment
 
     return at
+
+
+def _masses2numbers(masses):
+    """Guess atomic numbers from atomic masses."""
+    return np.argmin(np.abs(atomic_masses - masses[:, None]), axis=1)
 
 
 @writer
