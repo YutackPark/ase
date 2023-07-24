@@ -3,6 +3,7 @@ import numpy as np
 
 from ase.atoms import Atoms
 from ase.calculators.lammps import Prism, convert
+from ase.data import atomic_masses, atomic_numbers
 from ase.utils import reader, writer
 
 
@@ -579,12 +580,13 @@ def _write_masses(fd, atoms: Atoms, species: list, units: str):
     symbols_indices = atoms.symbols.indices()
     fd.write("Masses\n\n")
     for i, s in enumerate(species):
-        # Skip if the system does not contain the element `s`.
-        if s not in symbols_indices:
-            continue
-        # Find the first atom of the element `s` and extract its mass
-        # Cover by `float` to make a new object for safety
-        mass = float(atoms[symbols_indices[s][0]].mass)
+        if s in symbols_indices:
+            # Find the first atom of the element `s` and extract its mass
+            # Cover by `float` to make a new object for safety
+            mass = float(atoms[symbols_indices[s][0]].mass)
+        else:
+            # Fetch from ASE data if the element `s` is not in the system
+            mass = atomic_masses[atomic_numbers[s]]
         # Convert mass from ASE units to LAMMPS units
         mass = convert(mass, "mass", "ASE", units)
         atom_type = i + 1
