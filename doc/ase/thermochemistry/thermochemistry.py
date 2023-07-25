@@ -1,6 +1,6 @@
 # creates:  nitrogen.txt, ethane.txt, gold.txt
 import io
-import os
+import shutil
 import runpy
 import sys
 
@@ -29,8 +29,6 @@ gold = gold[gold.find('Internal'):]
 with open('gold.txt', 'w') as f:
     f.write(gold)
 
-# Clean up.
-vibfiles = [file for file in os.listdir(os.getcwd()) if
-            file.startswith('vib.') or file.startswith('phonon.')]
-for file in vibfiles:
-    os.remove(file)
+# Clean up, to not confuse git.
+shutil.rmtree('vib')
+shutil.rmtree('phonon')
