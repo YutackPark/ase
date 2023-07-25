@@ -1,6 +1,7 @@
 import numpy as np
 from ase.geometry import find_mic
 
+
 def rotation_matrix_from_points(m0, m1):
     """Returns a rigid transformation/rotation matrix that minimizes the
     RMSD between two set of points.
@@ -81,16 +82,15 @@ def minimize_rotation_and_translation(target, atoms):
     p0 = target.get_positions()
 
     if sum(atoms.pbc) != 0:
-        # maybe we can raise a warning about cell changes here since we don't 
+        # maybe we can raise a warning about cell changes here since we don't
         # account for them?
-        
+
         # is this the best form of *find_mic version to use?
-        dp_min, dp_len = find_mic(p-p0,
-            cell = target.cell, 
-            pbc=target.pbc)
+        dp_min, dp_len = find_mic(p - p0, cell=target.cell, pbc=target.pbc)
+
         # add displacement without net translation
         p = p0 + dp_min - np.mean(dp_min, axis=0)
-        R = np.eye(3) # null rotation
+        R = np.eye(3)  # null rotation
 
     # centeroids to origin
     c = np.mean(p, axis=0)
