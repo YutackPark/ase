@@ -163,6 +163,8 @@ def read_lammps_data(fileobj, Z_of_type: dict = None, style: str = "full",
         if section is not None:
             fields = line.split()
             if section == "Atoms":  # id *
+                if style is None:
+                    style = _guess_atom_style(fields)
                 atom_id = int(fields[0])
                 if style == "full" and len(fields) in (7, 10):
                     # id mol-id type q x y z [tx ty tz]
@@ -358,6 +360,15 @@ def read_lammps_data(fileobj, Z_of_type: dict = None, style: str = "full",
     atoms.info["comment"] = comment
 
     return atoms
+
+
+def _guess_atom_style(fields):
+    """Guess `atom_sytle` from the length of fields."""
+    if len(fields) in (5, 8):
+        return "atomic"
+    if len(fields) in (7, 10):
+        return "full"
+    raise ValueError("atom_style cannot be guessed from len(fields)")
 
 
 def _masses2numbers(masses):
