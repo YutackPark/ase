@@ -131,7 +131,7 @@ def read_lammps_data(
                 # guess `atom_style` from the comment after `Atoms` if exists
                 if style is None and line_comment != "":
                     style = line_comment
-                mol_id_in, charge_in, pos_in, travel_in = \
+                mol_id_in, type_in, charge_in, pos_in, travel_in = \
                     _read_atoms_section(fileobj, natoms, style)
             continue
 
@@ -211,10 +211,10 @@ def read_lammps_data(
         else:
             ind = i
         ind_of_id[atom_id] = ind
-        atom_type = pos_in[atom_id][0]
-        positions[ind, :] = [pos_in[atom_id][_] for _ in (1, 2, 3)]
+        atom_type = type_in[atom_id]
+        positions[ind, :] = pos_in[atom_id]
         if velocities is not None:
-            velocities[ind, :] = [vel_in[atom_id][_] for _ in (0, 1, 2)]
+            velocities[ind, :] = vel_in[atom_id]
         if travel is not None:
             travel[ind] = travel_in[atom_id]
         if mol_id is not None:
@@ -309,6 +309,7 @@ def read_lammps_data(
 
 
 def _read_atoms_section(fileobj, natoms: int, style: str = None):
+    type_in = {}
     mol_id_in = {}
     charge_in = {}
     pos_in = {}
@@ -322,45 +323,29 @@ def _read_atoms_section(fileobj, natoms: int, style: str = None):
         atom_id = int(fields[0])
         if style == "full" and len(fields) in (7, 10):
             # id mol-id type q x y z [tx ty tz]
-            pos_in[atom_id] = (
-                int(fields[2]),
-                float(fields[4]),
-                float(fields[5]),
-                float(fields[6]),
-            )
+            type_in[atom_id] = int(fields[2])
+            pos_in[atom_id] = tuple(float(fields[_]) for _ in (4, 5, 6))
             mol_id_in[atom_id] = int(fields[1])
             charge_in[atom_id] = float(fields[3])
             if len(fields) == 10:
                 travel_in[atom_id] = tuple(int(fields[_]) for _ in (7, 8, 9))
         elif style == "atomic" and len(fields) in (5, 8):
             # id type x y z [tx ty tz]
-            pos_in[atom_id] = (
-                int(fields[1]),
-                float(fields[2]),
-                float(fields[3]),
-                float(fields[4]),
-            )
+            type_in[atom_id] = int(fields[1])
+            pos_in[atom_id] = tuple(float(fields[_]) for _ in (2, 3, 4))
             if len(fields) == 8:
                 travel_in[atom_id] = tuple(int(fields[_]) for _ in (5, 6, 7))
         elif style in ("angle", "bond", "molecular") and len(fields) in (6, 9):
             # id mol-id type x y z [tx ty tz]
-            pos_in[atom_id] = (
-                int(fields[2]),
-                float(fields[3]),
-                float(fields[4]),
-                float(fields[5]),
-            )
+            type_in[atom_id] = int(fields[2])
+            pos_in[atom_id] = tuple(float(fields[_]) for _ in (3, 4, 5))
             mol_id_in[atom_id] = int(fields[1])
             if len(fields) == 9:
                 travel_in[atom_id] = tuple(int(fields[_]) for _ in (6, 7, 8))
         elif style == "charge" and len(fields) in (6, 9):
             # id type q x y z [tx ty tz]
-            pos_in[atom_id] = (
-                int(fields[1]),
-                float(fields[3]),
-                float(fields[4]),
-                float(fields[5]),
-            )
+            type_in[atom_id] = int(fields[1])
+            pos_in[atom_id] = tuple(float(fields[_]) for _ in (3, 4, 5))
             charge_in[atom_id] = float(fields[2])
             if len(fields) == 9:
                 travel_in[atom_id] = tuple(int(fields(_)) for _ in (6, 7, 8))
@@ -370,7 +355,7 @@ def _read_atoms_section(fileobj, natoms: int, style: str = None):
                 "number of fields {}"
                 "".format(style, len(fields))
             )
-    return mol_id_in, charge_in, pos_in, travel_in
+    return mol_id_in, type_in, charge_in, pos_in, travel_in
 
 
 def _guess_atom_style(fields):
