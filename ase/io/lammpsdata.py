@@ -34,10 +34,12 @@ def read_lammps_data(
         "metal".
     style : {"atomic", "charge", "full"} etc., optional
         `LAMMPS atom style <https://docs.lammps.org/atom_style.html>`__.
-        Default is "full".
+        If None, `atom_style` is guessed in the following priority (1) comment
+        after `Atoms` (2) length of fields (valid only `atomic` and `full`).
+        Default is None.
     """
     # begin read_lammps_data
-    comment = next(fileobj).rstrip()
+    file_comment = next(fileobj).rstrip()
 
     # default values (https://docs.lammps.org/read_data.html)
     # in most cases these will be updated below
@@ -114,6 +116,8 @@ def read_lammps_data(
     section = None
     header = True
     for line in fileobj:
+        # get string after #; if # does not exist, return ""
+        line_comment = re.sub(r"^.*#|^.*$", "", line).strip()
         line = re.sub("#.*", "", line).rstrip().lstrip()
         if re.match("^\\s*$", line):  # skip blank lines
             continue
@@ -124,6 +128,9 @@ def read_lammps_data(
             section = match.group(0).rstrip().lstrip()
             header = False
             if section == "Atoms":  # id *
+                # guess `atom_style` from the comment after `Atoms` if exists
+                if style is None and line_comment != "":
+                    style = line_comment
                 mol_id_in, charge_in, pos_in, travel_in = \
                     _read_atoms_section(fileobj, natoms, style)
             continue
@@ -296,7 +303,7 @@ def read_lammps_data(
                 dihedrals[i] = "_"
         atoms.arrays["dihedrals"] = np.array(dihedrals)
 
-    atoms.info["comment"] = comment
+    atoms.info["comment"] = file_comment
 
     return atoms
 
