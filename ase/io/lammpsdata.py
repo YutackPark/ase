@@ -138,15 +138,6 @@ def read_lammps_data(
         if header:
             field = None
             val = None
-            # m = re.match(header_fields_re+"\s+=\s*(.*)", line)
-            # if m is not None: # got a header line
-            #   field=m.group(1).lstrip().rstrip()
-            #   val=m.group(2).lstrip().rstrip()
-            # else: # try other format
-            #   m = re.match("(.*)\s+"+header_fields_re, line)
-            #   if m is not None:
-            #       field = m.group(2).lstrip().rstrip()
-            #       val = m.group(1).lstrip().rstrip()
             match = re.match("(.*)\\s+" + header_fields_re, line)
             if match is not None:
                 field = match.group(2).lstrip().rstrip()
