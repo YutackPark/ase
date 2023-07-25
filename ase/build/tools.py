@@ -76,17 +76,17 @@ def cut(atoms, a=(1, 0, 0), b=(0, 1, 0), c=None, clength=None,
     >>> import ase
     >>> from ase.spacegroup import crystal
     >>> from ase.build.tools import cut
-    
+
     # First, a unit cell of Al
-    >>> a = 4.05  
+    >>> a = 4.05
     >>> aluminium = crystal('Al', [(0,0,0)], spacegroup=225,
     ...                     cellpar=[a, a, a, 90, 90, 90])
 
     # Then cut out the slab
     >>> al111 = cut(aluminium, (1,-1,0), (0,1,-1), nlayers=3)
-    
+
     Example: Visualisation of the skutterudite unit cell
-    
+
     >>> from ase.spacegroup import crystal
     >>> from ase.build.tools import cut
 
@@ -232,7 +232,7 @@ def stack(atoms1, atoms2, axis=2, cell=None, fix=0.5,
     >>> import ase
     >>> from ase.spacegroup import crystal
     >>> from ase.build.tools import cut, stack
-    >>> 
+    >>>
     >>> a_ag = 4.09
     >>> ag = crystal(['Ag'], basis=[(0,0,0)], spacegroup=225,
     ...              cellpar=[a_ag, a_ag, a_ag, 90., 90., 90.])
@@ -409,7 +409,7 @@ def minimize_tilt_ij(atoms, modified=1, fixed=0, fold_atoms=True):
     def volume(cell):
         return np.abs(np.dot(cell[2], np.cross(cell[0], cell[1])))
     V = volume(cell_cc)
-    assert(abs(volume(orgcell_cc) - V) / V < 1.e-10)
+    assert abs(volume(orgcell_cc) - V) / V < 1.e-10
 
     atoms.set_cell(cell_cc)
 
