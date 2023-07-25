@@ -1,5 +1,6 @@
 """Test write and read."""
 import io
+import re
 
 import pytest
 from ase import Atoms
@@ -81,3 +82,32 @@ class TestOrthorhombic(_Base):
         """Test hcp."""
         atoms_ref = bulk("Mg", "hcp", orthorhombic=orthorhombic)
         self.run(atoms_ref, masses)
+
+
+@pytest.mark.parametrize("atom_style", ["atomic", "charge", "full"])
+def test_atom_style(atom_style: str):
+    """Test `atom_style`"""
+    atoms_ref = bulk("Cu", "fcc")
+
+    # note that we should do `masses=True` to later guess atomic numbers
+    buf = io.StringIO()
+    write_lammps_data(buf, atoms_ref, masses=True, atom_style=atom_style)
+
+    # test if the `atom_style` can be guessed from the comment
+    buf.seek(0)
+    atoms = read_lammps_data(buf, style=None)
+    compare(atoms, atoms_ref)
+
+    # test when `atom_style` is explicitly specified
+    buf.seek(0)
+    atoms = read_lammps_data(buf, style=atom_style)
+    compare(atoms, atoms_ref)
+
+    if atom_style not in ["atomic", "full"]:
+        return
+
+    # test if `atom_style` can be guessed from the length of fields
+    # remove comment in the "Atoms" line
+    buf = io.StringIO(re.sub(".*Atoms.*#.*", "Atoms", buf.getvalue()))
+    atoms = read_lammps_data(buf, style=None)
+    compare(atoms, atoms_ref)
