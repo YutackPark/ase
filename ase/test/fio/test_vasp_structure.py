@@ -3,6 +3,7 @@ import os
 import numpy as np
 import numpy.testing
 import unittest
+import pytest
 
 import ase
 import ase.build
@@ -16,9 +17,9 @@ from ase.build import graphene_nanoribbon
 
 class TestXdatcarRoundtrip(unittest.TestCase):
     def setUp(self):
-        self.outfile = "NaCl.XDATCAR"
+        self.outfile = 'NaCl.XDATCAR'
 
-        self.NaCl = ase.build.bulk("NaCl", "rocksalt", a=5.64)
+        self.NaCl = ase.build.bulk('NaCl', 'rocksalt', a=5.64)
 
     def tearDown(self):
         if os.path.isfile(self.outfile):
@@ -30,7 +31,7 @@ class TestXdatcarRoundtrip(unittest.TestCase):
 
         if len(system_changes) > 0:
             raise AssertionError(
-                "Atoms objects differ by {}".format(", ".join(system_changes))
+                'Atoms objects differ by {}'.format(', '.join(system_changes))
             )
 
     def assert_trajectory_almost_equal(self, traj1, traj2):
@@ -47,84 +48,96 @@ class TestXdatcarRoundtrip(unittest.TestCase):
             )
             atoms.wrap()
 
-        ase.io.write(self.outfile, trajectory, format="vasp-xdatcar")
-        roundtrip_trajectory = ase.io.read(self.outfile, index=":")
+        ase.io.write(self.outfile, trajectory, format='vasp-xdatcar')
+        roundtrip_trajectory = ase.io.read(self.outfile, index=':')
         self.assert_trajectory_almost_equal(trajectory, roundtrip_trajectory)
 
     def test_roundtrip_single_atoms(self):
-        atoms = ase.build.bulk("Ge")
-        ase.io.write(self.outfile, atoms, format="vasp-xdatcar")
+        atoms = ase.build.bulk('Ge')
+        ase.io.write(self.outfile, atoms, format='vasp-xdatcar')
         roundtrip_atoms = ase.io.read(self.outfile)
         self.assert_atoms_almost_equal(atoms, roundtrip_atoms)
 
     def test_typeerror(self):
         with self.assertRaises(TypeError):
-            atoms = ase.build.bulk("Ge")
+            atoms = ase.build.bulk('Ge')
             write_vasp_xdatcar(self.outfile, atoms)
         with self.assertRaises(TypeError):
             not_atoms = 1
-            ase.io.write(self.outfile, not_atoms, format="vasp-xdatcar")
+            ase.io.write(self.outfile, not_atoms, format='vasp-xdatcar')
         with self.assertRaises(TypeError):
             not_traj = [True, False, False]
-            ase.io.write(self.outfile, not_traj, format="vasp-xdatcar")
+            ase.io.write(self.outfile, not_traj, format='vasp-xdatcar')
 
 
 def test_wrap():
-    atoms = ase.build.bulk("Ge")
+    atoms = ase.build.bulk('Ge')
     # Shift atomic positions to get negative coordinates
     atoms.wrap(center=(-1, -1, -1))
 
-    atoms.write("POSCAR", direct=True, wrap=False)
-    new_atoms = ase.io.read("POSCAR")
+    atoms.write('POSCAR', direct=True, wrap=False)
+    new_atoms = ase.io.read('POSCAR')
     assert np.allclose(atoms.positions, new_atoms.positions)
 
-    atoms.write("POSCAR", direct=True, wrap=True)
-    new_atoms = ase.io.read("POSCAR")
+    atoms.write('POSCAR', direct=True, wrap=True)
+    new_atoms = ase.io.read('POSCAR')
     atoms.wrap()
     assert np.allclose(atoms.positions, new_atoms.positions)
 
 
-def test_constraints():
-    """VASP supports FixAtoms and FixScaled as well as FixedLine and
-    FixedPlane if the direction is along a lattice vector. Test that
-    these constraints are preserved when writing and reading POSCAR
-    files."""
+# Start of tests for constraints
+# VASP supports FixAtoms and FixScaled as well as FixedLine and
+# FixedPlane if the direction is along a lattice vector. Test that
+# these constraints are preserved when writing and reading POSCAR
+# files.
+indices_to_constrain = [0, 2]
+
+
+@pytest.fixture(scope='module')
+def graphene_atoms():
     atoms = graphene_nanoribbon(2, 2, type="armchair", saturated=False)
+    print('hej')
     atoms.cell = [[10, 0, 0], [0, 10, 0], [0, 0, 10]]
+    return atoms
 
-    indices_to_constrain = [0, 2]
 
-    atoms.set_constraint(FixAtoms(indices=indices_to_constrain))
-
+def poscar_roundtrip(atoms):
+    """Write a POSCAR file, read it back and return the new atoms object"""
     atoms.write("POSCAR", direct=True)
-    new_atoms = ase.io.read("POSCAR")
+    return ase.io.read("POSCAR")
+
+
+def test_FixAtoms(graphene_atoms):
+    atoms = graphene_atoms
+    atoms.set_constraint(FixAtoms(indices=indices_to_constrain))
+    new_atoms = poscar_roundtrip(atoms)
 
     # Assert that constraints are preserved
     assert isinstance(new_atoms.constraints[0], FixAtoms)
     assert np.all(new_atoms.constraints[0].index == indices_to_constrain)
 
-    # FixedLine and FixedPlane
-    for ConstraintClass in [FixedLine, FixedPlane]:
-        atoms.set_constraint()
-        atoms.set_constraint(
-            ConstraintClass(indices=indices_to_constrain, direction=[1, 0, 0])
-        )
-        atoms.write("POSCAR", direct=True)
-        new_atoms = ase.io.read("POSCAR")
 
-        # FixedLine and FixedPlane are converted to FixScaled. During
-        # a relaxation the results will be the same since FixScaled
-        # are equivalent to the others if the direction in FixedLine
-        # or FixedPlane is along a lattice vector.
-
-        assert np.all(constrained_indices(new_atoms) == indices_to_constrain)
-
-    # FixScaled
-    atoms.set_constraint()
+def test_FixScaled(graphene_atoms):
+    atoms = graphene_atoms
     atoms.set_constraint(FixScaled(indices_to_constrain, mask=[0, 1, 1]))
-    atoms.write("POSCAR", direct=True)
-    new_atoms = ase.io.read("POSCAR")
+    new_atoms = poscar_roundtrip(atoms)
 
     # Assert that constraints are preserved
     assert np.all(constrained_indices(new_atoms) == indices_to_constrain)
     assert np.all(new_atoms.constraints[0].mask == [0, 1, 1])
+
+
+@pytest.mark.parametrize('ConstraintClass', [FixedLine, FixedPlane])
+def test_FixedLine_and_Plane(ConstraintClass, graphene_atoms):
+    atoms = graphene_atoms
+    atoms.set_constraint(
+        ConstraintClass(indices=indices_to_constrain, direction=[1, 0, 0])
+    )
+    new_atoms = poscar_roundtrip(atoms)
+
+    # FixedLine and FixedPlane are converted to FixScaled. During
+    # a relaxation the results will be the same since FixScaled
+    # are equivalent to the others if the direction in FixedLine
+    # or FixedPlane is along a lattice vector.
+
+    assert np.all(constrained_indices(new_atoms) == indices_to_constrain)
