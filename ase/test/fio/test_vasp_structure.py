@@ -93,10 +93,9 @@ def test_wrap():
 indices_to_constrain = [0, 2]
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture()
 def graphene_atoms():
     atoms = graphene_nanoribbon(2, 2, type="armchair", saturated=False)
-    print('hej')
     atoms.cell = [[10, 0, 0], [0, 10, 0], [0, 0, 10]]
     return atoms
 
