@@ -241,7 +241,7 @@ def read_vasp(filename='CONTCAR'):
         indices = []
         for ind, sflags in enumerate(selective_flags):
             if sflags.any() and not sflags.all():
-                constraints.append(FixScaled(atoms.get_cell(), ind, sflags))
+                constraints.append(FixScaled(ind, sflags, atoms.get_cell()))
             elif sflags.all():
                 indices.append(ind)
         if indices:
@@ -766,7 +766,7 @@ def write_vasp(filename,
         sflags = np.zeros((len(atoms), 3), dtype=bool)
         for constr in atoms.constraints:
             if isinstance(constr, FixScaled):
-                sflags[constr.a] = constr.mask
+                sflags[constr.index] = constr.mask
             elif isinstance(constr, FixAtoms):
                 sflags[constr.index] = [True, True, True]
             elif isinstance(constr, FixedPlane):
@@ -776,7 +776,7 @@ def write_vasp(filename,
                     raise RuntimeError(
                         'VASP requires that the direction of FixedPlane '
                         'constraints is parallel with one of the cell axis')
-                sflags[constr.a] = mask
+                sflags[constr.index] = mask
             elif isinstance(constr, FixedLine):
                 mask = np.all(np.abs(np.cross(constr.dir, atoms.cell)) < 1e-5,
                               axis=1)
@@ -784,7 +784,7 @@ def write_vasp(filename,
                     raise RuntimeError(
                         'VASP requires that the direction of FixedLine '
                         'constraints is parallel with one of the cell axis')
-                sflags[constr.a] = ~mask
+                sflags[constr.index] = ~mask
 
     if sort:
         ind = np.argsort(atoms.get_chemical_symbols())
