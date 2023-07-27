@@ -1,34 +1,31 @@
 # creates:  nitrogen.txt, ethane.txt, gold.txt
-import io
-import shutil
-import runpy
+import os
 import sys
+import tempfile
+import subprocess
 
 
-def output_to_string(pythonfile):
+def run_script_and_get_output(script):
     """Returns the stdout of executing the code in pythonfile
     as a string."""
-    buffer = io.StringIO()
-    sys.stdout = buffer
-    runpy.run_path(pythonfile)
-    sys.stdout = sys.__stdout__
-    return buffer.getvalue()
+    script = os.path.join(os.getcwd(), script)
+    with tempfile.TemporaryDirectory() as tempdir:
+        return subprocess.check_output([sys.executable, script],
+                                       cwd=tempdir)
 
 
 # Only save the parts relevant to thermochemistry
-nitrogen = output_to_string('nitrogen.py')
-nitrogen = nitrogen[nitrogen.find('Enthalpy'):]
-with open('nitrogen.txt', 'w') as f:
-    f.write(nitrogen)
-ethane = output_to_string('ethane.py')
-ethane = ethane[ethane.find('Internal'):]
-with open('ethane.txt', 'w') as f:
-    f.write(ethane)
-gold = output_to_string('gold.py')
-gold = gold[gold.find('Internal'):]
-with open('gold.txt', 'w') as f:
-    f.write(gold)
+output = run_script_and_get_output('nitrogen.py')
+output = output[output.find(b'Enthalpy'):]
+with open('nitrogen.txt', 'wb') as f:
+    f.write(output)
 
-# Clean up, to not confuse git.
-shutil.rmtree('vib')
-shutil.rmtree('phonon')
+output = run_script_and_get_output('ethane.py')
+output = output[output.find(b'Internal'):]
+with open('ethane.txt', 'wb') as f:
+    f.write(output)
+
+output = run_script_and_get_output('gold.py')
+output = output[output.find(b'Internal'):]
+with open('gold.txt', 'wb') as f:
+    f.write(output)
