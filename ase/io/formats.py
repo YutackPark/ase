@@ -454,6 +454,12 @@ F('nwchem-out', 'NWChem output file', '+F',
   magic=b'*Northwest Computational Chemistry Package')
 F('octopus-in', 'Octopus input file', '1F',
   module='octopus', glob='inp')
+F('onetep-out', 'ONETEP output file', '+F',
+  module='onetep',
+  magic=b'*Linear-Scaling Ab Initio Total Energy Program*')
+F('onetep-in', 'ONETEP input file', '1F',
+  module='onetep',
+  magic=[b'*lock species*', b'*LOCK SPECIES*'])
 F('proteindatabank', 'Protein Data Bank', '+F',
   ext='pdb')
 F('png', 'Portable Network Graphics', '1B')
