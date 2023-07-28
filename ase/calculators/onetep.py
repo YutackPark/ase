@@ -130,13 +130,13 @@ class Onetep(GenericFileIOCalculator):
         Where to look for pseudopotential, correspond
         to the pseudo_path keyword of ONETEP.
 
-    .. note::
-       write_forces is always turned on by default when using this interface
+        .. note::
+           write_forces is always turned on by default when using this interface.
 
-    .. note::
-       Little to no check is performed on the keywords provided by the user
-       via the keyword dictionary, it is the user responsibility that they
-       are valid ONETEP keywords.
+        .. note::
+           Little to no check is performed on the keywords provided by the user
+           via the keyword dictionary, it is the user responsibility that they
+           are valid ONETEP keywords.
        
     """
 
