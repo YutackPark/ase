@@ -1,7 +1,6 @@
 import pytest
 import numpy as np
 from ase.cell import Cell
-from ase.lattice import identify_lattice
 
 
 @pytest.fixture
@@ -35,7 +34,6 @@ def test_mcl_obl(cell):
     print(path2d)
     assert path2d.cell.rank == 2
     assert path2d.cell.get_bravais_lattice().name == 'OBL'
-
 
 
 @pytest.mark.parametrize('angle', [60, 120])
