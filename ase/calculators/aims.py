@@ -13,7 +13,10 @@ import re
 import numpy as np
 
 from ase.io.aims import write_aims, write_control
-from ase.calculators.genericfileio import GenericFileIOCalculator, CalculatorTemplate
+from ase.calculators.genericfileio import (
+    GenericFileIOCalculator,
+    CalculatorTemplate
+)
 
 
 def get_aims_version(string):
@@ -185,7 +188,9 @@ class Aims(GenericFileIOCalculator):
 
         if profile is None:
             profile = AimsProfile(
-                kwargs.pop("aims_command", os.getenv("ASE_AIMS_COMMAND", "aims.x"))
+                kwargs.pop(
+                    "aims_command", os.getenv("ASE_AIMS_COMMAND", "aims.x")
+                )
             )
 
         super().__init__(
