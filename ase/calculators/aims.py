@@ -13,8 +13,7 @@ import re
 import numpy as np
 
 from ase.io.aims import write_aims, write_control
-from ase.calculators.genericfileio import (GenericFileIOCalculator,
-                                           CalculatorTemplate)
+from ase.calculators.genericfileio import GenericFileIOCalculator, CalculatorTemplate
 
 
 def get_aims_version(string):
@@ -33,8 +32,7 @@ class AimsProfile:
         from subprocess import check_call
 
         with open(directory / outputname, "w") as fd:
-            check_call(self.argv, stdout=fd, cwd=directory,
-                       env=os.environ)
+            check_call(self.argv, stdout=fd, cwd=directory, env=os.environ)
 
     def socketio_argv_unix(self, socket):
         return list(self.argv)
@@ -126,8 +124,11 @@ class AimsTemplate(CalculatorTemplate):
             geo_constrain = scaled and "relax_geometry" in parameters
 
         have_lattice_vectors = atoms.pbc.any()
-        have_k_grid = ("k_grid" in parameters or "kpts" in parameters
-                       or "k_grid_density" in parameters)
+        have_k_grid = (
+            "k_grid" in parameters
+            or "kpts" in parameters
+            or "k_grid_density" in parameters
+        )
         if have_lattice_vectors and not have_k_grid:
             raise RuntimeError("Found lattice vectors but no k-grid!")
         if not have_lattice_vectors and have_k_grid:
@@ -158,7 +159,7 @@ class AimsTemplate(CalculatorTemplate):
 
 
 class Aims(GenericFileIOCalculator):
-    def __init__(self, profile=None, directory='.', **kwargs):
+    def __init__(self, profile=None, directory=".", **kwargs):
         """Construct the FHI-aims calculator.
 
         The keyword arguments (kwargs) can be one of the ASE standard
@@ -184,16 +185,15 @@ class Aims(GenericFileIOCalculator):
 
         if profile is None:
             profile = AimsProfile(
-                kwargs.pop(
-                    "run_command",
-                    os.getenv("ASE_AIMS_COMMAND", "aims.x")
-                )
+                kwargs.pop("aims_command", os.getenv("ASE_AIMS_COMMAND", "aims.x"))
             )
 
-        super().__init__(template=AimsTemplate(),
-                         profile=profile,
-                         parameters=kwargs,
-                         directory=directory)
+        super().__init__(
+            template=AimsTemplate(),
+            profile=profile,
+            parameters=kwargs,
+            directory=directory,
+        )
 
 
 class AimsCube:
@@ -220,7 +220,7 @@ class AimsCube:
         self.plots = plots
 
     def ncubes(self):
-        """returns the number of cube files to output """
+        """returns the number of cube files to output"""
         return len(self.plots)
 
     def move_to_base_name(self, basename):
@@ -252,11 +252,11 @@ class AimsCube:
                 os.system("mv " + old_name + " " + new_name)
 
     def add_plot(self, name):
-        """ in case you forgot one ... """
+        """in case you forgot one ..."""
         self.plots += [name]
 
     def write(self, file):
-        """ write the necessary output to the already opened control.in """
+        """write the necessary output to the already opened control.in"""
         file.write("output cube " + self.plots[0] + "\n")
         file.write("   cube origin ")
         for ival in self.origin:
