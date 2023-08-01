@@ -1,4 +1,3 @@
-from __future__ import annotations
 import os
 import sys
 from contextlib import ExitStack
@@ -216,7 +215,7 @@ class JSONDatabase(Database):
         self._metadata = dct
         self._write_json(bigdct, ids, nextid)
 
-    def get_all_key_names(self) -> set[str]:
+    def get_all_key_names(self):
         keys = set()
         bigdct, ids, nextid = self._read_json()
         for id in ids:
