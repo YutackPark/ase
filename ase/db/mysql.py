@@ -64,6 +64,7 @@ class MySQLCursor:
         (' key TEXT', ' attribute_key TEXT'),
         ('(key TEXT', '(attribute_key TEXT'),
         ('SELECT key FROM', 'SELECT attribute_key FROM'),
+        ('SELECT DISTINCT key FROM', 'SELECT DISTINCT attribute_key FROM'),
         ('?', '%s'),
         (' keys ', ' attribute_keys '),
         (' key=', ' attribute_key='),
