@@ -109,6 +109,8 @@ def test_db2(testdir, dbtype, get_db_name):
     offset = 2
     assert next(c.select(offset=offset)).id == ids[offset]
 
+    assert 'grr' in c.get_all_key_names()
+
 
 def test_sqlite_user(testdir):
     """Make sure user=someone works.  Is called username in SQLite."""

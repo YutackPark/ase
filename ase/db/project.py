@@ -25,19 +25,8 @@ class DatabaseProject:
         # Therefore, any key without description will not be rendered.
         # Therefore, we need to make dummy key descriptions of everything
         # in the database, ensuring that all keys are visible.
-        #
-        # This is a very bad select() which loops over things that should be
-        # available directly, and also, it uses
-        # private variables of the row:
-        with database.managed_connection() as con:
-            cur = con.cursor()
-            cur.execute('SELECT DISTINCT key FROM keys;')
-            all_keys = set(row[0] for row in cur.fetchall())
 
-        # all_keys = set()
-        # for row in database.select(
-        #         columns=['key_value_pairs'], include_data=False):
-        #     all_keys |= set(row._keys)
+        all_keys = database.get_all_key_names()
 
         key_descriptions = {
             **{key: KeyDescription(key) for key in all_keys},
