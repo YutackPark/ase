@@ -490,24 +490,27 @@ Verbose=False
             colb = self.colors[b]
 
             if bond_order == 1:
-                draw_tuples = (posa, mida, cola, transa, texa),\
-                              (posb, midb, colb, transb, texb)
+                draw_tuples = (
+                    (posa, mida, cola, transa, texa),
+                    (posb, midb, colb, transb, texb))
 
             elif bond_order == 2:
                 bs = [x / 2 for x in bond_offset]
-                draw_tuples = (posa - bs, mida - bs, cola, transa, texa),\
-                              (posb - bs, midb - bs, colb, transb, texb),\
-                              (posa + bs, mida + bs, cola, transa, texa),\
-                              (posb + bs, midb + bs, colb, transb, texb)
+                draw_tuples = (
+                    (posa - bs, mida - bs, cola, transa, texa),
+                    (posb - bs, midb - bs, colb, transb, texb),
+                    (posa + bs, mida + bs, cola, transa, texa),
+                    (posb + bs, midb + bs, colb, transb, texb))
 
             elif bond_order == 3:
                 bs = bond_offset
-                draw_tuples = (posa, mida, cola, transa, texa),\
-                              (posb, midb, colb, transb, texb),\
-                              (posa + bs, mida + bs, cola, transa, texa),\
-                              (posb + bs, midb + bs, colb, transb, texb),\
-                              (posa - bs, mida - bs, cola, transa, texa),\
-                              (posb - bs, midb - bs, colb, transb, texb)
+                draw_tuples = (
+                    (posa, mida, cola, transa, texa),
+                    (posb, midb, colb, transb, texb),
+                    (posa + bs, mida + bs, cola, transa, texa),
+                    (posb + bs, midb + bs, colb, transb, texb),
+                    (posa - bs, mida - bs, cola, transa, texa),
+                    (posb - bs, midb - bs, colb, transb, texb))
 
             bondatoms += ''.join(f'cylinder {{{pa(p)}, '
                                  f'{pa(m)}, Rbond texture{{pigment '
