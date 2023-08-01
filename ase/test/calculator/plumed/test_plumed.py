@@ -83,10 +83,10 @@ def test_units(factory):
         approx(plumed_values['forces'], abs=1E-5), \
         "error in forces units"
     assert ase_values['masses'] == approx(plumed_values['masses'],
-                                          abs=1E-5),\
+                                          abs=1E-5), \
         "error in masses units"
     assert ase_values['charges'] == approx(plumed_values['charges'],
-                                           abs=1E-5),\
+                                           abs=1E-5), \
         "error in charges units"
 
 

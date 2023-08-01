@@ -1,3 +1,4 @@
+from typing import Sequence
 from warnings import warn
 
 import numpy as np
@@ -960,7 +961,7 @@ class FixInternals(FixConstraint):
         Identification by its definition via indices (and coefficients)."""
         self.initialize(atoms)
         for subconstr in self.constraints:
-            if type(definition[0]) == list:  # identify Combo constraint
+            if isinstance(definition[0], Sequence):  # Combo constraint
                 defin = [d + [c] for d, c in zip(subconstr.indices,
                                                  subconstr.coefs)]
                 if defin == definition:

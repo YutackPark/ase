@@ -165,7 +165,7 @@ def compare_qm_cell_and_pbc(qm_calc, mm_calc, bulk_at,
                              "buffer_width": 3.61},
                             {"test_size": [1, 4, 4],
                              "expected_pbc": np.array([True, False, False]),
-                             "buffer_width":3.61},
+                             "buffer_width": 3.61},
                              # testing scenario periodic in one direction
                              # and non periodic in the other two
                              # relevant for surfaces.
