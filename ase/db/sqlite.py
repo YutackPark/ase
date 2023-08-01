@@ -14,7 +14,6 @@ Versions:
 9) Row data is now stored in binary format.
 """
 
-from __future__ import annotations
 import json
 import numbers
 import os
@@ -921,7 +920,7 @@ class SQLite3Database(Database):
 
         return dictionary
 
-    def get_all_key_names(self) -> set[str]:
+    def get_all_key_names(self):
         """Create set of all key names."""
         with self.managed_connection() as con:
             cur = con.cursor()

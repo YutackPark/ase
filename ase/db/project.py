@@ -68,6 +68,9 @@ class DatabaseProject:
             def select(self, *args, **kwargs):
                 return iter([])
 
+            def get_all_key_names(self):
+                return set()
+
         _kwargs = dict(
             name='test',
             title='test',
