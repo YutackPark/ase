@@ -5,19 +5,6 @@ import pickle
 import warnings
 import collections
 
-# Python 3 stuff:
-try:
-    unicode
-except NameError:
-    unicode = str
-
-# pass for WindowsError on non-Win platforms
-try:
-    WindowsError
-except NameError:
-    class WindowsError(OSError):
-        pass
-
 import numpy as np
 
 from ase.atoms import Atoms
@@ -130,7 +117,7 @@ class PickleTrajectory:
                     if self.backup and os.path.isfile(filename):
                         try:
                             os.rename(filename, filename + '.bak')
-                        except WindowsError as e:
+                        except OSError as e:
                             # this must run on Win only! Not atomic!
                             if e.errno != errno.EEXIST:
                                 raise

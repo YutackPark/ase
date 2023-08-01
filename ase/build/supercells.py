@@ -176,7 +176,7 @@ def make_supercell(prim, P, *, wrap=True, order="cell-major", tol=1e-5):
 
     if order == "cell-major":
         shifted = prim.positions[None, :, :] + lattice_points[:, None, :]
-    elif order  == "atom-major":
+    elif order == "atom-major":
         shifted = prim.positions[:, None, :] + lattice_points[None, :, :]
     else:
         raise ValueError(f"invalid order: {order}")

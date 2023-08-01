@@ -472,15 +472,22 @@ class Reader:
 
         self._little_endian = _little_endian
 
+        self.must_close_fd = False
         if not hasattr(fd, 'read'):
+            self.must_close_fd = True
             fd = Path(fd).open('rb')
 
         self._fd = fd
         self._index = index
 
         if data is None:
-            (self._tag, self._version, self._nitems, self._pos0,
-             self._offsets) = read_header(fd)
+            try:
+                (self._tag, self._version, self._nitems, self._pos0,
+                 self._offsets) = read_header(fd)
+            except BaseException:
+                if self.must_close_fd:
+                    fd.close()
+                raise
             if self._nitems > 0:
                 data = self._read_data(index)
             else:
@@ -604,7 +611,8 @@ class Reader:
         return self.tostr(False, '').replace('\n', ' ')
 
     def close(self):
-        self._fd.close()
+        if self.must_close_fd:
+            self._fd.close()
 
 
 class NDArrayReader:

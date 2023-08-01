@@ -1224,6 +1224,7 @@ def _compare_merge_configs(configs, new):
 
 
 def read_gaussian_out(fd, index=-1):
+    """Reads a gaussian output file and returns an Atoms object."""
     configs = []
     atoms = None
     energy = None
@@ -1285,6 +1286,10 @@ def read_gaussian_out(fd, index=-1):
             energy *= Hartree
         elif line.startswith('Wavefunction amplitudes converged. E(Corr)'):
             # "correlated method" energy, e.g. CCSD
+            energy = float(line.split('=')[-1].strip().replace('D', 'e'))
+            energy *= Hartree
+        elif line.startswith('CCSD(T)='):
+            # CCSD(T) energy
             energy = float(line.split('=')[-1].strip().replace('D', 'e'))
             energy *= Hartree
         elif _re_l716.match(line):

@@ -1,4 +1,3 @@
-# type: ignore
 import os
 from copy import deepcopy
 from ase.io import read
@@ -34,7 +33,7 @@ class ACE(FileIOCalculator):
     }]
 
     order_list = ['BasicInformation', 'Guess', 'Scf']
-    guess_list = [{}]
+    guess_list = [{}]  # type: ignore
     default_parameters = {'BasicInformation': basic_list, 'Guess': guess_list,
                           'Scf': scf_list, 'Force': force_list,
                           'TDDFT': tddft_list, 'order': order_list}
