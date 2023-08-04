@@ -128,3 +128,6 @@ class TestTilt:
         """Check"""
         prism = Prism(array)
         np.testing.assert_allclose(prism.lammps_cell, array_ref)
+
+        # `update_cell` transforms the cell back to the original.
+        np.testing.assert_allclose(prism.update_cell(array_ref), array)
