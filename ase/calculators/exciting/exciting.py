@@ -71,7 +71,7 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
         :return: Ground state input parameters, with "compute
                 forces" set to true.
         """
-        from excitingtools.input.ground_state import ExcitingGroundStateInput
+        from excitingtools import ExcitingGroundStateInput
 
         input_parameters = ExcitingGroundStateInput(input_parameters)
         input_parameters.tforce = True

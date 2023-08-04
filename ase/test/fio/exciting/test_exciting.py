@@ -8,7 +8,6 @@ import xml.etree.ElementTree as ET
 
 import ase
 import ase.io.exciting
-from ase.units import Bohr
 # Import a realistic looking exciting text output file as a string.
 from ase.test.calculator.exciting.test_exciting import LDA_VWN_AR_INFO_OUT
 
@@ -29,60 +28,6 @@ def nitrogen_trioxide_atoms():
                      pbc=True)
 
 
-def structure_xml_to_ase_atoms(file_path):
-    """Helper function to parse the ase atoms data from the XML.
-
-    This function is very simple and is used to verify the parsing that
-    occurs with the excitingtools is working properly for simple systems.
-    """
-    # Parse file into element tree
-    doc = ET.parse(file_path)
-    root = doc.getroot()
-    species_nodes = root.find('structure').iter('species')  # type: ignore
-
-    symbols = []
-    positions = []
-    parsed_base_vectors = []
-
-    # Collect data from tree
-    for species_node in species_nodes:
-        symbol = species_node.get('speciesfile').split('.')[0]  # type: ignore
-        natoms = species_node.iter('atom')
-        for atom in natoms:
-            x_pos, y_pos, z_pos = atom.get('coord').split()  # type: ignore
-            positions.append([float(x_pos), float(y_pos), float(z_pos)])
-            symbols.append(symbol)
-
-    # scale unit cell according to scaling attributes
-    if 'scale' in doc.find('structure/crystal').attrib:  # type: ignore
-        scale = float(str(
-            doc.find('structure/crystal').attrib['scale']))  # type: ignore
-    else:
-        scale = 1
-
-    if 'stretch' in doc.find('structure/crystal').attrib:  # type: ignore
-        a_stretch, b_stretch, c_stretch = doc.find(  # type: ignore
-            'structure/crystal').attrib['stretch'].text.split()
-        stretch = np.array(
-            [float(a_stretch), float(b_stretch), float(c_stretch)])
-    else:
-        stretch = np.array([1.0, 1.0, 1.0])
-
-    raw_base_vectors = root.findall('structure/crystal/basevect')
-    for base_vector in raw_base_vectors:
-        x_mag, y_mag, z_mag = base_vector.text.split()  # type: ignore
-        parsed_base_vectors.append(np.array([float(x_mag) * Bohr * stretch[0],
-                                   float(y_mag) * Bohr * stretch[1],
-                                   float(z_mag) * Bohr * stretch[2]
-                                   ]) * scale)  # type: ignore
-    atoms = ase.Atoms(symbols=symbols, cell=parsed_base_vectors)
-    atoms.set_scaled_positions(positions)
-    atoms.set_pbc(True)
-
-    return atoms
-
-
-@pytest.mark.xfail(reason='excitingtools version conflict')
 def test_write_input_xml_file(
         tmp_path, nitrogen_trioxide_atoms, excitingtools):
     """Test writing input.xml file using write_input_xml_file()."""
@@ -100,11 +45,11 @@ def test_write_input_xml_file(
         file_name=file_path,
         atoms=nitrogen_trioxide_atoms,
         input_parameters=input_param_dict,
-        species_path=("/dummy/arbitrary/path"),
+        species_path="/dummy/arbitrary/path",
         title=None)
     assert file_path.exists()
     # Now read the XML file and ensure that it has what we expect:
-    atoms_obj = structure_xml_to_ase_atoms(file_path)
+    atoms_obj = ase.io.exciting.ase_atoms_from_exciting_input_xml(file_path)
 
     assert all(atoms_obj.symbols == "NOOO")
     input_xml_tree = ET.parse(file_path).getroot()
@@ -114,13 +59,13 @@ def test_write_input_xml_file(
     assert parsed_calc_params.get("tforce") == 'true'
 
 
-@pytest.mark.xfail(reason='excitingtools version conflict')
 def test_ase_atoms_from_exciting_input_xml(
         tmp_path, nitrogen_trioxide_atoms, excitingtools):
     """Test reading the of the exciting input.xml file into ASE atoms obj."""
-    expected_cell = [[2, 2, 0], [0, 4, 0], [0, 0, 6]]
-    expected_positions = [(0, 0, 0), (1, 3, 0), (0, 0, 1), (0.5, 0.5, 0.5)]
-    # First we write a an input.xml file into the a temp dir so we can
+    expected_cell = np.array([[2, 2, 0], [0, 4, 0], [0, 0, 6]])
+    expected_positions = np.array([(0, 0, 0), (1, 3, 0), (0, 0, 1),
+                                   (0.5, 0.5, 0.5)])
+    # First we write an input.xml file into a temp dir, so we can
     # read it back with our method we put under test.
     file_path = tmp_path / 'input.xml'
     input_param_dict = {
@@ -136,16 +81,13 @@ def test_ase_atoms_from_exciting_input_xml(
         file_name=file_path,
         atoms=nitrogen_trioxide_atoms,
         input_parameters=input_param_dict,
-        species_path=("/dummy/arbitrary/path"),
+        species_path="/dummy/arbitrary/path",
         title=None)
     atoms_obj = ase.io.exciting.ase_atoms_from_exciting_input_xml(file_path)
+
     assert all(atoms_obj.symbols == "NOOO")
-    # Convert numpy array's to lists to compare equality between arrays in
-    # pytest.
-    for i in range(np.shape(atoms_obj.cell)[1]):
-        assert list(atoms_obj.cell[i]) == list(expected_cell[i])
-    for j in range(len(expected_positions)):
-        expected_positions[j] == atoms_obj.get_positions()[j]
+    assert atoms_obj.cell.array == pytest.approx(expected_cell)
+    assert atoms_obj.positions == pytest.approx(expected_positions)
 
 
 def test_parse_info_out_xml_bad_path(tmp_path, excitingtools):
