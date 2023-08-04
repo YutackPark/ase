@@ -56,7 +56,7 @@ class Prism:
     """
 
     # !TODO: derive tolerance from cell-dimensions
-    def __init__(self, cell, pbc=(True, True, True), tolerance=1.0e-8):
+    def __init__(self, cell, pbc=True, tolerance=1.0e-8):
         # Use QR decomposition to get the lammps cell
         #    rot_mat * lammps_tilt^T = ase_cell^T
         # => lammps_tilt * rot_mat^T = ase_cell
@@ -66,7 +66,7 @@ class Prism:
         self.lammps_tilt = ltrans.T
         self.ase_cell = cell
         self.tolerance = tolerance
-        self.pbc = pbc
+        self.pbc = np.zeros(3, bool) + pbc
 
         # LAMMPS requires positive values on the diagonal of the
         # triangluar matrix -> mirror if necessary
