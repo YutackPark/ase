@@ -22,6 +22,12 @@ def calc_box_parameters(cell: np.ndarray) -> np.ndarray:
     return np.array((ax, by, cz, bx, cx, cy))
 
 
+def calc_lammps_tilt(cell: np.ndarray) -> np.ndarray:
+    """Calculate rotated cell in LAMMPS coordinates"""
+    ax, by, cz, bx, cx, cy = calc_box_parameters(cell)
+    return np.array(((ax, 0.0, 0.0), (bx, by, 0.0), (cx, cy, cz)))
+
+
 class Prism:
     """The representation of the unit cell in LAMMPS
 
@@ -69,24 +75,18 @@ class Prism:
         #    rot_mat * lammps_tilt^T = ase_cell^T
         # => lammps_tilt * rot_mat^T = ase_cell
         # => lammps_tilt             = ase_cell * rot_mat
-        qtrans, ltrans = np.linalg.qr(cell.T, mode="complete")
-        self.rot_mat = qtrans
-        self.lammps_tilt = ltrans.T
+        # LAMMPS requires positive diagonal elements of the triangular matrix.
+        # The diagonals of `lammps_tilt` are always positive by construction.
+        self.lammps_tilt = calc_lammps_tilt(cell)
+        self.rot_mat = np.linalg.solve(self.lammps_tilt, cell).T
         self.ase_cell = cell
         self.tolerance = tolerance
         self.pbc = np.zeros(3, bool) + pbc
+        self.flip = np.zeros(3, bool)
+        self.lammps_cell = self.calc_lammps_cell()
 
-        # LAMMPS requires positive values on the diagonal of the
-        # triangluar matrix -> mirror if necessary
-        for i in range(3):
-            if self.lammps_tilt[i][i] < 0.0:
-                mirror_mat = np.eye(3)
-                mirror_mat[i][i] = -1.0
-                self.lammps_tilt = np.dot(mirror_mat, self.lammps_tilt.T).T
-                self.rot_mat = np.dot(self.rot_mat, mirror_mat)
-
-        self.lammps_cell = self.lammps_tilt.copy()
-
+    def calc_lammps_cell(self) -> np.ndarray:
+        """Calculate LAMMPS cell with short lattice basis vectors"""
         # LAMMPS minimizes the edge length of the parallelepiped
         # What is ment with 'flip': cell 2 is transformed into cell 1
         # cell 2 = 'lammps_tilt'; cell 1 = 'lammps_cell'
@@ -98,18 +98,16 @@ class Prism:
         #      \    /--/                        \    /--/
         #       o==/-----------------------------o--/
         # !TODO: handle extreme tilt (= off-diagonal > 1.5)
-        self.flip = np.array(
-            [
-                abs(self.lammps_cell[i][j] / self.lammps_tilt[k][k]) > 0.5
-                and self.pbc[k]
-                for i, j, k in FLIP_ORDER
-            ]
-        )
+        lammps_cell = self.lammps_tilt.copy()
         for iteri, (i, j, k) in enumerate(FLIP_ORDER):
-            if self.flip[iteri]:
-                change = self.lammps_cell[k][k]
-                change *= np.sign(self.lammps_cell[i][j])
-                self.lammps_cell[i][j] -= change
+            if not self.pbc[k]:
+                continue
+            if abs(lammps_cell[i][j] / self.lammps_tilt[k][k]) > 0.5:
+                self.flip[iteri] = True
+                change = lammps_cell[k][k]
+                change *= np.sign(lammps_cell[i][j])
+                lammps_cell[i][j] -= change
+        return lammps_cell
 
     def get_lammps_prism(self) -> np.ndarray:
         """Return box parameters of the rotated cell in LAMMPS coordinates
