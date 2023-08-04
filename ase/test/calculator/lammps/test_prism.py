@@ -101,3 +101,30 @@ def test_vectors(structure: str, pbc: bool, wrap: bool):
     vectors = prism.vector_to_lammps(vectors_ref, wrap=wrap)
     vectors = prism.vector_to_ase(vectors, wrap=wrap)
     np.testing.assert_allclose(vectors, vectors_ref)
+
+
+class TestTilt:
+    """Test tilt"""
+
+    def test_small(self):
+        """Test small tilt"""
+        array = ((3.0, 0.0, 0.0), (-1.0, 3.0, 0.0), (0.0, 0.0, 3.0))
+        array_ref = ((3.0, 0.0, 0.0), (-1.0, 3.0, 0.0), (0.0, 0.0, 3.0))
+        self.check(np.array(array), np.array(array_ref))
+
+    def test_large(self):
+        """Test large tilt"""
+        array = ((3.0, 0.0, 0.0), (2.0, 3.0, 0.0), (0.0, 0.0, 3.0))
+        array_ref = ((3.0, 0.0, 0.0), (-1.0, 3.0, 0.0), (0.0, 0.0, 3.0))
+        self.check(np.array(array), np.array(array_ref))
+
+    def test_very_large(self):
+        """Test very large tilt"""
+        array = ((3.0, 0.0, 0.0), (5.0, 3.0, 0.0), (0.0, 0.0, 3.0))
+        array_ref = ((3.0, 0.0, 0.0), (-1.0, 3.0, 0.0), (0.0, 0.0, 3.0))
+        self.check(np.array(array), np.array(array_ref))
+
+    def check(self, array, array_ref):
+        """Check"""
+        prism = Prism(array)
+        np.testing.assert_allclose(prism.lammps_cell, array_ref)
