@@ -82,7 +82,6 @@ class Prism:
         self.ase_cell = cell
         self.tolerance = tolerance
         self.pbc = np.zeros(3, bool) + pbc
-        self.flip = np.zeros(3, bool)
         self.lammps_cell = self.calc_lammps_cell()
 
     def calc_lammps_cell(self) -> np.ndarray:
@@ -98,12 +97,11 @@ class Prism:
         #      \    /--/                        \    /--/
         #       o==/-----------------------------o--/
         lammps_cell = self.lammps_tilt.copy()
-        for iteri, (i, j, k) in enumerate(FLIP_ORDER):
+        for i, j, k in FLIP_ORDER:
             if not self.pbc[k]:
                 continue
             ratio = lammps_cell[i][j] / self.lammps_tilt[k][k]
             if abs(ratio) > 0.5:
-                self.flip[iteri] = True
                 lammps_cell[i][j] -= lammps_cell[k][k] * np.round(ratio)
         return lammps_cell
 
@@ -117,7 +115,6 @@ class Prism:
         """
         return self.lammps_cell[(0, 1, 2, 1, 2, 2), (0, 1, 2, 0, 0, 1)]
 
-    # !TODO: detect flip in lammps
     def update_cell(self, lammps_cell: np.ndarray) -> np.ndarray:
         """Rotate new LAMMPS cell into ASE coordinate system
 
@@ -131,15 +128,12 @@ class Prism:
         np.ndarray
             New cell in ASE coordinates
         """
-        self.lammps_cell = lammps_cell
-        self.lammps_tilt = self.lammps_cell.copy()
+        # Transformation: integer matrix
+        # lammps_cell * transformation = lammps_tilt
+        transformation = np.linalg.solve(self.lammps_cell, self.lammps_tilt)
 
-        # reverse flip
-        for iteri, (i, j, k) in enumerate(FLIP_ORDER):
-            if self.flip[iteri]:
-                change = self.lammps_cell[k][k]
-                change *= np.sign(self.lammps_cell[i][j])
-                self.lammps_tilt[i][j] -= change
+        self.lammps_cell = lammps_cell
+        self.lammps_tilt = lammps_cell @ transformation
 
         # try to detect potential flips in lammps
         # (lammps minimizes the cell-vector lengths)
