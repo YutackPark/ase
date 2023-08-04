@@ -24,32 +24,28 @@ def bz_vertices(icell, dim=3):
     return bz1
 
 
-def bz_plot(cell, vectors=False, paths=None, points=None,
-            elev=None, scale=1, interactive=False,
-            pointstyle=None, ax=None, show=False):
-    import matplotlib.pyplot as plt
+class BZFlatPlot:
+    def new_axes(self, fig):
+        return fig.gca()
 
-    if ax is None:
-        fig = plt.gcf()
 
-    dimensions = cell.rank
-    assert dimensions > 0, 'No BZ for 0D!'
-
-    if dimensions == 3:
+class BZSpacePlot:
+    def __init__(self, *, elev=None):
         from mpl_toolkits.mplot3d import Axes3D
         from mpl_toolkits.mplot3d import proj3d
         from matplotlib.patches import FancyArrowPatch
         Axes3D  # silence pyflakes
 
         class Arrow3D(FancyArrowPatch):
-            def __init__(self, xs, ys, zs, *args, **kwargs):
+            def __init__(self, ax, xs, ys, zs, *args, **kwargs):
                 FancyArrowPatch.__init__(self, (0, 0), (0, 0), *args, **kwargs)
                 self._verts3d = xs, ys, zs
+                self.ax = ax
 
             def draw(self, renderer):
                 xs3d, ys3d, zs3d = self._verts3d
                 xs, ys, zs = proj3d.proj_transform(xs3d, ys3d,
-                                                   zs3d, ax.axes.M)
+                                                   zs3d, self.ax.axes.M)
                 self.set_positions((xs[0], ys[0]), (xs[1], ys[1]))
                 FancyArrowPatch.draw(self, renderer)
 
@@ -61,29 +57,81 @@ def bz_plot(cell, vectors=False, paths=None, points=None,
             def do_3d_projection(self, *_, **__):
                 return 0
 
-        azim = pi / 5
-        elev = elev or pi / 6
-        x = sin(azim)
-        y = cos(azim)
-        view = [x * cos(elev), y * cos(elev), sin(elev)]
+        self.arrow3d = Arrow3D
+        self.azim = pi / 5
+        if elev is None:
+            elev = pi / 6
+        self.elev = elev
+        x = sin(self.azim)
+        y = cos(self.azim)
+        self.view = [x * cos(elev), y * cos(elev), sin(elev)]
 
-        if ax is None:
-            ax = fig.add_subplot(projection='3d')
-    elif dimensions == 2:
+    def new_axes(self, fig):
+        return fig.add_subplot(projection='3d')
+
+    def adjust_view(self, ax, minp, maxp):
+        import matplotlib.pyplot as plt
+        # ax.set_aspect('equal') <-- won't work anymore in 3.1.0
+        ax.view_init(azim=self.azim / pi * 180, elev=self.elev / pi * 180)
+        # We want aspect 'equal', but apparently there was a bug in
+        # matplotlib causing wrong behaviour.  Matplotlib raises
+        # NotImplementedError as of v3.1.0.  This is a bit unfortunate
+        # because the workarounds known to StackOverflow and elsewhere
+        # all involve using set_aspect('equal') and then doing
+        # something more.
+        #
+        # We try to get square axes here by setting a square figure,
+        # but this is probably rather inexact.
+        fig = ax.get_figure()
+        xx = plt.figaspect(1.0)
+        fig.set_figheight(xx[1])
+        fig.set_figwidth(xx[0])
+
+        # oldlibs tests with matplotlib 2.0.0 say we have no set_proj_type:
+        if hasattr(ax, 'set_proj_type'):
+            ax.set_proj_type('ortho')
+
+        minp0 = 0.9 * minp  # Here we cheat a bit to trim spacings
+        maxp0 = 0.9 * maxp
+        ax.set_xlim3d(minp0, maxp0)
+        ax.set_ylim3d(minp0, maxp0)
+        ax.set_zlim3d(minp0, maxp0)
+
+        if hasattr(ax, 'set_box_aspect'):
+            ax.set_box_aspect([1, 1, 1])
+        else:
+            msg = ('Matplotlib axes have no set_box_aspect() method.  '
+                   'Aspect ratio will likely be wrong.  '
+                   'Consider updating to Matplotlib >= 3.3.')
+            warnings.warn(msg)
+
+
+def bz_plot(cell, vectors=False, paths=None, points=None,
+            elev=None, scale=1, interactive=False,
+            pointstyle=None, ax=None, show=False):
+    import matplotlib.pyplot as plt
+
+    cell = cell.copy()
+
+    dimensions = cell.rank
+    if dimensions == 3:
+        plotter = BZSpacePlot()
+    else:
+        plotter = BZFlatPlot()
+    assert dimensions > 0, 'No BZ for 0D!'
+
+    if ax is None:
+        ax = plotter.new_axes(plt.gcf())
+
+    if dimensions == 2:
         # 2d in xy
         assert all(abs(cell[2][0:2]) < 1e-6) and all(abs(cell.T[2]
                                                          [0:2]) < 1e-6)
-        if ax is None:
-            ax = plt.gca()
-        cell = cell.copy()
-    else:
+    elif dimensions == 1:
         # 1d in x
         assert (all(abs(cell[2][0:2]) < 1e-6) and
                 all(abs(cell.T[2][0:2]) < 1e-6) and
                 abs(cell[0][1]) < 1e-6 and abs(cell[1][0]) < 1e-6)
-        if ax is None:
-            ax = plt.gca()
-        cell = cell.copy()
 
     icell = cell.reciprocal()
     kpoints = points
@@ -100,7 +148,7 @@ def bz_plot(cell, vectors=False, paths=None, points=None,
         for points, normal in bz1:
             x, y, z = np.concatenate([points, points[:1]]).T
             if dimensions == 3:
-                if np.dot(normal, view) < 0 and not interactive:
+                if np.dot(normal, plotter.view) < 0 and not interactive:
                     ls = ':'
                 else:
                     ls = '-'
@@ -111,7 +159,8 @@ def bz_plot(cell, vectors=False, paths=None, points=None,
             minp = min(minp, points.min())
 
     def draw_axis3d(ax, vector):
-        ax.add_artist(Arrow3D(
+        ax.add_artist(plotter.arrow3d(
+            ax,
             [0, vector[0]],
             [0, vector[1]],
             [0, vector[2]],
@@ -201,39 +250,7 @@ def bz_plot(cell, vectors=False, paths=None, points=None,
         ax.set_aspect('equal')
 
     if dimensions == 3:
-        # ax.set_aspect('equal') <-- won't work anymore in 3.1.0
-        ax.view_init(azim=azim / pi * 180, elev=elev / pi * 180)
-        # We want aspect 'equal', but apparently there was a bug in
-        # matplotlib causing wrong behaviour.  Matplotlib raises
-        # NotImplementedError as of v3.1.0.  This is a bit unfortunate
-        # because the workarounds known to StackOverflow and elsewhere
-        # all involve using set_aspect('equal') and then doing
-        # something more.
-        #
-        # We try to get square axes here by setting a square figure,
-        # but this is probably rather inexact.
-        fig = ax.get_figure()
-        xx = plt.figaspect(1.0)
-        fig.set_figheight(xx[1])
-        fig.set_figwidth(xx[0])
-
-        # oldlibs tests with matplotlib 2.0.0 say we have no set_proj_type:
-        if hasattr(ax, 'set_proj_type'):
-            ax.set_proj_type('ortho')
-
-        minp0 = 0.9 * minp  # Here we cheat a bit to trim spacings
-        maxp0 = 0.9 * maxp
-        ax.set_xlim3d(minp0, maxp0)
-        ax.set_ylim3d(minp0, maxp0)
-        ax.set_zlim3d(minp0, maxp0)
-
-        if hasattr(ax, 'set_box_aspect'):
-            ax.set_box_aspect([1, 1, 1])
-        else:
-            msg = ('Matplotlib axes have no set_box_aspect() method.  '
-                   'Aspect ratio will likely be wrong.  '
-                   'Consider updating to Matplotlib >= 3.3.')
-            warnings.warn(msg)
+        plotter.adjust_view(ax, minp, maxp)
 
     if show:
         plt.show()
