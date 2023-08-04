@@ -37,6 +37,13 @@ class BZFlatPlot:
         ax.set_ylim(-s, s)
         ax.set_aspect('equal')
 
+    def draw_arrow(self, ax, vector, **kwargs):
+        ax.arrow(0, 0, vector[0], vector[1],
+                 lw=1,
+                 length_includes_head=True,
+                 head_width=0.03,
+                 head_length=0.05,
+                 **kwargs)
 
 class BZSpacePlot:
     axis_dim = 3
@@ -79,6 +86,16 @@ class BZSpacePlot:
 
     def new_axes(self, fig):
         return fig.add_subplot(projection='3d')
+
+    def draw_arrow(self, ax, vector, **kwargs):
+        ax.add_artist(self.arrow3d(
+            ax,
+            [0, vector[0]],
+            [0, vector[1]],
+            [0, vector[2]],
+            mutation_scale=20,
+            arrowstyle='-|>',
+            **kwargs))
 
     def adjust_view(self, ax, minp, maxp):
         import matplotlib.pyplot as plt
@@ -134,9 +151,8 @@ def bz_plot(cell, vectors=False, paths=None, points=None,
     if ax is None:
         ax = plotter.new_axes(plt.gcf())
 
-    tol = 1e-6
-    assert (abs(cell[dimensions:, :]) < tol).all()
-    assert (abs(cell[:, dimensions:]) < tol).all()
+    assert not cell[dimensions:, :].any()
+    assert not cell[:, dimensions:].any()
 
     icell = cell.reciprocal()
     kpoints = points
@@ -161,35 +177,14 @@ def bz_plot(cell, vectors=False, paths=None, points=None,
             maxp = max(maxp, points.max())
             minp = min(minp, points.min())
 
-    def draw_axis3d(ax, vector):
-        ax.add_artist(plotter.arrow3d(
-            ax,
-            [0, vector[0]],
-            [0, vector[1]],
-            [0, vector[2]],
-            mutation_scale=20,
-            arrowstyle='-|>',
-            color='k',
-        ))
-
-    def draw_axis2d(ax, x, y):
-        ax.arrow(0, 0, x, y,
-                 lw=1, color='k',
-                 length_includes_head=True,
-                 head_width=0.03,
-                 head_length=0.05)
-
     if vectors:
+        for i in range(dimensions):
+            plotter.draw_arrow(ax, icell[i], color='k')
+
+        # XXX Can this be removed?
         if dimensions == 3:
-            for i in range(3):
-                draw_axis3d(ax, vector=icell[i])
             maxp = max(maxp, 0.6 * icell.max())
-        elif dimensions == 2:
-            for i in range(2):
-                draw_axis2d(ax, icell[i, 0], icell[i, 1])
-            maxp = max(maxp, icell.max())
         else:
-            draw_axis2d(ax, icell[0, 0], 0)
             maxp = max(maxp, icell.max())
 
     if paths is not None:
