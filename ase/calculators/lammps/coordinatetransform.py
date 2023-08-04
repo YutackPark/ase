@@ -1,3 +1,6 @@
+"""Prism"""
+import warnings
+
 import numpy as np
 from ase.geometry import wrap_positions
 
@@ -26,12 +29,17 @@ class Prism:
     string representations of prism limits and atom positions
     within the prism.
 
-    :param cell: cell in ase coordinate system
-    :param pbc: periodic boundaries
-    :param tolerance: precision for skewness test
+    Parameters
+    ----------
+    cell : np.ndarray
+        Cell in ASE coordinate system.
+    pbc : one or three bool
+        Periodic boundary conditions flags.
+    tolerance : float
+        Precision for skewness test.
 
-    **Implementation**
-
+    Notes
+    -----
     LAMMPS requires triangular matrixes without a strong tilt.
     Therefore the 'Prism'-object contains three coordinate systems:
 
@@ -103,23 +111,29 @@ class Prism:
                 change *= np.sign(self.lammps_cell[i][j])
                 self.lammps_cell[i][j] -= change
 
-    def get_lammps_prism(self):
-        """Return into lammps coordination system rotated cell
+    def get_lammps_prism(self) -> np.ndarray:
+        """Return box parameters of the rotated cell in LAMMPS coordinates
 
-        :returns: lammps cell
-        :rtype: np.array
-
+        Returns
+        -------
+        np.ndarray
+            xhi - xlo, yhi - ylo, zhi - zlo, xy, xz, yz
         """
         return self.lammps_cell[(0, 1, 2, 1, 2, 2), (0, 1, 2, 0, 0, 1)]
 
     # !TODO: detect flip in lammps
-    def update_cell(self, lammps_cell):
-        """Rotate new lammps cell into ase coordinate system
+    def update_cell(self, lammps_cell: np.ndarray) -> np.ndarray:
+        """Rotate new LAMMPS cell into ASE coordinate system
 
-        :param lammps_cell: new lammps cell received after executing lammps
-        :returns: ase cell
-        :rtype: np.array
+        Parameters
+        ----------
+        lammps_cell : np.ndarray
+            New Cell in LAMMPS coordinates received after executing LAMMPS
 
+        Returns
+        -------
+        np.ndarray
+            New cell in ASE coordinates
         """
         self.lammps_cell = lammps_cell
         self.lammps_tilt = self.lammps_cell.copy()
@@ -144,21 +158,30 @@ class Prism:
                 np.linalg.norm(test_residual, axis=1)
                 > 0.5 * np.linalg.norm(self.ase_cell, axis=1)
         ):
-            print(
-                "WARNING: Significant simulation cell changes from LAMMPS "
-                + "detected.\n"
-                + " " * 9
-                + "Backtransformation to ASE might fail!"
+            warnings.warn(
+                "Significant simulation cell changes from LAMMPS detected. "
+                "Backtransformation to ASE might fail!"
             )
         return new_ase_cell
 
-    def vector_to_lammps(self, vec, wrap=False):
-        """Rotate vector from ase coordinate system to lammps one
+    def vector_to_lammps(
+        self,
+        vec: np.ndarray,
+        wrap: bool = False,
+    ) -> np.ndarray:
+        """Rotate vectors from ASE to LAMMPS coordinates
 
-        :param vec: to be rotated ase-vector
-        :returns: lammps-vector
-        :rtype: np.array
+        Parameters
+        ----------
+        vec : np.ndarray
+            Vectors in ASE coordinates to be rotated into LAMMPS coordinates
+        wrap : bool
+            If True, the vectors are wrapped into the cell
 
+        Returns
+        -------
+        np.array
+            Vectors in LAMMPS coordinates
         """
         # !TODO: right eps-limit
         # lammps might not like atoms outside the cell
@@ -169,7 +192,6 @@ class Prism:
                 pbc=self.pbc,
                 eps=1e-18,
             )
-
         return np.dot(vec, self.rot_mat)
 
     def vector_to_ase(
@@ -198,15 +220,15 @@ class Prism:
             vec = np.dot(fractional, self.lammps_tilt)
         return np.dot(vec, self.rot_mat.T)
 
-    def is_skewed(self):
-        """Test if a lammps cell is not tetragonal
+    def is_skewed(self) -> bool:
+        """Test if the lammps cell is skewed, i.e., monoclinic or triclinic.
 
-        :returns: bool
-        :rtype: bool
-
+        Returns
+        -------
+        bool
+            True if the lammps cell is skewed.
         """
         cell_sq = self.lammps_cell ** 2
-        return (
-            np.sum(np.tril(cell_sq, -1)) / np.sum(np.diag(cell_sq))
-            > self.tolerance
-        )
+        on_diag = np.sum(np.diag(cell_sq))
+        off_diag = np.sum(np.tril(cell_sq, -1))
+        return off_diag / on_diag > self.tolerance
