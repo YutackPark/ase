@@ -2,29 +2,57 @@
 from math import sqrt
 
 import numpy as np
+import pytest
+from ase import Atoms
+from ase.calculators.lammps import Prism
 from ase.calculators.lammps.coordinatetransform import calc_box_parameters
 
 
-class TestCalcBoxParameters:
-    """Test Prism"""
-    def test_sc(self):
-        """Test sc"""
+def make_array(structure: str) -> np.ndarray:
+    """Make array for the given structure"""
+    if structure == "sc":
         array = np.array([
             [1.0, 0.0, 0.0],
             [0.0, 1.0, 0.0],
             [0.0, 0.0, 1.0],
         ])
+    elif structure == "bcc":
+        array = np.array([
+            [-0.5, +0.5, +0.5],
+            [+0.5, -0.5, +0.5],
+            [+0.5, +0.5, -0.5],
+        ])
+    elif structure == "fcc":
+        array = np.array([
+            [0.0, 0.5, 0.5],
+            [0.5, 0.0, 0.5],
+            [0.5, 0.5, 0.0],
+        ])
+    elif structure == "hcp":
+        covera = sqrt(8.0 / 3.0)
+        array = np.array([
+            [0.5, -0.5 * sqrt(3.0), 0.0],
+            [0.5, +0.5 * sqrt(3.0), 0.0],
+            [0.0, 0.0, covera],
+        ])
+    else:
+        raise ValueError(structure)
+    return array
+
+
+class TestCalcBoxParameters:
+    """Test calc_box_parameters"""
+
+    def test_sc(self):
+        """Test sc"""
+        array = make_array("sc")
         box = calc_box_parameters(array)
         box_ref = np.array([1.0, 1.0, 1.0, 0.0, 0.0, 0.0])
         np.testing.assert_allclose(box, box_ref)
 
     def test_bcc(self):
         """Test bcc"""
-        array = np.array([
-            [-0.5, +0.5, +0.5],
-            [+0.5, -0.5, +0.5],
-            [+0.5, +0.5, -0.5],
-        ])
+        array = make_array("bcc")
         box = calc_box_parameters(array)
         box_ref = np.array([
             +0.8660254038,  # +sqrt(3) / 2
@@ -38,11 +66,7 @@ class TestCalcBoxParameters:
 
     def test_fcc(self):
         """Test fcc"""
-        array = np.array([
-            [0.0, 0.5, 0.5],
-            [0.5, 0.0, 0.5],
-            [0.5, 0.5, 0.0],
-        ])
+        array = make_array("fcc")
         box = calc_box_parameters(array)
         box_ref = np.array([
             +0.7071067812,  # +sqrt(2) / 2
@@ -57,11 +81,23 @@ class TestCalcBoxParameters:
     def test_hcp(self):
         """Test hcp"""
         covera = sqrt(8.0 / 3.0)
-        array = np.array([
-            [0.5, -0.5 * sqrt(3.0), 0.0],
-            [0.5, +0.5 * sqrt(3.0), 0.0],
-            [0.0, 0.0, covera],
-        ])
+        array = make_array("hcp")
         box = calc_box_parameters(array)
         box_ref = np.array([1.0, 0.5 * sqrt(3.0), covera, -0.5, 0.0, 0.0])
         np.testing.assert_allclose(box, box_ref)
+
+
+@pytest.mark.parametrize("structure", ("sc", "bcc", "fcc", "hcp"))
+@pytest.mark.parametrize("pbc", (False, True))
+@pytest.mark.parametrize("wrap", (False, True))
+def test_vectors(structure: str, pbc: bool, wrap: bool):
+    """Test if vector conversion works as expected"""
+    array = make_array(structure)
+    rng = np.random.default_rng(42)
+    positions = 20.0 * rng.random((10, 3)) - 10.0
+    atoms = Atoms(positions=positions, cell=array, pbc=pbc)
+    prism = Prism(array, pbc=pbc)
+    vectors_ref = atoms.get_positions(wrap=wrap)
+    vectors = prism.vector_to_lammps(vectors_ref, wrap=wrap)
+    vectors = prism.vector_to_ase(vectors, wrap=wrap)
+    np.testing.assert_allclose(vectors, vectors_ref)
