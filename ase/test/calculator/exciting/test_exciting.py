@@ -2,18 +2,20 @@
 
 import xml.etree.ElementTree as ET
 
+import numpy as np
 import pytest
 
 import ase
 import ase.calculators.exciting.exciting
+import ase.calculators.exciting.runner
 
-
-# Note this an imitation of an exciting INFO.out output file.
+# Note this is an imitation of an exciting INFO.out output file.
 # We've removed many of the lines of text that were originally in this outfile
-# that are note usefulf or testing purposes so as to save space in this file.
+# that are note usefule for testing purposes to save space in this file.
 # We've also modified the file to contain a Ti atom and use an HCP cell to
 # make the test more interesting since the HCP cell gives non-symmetric cell
 # vectors in a cartesian basis set.
+
 LDA_VWN_AR_INFO_OUT = """
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 + Starting initialization                                                      +
@@ -175,8 +177,8 @@ def nitrogen_trioxide_atoms():
     """Pytest fixture that creates ASE Atoms cell for other tests."""
     return ase.Atoms('NO3',
                      cell=[[2, 2, 0], [0, 4, 0], [0, 0, 6]],
-                     positions=[(0, 0, 0), (1, 3, 0),
-                                (0, 0, 1), (0.5, 0.5, 0.5)],
+                     scaled_positions=[(0, 0, 0), (0.25, 0.25, 0),
+                                       (0, 0, 0.75), (0.5, 0.5, 0.5)],
                      pbc=True)
 
 
@@ -200,7 +202,6 @@ def test_ground_state_template_init(excitingtools):
     assert 'energy' in gs_template_obj.implemented_properties
 
 
-@pytest.mark.xfail(reason='excitingtools version conflict')
 def test_ground_state_template_write_input(
         tmp_path, nitrogen_trioxide_atoms, excitingtools):
     """Test the write input method of ExcitingGroundStateTemplate.
@@ -235,16 +236,12 @@ def test_ground_state_template_write_input(
     # We could test the other parts of the input file related coming from
     # the ASE Atoms object like species data but this is tested already in
     # test/io/exciting/test_exciting.py.
-    expected_coords = [
-        [0, 0, 0], [1.0, 3.0, 0], [0, 0, 1.], [0.5, 0.5, 0.5]]
     coords_list = element_tree.findall('./structure/species/atom')
-
-    for i in range(len(coords_list)):
-        coords_vect_float = [
-            float(x) for x in coords_list[i].get('coord').split()]
-        assert len(coords_vect_float) == len(expected_coords[i])
-        assert all([pytest.approx(a) == b for a, b in zip(
-            coords_vect_float, expected_coords[i])])
+    positions = np.array([[float(x)
+                           for x in coords_list[i].get('coord').split()]
+                          for i in range(len(coords_list))])
+    assert positions == pytest.approx(
+        nitrogen_trioxide_atoms.get_scaled_positions())
 
     # Ensure that the exciting calculator properites (e.g. functional type have
     # been set).
