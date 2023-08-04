@@ -28,6 +28,13 @@ class BZFlatPlot:
     def new_axes(self, fig):
         return fig.gca()
 
+    def adjust_view(self, ax, minp, maxp):
+        ax.autoscale_view(tight=True)
+        s = maxp * 1.05
+        ax.set_xlim(-s, s)
+        ax.set_ylim(-s, s)
+        ax.set_aspect('equal')
+
 
 class BZSpacePlot:
     def __init__(self, *, elev=None):
@@ -199,6 +206,7 @@ def bz_plot(cell, vectors=False, paths=None, points=None,
 
             for name, point in zip(names, points):
                 x, y, z = point
+
                 if name == 'G':
                     name = '\\Gamma'
                 elif len(name) > 1:
@@ -208,9 +216,10 @@ def bz_plot(cell, vectors=False, paths=None, points=None,
                         raise ValueError('Bad label: {}'.format(name))
                     name, num = m.group(1, 2)
                     if num:
-                        name = '{}_{{{}}}'.format(name, num)
+                        name = f'{name}_{{{num}}}'
+
                 if dimensions == 3:
-                    ax.text(x, y, z, '$\\mathrm{' + name + '}$',
+                    ax.text(x, y, z, rf'$\mathrm{{{name}}}$',
                             ha='center', va='bottom', color='g')
                 elif dimensions == 2:
                     ha_s = ['right', 'left', 'right']
@@ -219,12 +228,12 @@ def bz_plot(cell, vectors=False, paths=None, points=None,
                     ha = ha_s[int(np.sign(x))]
                     va = va_s[int(np.sign(y))]
                     if abs(z) < 1e-6:
-                        ax.text(x, y, '$\\mathrm{' + name + '}$',
+                        ax.text(x, y, rf'$\mathrm{{{name}}}$',
                                 ha=ha, va=va, color='g',
                                 zorder=5)
                 else:
                     if abs(y) < 1e-6 and abs(z) < 1e-6:
-                        ax.text(x, y, '$\\mathrm{' + name + '}$',
+                        ax.text(x, y, rf'$\mathrm{{{name}}}$',
                                 ha='center', va='bottom', color='g',
                                 zorder=5)
 
@@ -233,6 +242,7 @@ def bz_plot(cell, vectors=False, paths=None, points=None,
         if pointstyle is not None:
             kw.update(pointstyle)
         for p in kpoints:
+            args = p[:dimensions]
             if dimensions == 3:
                 ax.scatter(p[0], p[1], p[2], **kw)
             elif dimensions == 2:
@@ -242,15 +252,7 @@ def bz_plot(cell, vectors=False, paths=None, points=None,
 
     ax.set_axis_off()
 
-    if dimensions in [1, 2]:
-        ax.autoscale_view(tight=True)
-        s = maxp * 1.05
-        ax.set_xlim(-s, s)
-        ax.set_ylim(-s, s)
-        ax.set_aspect('equal')
-
-    if dimensions == 3:
-        plotter.adjust_view(ax, minp, maxp)
+    plotter.adjust_view(ax, minp, maxp)
 
     if show:
         plt.show()
