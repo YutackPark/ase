@@ -25,6 +25,8 @@ def bz_vertices(icell, dim=3):
 
 
 class BZFlatPlot:
+    axis_dim = 2  # Dimension of the plotting surface (2 even if it's 1D BZ).
+
     def new_axes(self, fig):
         return fig.gca()
 
@@ -37,6 +39,8 @@ class BZFlatPlot:
 
 
 class BZSpacePlot:
+    axis_dim = 3
+
     def __init__(self, *, elev=None):
         from mpl_toolkits.mplot3d import Axes3D
         from mpl_toolkits.mplot3d import proj3d
@@ -130,15 +134,9 @@ def bz_plot(cell, vectors=False, paths=None, points=None,
     if ax is None:
         ax = plotter.new_axes(plt.gcf())
 
-    if dimensions == 2:
-        # 2d in xy
-        assert all(abs(cell[2][0:2]) < 1e-6) and all(abs(cell.T[2]
-                                                         [0:2]) < 1e-6)
-    elif dimensions == 1:
-        # 1d in x
-        assert (all(abs(cell[2][0:2]) < 1e-6) and
-                all(abs(cell.T[2][0:2]) < 1e-6) and
-                abs(cell[0][1]) < 1e-6 and abs(cell[1][0]) < 1e-6)
+    tol = 1e-6
+    assert (abs(cell[dimensions:, :]) < tol).all()
+    assert (abs(cell[:, dimensions:]) < tol).all()
 
     icell = cell.reciprocal()
     kpoints = points
@@ -153,15 +151,13 @@ def bz_plot(cell, vectors=False, paths=None, points=None,
         maxp = length
     else:
         for points, normal in bz1:
-            x, y, z = np.concatenate([points, points[:1]]).T
+            ls = '-'
+            xyz = np.concatenate([points, points[:1]]).T
             if dimensions == 3:
-                if np.dot(normal, plotter.view) < 0 and not interactive:
+                if normal @ plotter.view < 0 and not interactive:
                     ls = ':'
-                else:
-                    ls = '-'
-                ax.plot(x, y, z, c='k', ls=ls)
-            elif dimensions == 2:
-                ax.plot(x, y, c='k', ls='-')
+
+            ax.plot(*xyz[:plotter.axis_dim], c='k', ls=ls)
             maxp = max(maxp, points.max())
             minp = min(minp, points.min())
 
@@ -242,7 +238,6 @@ def bz_plot(cell, vectors=False, paths=None, points=None,
         if pointstyle is not None:
             kw.update(pointstyle)
         for p in kpoints:
-            args = p[:dimensions]
             if dimensions == 3:
                 ax.scatter(p[0], p[1], p[2], **kw)
             elif dimensions == 2:
