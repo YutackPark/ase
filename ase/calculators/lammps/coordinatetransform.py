@@ -5,6 +5,20 @@ from ase.geometry import wrap_positions
 FLIP_ORDER = [(1, 0, 0), (2, 0, 0), (2, 1, 1)]
 
 
+def calc_box_parameters(cell: np.ndarray) -> np.ndarray:
+    """Calculate box parameters
+
+    https://docs.lammps.org/Howto_triclinic.html
+    """
+    ax = np.sqrt(cell[0] @ cell[0])
+    bx = cell[0] @ cell[1] / ax
+    by = np.sqrt(cell[1] @ cell[1] - bx ** 2)
+    cx = cell[0] @ cell[2] / ax
+    cy = (cell[1] @ cell[2] - bx * cx) / by
+    cz = np.sqrt(cell[2] @ cell[2] - cx ** 2 - cy ** 2)
+    return np.array((ax, by, cz, bx, cx, cy))
+
+
 class Prism:
     """The representation of the unit cell in LAMMPS
 
