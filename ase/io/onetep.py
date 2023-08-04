@@ -145,7 +145,7 @@ def read_onetep_in(fd):
                     cell *= Bohr
 
         if not in_block:
-            sep = line.replace(':', ' ').strip().split()
+            sep = line.replace(':', ' ').replace('=', ' ').strip().split()
             keywords[sep[0]] = ' '.join(sep[1:])
             # If include_file is used, we open the included file
             # and insert it in the current fdi_lines...
@@ -230,7 +230,7 @@ def write_onetep_in(
         ngwf_radius=9.0,
         keywords={},
         pseudopotentials={},
-        pseudo_path="",
+        pseudo_path=".",
         pseudo_suffix=None,
         **kwargs):
     """
