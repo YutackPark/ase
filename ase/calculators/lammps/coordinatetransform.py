@@ -63,6 +63,8 @@ class Prism:
         Cell in ASE coordinate system.
     pbc : one or three bool
         Periodic boundary conditions flags.
+    reduced : bool
+        If True, the LAMMPS cell is reduced for short lattice basis vectors.
     tolerance : float
         Precision for skewness test.
 
@@ -92,7 +94,13 @@ class Prism:
     """
 
     # !TODO: derive tolerance from cell-dimensions
-    def __init__(self, cell, pbc=True, tolerance=1.0e-8):
+    def __init__(
+        self,
+        cell: np.ndarray,
+        pbc: bool = True,
+        reduced: bool = False,
+        tolerance: float = 1.0e-8,
+    ):
         # Use QR decomposition to get the lammps cell
         #    rot_mat * lammps_tilt^T = ase_cell^T
         # => lammps_tilt * rot_mat^T = ase_cell
@@ -105,6 +113,7 @@ class Prism:
         self.tolerance = tolerance
         self.pbc = np.zeros(3, bool) + pbc
         self.lammps_cell = calc_lammps_cell(self.lammps_tilt, self.pbc)
+        self.reduced = reduced
 
     def get_lammps_prism(self) -> np.ndarray:
         """Return box parameters of the rotated cell in LAMMPS coordinates
@@ -114,7 +123,8 @@ class Prism:
         np.ndarray
             xhi - xlo, yhi - ylo, zhi - zlo, xy, xz, yz
         """
-        return self.lammps_cell[(0, 1, 2, 1, 2, 2), (0, 1, 2, 0, 0, 1)]
+        cell = self.lammps_cell if self.reduced else self.lammps_tilt
+        return cell[(0, 1, 2, 1, 2, 2), (0, 1, 2, 0, 0, 1)]
 
     def update_cell(self, lammps_cell: np.ndarray) -> np.ndarray:
         """Rotate new LAMMPS cell into ASE coordinate system
@@ -133,8 +143,12 @@ class Prism:
         # lammps_cell * transformation = lammps_tilt
         transformation = np.linalg.solve(self.lammps_cell, self.lammps_tilt)
 
-        self.lammps_cell = lammps_cell
-        self.lammps_tilt = lammps_cell @ transformation
+        if self.reduced:
+            self.lammps_cell = lammps_cell
+            self.lammps_tilt = lammps_cell @ transformation
+        else:
+            self.lammps_tilt = lammps_cell
+            self.lammps_cell = calc_lammps_cell(self.lammps_tilt, self.pbc)
 
         # try to detect potential flips in lammps
         # (lammps minimizes the cell-vector lengths)
@@ -176,10 +190,11 @@ class Prism:
         """
         # !TODO: right eps-limit
         # lammps might not like atoms outside the cell
+        cell = self.lammps_cell if self.reduced else self.lammps_tilt
         if wrap:
             return wrap_positions(
                 np.dot(vec, self.rot_mat),
-                self.lammps_cell,
+                cell=cell,
                 pbc=self.pbc,
                 eps=1e-18,
             )
@@ -204,11 +219,12 @@ class Prism:
         np.ndarray
             Vectors in ASE coordinates
         """
+        cell = self.lammps_cell if self.reduced else self.lammps_tilt
         if wrap:
-            fractional = np.linalg.solve(self.lammps_tilt.T, vec.T).T
+            fractional = np.linalg.solve(cell.T, vec.T).T
             # wrap into 0 to 1 for periodic directions
             fractional -= np.floor(fractional) * self.pbc
-            vec = np.dot(fractional, self.lammps_tilt)
+            vec = np.dot(fractional, cell)
         return np.dot(vec, self.rot_mat.T)
 
     def is_skewed(self) -> bool:
@@ -219,7 +235,8 @@ class Prism:
         bool
             True if the lammps cell is skewed.
         """
-        cell_sq = self.lammps_cell ** 2
+        cell = self.lammps_cell if self.reduced else self.lammps_tilt
+        cell_sq = cell ** 2
         on_diag = np.sum(np.diag(cell_sq))
         off_diag = np.sum(np.tril(cell_sq, -1))
         return off_diag / on_diag > self.tolerance

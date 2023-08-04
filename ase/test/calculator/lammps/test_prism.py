@@ -109,25 +109,40 @@ class TestTilt:
     def test_small(self):
         """Test small tilt"""
         array = ((3.0, 0.0, 0.0), (-1.0, 3.0, 0.0), (0.0, 0.0, 3.0))
-        array_ref = ((3.0, 0.0, 0.0), (-1.0, 3.0, 0.0), (0.0, 0.0, 3.0))
-        self.check(np.array(array), np.array(array_ref))
+        array_reduced = ((3.0, 0.0, 0.0), (-1.0, 3.0, 0.0), (0.0, 0.0, 3.0))
+        self.check(np.array(array), np.array(array_reduced))
 
     def test_large(self):
         """Test large tilt"""
         array = ((3.0, 0.0, 0.0), (2.0, 3.0, 0.0), (0.0, 0.0, 3.0))
-        array_ref = ((3.0, 0.0, 0.0), (-1.0, 3.0, 0.0), (0.0, 0.0, 3.0))
-        self.check(np.array(array), np.array(array_ref))
+        array_reduced = ((3.0, 0.0, 0.0), (-1.0, 3.0, 0.0), (0.0, 0.0, 3.0))
+        self.check(np.array(array), np.array(array_reduced))
 
     def test_very_large(self):
         """Test very large tilt"""
         array = ((3.0, 0.0, 0.0), (5.0, 3.0, 0.0), (0.0, 0.0, 3.0))
-        array_ref = ((3.0, 0.0, 0.0), (-1.0, 3.0, 0.0), (0.0, 0.0, 3.0))
-        self.check(np.array(array), np.array(array_ref))
+        array_reduced = ((3.0, 0.0, 0.0), (-1.0, 3.0, 0.0), (0.0, 0.0, 3.0))
+        self.check(np.array(array), np.array(array_reduced))
 
-    def check(self, array, array_ref):
+    def check(self, array, array_reduced):
         """Check"""
-        prism = Prism(array)
-        np.testing.assert_allclose(prism.lammps_cell, array_ref)
+        self.check_reduced(np.array(array), np.array(array_reduced))
+        self.check_original(np.array(array))
+
+    def check_original(self, array):
+        """Check the original cell"""
+        prism = Prism(array, reduced=False)
+
+        np.testing.assert_allclose(prism.lammps_tilt, array)
 
         # `update_cell` transforms the cell back to the original.
-        np.testing.assert_allclose(prism.update_cell(array_ref), array)
+        np.testing.assert_allclose(prism.update_cell(array), array)
+
+    def check_reduced(self, array, array_reduced):
+        """Check the reduced cell"""
+        prism = Prism(array, reduced=True)
+
+        np.testing.assert_allclose(prism.lammps_cell, array_reduced)
+
+        # `update_cell` transforms the cell back to the original.
+        np.testing.assert_allclose(prism.update_cell(array_reduced), array)
