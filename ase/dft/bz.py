@@ -73,14 +73,16 @@ def bz_plot(cell, vectors=False, paths=None, points=None,
         # 2d in xy
         assert all(abs(cell[2][0:2]) < 1e-6) and all(abs(cell.T[2]
                                                          [0:2]) < 1e-6)
-        ax = plt.gca()
+        if ax is None:
+            ax = plt.gca()
         cell = cell.copy()
     else:
         # 1d in x
         assert (all(abs(cell[2][0:2]) < 1e-6) and
                 all(abs(cell.T[2][0:2]) < 1e-6) and
                 abs(cell[0][1]) < 1e-6 and abs(cell[1][0]) < 1e-6)
-        ax = plt.gca()
+        if ax is None:
+            ax = plt.gca()
         cell = cell.copy()
 
     icell = cell.reciprocal()
@@ -90,12 +92,10 @@ def bz_plot(cell, vectors=False, paths=None, points=None,
     maxp = 0.0
     minp = 0.0
     if dimensions == 1:
-        x = np.array([-0.5 * icell[0, 0],
-                      0.5 * icell[0, 0],
-                      -0.5 * icell[0, 0]])
-        y = np.array([0, 0, 0])
-        ax.plot(x, y, c='k', ls='-')
-        maxp = icell[0, 0]
+        length = icell[0, 0]
+        x = 0.5 * length * np.array([-1, 0, -1])
+        ax.plot(x, np.zeros(3), c='k', ls='-')
+        maxp = length
     else:
         for points, normal in bz1:
             x, y, z = np.concatenate([points, points[:1]]).T
