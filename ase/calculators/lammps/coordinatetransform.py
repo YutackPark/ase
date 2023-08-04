@@ -97,16 +97,14 @@ class Prism:
         #     \         /--/                   \         /--/
         #      \    /--/                        \    /--/
         #       o==/-----------------------------o--/
-        # !TODO: handle extreme tilt (= off-diagonal > 1.5)
         lammps_cell = self.lammps_tilt.copy()
         for iteri, (i, j, k) in enumerate(FLIP_ORDER):
             if not self.pbc[k]:
                 continue
-            if abs(lammps_cell[i][j] / self.lammps_tilt[k][k]) > 0.5:
+            ratio = lammps_cell[i][j] / self.lammps_tilt[k][k]
+            if abs(ratio) > 0.5:
                 self.flip[iteri] = True
-                change = lammps_cell[k][k]
-                change *= np.sign(lammps_cell[i][j])
-                lammps_cell[i][j] -= change
+                lammps_cell[i][j] -= lammps_cell[k][k] * np.round(ratio)
         return lammps_cell
 
     def get_lammps_prism(self) -> np.ndarray:
