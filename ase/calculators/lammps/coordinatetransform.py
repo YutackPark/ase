@@ -28,6 +28,28 @@ def calc_lammps_tilt(cell: np.ndarray) -> np.ndarray:
     return np.array(((ax, 0.0, 0.0), (bx, by, 0.0), (cx, cy, cz)))
 
 
+def calc_lammps_cell(lammps_tilt: np.ndarray, pbc: list) -> np.ndarray:
+    """Calculate LAMMPS cell with short lattice basis vectors"""
+    # LAMMPS minimizes the edge length of the parallelepiped
+    # What is ment with 'flip': cell 2 is transformed into cell 1
+    # cell 2 = 'lammps_tilt'; cell 1 = 'lammps_cell'
+    # o-----------------------------/==o-----------------------------/--o
+    #  \                        /--/    \                        /--/
+    #   \                   /--/         \                   /--/
+    #    \         1    /--/              \   2          /--/
+    #     \         /--/                   \         /--/
+    #      \    /--/                        \    /--/
+    #       o==/-----------------------------o--/
+    lammps_cell = lammps_tilt.copy()
+    for i, j, k in FLIP_ORDER:
+        if not pbc[k]:
+            continue
+        ratio = lammps_cell[i][j] / lammps_tilt[k][k]
+        if abs(ratio) > 0.5:
+            lammps_cell[i][j] -= lammps_cell[k][k] * np.round(ratio)
+    return lammps_cell
+
+
 class Prism:
     """The representation of the unit cell in LAMMPS
 
@@ -82,28 +104,7 @@ class Prism:
         self.ase_cell = cell
         self.tolerance = tolerance
         self.pbc = np.zeros(3, bool) + pbc
-        self.lammps_cell = self.calc_lammps_cell()
-
-    def calc_lammps_cell(self) -> np.ndarray:
-        """Calculate LAMMPS cell with short lattice basis vectors"""
-        # LAMMPS minimizes the edge length of the parallelepiped
-        # What is ment with 'flip': cell 2 is transformed into cell 1
-        # cell 2 = 'lammps_tilt'; cell 1 = 'lammps_cell'
-        # o-----------------------------/==o-----------------------------/--o
-        #  \                        /--/    \                        /--/
-        #   \                   /--/         \                   /--/
-        #    \         1    /--/              \   2          /--/
-        #     \         /--/                   \         /--/
-        #      \    /--/                        \    /--/
-        #       o==/-----------------------------o--/
-        lammps_cell = self.lammps_tilt.copy()
-        for i, j, k in FLIP_ORDER:
-            if not self.pbc[k]:
-                continue
-            ratio = lammps_cell[i][j] / self.lammps_tilt[k][k]
-            if abs(ratio) > 0.5:
-                lammps_cell[i][j] -= lammps_cell[k][k] * np.round(ratio)
-        return lammps_cell
+        self.lammps_cell = calc_lammps_cell(self.lammps_tilt, self.pbc)
 
     def get_lammps_prism(self) -> np.ndarray:
         """Return box parameters of the rotated cell in LAMMPS coordinates
