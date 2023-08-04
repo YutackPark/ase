@@ -214,3 +214,13 @@ class JSONDatabase(Database):
         bigdct, ids, nextid = self._read_json()
         self._metadata = dct
         self._write_json(bigdct, ids, nextid)
+
+    def get_all_key_names(self):
+        keys = set()
+        bigdct, ids, nextid = self._read_json()
+        for id in ids:
+            dct = bigdct[id]
+            kvp = dct.get('key_value_pairs')
+            if kvp:
+                keys.update(kvp)
+        return keys

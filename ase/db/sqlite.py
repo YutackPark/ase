@@ -920,6 +920,14 @@ class SQLite3Database(Database):
 
         return dictionary
 
+    def get_all_key_names(self):
+        """Create set of all key names."""
+        with self.managed_connection() as con:
+            cur = con.cursor()
+            cur.execute('SELECT DISTINCT key FROM keys;')
+            all_keys = set(row[0] for row in cur.fetchall())
+        return all_keys
+
 
 if __name__ == '__main__':
     from ase.db import connect

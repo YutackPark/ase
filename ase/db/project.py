@@ -25,14 +25,8 @@ class DatabaseProject:
         # Therefore, any key without description will not be rendered.
         # Therefore, we need to make dummy key descriptions of everything
         # in the database, ensuring that all keys are visible.
-        #
-        # This is a very bad select() which loops over things that should be
-        # available directly, and also, it uses
-        # private variables of the row:
-        all_keys = set()
-        for row in database.select(
-                columns=['key_value_pairs'], include_data=False):
-            all_keys |= set(row._keys)
+
+        all_keys = database.get_all_key_names()
 
         key_descriptions = {
             **{key: KeyDescription(key) for key in all_keys},
@@ -73,6 +67,9 @@ class DatabaseProject:
         class DummyDatabase:
             def select(self, *args, **kwargs):
                 return iter([])
+
+            def get_all_key_names(self):
+                return set()
 
         _kwargs = dict(
             name='test',
