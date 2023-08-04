@@ -172,36 +172,30 @@ class Prism:
 
         return np.dot(vec, self.rot_mat)
 
-    def vector_to_ase(self, vec, wrap=False):
-        """Rotate vector from lammps coordinate system to ase one
+    def vector_to_ase(
+        self,
+        vec: np.ndarray,
+        wrap: bool = False,
+    ) -> np.ndarray:
+        """Rotate vectors from LAMMPS to ASE coordinates
 
-        :param vec: to be rotated lammps-vector
-        :param wrap: was vector wrapped into 'lammps_cell'
-        :returns: ase-vector
-        :rtype: np.array
+        Parameters
+        ----------
+        vec : np.ndarray
+            Vectors in LAMMPS coordinates to be rotated into ASE coordinates
+        wrap : bool
+            If True, the vectors are wrapped into the cell
 
+        Returns
+        -------
+        np.ndarray
+            Vectors in ASE coordinates
         """
         if wrap:
-            # trying to reverse wraping across periodic boundaries in the
-            # lammps coordination-system:
-            # translate: expresses lammps-coordinate system in the rotate, but
-            #            without tilt removed system
-            # fractional: vector in tilted system
-            translate = np.linalg.solve(
-                self.lammps_tilt.T, self.lammps_cell.T
-            ).T
             fractional = np.linalg.solve(self.lammps_tilt.T, vec.T).T
-
-            # !TODO: make somehow nicer
-            # !TODO: handle extreme tilted cells
-            for ifrac in fractional:
-                for zyx in reversed(range(3)):
-                    if ifrac[zyx] >= 1.0 and self.pbc[zyx]:
-                        ifrac -= translate[zyx]
-                    elif ifrac[zyx] < 0.0 and self.pbc[zyx]:
-                        ifrac += translate[zyx]
+            # wrap into 0 to 1 for periodic directions
+            fractional -= np.floor(fractional) * self.pbc
             vec = np.dot(fractional, self.lammps_tilt)
-
         return np.dot(vec, self.rot_mat.T)
 
     def is_skewed(self):
