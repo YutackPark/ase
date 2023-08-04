@@ -134,6 +134,21 @@ class BZSpacePlot:
             warnings.warn(msg)
 
 
+def normalize_name(name):
+    if name == 'G':
+        return '\\Gamma'
+
+    if len(name) > 1:
+        import re
+        m = re.match(r'^(\D+?)(\d*)$', name)
+        if m is None:
+            raise ValueError('Bad label: {}'.format(name))
+        name, num = m.group(1, 2)
+        if num:
+            name = f'{name}_{{{num}}}'
+    return name
+
+
 def bz_plot(cell, vectors=False, paths=None, points=None,
             elev=None, scale=1, interactive=False,
             pointstyle=None, ax=None, show=False):
@@ -198,16 +213,7 @@ def bz_plot(cell, vectors=False, paths=None, points=None,
             for name, point in zip(names, points):
                 x, y, z = point
 
-                if name == 'G':
-                    name = '\\Gamma'
-                elif len(name) > 1:
-                    import re
-                    m = re.match(r'^(\D+?)(\d*)$', name)
-                    if m is None:
-                        raise ValueError('Bad label: {}'.format(name))
-                    name, num = m.group(1, 2)
-                    if num:
-                        name = f'{name}_{{{num}}}'
+                name = normalize_name(name)
 
                 if dimensions == 3:
                     ax.text(x, y, z, rf'$\mathrm{{{name}}}$',
