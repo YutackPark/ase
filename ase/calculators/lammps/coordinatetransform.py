@@ -28,7 +28,7 @@ def calc_lammps_tilt(cell: np.ndarray) -> np.ndarray:
     return np.array(((ax, 0.0, 0.0), (bx, by, 0.0), (cx, cy, cz)))
 
 
-def calc_lammps_cell(lammps_tilt: np.ndarray, pbc: list) -> np.ndarray:
+def reduce_cell(lammps_tilt: np.ndarray, pbc: list) -> np.ndarray:
     """Calculate LAMMPS cell with short lattice basis vectors"""
     # LAMMPS minimizes the edge length of the parallelepiped
     # What is ment with 'flip': cell 2 is transformed into cell 1
@@ -64,6 +64,8 @@ class Prism:
         Periodic boundary conditions flags.
     reduce : bool
         If True, the LAMMPS cell is reduced for short lattice basis vectors.
+        The atomic positions are always wraped into the reduced cell,
+        regardress of `wrap` in `vector_to_lammps` and `vector_to_ase`.
     tolerance : float
         Precision for skewness test.
 
@@ -120,7 +122,7 @@ class Prism:
         self.ase_cell = cell
         self.tolerance = tolerance
         self.pbc = np.zeros(3, bool) + pbc
-        self.lammps_cell = calc_lammps_cell(self.lammps_tilt, self.pbc)
+        self.lammps_cell = reduce_cell(self.lammps_tilt, self.pbc)
         self.reduce = reduce
 
     def get_lammps_prism(self) -> np.ndarray:
@@ -156,7 +158,7 @@ class Prism:
             self.lammps_tilt = lammps_cell @ transformation
         else:
             self.lammps_tilt = lammps_cell
-            self.lammps_cell = calc_lammps_cell(self.lammps_tilt, self.pbc)
+            self.lammps_cell = reduce_cell(self.lammps_tilt, self.pbc)
 
         # try to detect potential flips in lammps
         # (lammps minimizes the cell-vector lengths)
@@ -199,7 +201,7 @@ class Prism:
         # !TODO: right eps-limit
         # lammps might not like atoms outside the cell
         cell = self.lammps_cell if self.reduce else self.lammps_tilt
-        if wrap:
+        if wrap or self.reduce:
             return wrap_positions(
                 np.dot(vec, self.rot_mat),
                 cell=cell,
@@ -227,12 +229,14 @@ class Prism:
         np.ndarray
             Vectors in ASE coordinates
         """
-        cell = self.lammps_cell if self.reduce else self.lammps_tilt
-        if wrap:
-            fractional = np.linalg.solve(cell.T, vec.T).T
+        if wrap or self.reduce:
+            # fractional in `lammps_tilt` (the same shape as ASE cell)
+            fractional = np.linalg.solve(self.lammps_tilt.T, vec.T).T
             # wrap into 0 to 1 for periodic directions
             fractional -= np.floor(fractional) * self.pbc
-            vec = np.dot(fractional, cell)
+            # Cartesian coordinates wrapped into `lammps_tilt`
+            vec = np.dot(fractional, self.lammps_tilt)
+        # rotate back to the ASE cell
         return np.dot(vec, self.rot_mat.T)
 
     def is_skewed(self) -> bool:

@@ -5,7 +5,10 @@ import numpy as np
 import pytest
 from ase import Atoms
 from ase.calculators.lammps import Prism
-from ase.calculators.lammps.coordinatetransform import calc_box_parameters
+from ase.calculators.lammps.coordinatetransform import (
+    calc_box_parameters,
+    reduce_cell,
+)
 
 
 def make_array(structure: str) -> np.ndarray:
@@ -87,62 +90,45 @@ class TestCalcBoxParameters:
         np.testing.assert_allclose(box, box_ref)
 
 
-@pytest.mark.parametrize("structure", ("sc", "bcc", "fcc", "hcp"))
-@pytest.mark.parametrize("pbc", (False, True))
+class TestReducedCell:
+    """Test reduced cell"""
+
+    def test_small(self):
+        """Test small tilt"""
+        original = ((3.0, 0.0, 0.0), (-1.0, 3.0, 0.0), (0.0, 0.0, 3.0))
+        reduced_ref = ((3.0, 0.0, 0.0), (-1.0, 3.0, 0.0), (0.0, 0.0, 3.0))
+        self.check(original, reduced_ref)
+
+    def test_large(self):
+        """Test large tilt"""
+        original = ((3.0, 0.0, 0.0), (2.0, 3.0, 0.0), (0.0, 0.0, 3.0))
+        reduced_ref = ((3.0, 0.0, 0.0), (-1.0, 3.0, 0.0), (0.0, 0.0, 3.0))
+        self.check(original, reduced_ref)
+
+    def test_very_large(self):
+        """Test very large tilt"""
+        original = ((3.0, 0.0, 0.0), (5.0, 3.0, 0.0), (0.0, 0.0, 3.0))
+        reduced_ref = ((3.0, 0.0, 0.0), (-1.0, 3.0, 0.0), (0.0, 0.0, 3.0))
+        self.check(original, reduced_ref)
+
+    def check(self, original: np.ndarray, reduced_ref: np.ndarray):
+        """Check"""
+        reduced = reduce_cell(np.array(original), pbc=(True, True, True))
+        np.testing.assert_allclose(reduced, reduced_ref)
+
+
 @pytest.mark.parametrize("wrap", (False, True))
-def test_vectors(structure: str, pbc: bool, wrap: bool):
+@pytest.mark.parametrize("reduce", (False, True))
+@pytest.mark.parametrize("pbc", (False, True))
+@pytest.mark.parametrize("structure", ("sc", "bcc", "fcc", "hcp"))
+def test_vectors(structure: str, pbc: bool, reduce: bool, wrap: bool):
     """Test if vector conversion works as expected"""
     array = make_array(structure)
     rng = np.random.default_rng(42)
     positions = 20.0 * rng.random((10, 3)) - 10.0
     atoms = Atoms(positions=positions, cell=array, pbc=pbc)
-    prism = Prism(array, pbc=pbc)
-    vectors_ref = atoms.get_positions(wrap=wrap)
+    prism = Prism(array, pbc=pbc, reduce=reduce)
+    vectors_ref = atoms.get_positions(wrap=(wrap or reduce))
     vectors = prism.vector_to_lammps(vectors_ref, wrap=wrap)
     vectors = prism.vector_to_ase(vectors, wrap=wrap)
     np.testing.assert_allclose(vectors, vectors_ref)
-
-
-class TestTilt:
-    """Test tilt"""
-
-    def test_small(self):
-        """Test small tilt"""
-        array = ((3.0, 0.0, 0.0), (-1.0, 3.0, 0.0), (0.0, 0.0, 3.0))
-        array_reduced = ((3.0, 0.0, 0.0), (-1.0, 3.0, 0.0), (0.0, 0.0, 3.0))
-        self.check(np.array(array), np.array(array_reduced))
-
-    def test_large(self):
-        """Test large tilt"""
-        array = ((3.0, 0.0, 0.0), (2.0, 3.0, 0.0), (0.0, 0.0, 3.0))
-        array_reduced = ((3.0, 0.0, 0.0), (-1.0, 3.0, 0.0), (0.0, 0.0, 3.0))
-        self.check(np.array(array), np.array(array_reduced))
-
-    def test_very_large(self):
-        """Test very large tilt"""
-        array = ((3.0, 0.0, 0.0), (5.0, 3.0, 0.0), (0.0, 0.0, 3.0))
-        array_reduced = ((3.0, 0.0, 0.0), (-1.0, 3.0, 0.0), (0.0, 0.0, 3.0))
-        self.check(np.array(array), np.array(array_reduced))
-
-    def check(self, array, array_reduced):
-        """Check"""
-        self.check_reduced(np.array(array), np.array(array_reduced))
-        self.check_original(np.array(array))
-
-    def check_original(self, array):
-        """Check the original cell"""
-        prism = Prism(array, reduce=False)
-
-        np.testing.assert_allclose(prism.lammps_tilt, array)
-
-        # `update_cell` transforms the cell back to the original.
-        np.testing.assert_allclose(prism.update_cell(array), array)
-
-    def check_reduced(self, array, array_reduced):
-        """Check the reduced cell"""
-        prism = Prism(array, reduce=True)
-
-        np.testing.assert_allclose(prism.lammps_cell, array_reduced)
-
-        # `update_cell` transforms the cell back to the original.
-        np.testing.assert_allclose(prism.update_cell(array_reduced), array)
