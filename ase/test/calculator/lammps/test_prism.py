@@ -131,7 +131,7 @@ class TestTilt:
 
     def check_original(self, array):
         """Check the original cell"""
-        prism = Prism(array, reduced=False)
+        prism = Prism(array, reduce=False)
 
         np.testing.assert_allclose(prism.lammps_tilt, array)
 
@@ -140,7 +140,7 @@ class TestTilt:
 
     def check_reduced(self, array, array_reduced):
         """Check the reduced cell"""
-        prism = Prism(array, reduced=True)
+        prism = Prism(array, reduce=True)
 
         np.testing.assert_allclose(prism.lammps_cell, array_reduced)
 
