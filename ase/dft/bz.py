@@ -136,13 +136,7 @@ class BZSpacePlot:
         ax.set_ylim3d(minp0, maxp0)
         ax.set_zlim3d(minp0, maxp0)
 
-        if hasattr(ax, 'set_box_aspect'):
-            ax.set_box_aspect([1, 1, 1])
-        else:
-            msg = ('Matplotlib axes have no set_box_aspect() method.  '
-                   'Aspect ratio will likely be wrong.  '
-                   'Consider updating to Matplotlib >= 3.3.')
-            warnings.warn(msg)
+        ax.set_box_aspect([1, 1, 1])
 
     def label_options(self, point):
         return dict(ha='center', va='bottom')
