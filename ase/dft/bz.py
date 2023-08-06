@@ -1,4 +1,3 @@
-import warnings
 from math import pi, sin, cos
 import numpy as np
 
@@ -26,6 +25,7 @@ def bz_vertices(icell, dim=3):
 
 class BZFlatPlot:
     axis_dim = 2  # Dimension of the plotting surface (2 even if it's 1D BZ).
+    point_options = {'zorder': 5}
 
     def new_axes(self, fig):
         return fig.gca()
@@ -53,8 +53,6 @@ class BZFlatPlot:
         ha = ha_s[int(np.sign(x))]
         va = va_s[int(np.sign(y))]
         return {'ha': ha, 'va': va, 'zorder': 4}
-
-    point_options = {'zorder': 5}
 
 
 class BZSpacePlot:
