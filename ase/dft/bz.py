@@ -52,11 +52,14 @@ class BZFlatPlot:
         x, y = point
         ha = ha_s[int(np.sign(x))]
         va = va_s[int(np.sign(y))]
-        return {'ha': ha, 'va': va, 'zorder': 5}
+        return {'ha': ha, 'va': va, 'zorder': 4}
+
+    point_options = {'zorder': 5}
 
 
 class BZSpacePlot:
     axis_dim = 3
+    point_options = {}
 
     def __init__(self, *, elev=None):
         from mpl_toolkits.mplot3d import Axes3D
@@ -167,6 +170,9 @@ def bz_plot(cell, vectors=False, paths=None, points=None,
             pointstyle=None, ax=None, show=False):
     import matplotlib.pyplot as plt
 
+    if pointstyle is None:
+        pointstyle = {}
+
     cell = cell.copy()
 
     dimensions = cell.rank
@@ -230,16 +236,8 @@ def bz_plot(cell, vectors=False, paths=None, points=None,
                         color='g', **plotter.label_options(point))
 
     if kpoints is not None:
-        kw = {'c': 'b'}
-        if pointstyle is not None:
-            kw.update(pointstyle)
-        for p in kpoints:
-            if dimensions == 3:
-                ax.scatter(p[0], p[1], p[2], **kw)
-            elif dimensions == 2:
-                ax.scatter(p[0], p[1], zorder=4, **kw)
-            else:
-                ax.scatter(p[0], 0, zorder=4, **kw)
+        kw = {'c': 'b', **plotter.point_options, **pointstyle}
+        ax.scatter(*kpoints[:, :plotter.axis_dim].T, **kw)
 
     ax.set_axis_off()
 
