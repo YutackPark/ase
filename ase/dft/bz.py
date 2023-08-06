@@ -45,6 +45,16 @@ class BZFlatPlot:
                  head_length=0.05,
                  **kwargs)
 
+    def label_options(self, point):
+        ha_s = ['right', 'left', 'right']
+        va_s = ['bottom', 'bottom', 'top']
+
+        x, y = point
+        ha = ha_s[int(np.sign(x))]
+        va = va_s[int(np.sign(y))]
+        return {'ha': ha, 'va': va, 'zorder': 5}
+
+
 class BZSpacePlot:
     axis_dim = 3
 
@@ -133,6 +143,9 @@ class BZSpacePlot:
                    'Consider updating to Matplotlib >= 3.3.')
             warnings.warn(msg)
 
+    def label_options(self, point):
+        return dict(ha='center', va='bottom')
+
 
 def normalize_name(name):
     if name == 'G':
@@ -211,28 +224,10 @@ def bz_plot(cell, vectors=False, paths=None, points=None,
                 ax.plot(x, y, c='r', ls='-')
 
             for name, point in zip(names, points):
-                x, y, z = point
-
                 name = normalize_name(name)
-
-                if dimensions == 3:
-                    ax.text(x, y, z, rf'$\mathrm{{{name}}}$',
-                            ha='center', va='bottom', color='g')
-                elif dimensions == 2:
-                    ha_s = ['right', 'left', 'right']
-                    va_s = ['bottom', 'bottom', 'top']
-
-                    ha = ha_s[int(np.sign(x))]
-                    va = va_s[int(np.sign(y))]
-                    if abs(z) < 1e-6:
-                        ax.text(x, y, rf'$\mathrm{{{name}}}$',
-                                ha=ha, va=va, color='g',
-                                zorder=5)
-                else:
-                    if abs(y) < 1e-6 and abs(z) < 1e-6:
-                        ax.text(x, y, rf'$\mathrm{{{name}}}$',
-                                ha='center', va='bottom', color='g',
-                                zorder=5)
+                point = point[:plotter.axis_dim]
+                ax.text(*point, rf'$\mathrm{{{name}}}$',
+                        color='g', **plotter.label_options(point))
 
     if kpoints is not None:
         kw = {'c': 'b'}
