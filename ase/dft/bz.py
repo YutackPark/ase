@@ -128,9 +128,7 @@ class BZSpacePlot:
         fig.set_figheight(xx[1])
         fig.set_figwidth(xx[0])
 
-        # oldlibs tests with matplotlib 2.0.0 say we have no set_proj_type:
-        if hasattr(ax, 'set_proj_type'):
-            ax.set_proj_type('ortho')
+        ax.set_proj_type('ortho')
 
         minp0 = 0.9 * minp  # Here we cheat a bit to trim spacings
         maxp0 = 0.9 * maxp
