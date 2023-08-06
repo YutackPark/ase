@@ -111,6 +111,20 @@ class TestReducedCell:
         reduced_ref = ((3.0, 0.0, 0.0), (-1.0, 3.0, 0.0), (0.0, 0.0, 3.0))
         self.check(original, reduced_ref)
 
+    def test_xz_and_yz_0(self):
+        """Test if the update of yz also modifies xz correctly"""
+        original = ((3.0, 0.0, 0.0), (1.0, 3.0, 0.0), (0.0, 2.0, 3.0))
+        # The third vector should be updated as c -> c - b
+        reduced_ref = ((3.0, 0.0, 0.0), (1.0, 3.0, 0.0), (-1.0, -1.0, 3.0))
+        self.check(original, reduced_ref)
+
+    def test_xz_and_yz_1(self):
+        """Test if the update of yz also modifies xz correctly"""
+        original = ((3.0, 0.0, 0.0), (1.0, 3.0, 0.0), (-1.0, 2.0, 3.0))
+        # The third vector should be updated as c -> c - b -> c - b + a
+        reduced_ref = ((3.0, 0.0, 0.0), (1.0, 3.0, 0.0), (1.0, -1.0, 3.0))
+        self.check(original, reduced_ref)
+
     def check(self, original: np.ndarray, reduced_ref: np.ndarray):
         """Check"""
         reduced = reduce_cell(np.array(original), pbc=(True, True, True))
