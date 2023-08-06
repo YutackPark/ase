@@ -23,7 +23,9 @@ def bz_vertices(icell, dim=3):
     return bz1
 
 
-class BZFlatPlot:
+class FlatPlot:
+    """Helper class for 1D/2D Brillouin zone plots."""
+
     axis_dim = 2  # Dimension of the plotting surface (2 even if it's 1D BZ).
     point_options = {'zorder': 5}
 
@@ -55,7 +57,8 @@ class BZFlatPlot:
         return {'ha': ha, 'va': va, 'zorder': 4}
 
 
-class BZSpacePlot:
+class SpacePlot:
+    """Helper class for ordinary (3D) Brillouin zone plots."""
     axis_dim = 3
     point_options = {}
 
@@ -167,9 +170,9 @@ def bz_plot(cell, vectors=False, paths=None, points=None,
 
     dimensions = cell.rank
     if dimensions == 3:
-        plotter = BZSpacePlot()
+        plotter = SpacePlot()
     else:
-        plotter = BZFlatPlot()
+        plotter = FlatPlot()
     assert dimensions > 0, 'No BZ for 0D!'
 
     if ax is None:
