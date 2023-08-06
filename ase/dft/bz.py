@@ -223,11 +223,8 @@ def bz_plot(cell, vectors=False, paths=None, points=None,
 
     if paths is not None:
         for names, points in paths:
-            x, y, z = np.array(points).T
-            if dimensions == 3:
-                ax.plot(x, y, z, c='r', ls='-', marker='.')
-            elif dimensions in [1, 2]:
-                ax.plot(x, y, c='r', ls='-')
+            coords = np.array(points).T[:plotter.axis_dim, :]
+            ax.plot(*coords, c='r', ls='-')
 
             for name, point in zip(names, points):
                 name = normalize_name(name)
