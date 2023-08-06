@@ -1,5 +1,6 @@
 """Prism"""
 import warnings
+from typing import Sequence
 
 import numpy as np
 from ase.geometry import wrap_positions
@@ -28,11 +29,11 @@ def calc_lammps_tilt(cell: np.ndarray) -> np.ndarray:
     return np.array(((ax, 0.0, 0.0), (bx, by, 0.0), (cx, cy, cz)))
 
 
-def reduce_cell(lammps_tilt: np.ndarray, pbc: list) -> np.ndarray:
+def reduce_cell(original_cell: np.ndarray, pbc: Sequence[bool]) -> np.ndarray:
     """Calculate LAMMPS cell with short lattice basis vectors"""
     # LAMMPS minimizes the edge length of the parallelepiped
     # What is ment with 'flip': cell 2 is transformed into cell 1
-    # cell 2 = 'lammps_tilt'; cell 1 = 'lammps_cell'
+    # cell 2 = 'original_cell'; cell 1 = 'reduced_cell'
     # o-----------------------------/==o-----------------------------/--o
     #  \                        /--/    \                        /--/
     #   \                   /--/         \                   /--/
@@ -40,14 +41,14 @@ def reduce_cell(lammps_tilt: np.ndarray, pbc: list) -> np.ndarray:
     #     \         /--/                   \         /--/
     #      \    /--/                        \    /--/
     #       o==/-----------------------------o--/
-    lammps_cell = lammps_tilt.copy()
+    reduced_cell = original_cell.copy()
     for i, j, k in FLIP_ORDER:
         if not pbc[k]:
             continue
-        ratio = lammps_cell[i][j] / lammps_tilt[k][k]
+        ratio = reduced_cell[i][j] / original_cell[k][k]
         if abs(ratio) > 0.5:
-            lammps_cell[i][j] -= lammps_cell[k][k] * np.round(ratio)
-    return lammps_cell
+            reduced_cell[i][j] -= reduced_cell[k][k] * np.round(ratio)
+    return reduced_cell
 
 
 class Prism:
