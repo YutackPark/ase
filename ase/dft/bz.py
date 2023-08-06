@@ -194,22 +194,16 @@ def bz_plot(cell, vectors=False, paths=None, points=None,
 
     maxp = 0.0
     minp = 0.0
-    if dimensions == 1:
-        length = icell[0, 0]
-        x = 0.5 * length * np.array([-1, 0, -1])
-        ax.plot(x, np.zeros(3), c='k', ls='-')
-        maxp = length
-    else:
-        for points, normal in bz1:
-            ls = '-'
-            xyz = np.concatenate([points, points[:1]]).T
-            if dimensions == 3:
-                if normal @ plotter.view < 0 and not interactive:
-                    ls = ':'
+    for points, normal in bz1:
+        ls = '-'
+        xyz = np.concatenate([points, points[:1]]).T
+        if dimensions == 3:
+            if normal @ plotter.view < 0 and not interactive:
+                ls = ':'
 
-            ax.plot(*xyz[:plotter.axis_dim], c='k', ls=ls)
-            maxp = max(maxp, points.max())
-            minp = min(minp, points.min())
+        ax.plot(*xyz[:plotter.axis_dim], c='k', ls=ls)
+        maxp = max(maxp, points.max())
+        minp = min(minp, points.min())
 
     if vectors:
         for i in range(dimensions):
