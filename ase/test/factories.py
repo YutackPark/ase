@@ -272,10 +272,17 @@ class EspressoFactory:
 
         kw = self._base_kw()
         kw.update(kwargs)
+
         return Espresso(profile=self._profile(),
                         pseudo_dir=str(self.pseudo_dir),
                         pseudopotentials=pseudopotentials,
                         **kw)
+
+    def socketio(self, unixsocket=None, **kwargs):
+        from ase.calculators.socketio import SocketIOCalculator
+        assert 'ecutwfc' in kwargs, kwargs
+        calc = self.calc(**kwargs)
+        return SocketIOCalculator(calc, unixsocket=unixsocket)
 
     @classmethod
     def fromconfig(cls, config):
@@ -803,8 +810,9 @@ class CalculatorInputs:
         kw.update(kwargs)
         return CalculatorInputs(self.factory, kw)
 
-    def socketio(self, **kwargs):
-        return self.factory.socketio(**kwargs)
+    def socketio(self, unixsocket, **kwargs):
+        kwargs = {**self.parameters, **kwargs}
+        return self.factory.socketio(unixsocket=unixsocket, **kwargs)
 
     def calc(self, **kwargs):
         param = dict(self.parameters)

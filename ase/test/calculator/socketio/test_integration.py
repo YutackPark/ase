@@ -9,12 +9,12 @@ from ase.constraints import ExpCellFilter
 from ase.units import Ry
 
 
+# XXX 2023-08-07: segfaults with ecutwfc=300 / Ry and espresso-7.0 (Ubuntu)
 @pytest.mark.calculator_lite
 @pytest.mark.calculator('espresso', ecutwfc=200 / Ry)
 @pytest.mark.calculator('abinit')
 def test_socketio_espresso(factory):
     atoms = bulk('Si')
-    # espresso = factory.calc(kpts=[2, 2, 2])
     atoms.rattle(stdev=.2, seed=42)
 
     with BFGS(ExpCellFilter(atoms)) as opt, \
