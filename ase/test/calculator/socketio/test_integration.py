@@ -4,7 +4,6 @@ import numpy as np
 from ase.build import bulk
 
 from ase.optimize import BFGS
-from ase.calculators.socketio import SocketIOCalculator
 from ase.constraints import ExpCellFilter
 from ase.units import Ry
 
