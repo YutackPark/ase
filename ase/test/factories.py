@@ -1,8 +1,8 @@
-import os
-import re
-from pathlib import Path
-from typing import Mapping
 import configparser
+import os
+from pathlib import Path
+import re
+from typing import Mapping
 
 import pytest
 
@@ -77,6 +77,22 @@ class AbinitFactory:
         kw.update(kwargs)
         assert kw['pp_paths'] is not None
         return Abinit(profile=profile, **kw)
+
+    def socketio(self, unixsocket=None, **kwargs):
+        from ase.calculators.socketio import SocketIOCalculator
+
+        kwargs = dict(
+            ionmov=28,
+            expert_user=1,
+            optcell=2,
+            tolmxf=1e-300,
+            ntime=100_000,
+            ecutsm=0.5,
+            ecut=200,
+            **kwargs)
+
+        calc = self.calc(**kwargs)
+        return SocketIOCalculator(calc, unixsocket=unixsocket)
 
     @classmethod
     def fromconfig(cls, config):
@@ -786,6 +802,9 @@ class CalculatorInputs:
         kw = dict(self.parameters)
         kw.update(kwargs)
         return CalculatorInputs(self.factory, kw)
+
+    def socketio(self, **kwargs):
+        return self.factory.socketio(**kwargs)
 
     def calc(self, **kwargs):
         param = dict(self.parameters)
