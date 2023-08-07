@@ -78,21 +78,15 @@ class AbinitFactory:
         assert kw['pp_paths'] is not None
         return Abinit(profile=profile, **kw)
 
-    def socketio(self, unixsocket=None, **kwargs):
-        from ase.calculators.socketio import SocketIOCalculator
-
-        kwargs = dict(
+    def socketio_kwargs(self):
+        return dict(
             ionmov=28,
             expert_user=1,
             optcell=2,
             tolmxf=1e-300,
             ntime=100_000,
             ecutsm=0.5,
-            ecut=200,
-            **kwargs)
-
-        calc = self.calc(**kwargs)
-        return SocketIOCalculator(calc, unixsocket=unixsocket)
+            ecut=200)
 
     @classmethod
     def fromconfig(cls, config):
@@ -278,11 +272,9 @@ class EspressoFactory:
                         pseudopotentials=pseudopotentials,
                         **kw)
 
-    def socketio(self, unixsocket=None, **kwargs):
-        from ase.calculators.socketio import SocketIOCalculator
-        assert 'ecutwfc' in kwargs, kwargs
-        calc = self.calc(**kwargs)
-        return SocketIOCalculator(calc, unixsocket=unixsocket)
+    def socketio_kwargs(self):
+        # No boilerplate needed for QE socketio
+        return {}
 
     @classmethod
     def fromconfig(cls, config):
@@ -811,8 +803,12 @@ class CalculatorInputs:
         return CalculatorInputs(self.factory, kw)
 
     def socketio(self, unixsocket, **kwargs):
-        kwargs = {**self.parameters, **kwargs}
-        return self.factory.socketio(unixsocket=unixsocket, **kwargs)
+        from ase.calculators.socketio import SocketIOCalculator
+        kwargs = {**self.factory.socketio_kwargs(),
+                  **self.parameters,
+                  **kwargs}
+        calc = self.factory.calc(**kwargs)
+        return SocketIOCalculator(calc, unixsocket=unixsocket)
 
     def calc(self, **kwargs):
         param = dict(self.parameters)
