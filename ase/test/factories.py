@@ -78,7 +78,7 @@ class AbinitFactory:
         assert kw['pp_paths'] is not None
         return Abinit(profile=profile, **kw)
 
-    def socketio_kwargs(self):
+    def socketio_kwargs(self, unixsocket):
         return dict(
             ionmov=28,
             expert_user=1,
@@ -272,7 +272,7 @@ class EspressoFactory:
                         pseudopotentials=pseudopotentials,
                         **kw)
 
-    def socketio_kwargs(self):
+    def socketio_kwargs(self, unixsocket):
         # No boilerplate needed for QE socketio
         return {}
 
@@ -602,6 +602,11 @@ class NWChemFactory:
         command = f'{self.executable} PREFIX.nwi > PREFIX.nwo'
         return NWChem(command=command, **kwargs)
 
+    def socketio_kwargs(self, unixsocket):
+        return dict(theory='scf',
+                    task='optimize',
+                    driver={'socket': {'unix': unixsocket}})
+
     @classmethod
     def fromconfig(cls, config):
         return cls(config.executables['nwchem'])
@@ -804,7 +809,7 @@ class CalculatorInputs:
 
     def socketio(self, unixsocket, **kwargs):
         from ase.calculators.socketio import SocketIOCalculator
-        kwargs = {**self.factory.socketio_kwargs(),
+        kwargs = {**self.factory.socketio_kwargs(unixsocket),
                   **self.parameters,
                   **kwargs}
         calc = self.factory.calc(**kwargs)
