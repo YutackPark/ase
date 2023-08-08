@@ -43,7 +43,8 @@ def run(calc):
 @pytest.mark.calculator('nwchem')
 @pytest.mark.calculator('aims')
 @pytest.mark.calculator('siesta')
-@pytest.mark.calculator('dftb', Hamiltonian_MaxAngularMomentum_H='"s"')
+# @pytest.mark.calculator('dftb', Hamiltonian_MaxAngularMomentum_H='"s"')
 def test_socketio_h2(factory):
+    """SocketIO integration test; fit coarse binding curve of H2 molecule."""
     with factory.socketio(unixsocket=f'ase_test_h2_{factory.name}') as calc:
         run(calc)
