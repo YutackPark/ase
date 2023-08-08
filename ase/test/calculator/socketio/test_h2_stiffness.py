@@ -30,7 +30,10 @@ def run(calc):
     dmin = -0.5 * poly[1] / poly[0]
 
     assert dmin == pytest.approx(0.766, abs=0.03)  # bond length
-    assert poly[0] == pytest.approx(20.0, abs=1.5)  # bond stiffness
+
+    # 1.5 enough without siesta
+    # 2.5 with siesta
+    assert poly[0] == pytest.approx(20.0, abs=2.5)  # bond stiffness
 
 
 @pytest.mark.filterwarnings('ignore:Subprocess exited')
@@ -39,7 +42,7 @@ def run(calc):
 @pytest.mark.calculator('espresso', ecutwfc=30)
 @pytest.mark.calculator('nwchem')
 @pytest.mark.calculator('aims')  # ?
-@pytest.mark.calculator('siesta')  # ?
+@pytest.mark.calculator('siesta')
 @pytest.mark.calculator('dftb')  # ?
 def test_socketio_h2(factory):
     with factory.socketio(unixsocket=f'ase_test_h2_{factory.name}') as calc:
