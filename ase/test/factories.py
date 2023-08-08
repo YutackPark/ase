@@ -108,7 +108,10 @@ class AimsFactory:
         return Aims(profile=profile, **kwargs1)
 
     def socketio_kwargs(self, unixsocket):
-        return {}
+        return dict(
+            # (INET port number should be unused.)
+            use_pimd_wrapper=(f'UNIX:{unixsocket}', 31415),
+            compute_forces=True)
 
     def version(self):
         from ase.calculators.aims import get_aims_version
