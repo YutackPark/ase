@@ -580,6 +580,14 @@ class SiestaFactory:
                       pseudo_path=str(self.pseudo_path),
                       **kwargs)
 
+    def socketio_kwargs(self, unixsocket):
+        return {'fdf_arguments': {
+            'MD.TypeOfRun': 'Master',
+            'Master.code': 'i-pi',
+            'Master.interface': 'socket',
+            'Master.address': unixsocket,
+            'Master.socketType': 'unix'}}
+
     @classmethod
     def fromconfig(cls, config):
         paths = config.datafiles['siesta']
