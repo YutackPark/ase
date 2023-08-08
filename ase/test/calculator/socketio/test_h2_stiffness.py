@@ -43,7 +43,7 @@ def run(calc):
 @pytest.mark.calculator('nwchem')
 @pytest.mark.calculator('aims')  # ?
 @pytest.mark.calculator('siesta')
-@pytest.mark.calculator('dftb')  # ?
+@pytest.mark.calculator('dftb', Hamiltonian_MaxAngularMomentum_H='"s"')
 def test_socketio_h2(factory):
     with factory.socketio(unixsocket=f'ase_test_h2_{factory.name}') as calc:
         run(calc)

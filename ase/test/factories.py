@@ -200,6 +200,11 @@ class DFTBFactory:
             slako_dir=str(self.skt_path) + '/',  # XXX not obvious
             **kwargs)
 
+    def socketio_kwargs(self, unixsocket):
+        return dict(Driver_='',
+                    Driver_Socket_='',
+                    Driver_Socket_File=unixsocket)
+
     @classmethod
     def fromconfig(cls, config):
         return cls(config.executables['dftb'], config.datafiles['dftb'])
