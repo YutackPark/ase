@@ -107,6 +107,9 @@ class AimsFactory:
         profile = AimsProfile([self.executable])
         return Aims(profile=profile, **kwargs1)
 
+    def socketio_kwargs(self, unixsocket):
+        return {}
+
     def version(self):
         from ase.calculators.aims import get_aims_version
         txt = read_stdout([self.executable])
