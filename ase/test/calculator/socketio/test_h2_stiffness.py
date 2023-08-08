@@ -38,6 +38,9 @@ def run(calc):
 @pytest.mark.calculator('abinit')
 @pytest.mark.calculator('espresso', ecutwfc=30)
 @pytest.mark.calculator('nwchem')
+@pytest.mark.calculator('aims')  # ?
+@pytest.mark.calculator('siesta')  # ?
+@pytest.mark.calculator('dftb')  # ?
 def test_socketio_h2(factory):
     with factory.socketio(unixsocket=f'ase_test_h2_{factory.name}') as calc:
         run(calc)
