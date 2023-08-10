@@ -145,8 +145,12 @@ def read_onetep_in(fd):
                     cell *= Bohr
 
         if not in_block:
-            sep = line.replace(':', ' ').replace('=', ' ').strip().split()
-            keywords[sep[0]] = ' '.join(sep[1:])
+            if 'devel_code' in line_lower:
+                sep = line.split(':')
+                keywords[sep[0]] = ':'.join(sep[1:])
+            else:
+                sep = line.replace(':', ' ').replace('=', ' ').strip().split()
+                keywords[sep[0]] = ' '.join(sep[1:])
             # If include_file is used, we open the included file
             # and insert it in the current fdi_lines...
             # Should work with a cascade
