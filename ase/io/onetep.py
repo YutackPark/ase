@@ -472,7 +472,7 @@ def write_onetep_in(
 
     if 'devel_code' in kwargs:
         warnings.warn('writing devel code as it is, at the end of the file')
-        fd.writelines(line + '\n' for line in kwargs['devel_code'])
+        fd.writelines('\n' + line for line in kwargs['devel_code'])
 
 
 def read_onetep_out(fd, index=-1, improving=False):
@@ -737,7 +737,7 @@ def read_onetep_out(fd, index=-1, improving=False):
                 if 'FRAC' in fdo_lines[idx + n]:
                     offset += 1
                 tmp = np.loadtxt(fdo_lines[idx + offset:idx + n],
-                                 dtype='str')
+                                 dtype='str').reshape(-1, 4)
                 els = np.char.array(tmp[:, 0])
                 if offset == 2:
                     pos = tmp[:, 1:].astype(np.float32)
