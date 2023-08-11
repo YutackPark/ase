@@ -146,11 +146,11 @@ def read_onetep_in(fd):
 
         if not in_block:
             if 'devel_code' in line_lower:
-                sep = line.split(':')
-                keywords[sep[0]] = ':'.join(sep[1:])
-            else:
-                sep = line.replace(':', ' ').replace('=', ' ').strip().split()
-                keywords[sep[0]] = ' '.join(sep[1:])
+                warnings.warn('devel_code is not supported')
+                n += 1
+                continue
+            sep = line.replace(':', ' ').replace('=', ' ').strip().split()
+            keywords[sep[0]] = ' '.join(sep[1:])
             # If include_file is used, we open the included file
             # and insert it in the current fdi_lines...
             # Should work with a cascade
@@ -469,6 +469,10 @@ def write_onetep_in(
             raise TypeError('keyword values must be list|str|bool')
     fd.writelines(line + '\n' for line in lines)
     fd.writelines(b_line + '\n' for b_line in block_lines)
+
+    if 'devel_code' in kwargs:
+        warnings.warn('writing devel code as it is, at the end of the file')
+        fd.writelines(line + '\n' for line in kwargs['devel_code'])
 
 
 def read_onetep_out(fd, index=-1, improving=False):
