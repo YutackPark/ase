@@ -41,7 +41,9 @@ def vaspinput_factory(nacl):
         mocker = mock.Mock()
         inputs = GenerateVaspInput()
         inputs.set(**kwargs)
-        inputs._build_pp_list = mocker(return_value=None)  # type: ignore[method-assign]
+        inputs._build_pp_list = mocker(  # type: ignore[method-assign]
+            return_value=None
+        )
         inputs.initialize(atoms)
         return inputs
 

@@ -245,8 +245,10 @@ class IOFormat:
             return match is not None
 
         from fnmatch import fnmatchcase
-        return any(fnmatchcase(data, magic + b'*')  # type: ignore[operator, type-var]
-                   for magic in self.magic)
+        return any(
+            fnmatchcase(data, magic + b'*')  # type: ignore[operator, type-var]
+            for magic in self.magic
+        )
 
 
 ioformats: Dict[str, IOFormat] = {}  # These will be filled at run-time.
