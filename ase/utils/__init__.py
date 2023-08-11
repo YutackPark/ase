@@ -512,7 +512,7 @@ def write_json(self, fd):
     _write_json(fd, self)
 
 
-@classmethod  # type: ignore
+@classmethod  # type: ignore[misc]
 def read_json(cls, fd):
     """Read new instance from JSON file."""
     from ase.io.jsonio import read_json as _read_json

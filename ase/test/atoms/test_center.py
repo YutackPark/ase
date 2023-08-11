@@ -10,7 +10,7 @@ from ase.lattice.cubic import FaceCenteredCubic
 
 symb = 'Cu'
 Z = data.atomic_numbers[symb]
-a0 = data.reference_states[Z]['a']  # type: ignore
+a0 = data.reference_states[Z]['a']  # type: ignore[index]
 
 
 def checkang(a, b, phi):
