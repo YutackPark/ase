@@ -7,16 +7,13 @@ comment line, and additional per-atom properties as extra columns.
 
 Contributed by James Kermode <james.kermode@gmail.com>
 """
-
-
-from itertools import islice
 import re
 import warnings
-from io import StringIO, UnsupportedOperation
 import json
+import numbers
+from io import StringIO, UnsupportedOperation
 
 import numpy as np
-import numbers
 
 from ase.atoms import Atoms
 from ase.calculators.calculator import all_properties, BaseCalculator
@@ -25,6 +22,7 @@ from ase.spacegroup.spacegroup import Spacegroup
 from ase.parallel import paropen
 from ase.constraints import FixAtoms, FixCartesian
 from ase.io.formats import index2range
+from ase.io.utils import ImageIterator
 from ase.utils import reader
 
 __all__ = ['read_xyz', 'write_xyz', 'iread_xyz']
@@ -570,39 +568,6 @@ def ixyzchunks(fd):
         except StopIteration:
             raise XYZError('Incomplete XYZ chunk')
         yield XYZChunk(lines, natoms)
-
-
-class ImageIterator:
-    """"""
-
-    def __init__(self, ichunks):
-        self.ichunks = ichunks
-
-    def __call__(self, fd, indices=-1):
-        if not hasattr(indices, 'start'):
-            if indices < 0:
-                indices = slice(indices - 1, indices)
-            else:
-                indices = slice(indices, indices + 1)
-
-        for chunk in self._getslice(fd, indices):
-            yield chunk.build()
-
-    def _getslice(self, fd, indices):
-        try:
-            iterator = islice(self.ichunks(fd), indices.start, indices.stop,
-                              indices.step)
-        except ValueError:
-            # Negative indices.  Go through the whole thing to get the length,
-            # which allows us to evaluate the slice, and then read it again
-            startpos = fd.tell()
-            nchunks = 0
-            for chunk in self.ichunks(fd):
-                nchunks += 1
-            fd.seek(startpos)
-            indices_tuple = indices.indices(nchunks)
-            iterator = islice(self.ichunks(fd), *indices_tuple)
-        return iterator
 
 
 iread_xyz = ImageIterator(ixyzchunks)
