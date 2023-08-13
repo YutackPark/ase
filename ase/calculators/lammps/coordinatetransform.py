@@ -5,10 +5,6 @@ from typing import Sequence
 import numpy as np
 from ase.geometry import wrap_positions
 
-# Order in which off-diagonal elements are checked for strong tilt
-# yz should be updated before xz so that the latter does not affect the former
-FLIP_ORDER = ((1, 0, 0), (2, 1, 1), (2, 0, 0))
-
 
 def calc_box_parameters(cell: np.ndarray) -> np.ndarray:
     """Calculate box parameters
@@ -43,12 +39,15 @@ def reduce_cell(original_cell: np.ndarray, pbc: Sequence[bool]) -> np.ndarray:
     #      \    /--/                        \    /--/
     #       o==/-----------------------------o--/
     reduced_cell = original_cell.copy()
-    for i, j, k in FLIP_ORDER:
-        if not pbc[k]:
+    # Order in which off-diagonal elements are checked for strong tilt
+    # yz is updated before xz so that the latter does not affect the former
+    flip_order = ((1, 0), (2, 1), (2, 0))
+    for i, j in flip_order:
+        if not pbc[j]:
             continue
-        ratio = reduced_cell[i, j] / reduced_cell[k, k]
+        ratio = reduced_cell[i, j] / reduced_cell[j, j]
         if abs(ratio) > 0.5:
-            reduced_cell[i] -= reduced_cell[k] * np.round(ratio)
+            reduced_cell[i] -= reduced_cell[j] * np.round(ratio)
     return reduced_cell
 
 
