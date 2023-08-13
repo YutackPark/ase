@@ -20,17 +20,17 @@ def calc_box_parameters(cell: np.ndarray) -> np.ndarray:
     return np.array((ax, by, cz, bx, cx, cy))
 
 
-def calc_lammps_tilt(cell: np.ndarray) -> np.ndarray:
+def rotate_cell(cell: np.ndarray) -> np.ndarray:
     """Calculate rotated cell in LAMMPS coordinates"""
     ax, by, cz, bx, cx, cy = calc_box_parameters(cell)
     return np.array(((ax, 0.0, 0.0), (bx, by, 0.0), (cx, cy, cz)))
 
 
-def reduce_cell(original_cell: np.ndarray, pbc: Sequence[bool]) -> np.ndarray:
+def reduce_cell(cell: np.ndarray, pbc: Sequence[bool]) -> np.ndarray:
     """Calculate LAMMPS cell with short lattice basis vectors"""
     # LAMMPS minimizes the edge length of the parallelepiped
     # What is ment with 'flip': cell 2 is transformed into cell 1
-    # cell 2 = 'original_cell'; cell 1 = 'reduced_cell'
+    # cell 2 = original 'cell'; cell 1 = 'reduced_cell'
     # o-----------------------------/==o-----------------------------/--o
     #  \                        /--/    \                        /--/
     #   \                   /--/         \                   /--/
@@ -38,7 +38,7 @@ def reduce_cell(original_cell: np.ndarray, pbc: Sequence[bool]) -> np.ndarray:
     #     \         /--/                   \         /--/
     #      \    /--/                        \    /--/
     #       o==/-----------------------------o--/
-    reduced_cell = original_cell.copy()
+    reduced_cell = cell.copy()
     # Order in which off-diagonal elements are checked for strong tilt
     # yz is updated before xz so that the latter does not affect the former
     flip_order = ((1, 0), (2, 1), (2, 0))
@@ -118,7 +118,7 @@ class Prism:
         # => lammps_tilt             = ase_cell * rot_mat
         # LAMMPS requires positive diagonal elements of the triangular matrix.
         # The diagonals of `lammps_tilt` are always positive by construction.
-        self.lammps_tilt = calc_lammps_tilt(cell)
+        self.lammps_tilt = rotate_cell(cell)
         self.rot_mat = np.linalg.solve(self.lammps_tilt, cell).T
         self.ase_cell = cell
         self.tolerance = tolerance
