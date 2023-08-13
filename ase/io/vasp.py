@@ -3,17 +3,17 @@ This module contains functionality for reading and writing an ASE
 Atoms object in VASP POSCAR format.
 
 """
-
 import re
+from pathlib import Path
 
 import numpy as np
 
 from ase import Atoms
 from ase.utils import reader, writer
-from ase.io.utils import ImageIterator
 from ase.io import ParseError
+from ase.io.formats import string2index
+from ase.io.utils import ImageIterator
 from .vasp_parsers import vasp_outcar_parsers as vop
-from pathlib import Path
 
 __all__ = [
     'read_vasp', 'read_vasp_out', 'iread_vasp_out', 'read_vasp_xdatcar',
@@ -323,10 +323,13 @@ def read_vasp_xdatcar(filename='XDATCAR', index=-1):
         image.set_scaled_positions(np.array(coords))
         images.append(image)
 
-    if not index:
-        return images
-    else:
-        return images[index]
+    if index is None:
+        index = -1
+
+    if isinstance(index, str):
+        index = string2index(index)
+
+    return images[index]
 
 
 def __get_xml_parameter(par):
