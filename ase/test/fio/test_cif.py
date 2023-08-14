@@ -5,8 +5,8 @@ import pytest
 
 from ase import Atoms
 from ase.build import molecule
-from ase.io import read, write
-from ase.io.cif import CIFLoop, parse_loop, NoStructureData, parse_cif
+from ase.io.cif import (
+    CIFLoop, parse_loop, NoStructureData, parse_cif, read_cif, write_cif)
 from ase.calculators.calculator import compare_atoms
 
 
@@ -270,7 +270,7 @@ def test_cif():
     # legacy behavior is to not read the K atoms
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        atoms_leg = read(cif_file, format='cif', fractional_occupancies=False)
+        atoms_leg = read_cif(cif_file, fractional_occupancies=False)
     elements = np.unique(atoms_leg.get_atomic_numbers())
     for n in (11, 17, 53):
         assert n in elements
@@ -282,7 +282,7 @@ def test_cif():
 
     cif_file = io.StringIO(content)
     # new behavior is to still not read the K atoms, but build info
-    atoms = read(cif_file, format='cif', fractional_occupancies=True)
+    atoms = read_cif(cif_file, fractional_occupancies=True)
 
     # yield the same old atoms for fractional_occupancies case
     assert len(atoms_leg) == len(atoms)
@@ -298,10 +298,10 @@ def test_cif():
     # read/write
     fname = 'testfile.cif'
     with open(fname, 'wb') as fd:
-        write(fd, atoms, format='cif')
+        write_cif(fd, atoms)
 
     with open(fname) as fd:
-        atoms = read(fd, format='cif', fractional_occupancies=True)
+        atoms = read_cif(fd, fractional_occupancies=True)
 
     check_fractional_occupancies(atoms)
 
@@ -361,7 +361,7 @@ Se6 Se2- 2 a 0.0050(4) 0.4480(6) 0.9025(6) 0.9102(6) 1. 0
 
 def test_cif_icsd():
     cif_file = io.StringIO(content2)
-    atoms = read(cif_file, format='cif')
+    atoms = read_cif(cif_file)
     # test something random so atoms is not unused
     assert 'occupancy' in atoms.info
 
@@ -369,7 +369,7 @@ def test_cif_icsd():
 @pytest.fixture
 def cif_atoms():
     cif_file = io.StringIO(content)
-    return read(cif_file, format='cif')
+    return read_cif(cif_file)
 
 
 def test_cif_loop_keys(cif_atoms):
@@ -380,7 +380,7 @@ def test_cif_loop_keys(cif_atoms):
     data['someIntKey'] = [[str(i) + "123" for i in range(20)]]
     cif_atoms.write('testfile.cif', loop_keys=data)
 
-    atoms1 = read('testfile.cif', store_tags=True)
+    atoms1 = read_cif('testfile.cif', store_tags=True)
     # keys are read lowercase only
     r_data = {'someKey': atoms1.info['_somekey'],
               'someIntKey': atoms1.info['_someintkey']}
@@ -392,7 +392,7 @@ def test_cif_loop_keys(cif_atoms):
 # test if automatic numbers written after elements are correct
 def test_cif_writer_label_numbers(cif_atoms):
     cif_atoms.write('testfile.cif')
-    atoms1 = read('testfile.cif', store_tags=True)
+    atoms1 = read_cif('testfile.cif', store_tags=True)
     labels = atoms1.info['_atom_site_label']
     # cannot use atoms.symbols as K is missing there
     elements = atoms1.info['_atom_site_type_symbol']
@@ -407,7 +407,7 @@ def test_cif_labels(cif_atoms):
     data = [["label" + str(i) for i in range(20)]]  # test case has 20 entries
     cif_atoms.write('testfile.cif', labels=data)
 
-    atoms1 = read('testfile.cif', store_tags=True)
+    atoms1 = read_cif('testfile.cif', store_tags=True)
     print(atoms1.info)
     assert data[0] == atoms1.info['_atom_site_label']
 
@@ -435,7 +435,7 @@ def test_cifloop():
 def test_empty_or_atomless(data):
     ciffile = io.BytesIO(data)
 
-    images = read(ciffile, index=':', format='cif')
+    images = read_cif(ciffile, index=':')
     assert len(images) == 0
 
 
@@ -464,7 +464,7 @@ def test_bad_occupancies(cif_atoms):
     assert 'Au' not in cif_atoms.symbols
     cif_atoms.symbols[0] = 'Au'
     with pytest.warns(UserWarning, match='no occupancy info'):
-        write('tmp.cif', cif_atoms)
+        write_cif('tmp.cif', cif_atoms)
 
 
 @pytest.mark.parametrize(
