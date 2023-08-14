@@ -79,7 +79,7 @@ class Namelist(OrderedDict):
         return super(Namelist, self).get(key.lower(), default)
 
 
-@iofunction('rU')
+@iofunction('r')
 def read_espresso_out(fileobj, index=-1, results_required=True):
     """Reads Quantum ESPRESSO output files.
 
@@ -493,7 +493,7 @@ def parse_position_line(line):
     return sym, float(x), float(y), float(z)
 
 
-@iofunction('rU')
+@iofunction('r')
 def read_espresso_in(fileobj):
     """Parse a Quantum ESPRESSO input files, '.in', '.pwi'.
 
