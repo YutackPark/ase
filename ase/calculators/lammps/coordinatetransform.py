@@ -21,16 +21,44 @@ def calc_box_parameters(cell: np.ndarray) -> np.ndarray:
 
 
 def calc_rotated_cell(cell: np.ndarray) -> np.ndarray:
-    """Calculate rotated cell in LAMMPS coordinates"""
+    """Calculate rotated cell in LAMMPS coordinates
+
+    Parameters
+    ----------
+    cell : np.ndarray
+        Cell to be rotated.
+
+    Returns
+    -------
+    rotated_cell : np.ndarray
+        Rotated cell represented by a lower triangular matrix.
+    """
     ax, by, cz, bx, cx, cy = calc_box_parameters(cell)
     return np.array(((ax, 0.0, 0.0), (bx, by, 0.0), (cx, cy, cz)))
 
 
 def calc_reduced_cell(cell: np.ndarray, pbc: Sequence[bool]) -> np.ndarray:
-    """Calculate LAMMPS cell with short lattice basis vectors"""
-    # LAMMPS minimizes the edge length of the parallelepiped
-    # What is ment with 'flip': cell 2 is transformed into cell 1
-    # cell 2 = original 'cell'; cell 1 = 'reduced_cell'
+    """Calculate LAMMPS cell with short lattice basis vectors
+
+    The lengths of the second and the third lattice basis vectors, b and c, are
+    shortened with keeping the same periodicity of the system. b is modified by
+    adding multiple a vectors, and c is modified by adding first multiple b
+    vectors and then multiple a vectors.
+
+    Parameters
+    ----------
+    cell : np.ndarray
+        Cell to be reduced. This must be already a lower triangular matrix.
+    pbc : Sequence[bool]
+        True if the system is periodic along the corresponding direction.
+
+    Returns
+    -------
+    reduced_cell : np.ndarray
+        Reduced cell. `xx`, `yy`, `zz` are the same as the original cell,
+        and `abs(xy) <= xx`, `abs(xz) <= xx`, `abs(yz) <= yy`.
+    """
+    # cell 1 (reduced) <- cell 2 (original)
     # o-----------------------------/==o-----------------------------/--o
     #  \                        /--/    \                        /--/
     #   \                   /--/         \                   /--/
