@@ -7,7 +7,7 @@ from ase import Atoms
 from ase.calculators.lammps import Prism
 from ase.calculators.lammps.coordinatetransform import (
     calc_box_parameters,
-    reduce_cell,
+    calc_reduced_cell,
 )
 
 
@@ -127,22 +127,22 @@ class TestReducedCell:
 
     def check(self, original: np.ndarray, reduced_ref: np.ndarray):
         """Check"""
-        reduced = reduce_cell(np.array(original), pbc=(True, True, True))
+        reduced = calc_reduced_cell(np.array(original), pbc=(True, True, True))
         np.testing.assert_allclose(reduced, reduced_ref)
 
 
 @pytest.mark.parametrize("wrap", (False, True))
-@pytest.mark.parametrize("reduce", (False, True))
+@pytest.mark.parametrize("reduce_cell", (False, True))
 @pytest.mark.parametrize("pbc", (False, True))
 @pytest.mark.parametrize("structure", ("sc", "bcc", "fcc", "hcp"))
-def test_vectors(structure: str, pbc: bool, reduce: bool, wrap: bool):
+def test_vectors(structure: str, pbc: bool, reduce_cell: bool, wrap: bool):
     """Test if vector conversion works as expected"""
     array = make_array(structure)
     rng = np.random.default_rng(42)
     positions = 20.0 * rng.random((10, 3)) - 10.0
     atoms = Atoms(positions=positions, cell=array, pbc=pbc)
-    prism = Prism(array, pbc=pbc, reduce=reduce)
-    vectors_ref = atoms.get_positions(wrap=(wrap or reduce))
+    prism = Prism(array, pbc=pbc, reduce_cell=reduce_cell)
+    vectors_ref = atoms.get_positions(wrap=(wrap or reduce_cell))
     vectors = prism.vector_to_lammps(vectors_ref, wrap=wrap)
     vectors = prism.vector_to_ase(vectors, wrap=wrap)
     np.testing.assert_allclose(vectors, vectors_ref)

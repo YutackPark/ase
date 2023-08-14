@@ -331,7 +331,7 @@ potentials)
                 self.atoms,
                 specorder=self.parameters['specorder'],
                 force_skew=self.parameters['always_triclinic'],
-                reduce=self.parameters['reduce_cell'],
+                reduce_cell=self.parameters['reduce_cell'],
                 velocities=self.parameters['write_velocities'],
                 prismobj=self.prism,
                 units=self.parameters['units'],
