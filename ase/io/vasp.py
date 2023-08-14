@@ -277,14 +277,18 @@ def read_vasp_out(filename='OUTCAR', index=-1):
 
 @reader
 def read_vasp_xdatcar(filename='XDATCAR', index=-1):
-    """Import XDATCAR file
+    """Import XDATCAR file.
 
-       Reads all positions from the XDATCAR and returns a list of
-       Atoms objects.  Useful for viewing optimizations runs
-       from VASP5.x
+    Parameters
+    ----------
+    index : int or slice or str
+        Which frame(s) to read. The default is -1 (last frame).
+        See :func:`ase.io.read` for details.
 
-       Constraints ARE NOT stored in the XDATCAR, and as such, Atoms
-       objects retrieved from the XDATCAR will not have constraints set.
+    Notes
+    -----
+    Constraints ARE NOT stored in the XDATCAR, and as such, Atoms objects
+    retrieved from the XDATCAR will not have constraints.
     """
     fd = filename  # @reader decorator ensures this is a file descriptor
     images = []
