@@ -1,8 +1,8 @@
-import os
-import re
-from pathlib import Path
-from typing import Mapping
 import configparser
+import os
+from pathlib import Path
+import re
+from typing import Mapping
 
 import pytest
 
@@ -78,6 +78,16 @@ class AbinitFactory:
         assert kw['pp_paths'] is not None
         return Abinit(profile=profile, **kw)
 
+    def socketio_kwargs(self, unixsocket):
+        return dict(
+            ionmov=28,
+            expert_user=1,
+            optcell=2,
+            tolmxf=1e-300,
+            ntime=100_000,
+            ecutsm=0.5,
+            ecut=200)
+
     @classmethod
     def fromconfig(cls, config):
         return AbinitFactory(config.executables['abinit'],
@@ -96,6 +106,12 @@ class AimsFactory:
         kwargs1.update(kwargs)
         profile = AimsProfile([self.executable])
         return Aims(profile=profile, **kwargs1)
+
+    def socketio_kwargs(self, unixsocket):
+        return dict(
+            # (INET port number should be unused.)
+            use_pimd_wrapper=(f'UNIX:{unixsocket}', 31415),
+            compute_forces=True)
 
     def version(self):
         from ase.calculators.aims import get_aims_version
@@ -187,6 +203,11 @@ class DFTBFactory:
             slako_dir=str(self.skt_path) + '/',  # XXX not obvious
             **kwargs)
 
+    def socketio_kwargs(self, unixsocket):
+        return dict(Driver_='',
+                    Driver_Socket_='',
+                    Driver_Socket_File=unixsocket)
+
     @classmethod
     def fromconfig(cls, config):
         return cls(config.executables['dftb'], config.datafiles['dftb'])
@@ -256,10 +277,15 @@ class EspressoFactory:
 
         kw = self._base_kw()
         kw.update(kwargs)
+
         return Espresso(profile=self._profile(),
                         pseudo_dir=str(self.pseudo_dir),
                         pseudopotentials=pseudopotentials,
                         **kw)
+
+    def socketio_kwargs(self, unixsocket):
+        # No boilerplate needed for QE socketio
+        return {}
 
     @classmethod
     def fromconfig(cls, config):
@@ -562,6 +588,14 @@ class SiestaFactory:
                       pseudo_path=str(self.pseudo_path),
                       **kwargs)
 
+    def socketio_kwargs(self, unixsocket):
+        return {'fdf_arguments': {
+            'MD.TypeOfRun': 'Master',
+            'Master.code': 'i-pi',
+            'Master.interface': 'socket',
+            'Master.address': unixsocket,
+            'Master.socketType': 'unix'}}
+
     @classmethod
     def fromconfig(cls, config):
         paths = config.datafiles['siesta']
@@ -586,6 +620,11 @@ class NWChemFactory:
         from ase.calculators.nwchem import NWChem
         command = f'{self.executable} PREFIX.nwi > PREFIX.nwo'
         return NWChem(command=command, **kwargs)
+
+    def socketio_kwargs(self, unixsocket):
+        return dict(theory='scf',
+                    task='optimize',
+                    driver={'socket': {'unix': unixsocket}})
 
     @classmethod
     def fromconfig(cls, config):
@@ -786,6 +825,14 @@ class CalculatorInputs:
         kw = dict(self.parameters)
         kw.update(kwargs)
         return CalculatorInputs(self.factory, kw)
+
+    def socketio(self, unixsocket, **kwargs):
+        from ase.calculators.socketio import SocketIOCalculator
+        kwargs = {**self.factory.socketio_kwargs(unixsocket),
+                  **self.parameters,
+                  **kwargs}
+        calc = self.factory.calc(**kwargs)
+        return SocketIOCalculator(calc, unixsocket=unixsocket)
 
     def calc(self, **kwargs):
         param = dict(self.parameters)
