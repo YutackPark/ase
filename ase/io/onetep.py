@@ -735,14 +735,16 @@ def read_onetep_out(fd, index=-1, improving=False):
                 offset += 1
             if '%ENDBLOCK POSITIONS_' in fdo_lines[idx + n]:
                 if 'FRAC' in fdo_lines[idx + n]:
-                    offset += 1
+                    conv_factor = 1
+                else:
+                    conv_factor = units['Bohr']
                 tmp = np.loadtxt(fdo_lines[idx + offset:idx + n],
                                  dtype='str').reshape(-1, 4)
                 els = np.char.array(tmp[:, 0])
                 if offset == 2:
                     pos = tmp[:, 1:].astype(np.float32)
                 else:
-                    pos = tmp[:, 1:].astype(np.float32) * units['Bohr']
+                    pos = tmp[:, 1:].astype(np.float32) * conv_factor
                 try:
                     return Atoms(els, pos)
                 # ASE doesn't recognize names used in ONETEP
