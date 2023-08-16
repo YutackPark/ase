@@ -341,7 +341,7 @@ End EAM Interface Documentation
             self.density_data = np.array(
                 [np.float_(data[n + self.nr:n + 2 * self.nr])])
 
-        elif self.form in ['alloy', 'adq']:
+        elif self.form in ['alloy', 'adp']:
             self.header = lines[:3]
             i = 3
 
