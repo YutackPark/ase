@@ -705,13 +705,24 @@ def read_onetep_out(fd, index=-1, improving=False):
                 return tmp_charges
             n += 1
         return None
-
+    # In ONETEP there is no way to differentiate electronic entropy
+    # and entropy due to solvent, therefore there is no way to
+    # extrapolate the energy at 0 K. We return the last energy
+    # instead.
     def parse_energy(idx):
-        try:
-            return [float(line.split()[-2]) for line in fdo_lines[idx:idx + 500]
-                    if "| Total" in line][-1]  # * units['Hartree']
-        except Exception:
-            return None
+        n = 0
+        energies = []
+        while idx + n < len(fdo_lines):
+            if '| Total' in fdo_lines[idx + n]:
+                energies.append(float(fdo_lines[idx + n].split()[-2]))
+            if 'LOCAL ENERGY COMPONENTS FROM MATRIX TRACES' in fdo_lines[idx + n]:
+                print(energies)
+                return energies[-1] * units['Hartree']
+            # Something is wrong with this ONETEP output
+            if len(energies) > 2:
+                raise RuntimeError('something is wrong with this ONETEP output')
+            n += 1
+        return None
 
     def parse_first_cell(idx):
         n = 0
