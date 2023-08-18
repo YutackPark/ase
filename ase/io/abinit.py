@@ -9,6 +9,8 @@ import numpy as np
 from ase import Atoms
 from ase.data import chemical_symbols
 from ase.units import Hartree, Bohr, fs
+from ase.calculators.singlepoint import (SinglePointCalculator,
+                                         SinglePointDFTCalculator)
 
 
 def read_abinit_in(fd):
@@ -439,6 +441,12 @@ def read_abinit_out(fd):
                   cell=cell,
                   pbc=True)
 
+    atoms.calc = SinglePointCalculator(atoms,
+                                       energy=results["energy"],
+                                       forces=results["forces"],
+                                       stress=results["stress"])
+    atoms.calc.name = "abinit"
+
     results['atoms'] = atoms
     return results
 
@@ -616,6 +624,15 @@ def read_abinit_gsr(filename):
     eigs = data.variables['eigenvalues'][:] * Hartree
     occ = data.variables['occupations'][:]
     weights = data.variables['kpoint_weights'][:]
+
+    atoms.calc = SinglePointDFTCalculator(
+        atoms,
+        energy=energy,
+        forces=forces,
+        stress=stress,
+        ibzkpts=ibzkpts,
+        efermi=efermi)
+    atoms.calc.name = "abinit"
 
     results = {'atoms': atoms,
                'energy': energy,
