@@ -591,6 +591,21 @@ def open_with_compression(filename: str, mode: str = 'r') -> IO:
         return open(filename, mode)
 
 
+def is_compressed(fd: io.BufferedIOBase) -> bool:
+    """Check if the file object is in a compressed format."""
+    compressed = False
+    if 'gzip' in sys.modules:
+        import gzip
+        compressed = compressed or isinstance(fd, gzip.GzipFile)
+    if 'bz2' in sys.modules:
+        import bz2
+        compressed = compressed or isinstance(fd, bz2.BZ2File)
+    if 'lzma' in sys.modules:
+        import lzma
+        compressed = compressed or isinstance(fd, lzma.LZMAFile)
+    return compressed
+
+
 def wrap_read_function(read, filename, index=None, **kwargs):
     """Convert read-function to generator."""
     if index is None:

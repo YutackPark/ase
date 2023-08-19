@@ -1,3 +1,6 @@
+"""Trajectory"""
+import contextlib
+import io
 import warnings
 from typing import Tuple
 
@@ -8,6 +11,7 @@ from ase.calculators.singlepoint import SinglePointCalculator, all_properties
 from ase.constraints import dict2constraint
 from ase.calculators.calculator import PropertyNotImplementedError
 from ase.atoms import Atoms
+from ase.io.formats import is_compressed
 from ase.io.jsonio import encode, decode
 from ase.io.pickletrajectory import PickleTrajectory
 from ase.parallel import world
@@ -410,13 +414,30 @@ def read_traj(fd, index):
         yield trj[i]
 
 
+@contextlib.contextmanager
+def defer_compression(fd):
+    """Defer the file compression until all the configurations are read."""
+    if is_compressed(fd):
+        with io.BytesIO() as bytes_io:
+            try:
+                # write the uncompressed data to the buffer
+                yield bytes_io
+            finally:
+                # write the buffered data to the compressed file
+                bytes_io.seek(0)
+                fd.write(bytes_io.read())
+    else:
+        yield fd
+
+
 def write_traj(fd, images):
     """Write image(s) to trajectory."""
-    trj = TrajectoryWriter(fd)
     if isinstance(images, Atoms):
         images = [images]
-    for atoms in images:
-        trj.write(atoms)
+    with defer_compression(fd) as fd_uncompressed:
+        trj = TrajectoryWriter(fd_uncompressed)
+        for atoms in images:
+            trj.write(atoms)
 
 
 class OldCalculatorWrapper:
