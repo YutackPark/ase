@@ -283,6 +283,10 @@ class EspressoFactory:
                         pseudopotentials=pseudopotentials,
                         **kw)
 
+    def socketio(self, unixsocket, **kwargs):
+        calc = self.calc(**kwargs)
+        return calc.socketio(unixsocket=unixsocket)
+
     def socketio_kwargs(self, unixsocket):
         # No boilerplate needed for QE socketio
         return {}
@@ -827,6 +831,9 @@ class CalculatorInputs:
         return CalculatorInputs(self.factory, kw)
 
     def socketio(self, unixsocket, **kwargs):
+        if hasattr(self.factory, 'socketio'):
+            kwargs = {**self.parameters, **kwargs}
+            return self.factory.socketio(unixsocket, **kwargs)
         from ase.calculators.socketio import SocketIOCalculator
         kwargs = {**self.factory.socketio_kwargs(unixsocket),
                   **self.parameters,

@@ -45,13 +45,6 @@ class EspressoProfile:
         with open(directory / outputfile, 'wb') as fd:
             check_call(argv, cwd=directory, stdout=fd, env=os.environ)
 
-    def socketio_argv_unix(self, socket):
-        template = EspressoTemplate()
-        # It makes sense to know the template for this kind of choices,
-        # but is there a better way?
-        return list(self.argv) + ['--ipi', f'{socket}:UNIX', '-in',
-                                  template.inputname]
-
 
 class EspressoTemplate(CalculatorTemplate):
     def __init__(self):
@@ -75,6 +68,39 @@ class EspressoTemplate(CalculatorTemplate):
         path = directory / self.outputname
         atoms = read(path, format='espresso-out')
         return dict(atoms.calc.properties())
+
+    def socketio_calculator(
+            self, profile, parameters, directory,
+            # We may need quite a few socket kwargs here
+            # if we want to expose all the timeout etc. from
+            # SocketIOCalculator.
+            unixsocket):
+        from ase.calculators.socketio import SocketIOCalculator
+
+        if unixsocket is not None:
+            ipi_arg = f'{unixsocket}:UNIX'
+        else:
+            ipi_arg = f'{host:s}:{port:d}'
+
+        argv = [*profile.argv, '-in', self.inputname, '--ipi', ipi_arg]
+
+        # Not so elegant that socket args are passed to this function
+        # via socketiocalculator when we could make a closure right here.
+        def launch(atoms, properties, port, unixsocket):
+            from subprocess import Popen
+            directory.mkdir(exist_ok=True, parents=True)
+
+            self.write_input(
+                atoms=atoms,
+                parameters=parameters,
+                properties=properties,
+                directory=directory)
+
+            with open(directory / self.outputname, 'w') as out_fd:
+                return Popen(argv, stdout=out_fd, cwd=directory,
+                             env=os.environ)
+
+        return SocketIOCalculator(launch_client=launch, unixsocket=unixsocket)
 
 
 class Espresso(GenericFileIOCalculator):
