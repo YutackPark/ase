@@ -107,12 +107,6 @@ class AimsFactory:
         profile = AimsProfile([self.executable])
         return Aims(profile=profile, **kwargs1)
 
-    def socketio_kwargs(self, unixsocket):
-        return dict(
-            # (INET port number should be unused.)
-            use_pimd_wrapper=(f'UNIX:{unixsocket}', 31415),
-            compute_forces=True)
-
     def version(self):
         from ase.calculators.aims import get_aims_version
         txt = read_stdout([self.executable])
@@ -122,6 +116,8 @@ class AimsFactory:
     def fromconfig(cls, config):
         return cls(config.executables['aims'])
 
+    def socketio(self, unixsocket, **kwargs):
+        return self.calc(**kwargs).socketio(unixsocket=unixsocket)
 
 @factory('asap')
 class AsapFactory:

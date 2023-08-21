@@ -156,6 +156,14 @@ class AimsTemplate(CalculatorTemplate):
         dst = directory / self.outputname
         return read_aims_results(dst, index=-1)
 
+    def socketio_argv(self, profile, unixsocket):
+        return [*profile.argv]
+
+    def socketio_parameters(self, unixsocket):
+        return dict(
+            # (INET port number should be unused.)
+            use_pimd_wrapper=(f'UNIX:{unixsocket}', 31415),
+            compute_forces=True)
 
 class Aims(GenericFileIOCalculator):
     def __init__(self, profile=None, directory='.', **kwargs):
