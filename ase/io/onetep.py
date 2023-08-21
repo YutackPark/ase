@@ -475,7 +475,7 @@ def write_onetep_in(
         fd.writelines('\n' + line for line in kwargs['devel_code'])
 
 
-def read_onetep_out(fd, index=-1, improving=False):
+def read_onetep_out(fd, index=-1, improving=False, **kwargs):
     """
     Read ONETEP output(s).
 
@@ -499,7 +499,6 @@ def read_onetep_out(fd, index=-1, improving=False):
     ------
     structure: Atoms|list of Atoms
     """
-
     # Put everything in memory
     fdo_lines = fd.readlines()
     n_lines = len(fdo_lines)
@@ -716,7 +715,6 @@ def read_onetep_out(fd, index=-1, improving=False):
             if '| Total' in fdo_lines[idx + n]:
                 energies.append(float(fdo_lines[idx + n].split()[-2]))
             if 'LOCAL ENERGY COMPONENTS FROM MATRIX TRACES' in fdo_lines[idx + n]:
-                print(energies)
                 return energies[-1] * units['Hartree']
             # Something is wrong with this ONETEP output
             if len(energies) > 2:
