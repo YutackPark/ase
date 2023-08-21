@@ -9,8 +9,8 @@ import numpy as np
 from ase import Atoms
 from ase.data import chemical_symbols
 from ase.units import Hartree, Bohr, fs
-from ase.calculators.singlepoint import (SinglePointCalculator,
-                                         SinglePointDFTCalculator)
+from ase.calculators.calculator import all_properties
+from ase.calculators.singlepoint import SinglePointCalculator
 
 
 def read_abinit_in(fd):
@@ -441,10 +441,10 @@ def read_abinit_out(fd):
                   cell=cell,
                   pbc=True)
 
+    calc_results = {name: results[name] for name in
+                    set(all_properties) & set(results)}
     atoms.calc = SinglePointCalculator(atoms,
-                                       energy=results["energy"],
-                                       forces=results["forces"],
-                                       stress=results["stress"])
+                                       **calc_results)
     atoms.calc.name = "abinit"
 
     results['atoms'] = atoms
@@ -614,37 +614,32 @@ def read_abinit_gsr(filename):
                   cell=cell,
                   pbc=True)
 
-    # Within the netCDF4 dataset, the float variables return a array(float)
-    # The tolist() is here to ensure that the result is of type float
-    energy = data.variables['etotal'][:].tolist() * Hartree
-    forces = data.variables['cartesian_forces'][:] * Hartree / Bohr
-    stress = data.variables['cartesian_stress_tensor'][:] * (Hartree / Bohr**3)
-    efermi = data.variables['fermie'][:].tolist() * Hartree
-    ibzkpts = data.variables['reduced_coordinates_of_kpoints'][:]
-    eigs = data.variables['eigenvalues'][:] * Hartree
-    occ = data.variables['occupations'][:]
-    weights = data.variables['kpoint_weights'][:]
+    results = dict()
 
-    atoms.calc = SinglePointDFTCalculator(
-        atoms,
-        energy=energy,
-        forces=forces,
-        stress=stress,
-        ibzkpts=ibzkpts,
-        efermi=efermi)
-    atoms.calc.name = "abinit"
+    def addresult(name, abinit_name, unit=1):
+        if abinit_name not in data.variables:
+            return
+        values = data.variables[abinit_name][:]
+        # Within the netCDF4 dataset, the float variables return a array(float)
+        # The tolist() is here to ensure that the result is of type float
+        if not values.shape:
+            values = values.tolist()
+        results[name] = values * unit
 
-    results = {'atoms': atoms,
-               'energy': energy,
-               'free_energy': energy,
-               'forces': forces,
-               'stress': stress,
-               'fermilevel': efermi,
-               'ibz_kpoints': ibzkpts,
-               'eigenvalues': eigs,
-               'kpoint_weights': weights,
-               'occupations': occ,
-               'version': version}
+    addresult('energy', 'etotal', Hartree)
+    addresult('forces', 'cartesian_forces', Hartree / Bohr)
+    addresult('stress', 'cartesian_stress_tensor', Hartree / Bohr**3)
+
+    atoms.calc = SinglePointCalculator(atoms, **results)
+    atoms.calc.name = 'abinit'
+    results['atoms'] = atoms
+
+    addresult('fermilevel', 'fermie', Hartree)
+    addresult('ibz_kpoints', 'reduced_coordinates_of_kpoints')
+    addresult('eigenvalues', 'eigenvalues', Hartree)
+    addresult('occupations', 'occupations')
+    addresult('kpoint_weights', 'kpoint_weights')
+    results['version'] = version
 
     return results
 
