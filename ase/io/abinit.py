@@ -627,6 +627,7 @@ def read_abinit_gsr(filename):
         results[name] = values * unit
 
     addresult('energy', 'etotal', Hartree)
+    addresult('free_energy', 'etotal', Hartree)
     addresult('forces', 'cartesian_forces', Hartree / Bohr)
     addresult('stress', 'cartesian_stress_tensor', Hartree / Bohr**3)
 
