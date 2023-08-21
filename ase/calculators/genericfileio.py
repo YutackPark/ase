@@ -48,6 +48,37 @@ class CalculatorTemplate(ABC):
     def read_results(self, directory: PathLike) -> Mapping[str, Any]:
         ...
 
+    def socketio_calculator(
+            self, profile, parameters, directory,
+            # We may need quite a few socket kwargs here
+            # if we want to expose all the timeout etc. from
+            # SocketIOCalculator.
+            unixsocket):
+        import os
+        from subprocess import Popen
+        from ase.calculators.socketio import SocketIOCalculator
+
+        # XXX need socketio ABC or something
+        argv = self.socketio_argv(profile, unixsocket)
+        parameters = {**self.socketio_parameters(unixsocket), **parameters}
+
+        # Not so elegant that socket args are passed to this function
+        # via socketiocalculator when we could make a closure right here.
+        def launch(atoms, properties, port, unixsocket):
+            directory.mkdir(exist_ok=True, parents=True)
+
+            self.write_input(
+                atoms=atoms,
+                parameters=parameters,
+                properties=properties,
+                directory=directory)
+
+            with open(directory / self.outputname, 'w') as out_fd:
+                return Popen(argv, stdout=out_fd, cwd=directory,
+                             env=os.environ)
+
+        return SocketIOCalculator(launch_client=launch, unixsocket=unixsocket)
+
 
 class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
     def __init__(self, *, template, profile, directory, parameters=None):
@@ -95,10 +126,10 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
         return self.results
 
     def socketio(self, **socketkwargs):
-        if not hasattr(self.template, 'socketio_calculator'):
-            raise TypeError(
-                f'Template {self.template} does not implement '
-                'socketio_calculator()')
+        #if not hasattr(self.template, 'socketio_calculator'):
+        #    raise TypeError(
+        #        f'Template {self.template} does not implement '
+        #        'socketio_calculator()')
 
         return self.template.socketio_calculator(
             directory=self.directory,

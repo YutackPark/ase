@@ -69,39 +69,16 @@ class EspressoTemplate(CalculatorTemplate):
         atoms = read(path, format='espresso-out')
         return dict(atoms.calc.properties())
 
-    def socketio_calculator(
-            self, profile, parameters, directory,
-            # We may need quite a few socket kwargs here
-            # if we want to expose all the timeout etc. from
-            # SocketIOCalculator.
-            unixsocket):
-        from ase.calculators.socketio import SocketIOCalculator
+    def socketio_parameters(self, unixsocket):
+        return {}
 
+    def socketio_argv(self, profile, unixsocket):
         if unixsocket is not None:
             ipi_arg = f'{unixsocket}:UNIX'
         else:
+            xxxxxxxxxxxxx
             ipi_arg = f'{host:s}:{port:d}'
-
-        argv = [*profile.argv, '-in', self.inputname, '--ipi', ipi_arg]
-
-        # Not so elegant that socket args are passed to this function
-        # via socketiocalculator when we could make a closure right here.
-        def launch(atoms, properties, port, unixsocket):
-            from subprocess import Popen
-            directory.mkdir(exist_ok=True, parents=True)
-
-            self.write_input(
-                atoms=atoms,
-                parameters=parameters,
-                properties=properties,
-                directory=directory)
-
-            with open(directory / self.outputname, 'w') as out_fd:
-                return Popen(argv, stdout=out_fd, cwd=directory,
-                             env=os.environ)
-
-        return SocketIOCalculator(launch_client=launch, unixsocket=unixsocket)
-
+        return [*profile.argv, '-in', self.inputname, '--ipi', ipi_arg]
 
 class Espresso(GenericFileIOCalculator):
     def __init__(self, *, profile=None,

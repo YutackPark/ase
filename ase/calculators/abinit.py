@@ -36,11 +36,6 @@ class AbinitProfile:
         with open(directory / outputfile, 'wb') as fd:
             check_call(argv, stdout=fd, env=os.environ, cwd=directory)
 
-    def socketio_argv_unix(self, socket):
-        # XXX clean up the passing of the inputfile
-        inputfile = AbinitTemplate().input_file
-        return [*self.argv, inputfile, '--ipi', f'{socket}:UNIX']
-
 
 class AbinitTemplate(CalculatorTemplate):
     _label = 'abinit'  # Controls naming of files within calculation directory
@@ -51,11 +46,13 @@ class AbinitTemplate(CalculatorTemplate):
             implemented_properties=['energy', 'free_energy',
                                     'forces', 'stress', 'magmom'])
 
-        self.input_file = f'{self._label}.in'
-        self.output_file = f'{self._label}.log'
+        # XXX superclass should require inputname and outputname
+
+        self.inputname = f'{self._label}.in'
+        self.outputname = f'{self._label}.log'
 
     def execute(self, directory, profile) -> None:
-        profile.run(directory, self.input_file, self.output_file)
+        profile.run(directory, self.inputname, self.outputname)
 
     def write_input(self, directory, atoms, parameters, properties):
         directory = Path(directory)
@@ -78,6 +75,12 @@ class AbinitTemplate(CalculatorTemplate):
 
     def read_results(self, directory):
         return io.read_abinit_outputs(directory, self._label)
+
+    def socketio_argv(self, profile, unixsocket):
+        return [*profile.argv, self.inputname, '--ipi', f'{unixsocket}:UNIX']
+
+    def socketio_parameters(self, unixsocket):
+        return dict(ionmov=28, expert_user=1, optcell=2)
 
 
 class Abinit(GenericFileIOCalculator):
