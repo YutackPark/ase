@@ -140,10 +140,10 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
         return self.results
 
     def socketio(self, **socketkwargs):
-        # if not hasattr(self.template, 'socketio_calculator'):
-        #     raise TypeError(
-        #         f'Template {self.template} does not implement '
-        #         'socketio_calculator()')
+        if not hasattr(self.template, 'socketio_calculator'):
+            raise TypeError(
+                f'Template {self.template} does not implement '
+                'socketio_calculator()')
 
         return self.template.socketio_calculator(
             directory=self.directory,
