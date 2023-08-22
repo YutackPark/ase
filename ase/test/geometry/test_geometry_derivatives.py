@@ -1,46 +1,58 @@
-def test_atoms_angle():
-    from ase.geometry import (get_angles, get_dihedrals,
-                              get_distances_derivatives,
-                              get_angles_derivatives,
-                              get_dihedrals_derivatives)
-    import numpy as np
-    import pytest
+import numpy as np
+import pytest
+from ase.geometry import (get_angles, get_angles_derivatives, get_dihedrals,
+                          get_dihedrals_derivatives, get_distances_derivatives)
 
+
+def get_numerical_derivatives(positions, mode, epsilon):
+    if mode == 'distance':
+        mode_n = 0  # get derivative for bond 0-1
+    elif mode == 'angle':
+        mode_n = 1  # get derivative for angle 0-1-2
+    elif mode == 'dihedral':
+        mode_n = 2  # get derivative for dihedral 0-1-2-3
+    derivs = np.zeros((2 + mode_n, 3))
+    for i in range(2 + mode_n):
+        for j in range(3):
+            pos = positions.copy()
+            pos[i, j] -= epsilon
+            if mode == 'distance':
+                minus = np.linalg.norm(pos[1] - pos[0])
+            elif mode == 'angle':
+                minus = get_angles(
+                    [pos[0] - pos[1]],
+                    [pos[2] - pos[1]],
+                )[0]  # size-1 array -> scalar
+            elif mode == 'dihedral':
+                minus = get_dihedrals(
+                    [pos[1] - pos[0]],
+                    [pos[2] - pos[1]],
+                    [pos[3] - pos[2]],
+                )[0]  # size-1 array -> scalar
+            pos[i, j] += 2 * epsilon
+            if mode == 'distance':
+                plus = np.linalg.norm(pos[1] - pos[0])
+            elif mode == 'angle':
+                plus = get_angles(
+                    [pos[0] - pos[1]],
+                    [pos[2] - pos[1]],
+                )[0]  # size-1 array -> scalar
+            elif mode == 'dihedral':
+                plus = get_dihedrals(
+                    [pos[1] - pos[0]],
+                    [pos[2] - pos[1]],
+                    [pos[3] - pos[2]],
+                )[0]  # size-1 array -> scalar
+            derivs[i, j] = (plus - minus) / (2 * epsilon)
+    return derivs
+
+
+def test_atoms_angle():
     # example: positions for H2O2 molecule
     pos = np.asarray([[0.840, 0.881, 0.237],     # H
                       [0., 0.734, -0.237],       # O
                       [0., -0.734, -0.237],      # O
                       [-0.840, -0.881, 0.237]])  # H
-
-    def get_numerical_derivatives(positions, mode, epsilon):
-        if mode == 'distance':
-            mode_n = 0  # get derivative for bond 0-1
-        elif mode == 'angle':
-            mode_n = 1  # get derivative for angle 0-1-2
-        elif mode == 'dihedral':
-            mode_n = 2  # get derivative for dihedral 0-1-2-3
-        derivs = np.zeros((2 + mode_n, 3))
-        for i in range(2 + mode_n):
-            for j in range(3):
-                pos = positions.copy()
-                pos[i, j] -= epsilon
-                if mode == 'distance':
-                    minus = np.linalg.norm(pos[1] - pos[0])
-                elif mode == 'angle':
-                    minus = get_angles([pos[0] - pos[1]], [pos[2] - pos[1]])
-                elif mode == 'dihedral':
-                    minus = get_dihedrals([pos[1] - pos[0]], [pos[2] - pos[1]],
-                                          [pos[3] - pos[2]])
-                pos[i, j] += 2 * epsilon
-                if mode == 'distance':
-                    plus = np.linalg.norm(pos[1] - pos[0])
-                elif mode == 'angle':
-                    plus = get_angles([pos[0] - pos[1]], [pos[2] - pos[1]])
-                elif mode == 'dihedral':
-                    plus = get_dihedrals([pos[1] - pos[0]], [pos[2] - pos[1]],
-                                         [pos[3] - pos[2]])
-                derivs[i, j] = (plus - minus) / (2 * epsilon)
-        return derivs
 
     # analytical derivatives in Angstrom/Angstrom, i.e. degrees/Angstrom
     distances_derivs = get_distances_derivatives([pos[1] - pos[0]])[0]

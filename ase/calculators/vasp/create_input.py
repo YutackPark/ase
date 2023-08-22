@@ -224,7 +224,6 @@ float_keys = [
     'dvvvnorm0',  # Undocumented parameter
     'dvvminpotim',  # Undocumented parameter
     'dvvmaxpotim',  # Undocumented parameter
-    'efermi',  # Undocumented parameter
     'enchg',  # Undocumented charge fitting parameter
     'tau0',  # Undocumented charge fitting parameter
     'encut4o',  # Cutoff energy for 4-center integrals (HF)
@@ -291,6 +290,7 @@ string_keys = [
     'radeq',  # Which type of radial equations to use for rel. core calcs.
     'localized_basis',  # Basis to use in CRPA
     'proutine',  # Select profiling routine
+    'efermi',  # Sets the FERMI level in VASP 6.4.0+
 ]
 
 int_keys = [
@@ -1218,7 +1218,7 @@ class GenerateVaspInput:
             if m in setups:
                 special_setup_index = m
             elif str(m) in setups:
-                special_setup_index = str(m)  # type: ignore
+                special_setup_index = str(m)  # type: ignore[assignment]
             else:
                 raise Exception("Having trouble with special setup index {0}."
                                 " Please use an int.".format(m))
@@ -1312,6 +1312,14 @@ class GenerateVaspInput:
                 pass
         return setups, special_setups
 
+    def _set_spinpol(self, atoms):
+        if self.int_params['ispin'] is None:
+            self.spinpol = atoms.get_initial_magnetic_moments().any()
+        else:
+            # VASP runs non-spin-polarized calculations when `ispin=1`,
+            # regardless if `magmom` is specified or not.
+            self.spinpol = (self.int_params['ispin'] == 2)
+
     def initialize(self, atoms):
         """Initialize a VASP calculation
 
@@ -1335,8 +1343,7 @@ class GenerateVaspInput:
         self.all_symbols = atoms.get_chemical_symbols()
         self.natoms = len(atoms)
 
-        self.spinpol = (atoms.get_initial_magnetic_moments().any()
-                        or self.int_params['ispin'] == 2)
+        self._set_spinpol(atoms)
 
         setups, special_setups = self._get_setups()
 

@@ -459,7 +459,7 @@ class MenuItem:
                                  accelerator=self.key,
                                  var=var)
 
-            def callback(key):
+            def callback(key):  # noqa: F811
                 var.set(not var.get())
                 self.callback()
 

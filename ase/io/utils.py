@@ -1,6 +1,8 @@
-import numpy as np
 from math import sqrt
 from itertools import islice
+from typing import IO
+
+import numpy as np
 
 from ase.io.formats import string2index
 from ase.utils import rotate
@@ -232,7 +234,7 @@ class ImageIterator:
     def __init__(self, ichunks):
         self.ichunks = ichunks
 
-    def __call__(self, fd, index=None, **kwargs):
+    def __call__(self, fd: IO, index=None, **kwargs):
         if isinstance(index, str):
             index = string2index(index)
 
@@ -245,7 +247,7 @@ class ImageIterator:
         for chunk in self._getslice(fd, index):
             yield chunk.build(**kwargs)
 
-    def _getslice(self, fd, indices):
+    def _getslice(self, fd: IO, indices: slice):
         try:
             iterator = islice(self.ichunks(fd),
                               indices.start, indices.stop,
@@ -259,7 +261,7 @@ class ImageIterator:
 
             startpos = fd.tell()
             nchunks = 0
-            for chunk in self.ichunks(fd):
+            for _ in self.ichunks(fd):
                 nchunks += 1
             fd.seek(startpos)
             indices_tuple = indices.indices(nchunks)

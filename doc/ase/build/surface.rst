@@ -169,13 +169,13 @@ ontop    hollow    fcc    hcp    bridge    shortbridge  longbridge
 .. |diamond100| image:: diamond100.png
 .. |diamond111| image:: diamond111.png
 
-
-This can be used for :mol:`MX_2` 2D structures such as :mol:`MoS_2`:
-
 .. autofunction:: mx2
 
 .. image:: mx2.png
 
+.. autofunction:: graphene
+
+.. image:: graphene.png
 
 Create root cuts of surfaces
 ````````````````````````````

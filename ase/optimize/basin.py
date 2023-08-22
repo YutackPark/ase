@@ -138,7 +138,7 @@ class BasinHopping(Dynamics):
 
     def get_energy(self, positions):
         """Return the energy of the nearest local minimum."""
-        if np.sometrue(self.positions != positions):
+        if np.any(self.positions != positions):
             self.positions = positions
             self.optimizable.set_positions(positions)
 

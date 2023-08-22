@@ -61,8 +61,9 @@ def test_optimize(optcls, atoms, ref_atoms, testdir):
         kw['precon'] = None
 
     fmax = 0.01
-    with optcls(atoms, logfile='opt.log', **kw) as opt:
+    with optcls(atoms, trajectory="test.traj", logfile='opt.log', **kw) as opt:
         opt.run(fmax=fmax)
+    assert opt.trajectory.filename == "test.traj"
 
     forces = atoms.get_forces()
     final_fmax = max((forces**2).sum(axis=1)**0.5)

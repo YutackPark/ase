@@ -300,9 +300,9 @@ class GUI(View, Status):
             self.bad_plot(_('Requires 3D cell.'))
             return
 
-        kwargs = dict(cell=self.atoms.cell.uncomplete(self.atoms.pbc),
-                      vectors=True)
-        return self.pipe('reciprocal', kwargs)
+        cell = self.atoms.cell.uncomplete(self.atoms.pbc)
+        bandpath = cell.bandpath(npoints=0)
+        return self.pipe('reciprocal', bandpath)
 
     def open(self, button=None, filename=None):
         chooser = ui.ASEFileChooser(self.window.win)

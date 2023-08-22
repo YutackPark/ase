@@ -392,3 +392,24 @@ def test_write_read_charges(at, tmpdir, enable_initial_charges, enable_charges):
         assert np.allclose(r.get_initial_charges(), initial_charges)
     if enable_charges:
         assert np.allclose(r.get_charges(), charges)
+
+
+@pytest.mark.parametrize("pbc,atoms_pbc", (
+    ("True True True", [True, True, True]),
+    ("True True False", [True, True, False]),
+    ("False false T", [False, False, True]),
+    ("True true T", [True, True, True]),
+    ("True false T", [True, False, True]),
+    ("F F F", [False, False, False]),
+    ("T T F", [True, True, False]),
+    ("True", [True, True, True]),
+    ("False", [False, False, False]),
+))
+def test_pbc_property(pbc, atoms_pbc):
+    """Test various specifications of the ``pbc`` property."""
+    Path('pbc-test.xyz').write_text(f"""2
+Lattice="3.608 0.0 0.0 -1.804 3.125 0.0 0.0 0.0 21.3114930844" pbc="{pbc}"
+As           1.8043384632       1.0417352974      11.3518747709
+As          -0.0000000002       2.0834705948       9.9596183135""")
+    atoms = ase.io.read('pbc-test.xyz')
+    assert (atoms.pbc == atoms_pbc).all()

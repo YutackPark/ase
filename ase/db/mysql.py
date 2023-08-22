@@ -64,12 +64,13 @@ class MySQLCursor:
         (' key TEXT', ' attribute_key TEXT'),
         ('(key TEXT', '(attribute_key TEXT'),
         ('SELECT key FROM', 'SELECT attribute_key FROM'),
+        ('SELECT DISTINCT key FROM keys',
+         'SELECT DISTINCT attribute_key FROM attribute_keys'),
         ('?', '%s'),
         (' keys ', ' attribute_keys '),
         (' key=', ' attribute_key='),
         ('table.key', 'table.attribute_key'),
-        (' IF NOT EXISTS', '')
-    ]
+        (' IF NOT EXISTS', '')]
 
     def __init__(self, cur):
         self.cur = cur

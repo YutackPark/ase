@@ -1196,6 +1196,18 @@ def identify_lattice(cell, eps=2e-4, *, pbc=True):
                 best_defect = defect
 
         if best is not None:
+            if npbc == 2:
+                # The 3x3 operation may flip the z axis, but then the x/y
+                # components are necessarily also left-handed which
+                # means a defacto left-handed 2D bandpath.
+                #
+                # We repair this by applying an operation that unflips the
+                # z axis and interchanges x/y:
+                if op[2, 2] < 0:
+                    repair_op = np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]])
+                    op = repair_op @ op
+                    best = lat, op
+
             return best
 
     raise RuntimeError('Failed to recognize lattice')

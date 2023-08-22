@@ -48,6 +48,57 @@ class CalculatorTemplate(ABC):
     def read_results(self, directory: PathLike) -> Mapping[str, Any]:
         ...
 
+    def socketio_calculator(
+            self, profile, parameters, directory,
+            # We may need quite a few socket kwargs here
+            # if we want to expose all the timeout etc. from
+            # SocketIOCalculator.
+            unixsocket=None, port=None):
+        import os
+        from subprocess import Popen
+        from ase.calculators.socketio import SocketIOCalculator
+
+        if port and unixsocket:
+            raise TypeError('For the socketio_calculator only a UNIX '
+                            '(unixsocket) or INET (port) socket can be used'
+                            ' not both.')
+
+        if not port and not unixsocket:
+            raise TypeError('For the socketio_calculator either a '
+                            'UNIX (unixsocket) or INET (port) socket '
+                            'must be used')
+
+        if not (hasattr(self, 'socketio_argv')
+                and hasattr(self, 'socketio_parameters')):
+            raise TypeError(
+                f'Template {self} does not implement mandatory '
+                'socketio_argv() and socketio_parameters()')
+
+        # XXX need socketio ABC or something
+        argv = self.socketio_argv(profile, unixsocket, port)
+        parameters = {
+            **self.socketio_parameters(unixsocket, port),
+            **parameters
+        }
+
+        # Not so elegant that socket args are passed to this function
+        # via socketiocalculator when we could make a closure right here.
+        def launch(atoms, properties, port, unixsocket):
+            directory.mkdir(exist_ok=True, parents=True)
+
+            self.write_input(
+                atoms=atoms,
+                parameters=parameters,
+                properties=properties,
+                directory=directory)
+
+            with open(directory / self.outputname, 'w') as out_fd:
+                return Popen(argv, stdout=out_fd, cwd=directory,
+                             env=os.environ)
+
+        return SocketIOCalculator(launch_client=launch,
+                                  unixsocket=unixsocket, port=port)
+
 
 class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
     def __init__(self, *, template, profile, directory, parameters=None):
@@ -93,3 +144,10 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
 
     def _outputmixin_get_results(self):
         return self.results
+
+    def socketio(self, **socketkwargs):
+        return self.template.socketio_calculator(
+            directory=self.directory,
+            parameters=self.parameters,
+            profile=self.profile,
+            **socketkwargs)

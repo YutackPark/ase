@@ -45,13 +45,6 @@ class EspressoProfile:
         with open(directory / outputfile, 'wb') as fd:
             check_call(argv, cwd=directory, stdout=fd, env=os.environ)
 
-    def socketio_argv_unix(self, socket):
-        template = EspressoTemplate()
-        # It makes sense to know the template for this kind of choices,
-        # but is there a better way?
-        return list(self.argv) + ['--ipi', f'{socket}:UNIX', '-in',
-                                  template.inputname]
-
 
 class EspressoTemplate(CalculatorTemplate):
     def __init__(self):
@@ -75,6 +68,16 @@ class EspressoTemplate(CalculatorTemplate):
         path = directory / self.outputname
         atoms = read(path, format='espresso-out')
         return dict(atoms.calc.properties())
+
+    def socketio_parameters(self, unixsocket, port):
+        return {}
+
+    def socketio_argv(self, profile, unixsocket, port):
+        if unixsocket:
+            ipi_arg = f'{unixsocket}:UNIX'
+        else:
+            ipi_arg = f'localhost:{port:d}'  # XXX should take host, too
+        return [*profile.argv, '-in', self.inputname, '--ipi', ipi_arg]
 
 
 class Espresso(GenericFileIOCalculator):
