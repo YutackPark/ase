@@ -161,14 +161,15 @@ class AimsTemplate(CalculatorTemplate):
 
     def socketio_parameters(self, unixsocket, port):
         if port:
-            use_pimd_wrapper=('localhost', port),
+            use_pimd_wrapper = ('localhost', port),
         else:
             # (INET port number should be unused.)
-            use_pimd_wrapper=(f'UNIX:{unixsocket}', 31415),
+            use_pimd_wrapper = (f'UNIX:{unixsocket}', 31415),
 
         return dict(
             use_pimd_wrapper=use_pimd_wrapper,
             compute_forces=True)
+
 
 class Aims(GenericFileIOCalculator):
     def __init__(self, profile=None, directory='.', **kwargs):
