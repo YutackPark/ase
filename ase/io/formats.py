@@ -594,6 +594,10 @@ def open_with_compression(filename: str, mode: str = 'r') -> IO:
 def is_compressed(fd: io.BufferedIOBase) -> bool:
     """Check if the file object is in a compressed format."""
     compressed = False
+
+    # We'd like to avoid triggering imports unless already imported.
+    # Also, Python can be compiled without e.g. lzma so we need to
+    # protect against that:
     if 'gzip' in sys.modules:
         import gzip
         compressed = compressed or isinstance(fd, gzip.GzipFile)
