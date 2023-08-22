@@ -76,8 +76,14 @@ class AbinitTemplate(CalculatorTemplate):
     def read_results(self, directory):
         return io.read_abinit_outputs(directory, self._label)
 
-    def socketio_argv(self, profile, unixsocket):
-        return [*profile.argv, self.inputname, '--ipi', f'{unixsocket}:UNIX']
+    def socketio_argv(self, profile, unixsocket, port):
+        # XXX This handling of --ipi argument is used by at least two
+        # calculators, should refactor if needed yet again
+        if unixsocket:
+            ipi_arg = f'{unixsocket}:UNIX'
+        else:
+            ipi_arg = f'localhost:{port:d}'
+        return [*profile.argv, self.inputname, '--ipi', ipi_arg]
 
     def socketio_parameters(self, unixsocket, port):
         return dict(ionmov=28, expert_user=1, optcell=2)

@@ -69,7 +69,7 @@ class CalculatorTemplate(ABC):
                              'must be used')
 
         # XXX need socketio ABC or something
-        argv = self.socketio_argv(profile, unixsocket)
+        argv = self.socketio_argv(profile, unixsocket, port)
         parameters = {
             **self.socketio_parameters(unixsocket, port),
             **parameters

@@ -72,13 +72,13 @@ class EspressoTemplate(CalculatorTemplate):
     def socketio_parameters(self, unixsocket, port):
         return {}
 
-    def socketio_argv(self, profile, unixsocket):
-        if unixsocket is not None:
+    def socketio_argv(self, profile, unixsocket, port):
+        if unixsocket:
             ipi_arg = f'{unixsocket}:UNIX'
         else:
-            xxxxxxxxxxxxx
-            ipi_arg = f'{host:s}:{port:d}'
+            ipi_arg = f'localhost:{port:d}'  # XXX should take host, too
         return [*profile.argv, '-in', self.inputname, '--ipi', ipi_arg]
+
 
 class Espresso(GenericFileIOCalculator):
     def __init__(self, *, profile=None,
