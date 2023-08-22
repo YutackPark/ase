@@ -78,20 +78,20 @@ class AbinitFactory:
         assert kw['pp_paths'] is not None
         return Abinit(profile=profile, **kw)
 
-    def socketio_kwargs(self, unixsocket):
-        return dict(
-            ionmov=28,
-            expert_user=1,
-            optcell=2,
-            tolmxf=1e-300,
-            ntime=100_000,
-            ecutsm=0.5,
-            ecut=200)
-
     @classmethod
     def fromconfig(cls, config):
         return AbinitFactory(config.executables['abinit'],
                              config.datafiles['abinit'])
+
+    def socketio(self, unixsocket, **kwargs):
+        kwargs = {
+            'tolmxf': 1e-300,
+            'ntime': 100_000,
+            'ecutsm': 0.5,
+            'ecut': 200,
+            **kwargs}
+
+        return self.calc(**kwargs).socketio(unixsocket=unixsocket)
 
 
 @factory('aims')
@@ -107,12 +107,6 @@ class AimsFactory:
         profile = AimsProfile([self.executable])
         return Aims(profile=profile, **kwargs1)
 
-    def socketio_kwargs(self, unixsocket):
-        return dict(
-            # (INET port number should be unused.)
-            use_pimd_wrapper=(f'UNIX:{unixsocket}', 31415),
-            compute_forces=True)
-
     def version(self):
         from ase.calculators.aims import get_aims_version
         txt = read_stdout([self.executable])
@@ -121,6 +115,9 @@ class AimsFactory:
     @classmethod
     def fromconfig(cls, config):
         return cls(config.executables['aims'])
+
+    def socketio(self, unixsocket, **kwargs):
+        return self.calc(**kwargs).socketio(unixsocket=unixsocket)
 
 
 @factory('asap')
@@ -283,9 +280,8 @@ class EspressoFactory:
                         pseudopotentials=pseudopotentials,
                         **kw)
 
-    def socketio_kwargs(self, unixsocket):
-        # No boilerplate needed for QE socketio
-        return {}
+    def socketio(self, unixsocket, **kwargs):
+        return self.calc(**kwargs).socketio(unixsocket=unixsocket)
 
     @classmethod
     def fromconfig(cls, config):
@@ -827,6 +823,9 @@ class CalculatorInputs:
         return CalculatorInputs(self.factory, kw)
 
     def socketio(self, unixsocket, **kwargs):
+        if hasattr(self.factory, 'socketio'):
+            kwargs = {**self.parameters, **kwargs}
+            return self.factory.socketio(unixsocket, **kwargs)
         from ase.calculators.socketio import SocketIOCalculator
         kwargs = {**self.factory.socketio_kwargs(unixsocket),
                   **self.parameters,
