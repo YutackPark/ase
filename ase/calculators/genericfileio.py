@@ -59,14 +59,20 @@ class CalculatorTemplate(ABC):
         from ase.calculators.socketio import SocketIOCalculator
 
         if port and unixsocket:
-            raise ValueError('For the socketio_calculator only a UNIX '
-                             '(unixsocket) or INET (port) socket can be used'
-                             ' not both.')
+            raise TypeError('For the socketio_calculator only a UNIX '
+                            '(unixsocket) or INET (port) socket can be used'
+                            ' not both.')
 
         if not port and not unixsocket:
-            raise ValueError('For the socketio_calculator either a '
-                             'UNIX (unixsocket) or INET (port) socket '
-                             'must be used')
+            raise TypeError('For the socketio_calculator either a '
+                            'UNIX (unixsocket) or INET (port) socket '
+                            'must be used')
+
+        if not (hasattr(self, 'socketio_argv')
+                and hasattr(self, 'socketio_parameters')):
+            raise TypeError(
+                f'Template {self} does not implement mandatory '
+                'socketio_argv() and socketio_parameters()')
 
         # XXX need socketio ABC or something
         argv = self.socketio_argv(profile, unixsocket, port)
@@ -140,11 +146,6 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
         return self.results
 
     def socketio(self, **socketkwargs):
-        if not hasattr(self.template, 'socketio_calculator'):
-            raise TypeError(
-                f'Template {self.template} does not implement '
-                'socketio_calculator()')
-
         return self.template.socketio_calculator(
             directory=self.directory,
             parameters=self.parameters,
