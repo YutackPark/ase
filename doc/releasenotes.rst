@@ -207,6 +207,9 @@ Thermochemistry:
 
 I/O:
 
+* Fix to read and write a compressed trajectory file like `xxx.traj.gz`
+  (:mr:`2997`)
+
 * Fix `index` of :func:`ase.io.vasp.read_vasp_xdatcar` to be consistent with
   :func:`ase.io.read` (:mr:`2993`)
 
