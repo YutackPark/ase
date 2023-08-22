@@ -77,6 +77,8 @@ class LAMMPS(Calculator):
     always_triclinic: bool
         Force use of a triclinic cell in LAMMPS, even if the cell is
         a perfect parallelepiped.
+    reduce_cell: bool
+        Reduce cell to have shorter lattice vectors. By default False.
 
         **Example**
 
@@ -118,6 +120,7 @@ potentials)
         specorder=None,
         atorder=True,
         always_triclinic=False,
+        reduce_cell=False,
         keep_alive=True,
         keep_tmp_files=False,
         no_data_file=False,
@@ -328,6 +331,7 @@ potentials)
                 self.atoms,
                 specorder=self.parameters['specorder'],
                 force_skew=self.parameters['always_triclinic'],
+                reduce_cell=self.parameters['reduce_cell'],
                 velocities=self.parameters['write_velocities'],
                 prismobj=self.prism,
                 units=self.parameters['units'],

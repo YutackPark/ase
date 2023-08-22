@@ -210,6 +210,11 @@ I/O:
 * Fix `index` of :func:`ase.io.vasp.read_vasp_xdatcar` to be consistent with
   :func:`ase.io.read` (:mr:`2993`)
 
+* Change `write_lammps_data` not to reshape the cell by default (:mr:`2986`)
+
+* Fix :func:`ase.io.lammpsdata.write_lammps_data` to tilt the cell correctly
+  (:mr:`2986`)
+
 * GaussView-formatted `.mol` files can now be read (:mr:`2956`)
 
 * Reading of "chemical json" file types is assigned to names ``*.cjson``
