@@ -245,8 +245,10 @@ class IOFormat:
             return match is not None
 
         from fnmatch import fnmatchcase
-        return any(fnmatchcase(data, magic + b'*')  # type: ignore
-                   for magic in self.magic)
+        return any(
+            fnmatchcase(data, magic + b'*')  # type: ignore[operator, type-var]
+            for magic in self.magic
+        )
 
 
 ioformats: Dict[str, IOFormat] = {}  # These will be filled at run-time.
@@ -306,7 +308,7 @@ def get_ioformat(name: str) -> IOFormat:
 
 def register_external_io_formats(group):
     if hasattr(entry_points(), 'select'):
-        fmt_entry_points = entry_points().select(group=group)  # type: ignore
+        fmt_entry_points = entry_points().select(group=group)
     else:
         fmt_entry_points = entry_points().get(group, ())
 
@@ -329,7 +331,7 @@ def define_external_io_format(entry_point):
         raise TypeError('Wrong type for registering external IO formats '
                         f'in format {entry_point.name}, expected '
                         'ExternalIOFormat')
-    F(entry_point.name, **fmt._asdict(), external=True)  # type: ignore
+    F(entry_point.name, **fmt._asdict(), external=True)
 
 
 # We define all the IO formats below.  Each IO format has a code,
@@ -579,16 +581,35 @@ def open_with_compression(filename: str, mode: str = 'r') -> IO:
 
     if compression == 'gz':
         import gzip
-        return gzip.open(filename, mode=mode)  # type: ignore
+        return gzip.open(filename, mode=mode)  # type: ignore[return-value]
     elif compression == 'bz2':
         import bz2
-        return bz2.open(filename, mode=mode)  # type: ignore
+        return bz2.open(filename, mode=mode)
     elif compression == 'xz':
         import lzma
         return lzma.open(filename, mode)
     else:
         # Either None or unknown string
         return open(filename, mode)
+
+
+def is_compressed(fd: io.BufferedIOBase) -> bool:
+    """Check if the file object is in a compressed format."""
+    compressed = False
+
+    # We'd like to avoid triggering imports unless already imported.
+    # Also, Python can be compiled without e.g. lzma so we need to
+    # protect against that:
+    if 'gzip' in sys.modules:
+        import gzip
+        compressed = compressed or isinstance(fd, gzip.GzipFile)
+    if 'bz2' in sys.modules:
+        import bz2
+        compressed = compressed or isinstance(fd, bz2.BZ2File)
+    if 'lzma' in sys.modules:
+        import lzma
+        compressed = compressed or isinstance(fd, lzma.LZMAFile)
+    return compressed
 
 
 def wrap_read_function(read, filename, index=None, **kwargs):
@@ -647,19 +668,19 @@ def write(
         fd = None
         if filename == '-':
             fd = sys.stdout
-            filename = None  # type: ignore
+            filename = None  # type: ignore[assignment]
         elif format is None:
             format = filetype(filename, read=False)
             assert isinstance(format, str)
     else:
-        fd = filename  # type: ignore
+        fd = filename  # type: ignore[assignment]
         if format is None:
             try:
                 format = filetype(filename, read=False)
                 assert isinstance(format, str)
             except UnknownFileTypeError:
                 format = None
-        filename = None  # type: ignore
+        filename = None  # type: ignore[assignment]
 
     format = format or 'json'  # default is json
 
@@ -920,7 +941,7 @@ def filetype(
 
     orig_filename = filename
     if hasattr(filename, 'name'):
-        filename = filename.name  # type: ignore
+        filename = filename.name
 
     ext = None
     if isinstance(filename, str):
@@ -959,9 +980,9 @@ def filetype(
         if orig_filename == filename:
             fd = open_with_compression(filename, 'rb')
         else:
-            fd = orig_filename  # type: ignore
+            fd = orig_filename  # type: ignore[assignment]
     else:
-        fd = filename    # type: ignore
+        fd = filename
         if fd is sys.stdin:
             return 'json'
 
@@ -972,7 +993,7 @@ def filetype(
         fd.seek(0)
 
     if len(data) == 0:
-        raise UnknownFileTypeError('Empty file: ' + filename)    # type: ignore
+        raise UnknownFileTypeError('Empty file: ' + filename)
 
     try:
         return match_magic(data).name

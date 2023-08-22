@@ -226,6 +226,7 @@ class FileIOSocketClientLauncher:
         profile = getattr(self.calc, 'profile', None)
         if profile is not None:
             # New GenericFileIOCalculator:
+
             self.calc.write_inputfiles(atoms, properties)
             if unixsocket is not None:
                 argv = profile.socketio_argv_unix(socket=unixsocket)

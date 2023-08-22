@@ -64,6 +64,9 @@ def test_au(factory, pps):
     atoms_gsr = dict_gsr["atoms"]
     assert atoms_gsr.cell == pytest.approx(atoms.cell, 1e-5)
     assert atoms_gsr.positions == pytest.approx(atoms.positions, 1e-5)
+    assert atoms_gsr.get_potential_energy() == pytest.approx(dict_gsr['energy'])
+    assert atoms_gsr.get_forces() == pytest.approx(dict_gsr['forces'])
+    assert atoms_gsr.get_stress() == pytest.approx(dict_gsr['stress'])
 
     for key in required_quantities:
         assert dict_gsr[key] == pytest.approx(dict_abo[key], 1e-3)

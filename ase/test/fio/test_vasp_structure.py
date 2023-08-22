@@ -1,14 +1,15 @@
 # type: ignore
+import io
 import os
-import numpy as np
-import numpy.testing
 import unittest
+
+import numpy as np
 import pytest
 
 import ase
 import ase.build
 import ase.io
-from ase.io.vasp import write_vasp_xdatcar
+from ase.io.vasp import read_vasp_xdatcar, write_vasp_xdatcar
 from ase.calculators.calculator import compare_atoms
 from ase.constraints import constrained_indices
 from ase.constraints import FixAtoms, FixScaled, FixedPlane, FixedLine
@@ -83,6 +84,32 @@ def test_wrap():
     new_atoms = ase.io.read('POSCAR')
     atoms.wrap()
     assert np.allclose(atoms.positions, new_atoms.positions)
+
+
+def test_index():
+    """Test if the `index` option works correctly"""
+    atoms0 = ase.build.bulk('X', 'sc', a=1.0)
+    atoms1 = atoms0.copy()
+    atoms1.positions += 0.1
+    images = (atoms0, atoms1)
+    with io.StringIO() as buf:
+        write_vasp_xdatcar(buf, images)
+
+        buf.seek(0)
+        atoms = read_vasp_xdatcar(buf, index=0)  # atoms0
+        np.testing.assert_allclose(atoms.positions, [[0.0, 0.0, 0.0]])
+
+        buf.seek(0)
+        atoms = read_vasp_xdatcar(buf, index=-1)  # atoms1
+        np.testing.assert_allclose(atoms.positions, [[0.1, 0.1, 0.1]])
+
+        buf.seek(0)
+        images = read_vasp_xdatcar(buf, index=None)  # atoms1
+        np.testing.assert_allclose(atoms.positions, [[0.1, 0.1, 0.1]])
+
+        buf.seek(0)
+        images = read_vasp_xdatcar(buf, index=':')  # (atoms0, atoms1)
+        assert isinstance(images, list)
 
 
 # Start of tests for constraints

@@ -33,7 +33,7 @@ class ACE(FileIOCalculator):
     }]
 
     order_list = ['BasicInformation', 'Guess', 'Scf']
-    guess_list = [{}]  # type: ignore
+    guess_list = [{}]  # type: ignore[var-annotated]
     default_parameters = {'BasicInformation': basic_list, 'Guess': guess_list,
                           'Scf': scf_list, 'Force': force_list,
                           'TDDFT': tddft_list, 'order': order_list}

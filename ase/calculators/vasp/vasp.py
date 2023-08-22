@@ -39,7 +39,7 @@ from ase.calculators.vasp.create_input import GenerateVaspInput
 from ase.vibrations.data import VibrationsData
 
 
-class Vasp(GenerateVaspInput, Calculator):  # type: ignore
+class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
     """ASE interface for the Vienna Ab initio Simulation Package (VASP),
     with the Calculator interface.
 
@@ -1014,7 +1014,7 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore
         # Read that occurrence
         if nidx > -1:
             for m in range(len(self.atoms)):
-                magnetic_moments[m] = float(lines[nidx + m + 4].split()[4])
+                magnetic_moments[m] = float(lines[nidx + m + 4].split()[-1])
         return magnetic_moments[self.resort]
 
     def _read_magnetic_moment(self, lines=None):

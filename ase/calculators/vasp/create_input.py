@@ -1218,7 +1218,7 @@ class GenerateVaspInput:
             if m in setups:
                 special_setup_index = m
             elif str(m) in setups:
-                special_setup_index = str(m)  # type: ignore
+                special_setup_index = str(m)  # type: ignore[assignment]
             else:
                 raise Exception("Having trouble with special setup index {0}."
                                 " Please use an int.".format(m))

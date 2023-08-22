@@ -10,7 +10,7 @@ import os
 import sys
 
 
-class VaspInteractive(GenerateVaspInput, Calculator):  # type: ignore
+class VaspInteractive(GenerateVaspInput, Calculator):  # type: ignore[misc]
     name = "VaspInteractive"
     implemented_properties = ['energy', 'forces', 'stress']
 

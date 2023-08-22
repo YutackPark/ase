@@ -369,6 +369,7 @@ def write_lammps_data(
     atoms: Atoms,
     *,
     specorder: list = None,
+    reduce_cell: bool = False,
     force_skew: bool = False,
     prismobj: Prism = None,
     masses: bool = False,
@@ -390,6 +391,8 @@ def write_lammps_data(
         Force to write the cell as a
         `triclinic <https://docs.lammps.org/Howto_triclinic.html>`__ box,
         by default False
+    reduce_cell : bool, optional
+        Whether the cell shape is reduced or not, by default False
     prismobj : Prism|None, optional
         Prism, by default None
     masses : bool, optional
@@ -434,7 +437,7 @@ def write_lammps_data(
     fd.write(f"{n_atom_types} atom types\n\n")
 
     if prismobj is None:
-        p = Prism(atoms.get_cell())
+        p = Prism(atoms.get_cell(), reduce_cell=reduce_cell)
     else:
         p = prismobj
 

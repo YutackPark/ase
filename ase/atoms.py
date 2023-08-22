@@ -293,12 +293,12 @@ class Atoms:
         if hasattr(calc, 'set_atoms'):
             calc.set_atoms(self)
 
-    @calc.deleter  # type: ignore
+    @calc.deleter
     @deprecated(DeprecationWarning('Please use atoms.calc = None'))
     def calc(self):
         self._calc = None
 
-    @property  # type: ignore
+    @property
     @deprecated('Please use atoms.cell.rank instead')
     def number_of_lattice_vectors(self):
         """Number of (non-zero) lattice vectors."""
