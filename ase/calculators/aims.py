@@ -159,10 +159,15 @@ class AimsTemplate(CalculatorTemplate):
     def socketio_argv(self, profile, unixsocket):
         return [*profile.argv]
 
-    def socketio_parameters(self, unixsocket):
-        return dict(
+    def socketio_parameters(self, unixsocket, port):
+        if port:
+            use_pimd_wrapper=('localhost', port),
+        else:
             # (INET port number should be unused.)
             use_pimd_wrapper=(f'UNIX:{unixsocket}', 31415),
+
+        return dict(
+            use_pimd_wrapper=use_pimd_wrapper,
             compute_forces=True)
 
 class Aims(GenericFileIOCalculator):

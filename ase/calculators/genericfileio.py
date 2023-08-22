@@ -53,14 +53,27 @@ class CalculatorTemplate(ABC):
             # We may need quite a few socket kwargs here
             # if we want to expose all the timeout etc. from
             # SocketIOCalculator.
-            unixsocket):
+            unixsocket, port):
         import os
         from subprocess import Popen
         from ase.calculators.socketio import SocketIOCalculator
 
+        if port and unixsocket:
+            raise ValueError('For the socketio_calculator only a UNIX '
+                             '(unixsocket) or INET (port) socket can be used'
+                             ' not both.')
+
+        if not port and not unixsocket:
+            raise ValueError('For the socketio_calculator either a '
+                             'UNIX (unixsocket) or INET (port) socket '
+                             'must be used')
+
         # XXX need socketio ABC or something
         argv = self.socketio_argv(profile, unixsocket)
-        parameters = {**self.socketio_parameters(unixsocket), **parameters}
+        parameters = {
+            **self.socketio_parameters(unixsocket, port),
+            **parameters
+        }
 
         # Not so elegant that socket args are passed to this function
         # via socketiocalculator when we could make a closure right here.
@@ -77,7 +90,8 @@ class CalculatorTemplate(ABC):
                 return Popen(argv, stdout=out_fd, cwd=directory,
                              env=os.environ)
 
-        return SocketIOCalculator(launch_client=launch, unixsocket=unixsocket)
+        return SocketIOCalculator(launch_client=launch,
+                                  unixsocket=unixsocket, port=port)
 
 
 class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
