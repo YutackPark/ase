@@ -119,6 +119,7 @@ class AimsFactory:
     def socketio(self, unixsocket, **kwargs):
         return self.calc(**kwargs).socketio(unixsocket=unixsocket)
 
+
 @factory('asap')
 class AsapFactory:
     importname = 'asap3'
