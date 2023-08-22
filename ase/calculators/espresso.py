@@ -69,7 +69,7 @@ class EspressoTemplate(CalculatorTemplate):
         atoms = read(path, format='espresso-out')
         return dict(atoms.calc.properties())
 
-    def socketio_parameters(self, unixsocket):
+    def socketio_parameters(self, unixsocket, port):
         return {}
 
     def socketio_argv(self, profile, unixsocket):

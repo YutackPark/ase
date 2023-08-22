@@ -79,7 +79,7 @@ class AbinitTemplate(CalculatorTemplate):
     def socketio_argv(self, profile, unixsocket):
         return [*profile.argv, self.inputname, '--ipi', f'{unixsocket}:UNIX']
 
-    def socketio_parameters(self, unixsocket):
+    def socketio_parameters(self, unixsocket, port):
         return dict(ionmov=28, expert_user=1, optcell=2)
 
 
