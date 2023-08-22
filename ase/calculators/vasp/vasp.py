@@ -39,7 +39,7 @@ from ase.calculators.vasp.create_input import GenerateVaspInput
 from ase.vibrations.data import VibrationsData
 
 
-class Vasp(GenerateVaspInput, Calculator):  # type: ignore
+class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
     """ASE interface for the Vienna Ab initio Simulation Package (VASP),
     with the Calculator interface.
 

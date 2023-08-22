@@ -2485,7 +2485,7 @@ class CastepOption:
         # The value, not converted to a string
         return self._value
 
-    @value.setter  # type: ignore
+    @value.setter  # type: ignore[attr-defined, no-redef]
     def value(self, val):
 
         if val is None:

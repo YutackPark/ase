@@ -59,7 +59,7 @@ def update(path: Path,
 
     for command, module_name in subcommands:
         module = import_module(module_name)
-        module.CLICommand.add_arguments(Subparser(command))  # type: ignore
+        module.CLICommand.add_arguments(Subparser(command))
 
     txt = 'commands = {'
     for command, opts in sorted(dct.items()):

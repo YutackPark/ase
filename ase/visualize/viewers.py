@@ -193,12 +193,12 @@ def define_external_viewer(entry_point):
             "ExternalViewer"
         )
     define_viewer(entry_point.name, **viewer_def._asdict(),
-                  external=True)  # type: ignore
+                  external=True)
 
 
 def register_external_viewer_formats(group):
     if hasattr(entry_points(), "select"):
-        viewer_entry_points = entry_points().select(group=group)  # type: ignore
+        viewer_entry_points = entry_points().select(group=group)
     else:
         viewer_entry_points = entry_points().get(group, ())
 
