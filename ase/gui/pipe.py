@@ -12,7 +12,6 @@ def main():
         forcefit = data
         forcefit.plot()
     elif task == 'reciprocal':
-        from ase.dft.bz import bz_plot
         # data is a bandpath object
         data.plot()
     elif task == 'graph':
