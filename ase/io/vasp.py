@@ -3,17 +3,17 @@ This module contains functionality for reading and writing an ASE
 Atoms object in VASP POSCAR format.
 
 """
-
 import re
+from pathlib import Path
 
 import numpy as np
 
 from ase import Atoms
 from ase.utils import reader, writer
-from ase.io.utils import ImageIterator
 from ase.io import ParseError
+from ase.io.formats import string2index
+from ase.io.utils import ImageIterator
 from .vasp_parsers import vasp_outcar_parsers as vop
-from pathlib import Path
 
 __all__ = [
     'read_vasp', 'read_vasp_out', 'iread_vasp_out', 'read_vasp_xdatcar',
@@ -277,14 +277,18 @@ def read_vasp_out(filename='OUTCAR', index=-1):
 
 @reader
 def read_vasp_xdatcar(filename='XDATCAR', index=-1):
-    """Import XDATCAR file
+    """Import XDATCAR file.
 
-       Reads all positions from the XDATCAR and returns a list of
-       Atoms objects.  Useful for viewing optimizations runs
-       from VASP5.x
+    Parameters
+    ----------
+    index : int or slice or str
+        Which frame(s) to read. The default is -1 (last frame).
+        See :func:`ase.io.read` for details.
 
-       Constraints ARE NOT stored in the XDATCAR, and as such, Atoms
-       objects retrieved from the XDATCAR will not have constraints set.
+    Notes
+    -----
+    Constraints ARE NOT stored in the XDATCAR, and as such, Atoms objects
+    retrieved from the XDATCAR will not have constraints.
     """
     fd = filename  # @reader decorator ensures this is a file descriptor
     images = []
@@ -323,10 +327,13 @@ def read_vasp_xdatcar(filename='XDATCAR', index=-1):
         image.set_scaled_positions(np.array(coords))
         images.append(image)
 
-    if not index:
-        return images
-    else:
-        return images[index]
+    if index is None:
+        index = -1
+
+    if isinstance(index, str):
+        index = string2index(index)
+
+    return images[index]
 
 
 def __get_xml_parameter(par):

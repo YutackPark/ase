@@ -207,6 +207,9 @@ Thermochemistry:
 
 I/O:
 
+* Fix `index` of :func:`ase.io.vasp.read_vasp_xdatcar` to be consistent with
+  :func:`ase.io.read` (:mr:`2993`)
+
 * GaussView-formatted `.mol` files can now be read (:mr:`2956`)
 
 * Reading of "chemical json" file types is assigned to names ``*.cjson``
