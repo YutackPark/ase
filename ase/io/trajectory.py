@@ -417,6 +417,10 @@ def read_traj(fd, index):
 @contextlib.contextmanager
 def defer_compression(fd):
     """Defer the file compression until all the configurations are read."""
+    # We do this because the trajectory and compressed-file
+    # internals do not play well together.
+    # Be advised not to defer compression of very long trajectories
+    # as they use a lot of memory.
     if is_compressed(fd):
         with io.BytesIO() as bytes_io:
             try:
