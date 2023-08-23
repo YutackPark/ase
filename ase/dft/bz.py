@@ -1,3 +1,4 @@
+from typing import Dict, Any
 from math import pi, sin, cos
 import numpy as np
 
@@ -60,7 +61,7 @@ class FlatPlot:
 class SpacePlot:
     """Helper class for ordinary (3D) Brillouin zone plots."""
     axis_dim = 3
-    point_options = {}
+    point_options: Dict[str, Any] = {}
 
     def __init__(self, *, elev=None):
         from mpl_toolkits.mplot3d import Axes3D
