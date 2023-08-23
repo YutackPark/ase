@@ -5,7 +5,7 @@ from ase.build import fcc111
 
 @pytest.mark.calculator_lite
 @pytest.mark.calculator('lammpsrun')
-def test_Pt_md_constraints_multistep(factory, pt_eam_potential_file):
+def test_Pt_md_constraints_multistep(factory):
     slab = fcc111('Pt', size=(2, 2, 5), vacuum=30.0)
     # We use fully periodic boundary conditions because the Lammpsrun
     # calculator does not know if it can convert the cell correctly with
@@ -14,10 +14,9 @@ def test_Pt_md_constraints_multistep(factory, pt_eam_potential_file):
 
     params = {}
     params['pair_style'] = 'eam'
-    params['pair_coeff'] = ['1 1 {}'.format(pt_eam_potential_file)]
-
-    with factory.calc(specorder=['Pt'], files=[str(pt_eam_potential_file)],
-                      **params) as calc:
+    params['pair_coeff'] = ['1 1 Pt_u3.eam']
+    files = [f'{factory.factory.potentials_path}/Pt_u3.eam']
+    with factory.calc(specorder=['Pt'], files=files, **params) as calc:
         slab.calc = calc
 
         assert_allclose(slab.get_potential_energy(), -110.3455014595596,
