@@ -339,7 +339,7 @@ def _read_atoms_section(fileobj, natoms: int, style: str = None):
             pos_in[atom_id] = tuple(float(fields[_]) for _ in (3, 4, 5))
             charge_in[atom_id] = float(fields[2])
             if len(fields) == 9:
-                travel_in[atom_id] = tuple(int(fields(_)) for _ in (6, 7, 8))
+                travel_in[atom_id] = tuple(int(fields[_]) for _ in (6, 7, 8))
         else:
             raise RuntimeError(
                 "Style '{}' not supported or invalid "
