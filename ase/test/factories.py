@@ -691,6 +691,20 @@ class Factories:
         'turbomole',
     }
 
+    # Calculators requiring ase-datafiles.
+    # TODO: So far hard-coded but should be automatically detected.
+    datafile_calculators = {
+        'abinit',
+        'dftb',
+        'elk',
+        'espresso',
+        'eam',
+        'lammpsrun',
+        'lammpslib',
+        'openmx',
+        'siesta',
+    }
+
     def __init__(self, requested_calculators):
         executable_config_paths, executables = get_testing_executables()
         assert isinstance(executables, Mapping), executables

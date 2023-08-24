@@ -258,6 +258,9 @@ def factory(request, factories):
         pytest.skip(f'Not installed: {name}')
     if not factories.enabled(name):
         pytest.skip(f'Not enabled: {name}')
+    if name in factories.builtin_calculators & factories.datafile_calculators:
+        if not factories.datafiles_module:
+            pytest.skip('ase-datafiles package not installed')
     factory = factories[name]
     return CalculatorInputs(factory, kwargs)
 
