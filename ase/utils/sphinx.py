@@ -73,7 +73,7 @@ def creates():
             # Skip files in the build/ folder
             continue
 
-        for filename in filenames:
+        for filename in sorted(filenames):
             if filename.endswith('.py'):
                 path = join(dirpath, filename)
                 with open(path) as fd:
