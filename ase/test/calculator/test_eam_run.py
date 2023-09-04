@@ -5,6 +5,7 @@ from ase.build import fcc111
 
 
 @pytest.mark.calculator('eam')
+@pytest.mark.calculator_lite
 def test_eam_run(factory):
     with open(f'{factory.factory.potentials_path}/Pt_u3.eam') as fd:
         eam = factory.calc(potential=fd, form='eam', elements=['Pt'])
