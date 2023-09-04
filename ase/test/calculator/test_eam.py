@@ -1,5 +1,4 @@
 import numpy as np
-import pytest
 
 from ase.calculators.eam import EAM
 from ase.build import bulk
