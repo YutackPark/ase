@@ -363,7 +363,9 @@ Please remove them and recalculate or run \
                                ' to set all masses to non-zero values.')
 
         self.im = np.repeat(masses[self.indices]**-0.5, 3)
-        self._vibrations = self.get_vibrations(read_cache=False)
+        self._vibrations = self.get_vibrations(read_cache=False,
+                                               method=method,
+                                               direction=direction)
 
         omega2, modes = np.linalg.eigh(self.im[:, None] * H * self.im)
         self.modes = modes.T.copy()
