@@ -5,6 +5,7 @@ from os.path import basename, dirname, isfile
 from pathlib import Path
 from ase.cell import Cell
 import time
+import re
 
 import numpy as np
 
@@ -62,10 +63,14 @@ Sort an array of strings alphanumerically.
 
 
 def get_onetep_keywords(path):
-    if not isfile(path):
-        return None
     with open(path, 'r') as fd:
-        results = next(read_onetep_in(fd))
+        results = read_onetep_in(fd)
+    # If there is an include file, the entire
+    # file keyword's will be included in the dict
+    # and the include_file keyword will be deleted
+    if 'include_file' in results['keywords']:
+        warnings.warn('include_file will be deleted from the dict')
+        del results['keywords']['include_file']
     return results['keywords']
 
 
@@ -99,6 +104,7 @@ def read_onetep_in(fd):
     """
 
     fdi_lines = fd.readlines()
+    include_files = [Path(fd.name).resolve()]
 
     def clean_lines(lines):
         """
@@ -106,21 +112,16 @@ def read_onetep_in(fd):
         """
         new_lines = []
         for line in lines:
-            if line.startswith('#'):
-                pass
-            elif line.startswith('!'):
-                pass
-            elif line.strip():
-                new_lines.append(line)
-            else:
-                pass
+            sep = re.split(r'[!#]', line.strip())[0]
+            if sep:
+                new_lines.append(sep)
         return new_lines
 
     # Skip comments and empty lines
     fdi_lines = clean_lines(fdi_lines)
 
     # Are we in a block?
-    in_block = 0
+    block_start = 0
 
     keywords = {}
     atoms = Atoms()
@@ -129,68 +130,71 @@ def read_onetep_in(fd):
     positions = False
     symbols = False
 
-    n = 0
     # Main loop reading the input
-    while n < len(fdi_lines):
-        line = fdi_lines[n]
+    for n, line in enumerate(fdi_lines):
+        #sep = re.split(r'[!#]', line.strip())[0]
+        #line = fdi_lines[n]
         line_lower = line.lower()
-
         if '%block' in line_lower:
-            in_block = n
+            block_start = n + 1
             if 'lattice_cart' in line_lower:
-                if 'ang' in fdi_lines[in_block + 1]:
+                if 'ang' in fdi_lines[block_start]:
                     cell = np.loadtxt(fdi_lines[n + 2:n + 5])
                 else:
                     cell = np.loadtxt(fdi_lines[n + 1:n + 4])
                     cell *= Bohr
-
-        if not in_block:
+        #print(line)
+        if not block_start:
             if 'devel_code' in line_lower:
                 warnings.warn('devel_code is not supported')
-                n += 1
+                #n += 1
                 continue
-            sep = line.replace(':', ' ').replace('=', ' ').strip().split()
+            # Splits line on any valid onetep separator
+            sep = re.split(r'[:=\s]+', line)
             keywords[sep[0]] = ' '.join(sep[1:])
             # If include_file is used, we open the included file
             # and insert it in the current fdi_lines...
             # Should work with a cascade
             if 'include_file' == sep[0]:
+                new_path = Path(sep[1]).resolve()
+                for path in include_files:
+                    if new_path.samefile(path):
+                        raise ValueError('recursive include_file')
                 new_fd = open(sep[1], 'r')
                 new_lines = new_fd.readlines()
                 new_lines = clean_lines(new_lines)
-                fdi_lines = fdi_lines[:n] + \
+                fdi_lines[:] = fdi_lines[:n + 1] + \
                     new_lines + \
                     fdi_lines[n + 1:]
                 continue
 
         if '%endblock' in line_lower:
             if 'positions_' in line_lower:
-                if 'ang' in fdi_lines[in_block + 1]:
-                    to_read = fdi_lines[in_block + 2:n]
+                if 'ang' in fdi_lines[block_start]:
+                    to_read = fdi_lines[block_start + 1:n]
                     positions = np.loadtxt(to_read, usecols=(1, 2, 3))
                 else:
-                    to_read = fdi_lines[in_block + 1:n]
+                    to_read = fdi_lines[block_start:n]
                     positions = np.loadtxt(to_read, usecols=(1, 2, 3))
                     positions *= units['Bohr']
                 symbols = np.loadtxt(to_read, usecols=(0), dtype='str')
                 if 'frac' in line_lower:
                     fractional = True
             elif '%endblock species' == line_lower.strip():
-                els = fdi_lines[in_block + 1:n]
+                els = fdi_lines[block_start:n]
                 species = {}
                 for el in els:
                     sep = el.split()
                     species[sep[0]] = sep[1]
-                to_read = [i.strip() for i in fdi_lines[in_block + 1:n]]
+                to_read = [i.strip() for i in fdi_lines[block_start:n]]
                 keywords['species'] = to_read
             elif 'lattice_cart' in line_lower:
                 pass
             else:
-                to_read = [i.strip() for i in fdi_lines[in_block + 1:n]]
+                to_read = [i.strip() for i in fdi_lines[block_start:n]]
                 block_title = line_lower.replace('%endblock', '').strip()
                 keywords[block_title] = to_read
-            in_block = 0
-        n += 1
+            block_start = 0
 
     # Necessary if we have only one atom
     # Check if the cell is valid (3D)
@@ -202,27 +206,28 @@ def read_onetep_in(fd):
 
     if symbols is False:
         raise ValueError('no symbols found')
-
     positions = positions.reshape(-1, 3)
     symbols = symbols.reshape(-1)
     tags = []
+    info = {'onetep_species': []}
     for symbol in symbols:
         label = symbol.replace(species[symbol], '')
         if label.isdigit():
             tags.append(int(label))
         else:
             tags.append(0)
-    atoms = Atoms([species[i] for i in symbols])
+        info['onetep_species'].append(symbol)
+    atoms = Atoms([species[i] for i in symbols],
+                  cell=cell,
+                  pbc=True,
+                  tags=tags,
+                  info=info)
     if fractional:
-        # This is just dot product
-        positions = positions @ cell
-        positions /= units['Bohr']
-    atoms.set_positions(positions)
-    atoms.set_cell(cell)
-    atoms.set_pbc(True)
-    atoms.set_tags(tags)
+        atoms.set_scaled_positions(positions / units['Bohr'])
+    else:
+        atoms.set_positions(positions)
     results = {'atoms': atoms, 'keywords': keywords}
-    yield results
+    return results
 
 
 def write_onetep_in(
@@ -314,8 +319,17 @@ def write_onetep_in(
     autorestart = kwargs.get('autorestart', False)
     elements = np.array(atoms.symbols)
     tags = np.array(atoms.get_tags())
-    formatted_tags = np.array(['' if i == 0 else str(i) for i in tags])
-    species = np.char.add(elements, formatted_tags)
+    species_maybe = atoms.info.get('onetep_species', False)
+    # We look if the atom.info contains onetep species information
+    # If it does, we use it, as it might contains character
+    # which are not allowed in ase tags, if not we fall back
+    # to tags and use them instead.
+    if species_maybe:
+        if set(species_maybe) != set(elements):
+            species = np.array(species_maybe)
+    else:
+        formatted_tags = np.array(['' if i == 0 else str(i) for i in tags])
+        species = np.char.add(elements, formatted_tags)
     numbers = np.array(atoms.numbers)
     tmp = np.argsort(species)
     # We sort both Z and name the same
@@ -329,7 +343,6 @@ def write_onetep_in(
     # Unique species
     u_species = u_species[idx]
     numbers = numbers[idx]
-
     n_sp = len(u_species)
 
     if isinstance(ngwf_count, int):
@@ -467,12 +480,23 @@ def write_onetep_in(
             lines.append(str(key) + " : " + str(value))
         else:
             raise TypeError('keyword values must be list|str|bool')
+    input_header = '!' + '-' * 78 + '!\n' + \
+        '!' + '-' * 33 + ' INPUT FILE ' + '-' * 33 + '!\n' + \
+        '!' + '-' * 78 + '!\n\n'
+    
+    input_footer = '\n!' + '-' * 78 + '!\n' + \
+        '!' + '-' * 32 + ' END OF INPUT ' + '-' * 32 + '!\n' + \
+        '!' + '-' * 78 + '!'
+
+    fd.write(input_header)
     fd.writelines(line + '\n' for line in lines)
     fd.writelines(b_line + '\n' for b_line in block_lines)
 
     if 'devel_code' in kwargs:
         warnings.warn('writing devel code as it is, at the end of the file')
         fd.writelines('\n' + line for line in kwargs['devel_code'])
+    
+    fd.write(input_footer)
 
 
 def read_onetep_out(fd, index=-1, improving=False, **kwargs):
@@ -962,3 +986,4 @@ def read_onetep_out(fd, index=-1, improving=False, **kwargs):
         positions[idx].calc = calc
         # positions[idx].set_initial_charges(charges[idx])
         yield positions[idx]
+        #return [positions[idx]]
