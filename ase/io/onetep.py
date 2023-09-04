@@ -40,8 +40,8 @@ ONETEP_POSITION = "Cell Contents"
 ONETEP_FIRST_POSITION = "%BLOCK POSITIONS_"
 ONETEP_WRONG_FIRST_POSITION = '%block positions_'
 ONETEP_RESUMING_GEOM = 'Resuming previous ONETEP Geometry Optimisation'
-ONETEP_CELL = "NOT IMPLEMENTED YET"
-ONETEP_STRESS = "NOT IMPLEMENTED YET"
+#ONETEP_CELL = "NOT IMPLEMENTED YET"
+#ONETEP_STRESS = "NOT IMPLEMENTED YET"
 ONETEP_ATOM_COUNT = "Totals:"
 ONETEP_IBFGS_IMPROVE = "improving iteration"
 ONETEP_START_GEOM = "Starting ONETEP Geometry Optimisation"
@@ -534,11 +534,9 @@ def read_onetep_out(fd, index=-1, improving=False, **kwargs):
         ONETEP_TOTAL_ENERGY: [],
         ONETEP_FORCE: [],
         ONETEP_MULLIKEN: [],
-        ONETEP_STRESS: [],
         ONETEP_POSITION: [],
         ONETEP_FIRST_POSITION: [],
         ONETEP_WRONG_FIRST_POSITION: [],
-        ONETEP_CELL: [],
         ONETEP_ATOM_COUNT: [],
         ONETEP_IBFGS_IMPROVE: [],
         ONETEP_IBFGS_ITER: [],
@@ -555,7 +553,7 @@ def read_onetep_out(fd, index=-1, improving=False, **kwargs):
     output_corr = deepcopy(output)
 
     # Core properties that will be used in Yield
-    properties = [ONETEP_TOTAL_ENERGY, ONETEP_FORCE, ONETEP_STRESS,
+    properties = [ONETEP_TOTAL_ENERGY, ONETEP_FORCE,
                   ONETEP_MULLIKEN, ONETEP_FIRST_CELL,
                   ONETEP_FIRST_CELLL]
 
