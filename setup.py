@@ -34,8 +34,7 @@ extras_require = {
         'pillow',
     ],
     'test': [
-        'pytest>=5.0.0',  # required by pytest-mock
-        'pytest-mock>=3.3.0',
+        'pytest>=5.0.0',
         'pytest-xdist>=1.30.0',
     ]
 }
