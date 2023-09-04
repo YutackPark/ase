@@ -459,7 +459,9 @@ F('onetep-out', 'ONETEP output file', '+F',
   magic=b'*Linear-Scaling Ab Initio Total Energy Program*')
 F('onetep-in', 'ONETEP input file', '1F',
   module='onetep',
-  magic=[b'*lock species*', b'*LOCK SPECIES*'])
+  magic=[b'*lock species*',
+         b'*LOCK SPECIES*',
+         b'*--- INPUT FILE ---*'])
 F('proteindatabank', 'Protein Data Bank', '+F',
   ext='pdb')
 F('png', 'Portable Network Graphics', '1B')
