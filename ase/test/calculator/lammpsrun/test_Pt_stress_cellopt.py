@@ -8,13 +8,13 @@ from ase.optimize import BFGS
 
 @pytest.mark.calculator_lite
 @pytest.mark.calculator('lammpsrun')
-def test_Pt_stress_cellopt(factory, pt_eam_potential_file):
+def test_Pt_stress_cellopt(factory):
     params = {}
     params['pair_style'] = 'eam'
-    params['pair_coeff'] = ['1 1 {}'.format(pt_eam_potential_file)]
+    params['pair_coeff'] = ['1 1 Pt_u3.eam']
+    files = [f'{factory.factory.potentials_path}/Pt_u3.eam']
     # XXX Should it accept Path objects?  Yes definitely for files.
-    with factory.calc(specorder=['Pt'], files=[str(pt_eam_potential_file)],
-                      **params) as calc:
+    with factory.calc(specorder=['Pt'], files=files, **params) as calc:
         rng = np.random.RandomState(17)
 
         atoms = bulk('Pt') * (2, 2, 2)
