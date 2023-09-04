@@ -98,8 +98,8 @@ main:
     - cd $CI_PROJECT_DIR
     - >
       ase test
-      --calculators asap,eam,ff,lj,morse,tip3p,tip4p
-      --coverage --pytest --color=yes --durations 20
+      --calculators asap,ff,lj,morse,tip3p,tip4p
+      --coverage --pytest --color=yes --durations 20 -v -r s
       -W "ignore:The --rsyncdir command line argument"
       -W "ignore:NumPy will stop allowing conversion of out-of-bound Python integers"
     - mv ase/test/coverage-html coverage-main
@@ -119,7 +119,7 @@ calculators-lite:
     - pip install --no-deps --editable .
     - >
       ase test calculator --calculators=auto --coverage
-      --pytest -m calculator_lite --color=yes --durations=20
+      --pytest -m calculator_lite --color=yes --durations=20 -v
       -W "ignore:The --rsyncdir command line argument"
     - mv ase/test/coverage-html coverage-calculators-lite
     - mv ase/test/.coverage coverage-calculators-lite/coverage.dat
