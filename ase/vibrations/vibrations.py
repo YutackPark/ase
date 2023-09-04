@@ -364,8 +364,8 @@ Please remove them and recalculate or run \
 
         self.im = np.repeat(masses[self.indices]**-0.5, 3)
         self._vibrations = self.get_vibrations(read_cache=False,
-                                               method=method,
-                                               direction=direction)
+                                               method=self.method,
+                                               direction=self.direction)
 
         omega2, modes = np.linalg.eigh(self.im[:, None] * H * self.im)
         self.modes = modes.T.copy()
