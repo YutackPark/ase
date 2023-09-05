@@ -142,7 +142,82 @@ _setups_defaults = {
         'Po': '_d_GW',
         'At': '_d_GW',
         'Rn': '_d_GW'
-    }
+    },
+    # https://wiki.materialsproject.org/Pseudopotentials_Choice
+    # WARNING: DEPRECATED.
+    'materialsproject':
+    # Alkali and alkali-earth
+    {
+        'Li': '_sv',
+        'Na': '_pv',
+        'K': '_sv',
+        'Cs': '_sv',
+        'Rb': '_sv',
+        'Be': '_sv',
+        'Mg': '_pv',
+        'Ca': '_sv',
+        'Sr': '_sv',
+        'Ba': '_sv',
+        # d-elements, transition metals
+        'Sc': '_sv',
+        'Y': '_sv',
+        'Ti': '_pv',
+        'Zr': '_sv',
+        'Hf': '_pv',
+        'V': '_sv',
+        'Nb': '_pv',
+        'Ta': '_pv',
+        'Cr': '_pv',
+        'Mo': '_pv',
+        'W': '_sv',  # updated from W_pv
+        'Mn': '_pv',
+        'Tc': '_pv',
+        'Re': '_pv',
+        'Fe': '_pv',
+        'Co': '',
+        'Ni': '_pv',
+        'Cu': '_pv',
+        'Zn': '',
+        'Ru': '_pv',
+        'Rh': '_pv',
+        'Pd': '',
+        'Ag': '',
+        'Cd': '',
+        'Hg': '',
+        'Ir': '',
+        'Pt': '',
+        'Os': '_pv',
+        # Main group
+        'Ga': '_d',
+        'Ge': '_d',
+        'Al': '',
+        'As': '',
+        'Se': '',
+        'Br': '',
+        'In': '_d',
+        'Sn': '_d',
+        'Tl': '_d',
+        'Pb': '_d',
+        'Bi': '_d',  # ?
+        'Po': '',
+        'At': '_d',
+        # Rare-earth, f-electrons
+        'La': '',
+        'Ce': '',
+        'Pr': '_3',
+        'Nd': '_3',
+        'Pm': '_3',
+        'Sm': '_3',
+        'Eu': '',
+        'Gd': '',
+        'Tb': '_3',
+        'Dy': '_3',
+        'Ho': '_3',
+        'Er': '_3',
+        'Tm': '_3',
+        'Yb': '',
+        'Lu': '_3'
+    },
 }
 
 
