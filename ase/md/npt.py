@@ -146,7 +146,8 @@ class NPT(MolecularDynamics):
         self.zero_center_of_mass_momentum(verbose=1)
         self.temperature = units.kB * self._process_temperature(
             temperature, temperature_K, 'eV')
-        self.set_stress(externalstress)
+        if externalstress is not None:
+            self.set_stress(externalstress)
         self.set_mask(mask)
         self.eta = np.zeros((3, 3), float)
         self.zeta = 0.0
