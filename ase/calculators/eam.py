@@ -341,7 +341,7 @@ End EAM Interface Documentation
             self.density_data = np.array(
                 [np.float_(data[n + self.nr:n + 2 * self.nr])])
 
-        elif self.form in ['alloy', 'adq']:
+        elif self.form in ['alloy', 'adp']:
             self.header = lines[:3]
             i = 3
 
@@ -449,7 +449,7 @@ End EAM Interface Documentation
         else:
             self.set_splines()
 
-        if (self.form == 'adp'):
+        if self.form == 'adp':
             self.read_adp_data(data, d)
             self.set_adp_splines()
 
@@ -707,7 +707,7 @@ End EAM Interface Documentation
         trace_energy = 0.0
 
         self.total_density = np.zeros(len(atoms))
-        if (self.form == 'adp'):
+        if self.form == 'adp':
             self.mu = np.zeros([len(atoms), 3])
             self.lam = np.zeros([len(atoms), 3, 3])
 
@@ -825,7 +825,7 @@ End EAM Interface Documentation
 
                 self.results['forces'][i] += np.dot(scale, urvec[nearest][use])
 
-                if (self.form == 'adp'):
+                if self.form == 'adp':
                     adp_forces = self.angular_forces(
                         self.mu[i],
                         self.mu[neighbors[nearest][use]],
