@@ -86,9 +86,8 @@ def test_frederiksen(testdir, random_dimer):
     # - On-diagonal 3x3 blocks should by modified by correction
     # - These blocks need to have translational symmetry after correction
     # - So we impose that symmetry on off-diagonal blocks used in correction
-    rng = np.random.RandomState(10)
-    random_dimer.calc.D[:3,3:] += random_dimer.calc.D[:3,3:].T
-    random_dimer.calc.D[3:,:3] += random_dimer.calc.D[3:,:3].T
+    random_dimer.calc.D[:3, 3:] += random_dimer.calc.D[:3, 3:].T
+    random_dimer.calc.D[3:, :3] += random_dimer.calc.D[3:, :3].T
 
     vib = Vibrations(random_dimer, delta=1e-2, nfree=2)
     vib.run()
