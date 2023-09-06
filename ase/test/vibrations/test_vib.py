@@ -14,6 +14,14 @@ from ase.constraints import FixAtoms, FixCartesian
 from ase.build import fcc111, add_adsorbate
 
 
+class NoisyForceConstantCalculator(ForceConstantCalculator):
+    rng = np.random.RandomState(42)
+
+    def get_forces(self, atoms=None):
+        clean_forces = super().get_forces(atoms=atoms)
+        return clean_forces + self.rng.random(clean_forces.shape) * 1e-4
+
+
 @pytest.fixture
 def random_dimer():
     rng = np.random.RandomState(42)
@@ -30,6 +38,15 @@ def random_dimer():
                                          ref=ref_atoms,
                                          f0=np.zeros((2, 3)))
     return atoms
+
+
+@pytest.fixture
+def noisy_dimer(random_dimer):
+    random_dimer.calc = NoisyForceConstantCalculator(
+        D=random_dimer.calc.D,
+        ref=random_dimer.calc.ref,
+        f0=random_dimer.calc.f0)
+    return random_dimer
 
 
 def test_harmonic_vibrations(testdir):
@@ -59,6 +76,36 @@ def test_harmonic_vibrations(testdir):
                        ) / units._e  # J/s -> eV/s
 
     assert np.allclose(vib.get_energies(), expected_energy)
+
+
+def test_frederiksen(testdir, random_dimer):
+    # Apply appropriate symmetry to non-"self" terms so that Frederiksen result
+    # is not modified by translational symmetrisation step:
+    #
+    # - We have a 6x6 matrix for the dimer force-constants
+    # - On-diagonal 3x3 blocks should by modified by correction
+    # - These blocks need to have translational symmetry after correction
+    # - So we impose that symmetry on off-diagonal blocks used in correction
+    rng = np.random.RandomState(10)
+    random_dimer.calc.D[:3,3:] += random_dimer.calc.D[:3,3:].T
+    random_dimer.calc.D[3:,:3] += random_dimer.calc.D[3:,:3].T
+
+    vib = Vibrations(random_dimer, delta=1e-2, nfree=2)
+    vib.run()
+    vib_data_std = vib.get_vibrations(read_cache=False, method='standard')
+    vib_data_frd = vib.get_vibrations(read_cache=False, method='frederiksen')
+
+    # Check Frederiksen option made a difference
+    assert not np.allclose(vib_data_std.get_hessian(),
+                           vib_data_frd.get_hessian())
+
+    # Check sum rule was violated by original Hessian
+    assert not np.allclose(vib_data_std.get_hessian()[0, :, 0, :],
+                           -vib_data_std.get_hessian()[0, :, 1, :])
+
+    # And is fixed by Frederiksen scheme
+    assert_array_almost_equal(vib_data_frd.get_hessian()[0, :, 0, :],
+                              -vib_data_frd.get_hessian()[0, :, 1, :])
 
 
 def test_consistency_with_vibrationsdata(testdir, random_dimer):
