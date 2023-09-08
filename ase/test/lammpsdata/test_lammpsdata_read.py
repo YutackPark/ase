@@ -16,8 +16,12 @@ REL_TOL = 1e-2
 
 
 def test_lammpsdata_read(lammpsdata_file_path):
-    atoms = ase.io.read(lammpsdata_file_path,
-                        format="lammps-data", units="metal")
+    atoms = ase.io.read(
+        lammpsdata_file_path,
+        format="lammps-data",
+        read_image_flags=False,
+        units="metal",
+    )
 
     expected_values = lammpsdata_file_extracted_sections(lammpsdata_file_path)
 

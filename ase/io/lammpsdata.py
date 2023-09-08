@@ -12,6 +12,7 @@ def read_lammps_data(
     fileobj,
     Z_of_type: dict = None,
     sort_by_id: bool = True,
+    read_image_flags: bool = True,
     units: str = "metal",
     style: str = None,
 ):
@@ -29,6 +30,9 @@ def read_lammps_data(
     sort_by_id : bool, optional
         Order the particles according to their id. Might be faster to set it
         False. Default is True.
+    read_image_flags: bool, default True
+        If True, the lattice translation vectors derived from image flags are
+        added to atomic positions.
     units : str, optional
         `LAMMPS units <https://docs.lammps.org/units.html>`__. Default is
         "metal".
@@ -244,7 +248,7 @@ def read_lammps_data(
     )
 
     # add lattice translation vectors
-    if travel is not None:
+    if read_image_flags and travel is not None:
         scaled_positions = atoms.get_scaled_positions(wrap=False) + travel
         atoms.set_scaled_positions(scaled_positions)
 
