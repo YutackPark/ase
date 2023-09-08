@@ -525,7 +525,7 @@ def write_lammps_data(
                 f" {r[0]:23.17g} {r[1]:23.17g} {r[2]:23.17g}\n"
             )
     else:
-        raise NotImplementedError
+        raise ValueError(atom_style)
 
     if velocities and atoms.get_velocities() is not None:
         fd.write("\n\nVelocities\n\n")
