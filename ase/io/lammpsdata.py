@@ -242,13 +242,18 @@ def read_lammps_data(
         cell=cell,
         pbc=[True, True, True],
     )
+
+    # add lattice translation vectors
+    if travel is not None:
+        scaled_positions = atoms.get_scaled_positions(wrap=False) + travel
+        atoms.set_scaled_positions(scaled_positions)
+
     # set velocities (can't do it via constructor)
     if velocities is not None:
         atoms.set_velocities(velocities)
+
     atoms.arrays["id"] = ids
     atoms.arrays["type"] = types
-    if travel is not None:
-        atoms.arrays["travel"] = travel
     if mol_id is not None:
         atoms.arrays["mol-id"] = mol_id
     if charge is not None:
