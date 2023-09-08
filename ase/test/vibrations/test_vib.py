@@ -14,14 +14,6 @@ from ase.constraints import FixAtoms, FixCartesian
 from ase.build import fcc111, add_adsorbate
 
 
-class NoisyForceConstantCalculator(ForceConstantCalculator):
-    rng = np.random.RandomState(42)
-
-    def get_forces(self, atoms=None):
-        clean_forces = super().get_forces(atoms=atoms)
-        return clean_forces + self.rng.random(clean_forces.shape) * 1e-4
-
-
 @pytest.fixture
 def random_dimer():
     rng = np.random.RandomState(42)
@@ -38,15 +30,6 @@ def random_dimer():
                                          ref=ref_atoms,
                                          f0=np.zeros((2, 3)))
     return atoms
-
-
-@pytest.fixture
-def noisy_dimer(random_dimer):
-    random_dimer.calc = NoisyForceConstantCalculator(
-        D=random_dimer.calc.D,
-        ref=random_dimer.calc.ref,
-        f0=random_dimer.calc.f0)
-    return random_dimer
 
 
 def test_harmonic_vibrations(testdir):
