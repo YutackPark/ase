@@ -463,24 +463,25 @@ def write_lammps_data(
     pos = p.vector_to_lammps(atoms.get_positions(), wrap=False)
 
     if atom_style == 'atomic':
+        # Convert position from ASE units to LAMMPS units
+        pos = convert(pos, "distance", "ASE", units)
         for i, r in enumerate(pos):
-            # Convert position from ASE units to LAMMPS units
-            r = convert(r, "distance", "ASE", units)
             s = species.index(symbols[i]) + 1
             fd.write(
-                "{0:>6} {1:>3} {2:23.17g} {3:23.17g} {4:23.17g}\n".format(
-                    *(i + 1, s) + tuple(r)
-                )
+                f"{i+1:>6} {s:>3}"
+                f" {r[0]:23.17g} {r[1]:23.17g} {r[2]:23.17g}\n"
             )
     elif atom_style == 'charge':
         charges = atoms.get_initial_charges()
+        # Convert position and charge from ASE units to LAMMPS units
+        pos = convert(pos, "distance", "ASE", units)
+        charges = convert(charges, "charge", "ASE", units)
         for i, (q, r) in enumerate(zip(charges, pos)):
-            # Convert position and charge from ASE units to LAMMPS units
-            r = convert(r, "distance", "ASE", units)
-            q = convert(q, "charge", "ASE", units)
             s = species.index(symbols[i]) + 1
-            fd.write("{0:>6} {1:>3} {2:>5} {3:23.17g} {4:23.17g} {5:23.17g}\n"
-                     .format(*(i + 1, s, q) + tuple(r)))
+            fd.write(
+                f"{i+1:>6} {s:>3} {q:>5}"
+                f" {r[0]:23.17g} {r[1]:23.17g} {r[2]:23.17g}\n"
+            )
     elif atom_style == 'full':
         charges = atoms.get_initial_charges()
         # The label 'mol-id' has apparenlty been introduced in read earlier,
@@ -514,27 +515,25 @@ def write_lammps_data(
             #    non-bonded atom or if you don't care to keep track of molecule
             #    assignments.
 
+        # Convert position and charge from ASE units to LAMMPS units
+        pos = convert(pos, "distance", "ASE", units)
+        charges = convert(charges, "charge", "ASE", units)
         for i, (m, q, r) in enumerate(zip(molecules, charges, pos)):
-            # Convert position and charge from ASE units to LAMMPS units
-            r = convert(r, "distance", "ASE", units)
-            q = convert(q, "charge", "ASE", units)
             s = species.index(symbols[i]) + 1
-            fd.write("{0:>6} {1:>3} {2:>3} {3:>5} {4:23.17g} {5:23.17g} "
-                     "{6:23.17g}\n".format(*(i + 1, m, s, q) + tuple(r)))
+            fd.write(
+                f"{i+1:>6} {m:>3} {s:>3} {q:>5}"
+                f" {r[0]:23.17g} {r[1]:23.17g} {r[2]:23.17g}\n"
+            )
     else:
         raise NotImplementedError
 
     if velocities and atoms.get_velocities() is not None:
         fd.write("\n\nVelocities\n\n")
         vel = p.vector_to_lammps(atoms.get_velocities())
+        # Convert velocity from ASE units to LAMMPS units
+        vel = convert(vel, "velocity", "ASE", units)
         for i, v in enumerate(vel):
-            # Convert velocity from ASE units to LAMMPS units
-            v = convert(v, "velocity", "ASE", units)
-            fd.write(
-                "{0:>6} {1:23.17g} {2:23.17g} {3:23.17g}\n".format(
-                    *(i + 1,) + tuple(v)
-                )
-            )
+            fd.write(f"{i+1:>6} {v[0]:23.17g} {v[1]:23.17g} {v[2]:23.17g}\n")
 
     fd.flush()
 
