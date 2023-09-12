@@ -1292,6 +1292,9 @@ class GenerateVaspInput:
 
         # String shortcuts are initialised to dict form
         elif isinstance(p['setups'], str):
+            if p['setups'].lower() == 'materialsproject':
+                warnings.warn('`materialsproject` setup will be'
+                              'removed in a future release.', FutureWarning)
             if p['setups'].lower() in setups_defaults.keys():
                 p['setups'] = {'base': p['setups']}
 

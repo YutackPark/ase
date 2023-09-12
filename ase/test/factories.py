@@ -445,6 +445,16 @@ class BuiltinCalculatorFactory:
         return cls()
 
 
+@factory('eam')
+class EAMFactory(BuiltinCalculatorFactory):
+    def __init__(self, potentials_path):
+        self.potentials_path = potentials_path
+
+    @classmethod
+    def fromconfig(cls, config):
+        return cls(config.datafiles['lammps'][0])
+
+
 @factory('emt')
 class EMTFactory(BuiltinCalculatorFactory):
     pass
@@ -452,8 +462,10 @@ class EMTFactory(BuiltinCalculatorFactory):
 
 @factory('lammpsrun')
 class LammpsRunFactory:
-    def __init__(self, executable):
+    def __init__(self, executable, potentials_path):
         self.executable = executable
+        os.environ["LAMMPS_POTENTIALS"] = str(potentials_path)
+        self.potentials_path = potentials_path
 
     def version(self):
         stdout = read_stdout([self.executable])
@@ -466,7 +478,8 @@ class LammpsRunFactory:
 
     @classmethod
     def fromconfig(cls, config):
-        return cls(config.executables['lammpsrun'])
+        return cls(config.executables['lammpsrun'],
+                   config.datafiles['lammps'][0])
 
 
 @factory('lammpslib')
@@ -676,6 +689,20 @@ class Factories:
         'onetep',
         'qchem',
         'turbomole',
+    }
+
+    # Calculators requiring ase-datafiles.
+    # TODO: So far hard-coded but should be automatically detected.
+    datafile_calculators = {
+        'abinit',
+        'dftb',
+        'elk',
+        'espresso',
+        'eam',
+        'lammpsrun',
+        'lammpslib',
+        'openmx',
+        'siesta',
     }
 
     def __init__(self, requested_calculators):

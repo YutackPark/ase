@@ -258,6 +258,9 @@ def factory(request, factories):
         pytest.skip(f'Not installed: {name}')
     if not factories.enabled(name):
         pytest.skip(f'Not enabled: {name}')
+    if name in factories.builtin_calculators & factories.datafile_calculators:
+        if not factories.datafiles_module:
+            pytest.skip('ase-datafiles package not installed')
     factory = factories[name]
     return CalculatorInputs(factory, kwargs)
 
@@ -313,13 +316,6 @@ def cli(factories):
 def datadir():
     test_basedir = Path(__file__).parent
     return test_basedir / 'testdata'
-
-
-@pytest.fixture
-def pt_eam_potential_file(datadir):
-    # EAM potential for Pt from LAMMPS, also used with eam calculator.
-    # (Where should this fixture really live?)
-    return datadir / 'eam_Pt_u3.dat'
 
 
 @pytest.fixture(scope='session')

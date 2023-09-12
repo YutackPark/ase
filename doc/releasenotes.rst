@@ -93,6 +93,9 @@ Git master branch
 * Fix conservation of momentum in :class:`ase.md.langevin.Langevin`
   (:mr:`2632`)
 
+* Fix bug in :class:`ase.vibrations.Vibrations` causing property
+  calculations to always use the default method (:mr:`3012`)
+
 Calculators:
 
 * Remove `ase.calculators.vasp.vasp_auxiliary.xdat2traj`. Use `ase.io` instead
