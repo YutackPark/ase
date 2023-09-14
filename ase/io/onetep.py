@@ -40,8 +40,8 @@ ONETEP_POSITION = "Cell Contents"
 ONETEP_FIRST_POSITION = "%BLOCK POSITIONS_"
 ONETEP_WRONG_FIRST_POSITION = '%block positions_'
 ONETEP_RESUMING_GEOM = 'Resuming previous ONETEP Geometry Optimisation'
-#ONETEP_CELL = "NOT IMPLEMENTED YET"
-#ONETEP_STRESS = "NOT IMPLEMENTED YET"
+# ONETEP_CELL = "NOT IMPLEMENTED YET"
+# ONETEP_STRESS = "NOT IMPLEMENTED YET"
 ONETEP_ATOM_COUNT = "Totals:"
 ONETEP_IBFGS_IMPROVE = "improving iteration"
 ONETEP_START_GEOM = "Starting ONETEP Geometry Optimisation"
@@ -63,8 +63,13 @@ Sort an array of strings alphanumerically.
 
 
 def get_onetep_keywords(path):
-    with open(path, 'r') as fd:
-        results = read_onetep_in(fd)
+
+    if isinstance(path, str):
+        with open(path, 'r') as fd:
+            results = read_onetep_in(fd)
+    else:
+        results = read_onetep_in(path)
+
     # If there is an include file, the entire
     # file keyword's will be included in the dict
     # and the include_file keyword will be deleted
@@ -96,7 +101,7 @@ def read_onetep_in(fd):
     fd : io-object
         File to read.
 
-    Yields
+    Return
     ------
     structure: Atoms
         Atoms object with cell and a Onetep calculator
@@ -104,7 +109,12 @@ def read_onetep_in(fd):
     """
 
     fdi_lines = fd.readlines()
-    include_files = [Path(fd.name).resolve()]
+
+    try:
+        include_files = [Path(fd.name).resolve()]
+    except AttributeError:
+        # We are in a StringIO or something similar
+        include_files = []
 
     def clean_lines(lines):
         """
@@ -132,8 +142,8 @@ def read_onetep_in(fd):
 
     # Main loop reading the input
     for n, line in enumerate(fdi_lines):
-        #sep = re.split(r'[!#]', line.strip())[0]
-        #line = fdi_lines[n]
+        # sep = re.split(r'[!#]', line.strip())[0]
+        # line = fdi_lines[n]
         line_lower = line.lower()
         if '%block' in line_lower:
             block_start = n + 1
@@ -143,11 +153,11 @@ def read_onetep_in(fd):
                 else:
                     cell = np.loadtxt(fdi_lines[n + 1:n + 4])
                     cell *= Bohr
-        #print(line)
+
         if not block_start:
             if 'devel_code' in line_lower:
                 warnings.warn('devel_code is not supported')
-                #n += 1
+                # n += 1
                 continue
             # Splits line on any valid onetep separator
             sep = re.split(r'[:=\s]+', line)
@@ -206,6 +216,7 @@ def read_onetep_in(fd):
 
     if symbols is False:
         raise ValueError('no symbols found')
+
     positions = positions.reshape(-1, 3)
     symbols = symbols.reshape(-1)
     tags = []
@@ -315,14 +326,17 @@ def write_onetep_in(
     """
 
     label = kwargs.get('label', 'onetep')
-    directory = kwargs.get('directory', Path(dirname(fd.name)))
+    try:
+        directory = kwargs.get('directory', Path(dirname(fd.name)))
+    except AttributeError:
+        directory = '.'
     autorestart = kwargs.get('autorestart', False)
     elements = np.array(atoms.symbols)
     tags = np.array(atoms.get_tags())
     species_maybe = atoms.info.get('onetep_species', False)
-    # We look if the atom.info contains onetep species information
+    #  We look if the atom.info contains onetep species information
     # If it does, we use it, as it might contains character
-    # which are not allowed in ase tags, if not we fall back
+    #  which are not allowed in ase tags, if not we fall back
     # to tags and use them instead.
     if species_maybe:
         if set(species_maybe) != set(elements):
@@ -373,7 +387,6 @@ def write_onetep_in(
     if pseudo_suffix:
         common_suffix = [pseudo_suffix]
     # Transform to list
-    
     if pp_is_manual:
         pp_list = keywords['species_pot']
     elif isinstance(pseudopotentials, dict):
@@ -387,10 +400,10 @@ def write_onetep_in(
                         for j in common_suffix:
                             if basename(i).endswith(j):
                                 pp_list.append(el + ' ' + basename(i))
-                #pp_maybe = attempt_to_find_pp(elements[idx])
-                #if pp_maybe:
+                # pp_maybe = attempt_to_find_pp(elements[idx])
+                # if pp_maybe:
                 #    pp_list.append(el + ' ' + pp_maybe)
-                #else:
+                # else:
                 #    warnings.warn('No pseudopotential found for element {}'
                 #                  .format(el))
     else:
@@ -483,7 +496,7 @@ def write_onetep_in(
     input_header = '!' + '-' * 78 + '!\n' + \
         '!' + '-' * 33 + ' INPUT FILE ' + '-' * 33 + '!\n' + \
         '!' + '-' * 78 + '!\n\n'
-    
+
     input_footer = '\n!' + '-' * 78 + '!\n' + \
         '!' + '-' * 32 + ' END OF INPUT ' + '-' * 32 + '!\n' + \
         '!' + '-' * 78 + '!'
@@ -495,7 +508,7 @@ def write_onetep_in(
     if 'devel_code' in kwargs:
         warnings.warn('writing devel code as it is, at the end of the file')
         fd.writelines('\n' + line for line in kwargs['devel_code'])
-    
+
     fd.write(input_footer)
 
 
@@ -726,10 +739,11 @@ def read_onetep_out(fd, index=-1, improving=False, **kwargs):
                 return tmp_charges
             n += 1
         return None
-    # In ONETEP there is no way to differentiate electronic entropy
-    # and entropy due to solvent, therefore there is no way to
+    #  In ONETEP there is no way to differentiate electronic entropy
+    #  and entropy due to solvent, therefore there is no way to
     # extrapolate the energy at 0 K. We return the last energy
-    # instead.
+    #  instead.
+
     def parse_energy(idx):
         n = 0
         energies = []
@@ -777,7 +791,7 @@ def read_onetep_out(fd, index=-1, improving=False, **kwargs):
                 else:
                     pos = tmp[:, 1:].astype(np.float32) * conv_factor
                 try:
-                    return Atoms(els, pos)
+                    atoms = Atoms(els, pos)
                 # ASE doesn't recognize names used in ONETEP
                 # as chemical symbol: dig deeper
                 except KeyError:
@@ -788,7 +802,8 @@ def read_onetep_out(fd, index=-1, improving=False, **kwargs):
                     )
                     atoms = Atoms(real_elements, pos)
                     atoms.set_tags(tags)
-                    return atoms
+                atoms.info['onetep_species'] = list(els)
+                return atoms
             n += 1
         return None
 
@@ -815,14 +830,15 @@ def read_onetep_out(fd, index=-1, improving=False, **kwargs):
                 els = np.char.array(tmp[:, 0])
                 pos = tmp[:, 1:].astype(np.float32) * units['Bohr']
                 try:
-                    return Atoms(els, pos)
+                    atoms = Atoms(els, pos)
                 # ASE doesn't recognize names used in ONETEP
                 # as chemical symbol: dig deeper
                 except KeyError:
                     tags, real_elements = find_correct_species(els, idx)
                     atoms = Atoms(real_elements, pos)
                     atoms.set_tags(tags)
-                    return atoms
+                atoms.info['onetep_species'] = list(els)
+                return atoms
             n += 1
         return None
 
@@ -863,8 +879,6 @@ def read_onetep_out(fd, index=-1, improving=False, **kwargs):
             closest_species = np.argmin(abs(idx - species))
         else:
             tmp = idx - species
-            # Hopefully no one is ever gonna run a simulation
-            # with more than 9999999999 species blocks
             tmp[tmp < 0] = 9999999999
             closest_species = np.argmin(tmp)
         elements_map = real_species[closest_species]
@@ -938,7 +952,7 @@ def read_onetep_out(fd, index=-1, improving=False, **kwargs):
                     # If the deleted configuration has a property
                     # we want to keep it
                     for prop in properties:
-                        if np.any(prop[i + 1]) and not np.any(prop[i]):
+                        if prop[i + 1] is not None and prop[i] is None:
                             prop[i] = prop[i + 1]
                     to_del.append(i + 1)
         c = np.full((len(tmp)), True)
@@ -957,6 +971,7 @@ def read_onetep_out(fd, index=-1, improving=False, **kwargs):
         indices = [range(n_pos)[index]]
     else:
         indices = range(n_pos)[index]
+
     for idx in indices:
         if cells:
             tmp = ipositions[idx] - icells
@@ -982,6 +997,4 @@ def read_onetep_out(fd, index=-1, improving=False, **kwargs):
             magmoms=magmoms[idx] if magmoms else None,
         )
         positions[idx].calc = calc
-        # positions[idx].set_initial_charges(charges[idx])
         yield positions[idx]
-        #return [positions[idx]]
