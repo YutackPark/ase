@@ -79,7 +79,7 @@ def get_onetep_keywords(path):
     return results['keywords']
 
 
-def read_onetep_in(fd, only_keywords=False):
+def read_onetep_in(fd, **kwargs):
     """
     Read a single ONETEP input.
 
@@ -107,7 +107,6 @@ def read_onetep_in(fd, only_keywords=False):
         Atoms object with cell and a Onetep calculator
         attached which contains the keywords dictionary
     """
-
     fdi_lines = fd.readlines()
 
     try:
@@ -206,7 +205,11 @@ def read_onetep_in(fd, only_keywords=False):
                 keywords[block_title] = to_read
             block_start = 0
 
-    if only_keywords:
+    # We don't need a fully valid onetep
+    # input to read the keywords, just
+    # the keywords
+    
+    if kwargs.get('only_keywords', False):
         return {'keywords': keywords}
     # Necessary if we have only one atom
     # Check if the cell is valid (3D)
