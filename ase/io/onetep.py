@@ -66,9 +66,9 @@ def get_onetep_keywords(path):
 
     if isinstance(path, str):
         with open(path, 'r') as fd:
-            results = read_onetep_in(fd)
+            results = read_onetep_in(fd, only_keywords=True)
     else:
-        results = read_onetep_in(path)
+        results = read_onetep_in(path, only_keywords=True)
 
     # If there is an include file, the entire
     # file keyword's will be included in the dict
@@ -79,7 +79,7 @@ def get_onetep_keywords(path):
     return results['keywords']
 
 
-def read_onetep_in(fd):
+def read_onetep_in(fd, only_keywords=False):
     """
     Read a single ONETEP input.
 
@@ -206,6 +206,8 @@ def read_onetep_in(fd):
                 keywords[block_title] = to_read
             block_start = 0
 
+    if only_keywords:
+        return {'keywords': keywords}
     # Necessary if we have only one atom
     # Check if the cell is valid (3D)
     if not cell.any(axis=1).all():
