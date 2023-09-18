@@ -1,6 +1,6 @@
 import os
 import shutil
-import importlib
+import importlib.util
 from ase.calculators.calculator import names
 
 builtins = {'eam', 'emt', 'ff', 'lj', 'morse', 'tip3p', 'tip4p'}

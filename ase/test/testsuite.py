@@ -49,8 +49,7 @@ def test(calculators=tuple(), jobs=0, verbose=False,
 
 
 def have_module(module):
-    import importlib
-
+    import importlib.util
     return importlib.util.find_spec(module) is not None
 
 

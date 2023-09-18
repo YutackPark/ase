@@ -136,7 +136,7 @@ class AsapFactory:
     def fromconfig(cls, config):
         # XXXX TODO Clean this up.  Copy of GPAW.
         # How do we design these things?
-        import importlib
+        import importlib.util
         spec = importlib.util.find_spec('asap3')
         if spec is None:
             raise NotInstalled('asap3')
@@ -391,7 +391,7 @@ class GPAWFactory:
 
     @classmethod
     def fromconfig(cls, config):
-        import importlib
+        import importlib.util
         spec = importlib.util.find_spec('gpaw')
         # XXX should be made non-pytest dependent
         if spec is None:
@@ -652,7 +652,7 @@ class PlumedFactory:
 
     @classmethod
     def fromconfig(cls, config):
-        import importlib
+        import importlib.util
         spec = importlib.util.find_spec('plumed')
         # XXX should be made non-pytest dependent
         if spec is None:
