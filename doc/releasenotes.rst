@@ -193,6 +193,14 @@ Calculators:
 .. _Plumed: https://www.plumed.org/
 .. _MOPAC: https://doi.org/10.5281/zenodo.6511958
 
+* :class:`ase.calculators.nwchem.NWChem` now supports 
+  making initial guesses for wavefunctions using smaller basis
+  sets and faster theories
+  
+
+* :class:`ase.calculators.nwchem.NWChem` added support for 
+  direct and RI-MP2 computations.
+
 Optimizers:
 
 * Add :class:`ase.optimize.climbfixinternals.ClimbFixInternals` class for

@@ -24,7 +24,7 @@ class CalculatorError(RuntimeError):
 class CalculatorSetupError(CalculatorError):
     """Calculation cannot be performed with the given parameters.
 
-    Reasons to raise this errors are:
+    Reasons to raise this error are:
       * The calculator is not properly configured
         (missing executable, environment variables, ...)
       * The given atoms object is not supported

@@ -15,6 +15,22 @@ def atoms():
         ['dft', -2051.9802410863354, True, False, dict(basis='3-21G')],
         ['scf', -2056.7877421222634, True, False, dict(basis='3-21G')],
         ['mp2', -2060.1413846247333, True, False, dict(basis='3-21G')],
+        ['direct_mp2', -2060.1413846247333, False, False, dict(basis='3-21G')],
+        #  Direct MP2 forces fail, but the energy is the same as semidirect
+        ['mp2', -2060.1413846247333, True, False,  # Test a single prestep
+         dict(basis='3-21G',
+              pretasks=[dict(theory='dft', set={'lindep:n_dep': 0})])],
+        ['direct_mp2', -2060.1413846247333, False, False,
+         dict(basis='3-21G',
+              pretasks=[dict(theory='dft', set={'lindep:n_dep': 0})])],
+        ['mp2', -2060.1413846247333, True, False,  # Test two presteps
+         dict(basis='3-21G',
+              pretasks=[
+                  dict(theory='scf', set={'lindep:n_dep': 0}),
+                  dict(theory='dft', set={'lindep:n_dep': 0})
+              ])],
+        ['scf', -2056.7877421222634, True, False,
+         dict(basis='3-21G', pretasks=[dict(theory='scf', basis='sto-3g')])],
         ['ccsd', -2060.3418911515882, False, False, dict(basis='3-21G')],
         ['tce', -2060.319141863451, False, False, dict(
             basis='3-21G',
