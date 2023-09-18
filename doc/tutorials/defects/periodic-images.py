@@ -32,7 +32,7 @@ class CellFigure():
         from matplotlib.patches import Polygon, Circle
         if fill_color is not None:
             self.ax.add_patch(Polygon(vectors,
-                                      True,
+                                      closed=True,
                                       color=fill_color,
                                       alpha=0.4))
         for points in vectors:
