@@ -16,7 +16,7 @@ from ase import build
 from ase.io import read, write
 from ase.io.onetep import get_onetep_keywords
 
-ev2au = 27.2116529
+eV2au = 27.2116529
 angtobohr = 1.889726134583
 
 # Very complex solvation input file with
@@ -2156,8 +2156,6 @@ def test_onetep_output():
     assert cycled_atoms.info['onetep_species'] == ['O', 'HKO', 'H1']
 
 
-test_onetep_output()
-
 test_geom = """
 Linear-Scaling Ab Initio Total Energy Program
 --------------------------------------------------------------------------------
@@ -2637,17 +2635,15 @@ def test_geom_output():
         tmp = x.positions[0][-1] * angtobohr
         assert tmp == approx(positions_to_test[i])
         assert x.get_forces()[
-            0][-1] == approx(forces_to_test[i] * ev2au * angtobohr)
-        assert x.get_total_energy() == approx(energy_to_test[i] * ev2au)
+            0][-1] == approx(forces_to_test[i] * eV2au * angtobohr)
+        assert x.get_total_energy() == approx(energy_to_test[i] * eV2au)
 
-
-test_geom_output()
 
 # We test an output that has different ONETEP
 # outputs in it. (multi-calculation output)
-weird_output = test_output + \
-    test_geom + \
-    test_output
+weird_output = '\n'.join([test_output,
+                         test_geom,
+                         test_output])
 
 
 def test_weird_output():
@@ -2655,25 +2651,22 @@ def test_weird_output():
                       -17.14646299282811, -17.14648340396906,
                       -17.14649464854864, -17.14642427760311]
     fd = StringIO(weird_output)
-    atoms = read(fd, format='onetep-out', index="::")
+    atoms_list = read(fd, format='onetep-out', index="::")
     # Should be 1 + 4 + 1
-    assert len(atoms) == 6
+    assert len(atoms_list) == 6
     # The before last configuration should be the same as the
     # last configuration of the previous test
-    last_charges = atoms[-2].get_charges()
-    last_magnetic_moments = atoms[-2].get_magnetic_moments()
+    last_charges = atoms_list[-2].get_charges()
+    last_magnetic_moments = atoms_list[-2].get_magnetic_moments()
     assert last_charges == approx([-1.009, 0.505, 0.505])
     assert last_magnetic_moments == approx([0, 0, 0])
     # The first and last energy should be equal
-    first_energy = atoms[0].get_total_energy()
-    last_energy = atoms[-1].get_total_energy()
+    first_energy = atoms_list[0].get_total_energy()
+    last_energy = atoms_list[-1].get_total_energy()
     # The most important: we test all the
     # energy to make sure configurations
     # didn't get mixed up...
     assert first_energy == approx(last_energy)
-    for i, x in enumerate(atoms):
-        eng = x.get_potential_energy()
-        assert eng == approx(energy_to_test[i] * ev2au)
-
-
-test_weird_output()
+    for ref_energy, test_atoms in zip(energy_to_test, atoms_list):
+        test_energy = test_atoms.get_potential_energy()
+        assert test_energy == approx(ref_energy * eV2au)
