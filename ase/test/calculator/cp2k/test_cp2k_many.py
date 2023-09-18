@@ -100,11 +100,11 @@ def test_md(cp2k_factory):
 def test_o2(cp2k_factory):
     calc = cp2k_factory.calc(
         label='test_O2', uks=True, cutoff=150 * units.Rydberg,
-        basis_set="SZV-MOLOPT-SR-GTH")
+        basis_set="SZV-MOLOPT-SR-GTH", multiplicity=3)
     o2 = molecule('O2', calculator=calc)
     o2.center(vacuum=2.0)
     energy = o2.get_potential_energy()
-    energy_ref = -861.057011375
+    energy_ref = -862.8384369579051
     diff = abs((energy - energy_ref) / energy_ref)
     assert diff < 1e-10
 
