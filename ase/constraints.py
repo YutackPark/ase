@@ -207,14 +207,7 @@ class FixAtoms(IndexedConstraint):
 
 
 class FixCom(FixConstraint):
-    """Constraint class for fixing the center of mass.
-
-    References
-
-    https://pubs.acs.org/doi/abs/10.1021/jp9722824
-
-    """
-
+    """Constraint class for fixing the center of mass."""
     def get_removed_dof(self, atoms):
         return 3
 
@@ -222,14 +215,19 @@ class FixCom(FixConstraint):
         masses = atoms.get_masses()
         old_cm = atoms.get_center_of_mass()
         new_cm = np.dot(masses, new) / masses.sum()
-        d = old_cm - new_cm
-        new += d
+        diff = old_cm - new_cm
+        new += diff
+
+    def adjust_momenta(self, atoms, momenta):
+        """Adjust momenta so that the center-of-mass velocity is zero."""
+        masses = atoms.get_masses()
+        velocity_com = momenta.sum(axis=0) / masses.sum()
+        momenta -= masses[:, None] * velocity_com
 
     def adjust_forces(self, atoms, forces):
-        m = atoms.get_masses()
-        mm = np.tile(m, (3, 1)).T
-        lb = np.sum(mm * forces, axis=0) / sum(m**2)
-        forces -= mm * lb
+        # Eqs. (3) and (7) in https://doi.org/10.1021/jp9722824
+        masses = atoms.get_masses()
+        forces -= masses[:, None] * (masses @ forces) / sum(masses**2)
 
     def todict(self):
         return {'name': 'FixCom',

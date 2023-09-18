@@ -9,6 +9,9 @@ Git master branch
 
 :git:`master <>`.
 
+* Fix :meth:`ase.constraints.FixCom.adjust_momenta` to have no center-of-mass
+  momentum (:mr:`2947`)
+
 * :func:`ase.build.surface.graphene` now takes a `thickness` argument
   (:mr:`2963`)
 
