@@ -51,6 +51,8 @@ _PW_HIGHEST_OCCUPIED_LOWEST_FREE = 'highest occupied, lowest unoccupied level'
 _PW_KPTS = 'number of k points='
 _PW_BANDS = _PW_END
 _PW_BANDSTRUCTURE = 'End of band structure calculation'
+_PW_DIPOLE = "Debye"
+_PW_DIPOLE_DIRECTION = "Computed dipole along edir"
 
 # ibrav error message
 ibrav_error_message = (
@@ -130,6 +132,8 @@ def read_espresso_out(fileobj, index=-1, results_required=True):
         _PW_KPTS: [],
         _PW_BANDS: [],
         _PW_BANDSTRUCTURE: [],
+        _PW_DIPOLE: [],
+        _PW_DIPOLE_DIRECTION: [],
     }
 
     for idx, line in enumerate(pwo_lines):
@@ -275,6 +279,22 @@ def read_espresso_out(fileobj, index=-1, results_required=True):
                     in pwo_lines[magmoms_index + 1:
                                  magmoms_index + 1 + len(structure)]]
 
+        # Dipole moment
+        dipole = None
+        if indexes[_PW_DIPOLE]:
+            for dipole_index in indexes[_PW_DIPOLE]:
+                if image_index < dipole_index < next_index:
+                    _dipole = float(pwo_lines[dipole_index].split()[-2])
+
+            for dipole_index in indexes[_PW_DIPOLE_DIRECTION]:
+                if image_index < dipole_index < next_index:
+                    _direction = pwo_lines[dipole_index].strip()
+                    prefix = 'Computed dipole along edir('
+                    _direction = _direction[len(prefix):]
+                    _direction = int(_direction[0])
+
+            dipole = np.eye(3)[_direction - 1] * _dipole * units['Debye']
+
         # Fermi level / highest occupied level
         efermi = None
         for fermi_index in indexes[_PW_FERMI]:
@@ -382,7 +402,7 @@ def read_espresso_out(fileobj, index=-1, results_required=True):
                                         free_energy=energy,
                                         forces=forces, stress=stress,
                                         magmoms=magmoms, efermi=efermi,
-                                        ibzkpts=ibzkpts)
+                                        ibzkpts=ibzkpts, dipole=dipole)
         calc.kpts = kpts
         structure.calc = calc
 
