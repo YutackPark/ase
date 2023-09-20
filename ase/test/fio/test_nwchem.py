@@ -3,6 +3,9 @@ from ase import io
 
 import pytest
 
+from pathlib import Path
+
+parent = Path(__file__).parents[1]
 
 @pytest.fixture()
 def atoms():
@@ -134,3 +137,27 @@ def test_doc_example_2(atoms):
     # Double-check that the basis sets are first 3-21g then 6-31g
     assert output.count('library 3-21g') == 2
     assert output.count('library 6-31g(2df,p)') == 1
+
+
+def test_nwchem_trailing_space():
+    """Checks that parsing of NWChem input files works when trailing spaces
+    are present in the output file. See !3018
+    """
+    from ase import io
+
+    atoms1 = io.read(parent / 'testdata/nwchem/output_7.0.2-gcc.nwo')
+    atoms2 = io.read(parent / 'testdata/nwchem/output_7.0.2-intel.nwo')
+
+    results1 = atoms1.calc.results
+    results2 = atoms2.calc.results
+
+    assert set(results1.keys()) == set(results2.keys())
+
+    for key in results1.keys():
+        # each result can be either float or ndarray.
+        assert results1[key] == pytest.approx(results2[key])
+
+    tol = 1e-8
+
+    check = sum(abs((atoms1.positions - atoms2.positions).ravel()) > tol)
+    assert check == 0
