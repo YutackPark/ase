@@ -1,7 +1,7 @@
+import numpy as np
+import pytest
 from ase.build import molecule
 from ase import io
-
-import pytest
 
 
 @pytest.fixture()
@@ -154,7 +154,4 @@ def test_nwchem_trailing_space(datadir):
         # each result can be either float or ndarray.
         assert results1[key] == pytest.approx(results2[key])
 
-    tol = 1e-8
-
-    check = sum(abs((atoms1.positions - atoms2.positions).ravel()) > tol)
-    assert check == 0
+    np.testing.assert_allclose(atoms1.positions, atoms2.positions, atol=1e-8)
