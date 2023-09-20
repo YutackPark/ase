@@ -3,9 +3,6 @@ from ase import io
 
 import pytest
 
-from pathlib import Path
-
-parent = Path(__file__).parents[1]
 
 @pytest.fixture()
 def atoms():
@@ -139,14 +136,14 @@ def test_doc_example_2(atoms):
     assert output.count('library 6-31g(2df,p)') == 1
 
 
-def test_nwchem_trailing_space():
+def test_nwchem_trailing_space(datadir):
     """Checks that parsing of NWChem input files works when trailing spaces
     are present in the output file.
     """
     from ase import io
 
-    atoms1 = io.read(parent / 'testdata/nwchem/output_7.0.2-gcc.nwo')
-    atoms2 = io.read(parent / 'testdata/nwchem/output_7.0.2-intel.nwo')
+    atoms1 = io.read(datadir / 'nwchem/output_7.0.2-gcc.nwo')
+    atoms2 = io.read(datadir / 'nwchem/output_7.0.2-intel.nwo')
 
     results1 = atoms1.calc.results
     results2 = atoms2.calc.results
