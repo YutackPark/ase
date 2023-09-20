@@ -148,5 +148,5 @@ def test_nwchem_trailing_space(datadir):
     dipole1, quadrupole1 = _get_multipole(chunk1)
     dipole2, quadrupole2 = _get_multipole(chunk2)
 
-    np.testing.assert_equal(dipole1, dipole2, atol=1e-8)
-    np.testing.assert_equal(quadrupole1, quadrupole2, atol=1e-8)
+    np.testing.assert_equal(dipole1, dipole2)
+    np.testing.assert_equal(quadrupole1, quadrupole2)
