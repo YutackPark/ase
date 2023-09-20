@@ -442,19 +442,17 @@ def write_lammps_data(
     fd.write(f"{n_atom_types} atom types\n\n")
 
     if prismobj is None:
-        p = Prism(atoms.get_cell(), reduce_cell=reduce_cell)
-    else:
-        p = prismobj
+        prismobj = Prism(atoms.get_cell(), reduce_cell=reduce_cell)
 
     # Get cell parameters and convert from ASE units to LAMMPS units
-    xhi, yhi, zhi, xy, xz, yz = convert(p.get_lammps_prism(), "distance",
-                                        "ASE", units)
+    xhi, yhi, zhi, xy, xz, yz = convert(
+        prismobj.get_lammps_prism(), "distance", "ASE", units)
 
     fd.write(f"0.0 {xhi:23.17g}  xlo xhi\n")
     fd.write(f"0.0 {yhi:23.17g}  ylo yhi\n")
     fd.write(f"0.0 {zhi:23.17g}  zlo zhi\n")
 
-    if force_skew or p.is_skewed():
+    if force_skew or prismobj.is_skewed():
         fd.write(f"{xy:23.17g} {xz:23.17g} {yz:23.17g}  xy xz yz\n")
     fd.write("\n")
 
@@ -465,7 +463,7 @@ def write_lammps_data(
     # cell along periodic directions is desired, this should be done manually
     # on the Atoms object itself beforehand.
     fd.write(f"Atoms # {atom_style}\n\n")
-    pos = p.vector_to_lammps(atoms.get_positions(), wrap=False)
+    pos = prismobj.vector_to_lammps(atoms.get_positions(), wrap=False)
 
     if atom_style == 'atomic':
         # Convert position from ASE units to LAMMPS units
@@ -534,7 +532,7 @@ def write_lammps_data(
 
     if velocities and atoms.get_velocities() is not None:
         fd.write("\n\nVelocities\n\n")
-        vel = p.vector_to_lammps(atoms.get_velocities())
+        vel = prismobj.vector_to_lammps(atoms.get_velocities())
         # Convert velocity from ASE units to LAMMPS units
         vel = convert(vel, "velocity", "ASE", units)
         for i, v in enumerate(vel):
