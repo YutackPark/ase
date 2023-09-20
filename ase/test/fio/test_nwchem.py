@@ -141,7 +141,7 @@ def test_doc_example_2(atoms):
 
 def test_nwchem_trailing_space():
     """Checks that parsing of NWChem input files works when trailing spaces
-    are present in the output file. See !3018
+    are present in the output file.
     """
     from ase import io
 

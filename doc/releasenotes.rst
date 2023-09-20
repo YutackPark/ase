@@ -221,6 +221,9 @@ Thermochemistry:
 
 I/O:
 
+* Fix parsing of dipole moment in :mod:`ase.io.nwchem` from output files
+  with trailing spaces (:mr:`3018`)
+
 * Fix to read and write a compressed trajectory file like `xxx.traj.gz`
   (:mr:`2997`)
 
