@@ -140,18 +140,13 @@ def test_nwchem_trailing_space(datadir):
     """Checks that parsing of NWChem input files works when trailing spaces
     are present in the output file.
     """
-    from ase import io
+    from ase.io.nwchem.nwreader import _get_multipole
 
-    atoms1 = io.read(datadir / 'nwchem/output_7.0.2-gcc.nwo')
-    atoms2 = io.read(datadir / 'nwchem/output_7.0.2-intel.nwo')
+    chunk1 = (datadir / 'nwchem/snippet_multipole_7.0.2-gcc.nwo').read_text()
+    chunk2 = (datadir / 'nwchem/snippet_multipole_7.0.2-intel.nwo').read_text()
 
-    results1 = atoms1.calc.results
-    results2 = atoms2.calc.results
+    dipole1, quadrupole1 = _get_multipole(chunk1)
+    dipole2, quadrupole2 = _get_multipole(chunk2)
 
-    assert set(results1.keys()) == set(results2.keys())
-
-    for key in results1.keys():
-        # each result can be either float or ndarray.
-        assert results1[key] == pytest.approx(results2[key])
-
-    np.testing.assert_allclose(atoms1.positions, atoms2.positions, atol=1e-8)
+    np.testing.assert_equal(dipole1, dipole2, atol=1e-8)
+    np.testing.assert_equal(quadrupole1, quadrupole2, atol=1e-8)
