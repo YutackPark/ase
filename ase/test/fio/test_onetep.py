@@ -10,11 +10,11 @@ from copy import copy
 from io import StringIO
 
 import numpy as np
-from pytest import approx
-
+import pytest
 from ase import build
 from ase.io import read, write
 from ase.io.onetep import get_onetep_keywords
+from pytest import approx
 
 eV2au = 27.2116529
 angtobohr = 1.889726134583
@@ -22,7 +22,7 @@ angtobohr = 1.889726134583
 # Very complex solvation input file with
 # many custom defined species
 # and constraints
-test_input = """
+onetep_input = """
 task                   : SINGLEPOINT
 
 ppd_npoints 7 5 5
@@ -1990,7 +1990,7 @@ def test_onetep_input():
     """Read onetep input file."""
     # For tests we use a StringIO object.
     # in-memory text-file like object.
-    fd = StringIO(test_input)
+    fd = StringIO(onetep_input)
     atoms = read(fd, format='onetep-in')
     fd.seek(0)
     original_cell = atoms.get_cell()
@@ -2028,8 +2028,23 @@ def test_onetep_input():
     assert np.all(cycled_atoms.get_tags() == original_tags)
     assert cycled_atoms.get_cell().cellpar() == approx(original_cell.cellpar())
 
+@pytest.fixture
+def test_onetep_recursive_include_input(datadir):
+    testfile_path = datadir / "onetep_include.dat"
+    try:
+        fd = read(testfile_path, format='onetep-in')
+    except ValueError:
+        return
+    raise ValueError("Did not prevent recursive include input")
 
-test_onetep_input()
+@pytest.fixture
+def test_onetep_nested_include_input(datadir):
+    testfile_path = datadir / "onetep_include_nested.dat"
+    try:
+        fd = read(testfile_path, format='onetep-in')
+    except ValueError as e:
+        return
+    raise ValueError("Did not prevent nested include input")
 
 test_output = """
 Linear-Scaling Ab Initio Total Energy Program
