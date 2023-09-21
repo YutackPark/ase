@@ -82,7 +82,7 @@ class Namelist(OrderedDict):
 
 
 @iofunction('r')
-def read_espresso_out(fileobj, index=-1, results_required=True):
+def read_espresso_out(fileobj, index=slice(None), results_required=True):
     """Reads Quantum ESPRESSO output files.
 
     The atomistic configurations as well as results (energy, force, stress,
