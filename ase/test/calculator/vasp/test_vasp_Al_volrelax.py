@@ -51,7 +51,7 @@ def test_vasp_Al_volrelax(factory):
         calc = factory.calc(xc='LDA')
         Al.calc = calc
 
-        from ase.constraints import StrainFilter
+        from ase.filters import StrainFilter
         sf = StrainFilter(Al)
         with BFGS(sf, logfile='relaxation.log') as qn:
             qn.run(fmax=0.1, steps=5)

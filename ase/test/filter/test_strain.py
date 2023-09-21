@@ -1,5 +1,5 @@
 from math import sqrt
-from ase.constraints import StrainFilter
+from ase.filters import StrainFilter
 from ase.optimize.mdmin import MDMin
 from ase.build import bulk
 

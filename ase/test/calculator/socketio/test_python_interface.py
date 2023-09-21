@@ -10,7 +10,7 @@ from ase.calculators.emt import EMT
 @pytest.mark.skipif(os.name != 'posix', reason='only posix')
 def test_socketio_python():
     from ase.build import bulk
-    from ase.constraints import ExpCellFilter
+    from ase.filters import ExpCellFilter
     from ase.optimize import BFGS
 
     atoms = bulk('Au') * (2, 2, 2)

@@ -4,7 +4,7 @@ import numpy as np
 from ase.build import bulk
 
 from ase.optimize import BFGS
-from ase.constraints import ExpCellFilter
+from ase.filters import ExpCellFilter
 from ase.units import Ry
 
 

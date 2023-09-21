@@ -47,6 +47,11 @@ should be less than *fmax*:
 
 .. math:: \max_a |\vec{F_a}| < f_\text{max}
 
+.. note::
+
+    ``Optimizer`` classes themselves optimize only internal atomic positions.
+    Cell volume and shape can also be optimized in combination with ``Filter``
+    classes. (See :doc:`filters` for details.)
 
 BFGS
 ----

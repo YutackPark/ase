@@ -68,6 +68,7 @@ List of all modules:
    optimize
    md
    constraints
+   filters
    spacegroup/spacegroup
    neighborlist
    geometry

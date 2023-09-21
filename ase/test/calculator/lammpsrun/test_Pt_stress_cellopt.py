@@ -2,7 +2,7 @@ import numpy as np
 from numpy.testing import assert_allclose
 import pytest
 from ase.build import bulk
-from ase.constraints import ExpCellFilter
+from ase.filters import ExpCellFilter
 from ase.optimize import BFGS
 
 

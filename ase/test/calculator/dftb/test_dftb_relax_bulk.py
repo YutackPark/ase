@@ -1,6 +1,6 @@
 from ase.build import bulk
 from ase.optimize import QuasiNewton
-from ase.constraints import ExpCellFilter
+from ase.filters import ExpCellFilter
 
 
 def test_dftb_relax_bulk(dftb_factory):

@@ -4,7 +4,7 @@ import pytest
 from ase.units import GPa
 from ase.build import bulk
 from ase.calculators.test import gradient_test
-from ase.constraints import UnitCellFilter, ExpCellFilter
+from ase.filters import UnitCellFilter, ExpCellFilter
 from ase.optimize import LBFGS, MDMin
 from ase.io import Trajectory
 

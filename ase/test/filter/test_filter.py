@@ -1,5 +1,5 @@
 from ase.build import molecule
-from ase.constraints import Filter
+from ase.filters import Filter
 from ase.optimize import QuasiNewton
 from ase.calculators.emt import EMT
 
