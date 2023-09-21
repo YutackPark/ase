@@ -1,7 +1,7 @@
 from ase.build import fcc100, add_adsorbate
 from ase.constraints import FixAtoms
 from ase.calculators.emt import EMT
-from ase.dimer import DimerControl, MinModeAtoms, MinModeTranslate
+from ase.mep import DimerControl, MinModeAtoms, MinModeTranslate
 
 
 def test_dimer_method(testdir):

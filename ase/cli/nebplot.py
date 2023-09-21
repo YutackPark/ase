@@ -35,7 +35,7 @@ class CLICommand:
 
     @staticmethod
     def run(args, parser):
-        from ase.neb import NEBTools
+        from ase.mep import NEBTools
         from ase.gui.images import Images
 
         # Nothing will ever be stored in args.output; need to manually find

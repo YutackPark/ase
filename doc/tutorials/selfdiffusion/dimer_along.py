@@ -8,7 +8,7 @@ from ase.io import Trajectory
 from ase.constraints import FixAtoms
 from ase.optimize import QuasiNewton
 from ase.calculators.emt import EMT
-from ase.dimer import DimerControl, MinModeAtoms, MinModeTranslate
+from ase.mep import DimerControl, MinModeAtoms, MinModeTranslate
 
 # Setting up the initial image:
 a = 4.0614
