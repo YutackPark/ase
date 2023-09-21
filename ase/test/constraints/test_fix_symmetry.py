@@ -7,7 +7,7 @@ from ase.calculators.calculator import all_changes
 from ase.calculators.lj import LennardJones
 from ase.spacegroup.symmetrize import FixSymmetry, check_symmetry, is_subgroup
 from ase.optimize.precon.lbfgs import PreconLBFGS
-from ase.constraints import UnitCellFilter, ExpCellFilter
+from ase.filters import UnitCellFilter, ExpCellFilter
 
 spglib = pytest.importorskip('spglib')
 

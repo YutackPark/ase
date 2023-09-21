@@ -2,7 +2,8 @@ import numpy as np
 import pytest
 
 from ase.build import bulk
-from ase.constraints import FixAtoms, UnitCellFilter
+from ase.constraints import FixAtoms
+from ase.filters import UnitCellFilter
 from ase.calculators.emt import EMT
 from ase.optimize.precon import make_precon, Precon
 from ase.neighborlist import neighbor_list

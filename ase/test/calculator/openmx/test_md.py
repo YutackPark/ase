@@ -4,7 +4,7 @@ import pytest
 from ase.units import Ry, Ha
 from ase.io.trajectory import Trajectory
 from ase.optimize import QuasiNewton
-from ase.constraints import UnitCellFilter
+from ase.filters import UnitCellFilter
 from ase import Atoms
 from ase.utils import tokenize_version
 

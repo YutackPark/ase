@@ -4,7 +4,7 @@ import pytest
 from ase.build import bulk
 from ase.calculators.lj import LennardJones
 from ase.optimize.precon import PreconLBFGS, Exp
-from ase.constraints import UnitCellFilter, ExpCellFilter
+from ase.filters import UnitCellFilter, ExpCellFilter
 
 
 # @pytest.mark.skip('FAILS WITH PYAMG')

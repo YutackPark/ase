@@ -3,7 +3,7 @@ def test_gulp_opt():
     from ase.calculators.gulp import GULP
     from ase.optimize import BFGS
     from ase.build import molecule, bulk
-    from ase.constraints import ExpCellFilter
+    from ase.filters import ExpCellFilter
 
     # GULP optmization test
     atoms = molecule('H2O')
