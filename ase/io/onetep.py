@@ -110,10 +110,14 @@ def read_onetep_in(fd, **kwargs):
     fdi_lines = fd.readlines()
 
     try:
-        include_files = [Path(fd.name).resolve()]
+        fd_path = Path(fd.name).resolve()
+        fd_parent = fd_path.parent
+        include_files = [fd_path]
     except AttributeError:
         # We are in a StringIO or something similar
-        include_files = []
+        fd_path = Path().cwd()
+        fd_parent = fd_path
+        include_files = [Path().cwd()]
 
     def clean_lines(lines):
         """
@@ -156,25 +160,32 @@ def read_onetep_in(fd, **kwargs):
         if not block_start:
             if 'devel_code' in line_lower:
                 warnings.warn('devel_code is not supported')
-                # n += 1
                 continue
             # Splits line on any valid onetep separator
             sep = re.split(r'[:=\s]+', line)
             keywords[sep[0]] = ' '.join(sep[1:])
             # If include_file is used, we open the included file
             # and insert it in the current fdi_lines...
-            # Should work with a cascade
+            # ONETEP does not work with cascade
+            # and this SHOULD NOT work with cascade
             if 'include_file' == sep[0]:
-                new_path = Path(sep[1]).resolve()
+                name = sep[1].replace('\'', '')
+                name = name.replace('\"', '')
+                new_path = fd_parent / name
                 for path in include_files:
                     if new_path.samefile(path):
-                        raise ValueError('recursive include_file')
-                new_fd = open(sep[1], 'r')
+                        raise ValueError('invalid/recursive include_file')
+                new_fd = open(new_path, 'r')
                 new_lines = new_fd.readlines()
                 new_lines = clean_lines(new_lines)
+                for include_line in new_lines:
+                    sep = re.split(r'[:=\s]+', include_line)
+                    if 'include_file' == sep[0]:
+                        raise ValueError('nested include_file')
                 fdi_lines[:] = fdi_lines[:n + 1] + \
                     new_lines + \
                     fdi_lines[n + 1:]
+                include_files.append(new_path)
                 continue
 
         if '%endblock' in line_lower:
