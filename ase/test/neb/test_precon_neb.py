@@ -7,7 +7,8 @@ from ase.calculators.morse import MorsePotential
 from ase.optimize import BFGS, ODE12r
 from ase.optimize.precon import Exp
 from ase.build import bulk
-from ase.neb import NEB, NEBTools, NEBOptimizer
+from ase.mep import NEB, NEBTools
+from ase.mep.neb import NEBOptimizer
 from ase.geometry.geometry import find_mic
 from ase.constraints import FixBondLength
 from ase.geometry.geometry import get_distances

@@ -1268,7 +1268,7 @@ class PreconImages:
         Wrapper for a list of Precon objects and associated images
 
         This is used when preconditioning a NEB object. Equation references
-        refer to Paper IV in the :class:`ase.neb.NEB` documentation, i.e.
+        refer to Paper IV in the :class:`ase.mep.NEB` documentation, i.e.
 
         S. Makri, C. Ortner and J. R. Kermode, J. Chem. Phys.
         150, 094109 (2019)

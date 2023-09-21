@@ -9,6 +9,10 @@ Git master branch
 
 :git:`master <>`.
 
+* All saddle-point search and minimum-energy path methods have been moved
+  into a new :mod:`ase.mep` module. You should start importing from this
+  location; e.g., `from ase.mep import NEB, DyNEB` (:mr:`2974`).
+
 * Fix :meth:`ase.constraints.FixCom.adjust_momenta` to have no center-of-mass
   momentum (:mr:`2947`)
 

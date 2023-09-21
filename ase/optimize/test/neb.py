@@ -1,7 +1,7 @@
 from ase.optimize import QuasiNewton
 from ase.constraints import FixAtoms
 from ase.calculators.emt import EMT
-from ase.neb import NEB
+from ase.mep import NEB
 from ase.build import fcc100, add_adsorbate
 
 

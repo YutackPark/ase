@@ -4,7 +4,7 @@ from math import sqrt
 from ase import Atoms, Atom, io
 from ase.calculators.emt import EMT
 from ase.constraints import FixAtoms
-from ase.neb import NEB
+from ase.mep import NEB
 from ase.optimize import BFGS
 
 

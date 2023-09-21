@@ -1,5 +1,5 @@
 from ase.build import molecule
-from ase.neb import NEB
+from ase.mep import NEB
 from ase.calculators.emt import EMT
 from ase.optimize.fire import FIRE as QuasiNewton
 

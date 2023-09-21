@@ -1,10 +1,9 @@
 import pytest
 from pathlib import Path
 from ase import Atoms
-from ase.autoneb import AutoNEB
+from ase.mep import AutoNEB, NEBTools
 from ase.build import fcc211, add_adsorbate
 from ase.constraints import FixAtoms
-from ase.neb import NEBTools
 from ase.optimize import QuasiNewton, BFGS
 from ase.calculators.emt import EMT
 

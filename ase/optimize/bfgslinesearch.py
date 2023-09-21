@@ -101,7 +101,7 @@ class BFGSLineSearch(Optimizer):
         if forces is None:
             forces = atoms.get_forces()
 
-        from ase.neb import NEB
+        from ase.mep import NEB
         if isinstance(atoms, NEB):
             raise TypeError('NEB calculations cannot use the BFGSLineSearch'
                             ' optimizer. Use BFGS or another optimizer.')

@@ -1,5 +1,5 @@
 from ase.build import molecule
-from ase.neb import NEB, idpp_interpolate
+from ase.mep import NEB, idpp_interpolate
 
 
 def test_idpp(testdir):

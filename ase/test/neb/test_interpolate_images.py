@@ -1,5 +1,5 @@
 from ase import Atoms
-from ase.neb import interpolate
+from ase.mep import interpolate
 from ase.constraints import FixAtoms
 import numpy as np
 import pytest
