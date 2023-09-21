@@ -145,8 +145,6 @@ def read_onetep_in(fd, **kwargs):
 
     # Main loop reading the input
     for n, line in enumerate(fdi_lines):
-        # sep = re.split(r'[!#]', line.strip())[0]
-        # line = fdi_lines[n]
         line_lower = line.lower()
         if '%block' in line_lower:
             block_start = n + 1
