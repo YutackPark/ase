@@ -240,6 +240,12 @@ def read_magres(fd, include_unrecognised=False):
 
     file_contents = fd.read()
 
+    # Solve incompatibility for atomic indices above 100
+    pattern_ms = r'(ms [a-zA-Z]{1,2})(\d+)'
+    file_contents = re.sub(pattern_ms, r'\g<1> \g<2>', file_contents)
+    pattern_efg = r'(efg [a-zA-Z]{1,2})(\d+)'
+    file_contents = re.sub(pattern_efg, r'\g<1> \g<2>', file_contents)
+
     # This works as a validity check
     version = get_version(file_contents)
     if version is None:
