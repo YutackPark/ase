@@ -1,7 +1,7 @@
+import numpy as np
+import pytest
 from ase.build import molecule
 from ase import io
-
-import pytest
 
 
 @pytest.fixture()
@@ -134,3 +134,19 @@ def test_doc_example_2(atoms):
     # Double-check that the basis sets are first 3-21g then 6-31g
     assert output.count('library 3-21g') == 2
     assert output.count('library 6-31g(2df,p)') == 1
+
+
+def test_nwchem_trailing_space(datadir):
+    """Checks that parsing of NWChem input files works when trailing spaces
+    are present in the output file.
+    """
+    from ase.io.nwchem.nwreader import _get_multipole
+
+    chunk1 = (datadir / 'nwchem/snippet_multipole_7.0.2-gcc.nwo').read_text()
+    chunk2 = (datadir / 'nwchem/snippet_multipole_7.0.2-intel.nwo').read_text()
+
+    dipole1, quadrupole1 = _get_multipole(chunk1)
+    dipole2, quadrupole2 = _get_multipole(chunk2)
+
+    np.testing.assert_equal(dipole1, dipole2)
+    np.testing.assert_equal(quadrupole1, quadrupole2)
