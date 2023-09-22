@@ -588,7 +588,12 @@ def read_onetep_out(fd, index=-1, improving=False, **kwargs):
     for idx, line in enumerate(fdo_lines):
         match = False
         for key in output:
-            if key in line:
+            # The second condition is for species block where
+            #  we have to make sure there is nothing after the word
+            # 'species' but sometimes no trailing space will
+            # be present.
+            if key in line or \
+                key.strip() == line.strip():
                 match = key
                 break
         if match:
@@ -861,7 +866,8 @@ def read_onetep_out(fd, index=-1, improving=False, **kwargs):
         element_map = {}
         while idx + n < len(fdo_lines):
             sep = fdo_lines[idx + n].split()
-            if '%endblock species ' in fdo_lines[idx + n].lower():
+            lsline = fdo_lines[idx + n].lower().strip()
+            if '%endblock species' == lsline:
                 return element_map
             element_map[sep[0]] = sep[1]
             n += 1

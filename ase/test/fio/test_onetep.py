@@ -6,12 +6,10 @@ Implemented:
 * Geometry output file
 """
 
-from copy import copy
 from io import StringIO
 
 import numpy as np
 import pytest
-from ase import build
 from ase.io import read, write
 from ase.io.onetep import get_onetep_keywords
 from pytest import approx
@@ -40,14 +38,14 @@ is_sepaRate_restArt_fiLes T
 
 #==== ring-resolved PDOS
 %block species_ldos_groups
-H2  O2  Al2 
-H3  O3  Al3 
-H4  O4  Si4 
-H5  O5  Al5 
-H6  O6  Al6 
-H7  O7  Si7 
-H8  O8  Al8 
-H9  O9  Al9 
+H2  O2  Al2
+H3  O3  Al3
+H4  O4  Si4
+H5  O5  Al5
+H6  O6  Al6
+H7  O7  Si7
+H8  O8  Al8
+H9  O9  Al9
 H10 O10 Si10
   H11 O11 Al11
 H12 O12 Al12
@@ -63,7 +61,7 @@ H21 O21 Al21
 H22 O22 Si22
 H23 O23 Al23
 H24 O24 Al24
-HOH OOH 
+HOH OOH
 %endblock species_ldos_groups
 
 %block species_cond
@@ -365,18 +363,18 @@ OOH    O   8   4  8.0
 
 
 %block species_constraints
-H2    NONE 
+H2    NONE
 O2    NONE
-Al2   NONE 
+Al2   NONE
 H3    NONE
-O3    NONE 
+O3    NONE
 Al3   NONE
-H4    NONE 
+H4    NONE
 O4    NONE
 Si4   NONE
-H5    NONE 
-O5    NONE 
-Al5   NONE 
+H5    NONE
+O5    NONE
+Al5   NONE
 H6    NONE
 O6    NONE
 Al6   NONE
@@ -422,20 +420,20 @@ Si19  NONE
 H20   NONE
 O20   NONE
 Al20  NONE
-H21   NONE 
-O21   NONE 
-Al21  NONE 
-H22   NONE  
-O22   NONE  
-Si22  NONE  
+H21   NONE
+O21   NONE
+Al21  NONE
+H22   NONE
+O22   NONE
+Si22  NONE
 H23   NONE
 O23   NONE
 Al23  NoNe
-H24   NONE 
-O24   NONE 
-Al24  NONE 
-HOH   NONE 
-OOH   NONE 
+H24   NONE
+O24   NONE
+Al24  NONE
+HOH   NONE
+OOH   NONE
 %endblock species_constraints
 
 dos_smear               : 0.1 eV
@@ -481,11 +479,11 @@ tHREADS_NUM_FFTBOXES 8
 hfx_memory_limit 32000
 
 hfx_memory_weights 1 0 0
- 
+
 %block swri
   for_hfx 3 12 V 12 12 RE2
 %endblock swri
- 
+
 hfx_use_ri for_hfx
 hfx_max_l 3
 hfx_max_q 12
@@ -493,57 +491,57 @@ hfx_metric ELECTROSTATIC
 hfx_cutoff 20.0 bohr
 
 %block species_swri-for_hfx
-H2      
-O2      
-Al2     
-H3      
-O3      
-Al3     
-H4      
-O4      
-Si4     
-H5      
-O5      
-Al5     
-H6      
-O6      
-Al6     
-H7      
-O7      
-Si7     
-H8      
-O8      
-Al8     
-H9      
-O9      
-Al9     
-H10      
-O10      
-Si10     
-H11      
-O11      
-Al11     
-H12      
-O12      
-Al12     
-H13      
-O13      
-Si13     
-H14      
-O14      
-Al14     
-H15      
-O15      
-Al15     
-H16      
-O16      
-Si16     
-H17      
-O17      
-Al17     
-H18      
-O18      
-Al18     
+H2
+O2
+Al2
+H3
+O3
+Al3
+H4
+O4
+Si4
+H5
+O5
+Al5
+H6
+O6
+Al6
+H7
+O7
+Si7
+H8
+O8
+Al8
+H9
+O9
+Al9
+H10
+O10
+Si10
+H11
+O11
+Al11
+H12
+O12
+Al12
+H13
+O13
+Si13
+H14
+O14
+Al14
+H15
+O15
+Al15
+H16
+O16
+Si16
+H17
+O17
+Al17
+H18
+O18
+Al18
 H19
 O19
 Si19
@@ -562,8 +560,8 @@ Al23
 H24
 O24
 Al24
-HOH      
-OOH      
+HOH
+OOH
 %endblock species_swri-for_hfx
 
  %block positions_abs
@@ -2028,23 +2026,20 @@ def test_onetep_input():
     assert np.all(cycled_atoms.get_tags() == original_tags)
     assert cycled_atoms.get_cell().cellpar() == approx(original_cell.cellpar())
 
+
 @pytest.fixture
 def test_onetep_recursive_include_input(datadir):
     testfile_path = datadir / "onetep_include.dat"
-    try:
-        fd = read(testfile_path, format='onetep-in')
-    except ValueError:
-        return
-    raise ValueError("Did not prevent recursive include input")
+    with pytest.raises(ValueError):
+        read(testfile_path, format='onetep-in')
+
 
 @pytest.fixture
 def test_onetep_nested_include_input(datadir):
     testfile_path = datadir / "onetep_include_nested.dat"
-    try:
-        fd = read(testfile_path, format='onetep-in')
-    except ValueError as e:
-        return
-    raise ValueError("Did not prevent nested include input")
+    with pytest.raises(ValueError):
+        read(testfile_path, format='onetep-in')
+
 
 test_output = """
 Linear-Scaling Ab Initio Total Energy Program
@@ -2052,41 +2047,41 @@ Linear-Scaling Ab Initio Total Energy Program
 ---------------------------------- INPUT FILE ----------------------------------
 --------------------------------------------------------------------------------
 
-cutoff_energy : 25                                                              
-edft : F                                                                        
-forces_output_detail : verbose                                                  
-output_detail : verbose                                                         
-paw : F                                                                         
-do_properties = T                                                                                     
-read_denskern : F                                                               
-read_hamiltonian : F                                                            
-read_tightbox_ngwfs : F                                                         
-task : singlepoint                                                              
-write_forces : T                                                                
-xc_functional : pbe                                                             
-zero_total_force: : T                                                           
-%BLOCK LATTICE_CART                                                             
-ang                                                                             
-14.00000000       0.00000000       0.00000000                                   
-0.00000000      15.52647800       0.00000000                                    
-0.00000000       0.00000000      14.59630900                                    
-%ENDBLOCK LATTICE_CART                                                          
-%BLOCK POSITIONS_ABS                                                            
-ang                                                                             
-O     7.000000     7.763239     7.596309                                        
-HKO     7.000000     8.526478     7.000000                                        
-H1     7.000000     7.000000     7.000000                                        
-%ENDBLOCK POSITIONS_ABS                                                         
-%BLOCK SPECIES                                                                  
+cutoff_energy : 25
+edft : F
+forces_output_detail : verbose
+output_detail : verbose
+paw : F
+do_properties = T
+read_denskern : F
+read_hamiltonian : F
+read_tightbox_ngwfs : F
+task : singlepoint
+write_forces : T
+xc_functional : pbe
+zero_total_force: : T
+%BLOCK LATTICE_CART
+ang
+14.00000000       0.00000000       0.00000000
+0.00000000      15.52647800       0.00000000
+0.00000000       0.00000000      14.59630900
+%ENDBLOCK LATTICE_CART
+%BLOCK POSITIONS_ABS
+ang
+O     7.000000     7.763239     7.596309
+HKO     7.000000     8.526478     7.000000
+H1     7.000000     7.000000     7.000000
+%ENDBLOCK POSITIONS_ABS
+%BLOCK SPECIES
 H1 H 1 -1 9.0
-HKO H 1 -1 9.0                                                                     
-O O 8 -1 9.0                                                                    
-%ENDBLOCK SPECIES                                                               
-%BLOCK SPECIES_POT                                                              
-H1 H_NCP19_PBE.usp 
-HKO H_NCP19_PBE.usp                                                              
-O O_NCP19_PBE.usp                                                               
-%ENDBLOCK SPECIES_POT                                                           
+HKO H 1 -1 9.0
+O O 8 -1 9.0
+%ENDBLOCK SPECIES
+%BLOCK SPECIES_POT
+H1 H_NCP19_PBE.usp
+HKO H_NCP19_PBE.usp
+O O_NCP19_PBE.usp
+%ENDBLOCK SPECIES_POT
 
 ...
 
@@ -2165,7 +2160,8 @@ def test_onetep_output():
     fdi.seek(0)
     cycled_atoms = read(fdi, format='onetep-in')
     assert cycled_atoms.positions == approx(atoms.positions)
-    assert cycled_atoms.get_cell() == approx(atoms.get_cell())
+    assert cycled_atoms.get_cell().array \
+        == approx(atoms.get_cell().array)
     assert cycled_atoms.get_chemical_symbols() == ['O', 'H', 'H']
     assert list(cycled_atoms.get_tags()) == [0, 0, 1]
     assert cycled_atoms.info['onetep_species'] == ['O', 'HKO', 'H1']
@@ -2177,41 +2173,41 @@ Linear-Scaling Ab Initio Total Energy Program
 ---------------------------------- INPUT FILE ----------------------------------
 --------------------------------------------------------------------------------
 
-cutoff_energy : 25                                                              
-edft : F                                                                        
-forces_output_detail : verbose                                                  
-output_detail : verbose                                                         
-paw : F                                                                         
-do_properties = T                                                               
-pseudo_path : /home/td5g20/PseudoPotentials/CASTEP                              
-read_denskern : F                                                               
-read_hamiltonian : F                                                            
-read_tightbox_ngwfs : F                                                         
-task : geometryoptimization                                                     
-write_forces : T                                                                
-xc_functional : pbe                                                             
-zero_total_force: : T                                                           
-spin_polarized : T                                                              
-%BLOCK LATTICE_CART                                                             
-ang                                                                             
-14.00000000       0.00000000       0.00000000                                   
-0.00000000      15.52647800       0.00000000                                    
-0.00000000       0.00000000      14.59630900                                    
-%ENDBLOCK LATTICE_CART                                                          
-%BLOCK POSITIONS_ABS                                                            
-ang                                                                             
-O     7.000000     7.763239     7.596309                                        
-H     7.000000     8.526478     7.000000                                        
-H     7.000000     7.000000     7.000000                                        
-%ENDBLOCK POSITIONS_ABS                                                         
-%BLOCK SPECIES                                                                  
-H H 1 -1 9.0                                                                    
-O O 8 -1 9.0                                                                    
-%ENDBLOCK SPECIES                                                               
-%BLOCK SPECIES_POT                                                              
-H H_NCP19_PBE.usp                                                               
-O O_NCP19_PBE.usp                                                               
-%ENDBLOCK SPECIES_POT                                                           
+cutoff_energy : 25
+edft : F
+forces_output_detail : verbose
+output_detail : verbose
+paw : F
+do_properties = T
+pseudo_path : /home/td5g20/PseudoPotentials/CASTEP
+read_denskern : F
+read_hamiltonian : F
+read_tightbox_ngwfs : F
+task : geometryoptimization
+write_forces : T
+xc_functional : pbe
+zero_total_force: : T
+spin_polarized : T
+%BLOCK LATTICE_CART
+ang
+14.00000000       0.00000000       0.00000000
+0.00000000      15.52647800       0.00000000
+0.00000000       0.00000000      14.59630900
+%ENDBLOCK LATTICE_CART
+%BLOCK POSITIONS_ABS
+ang
+O     7.000000     7.763239     7.596309
+H     7.000000     8.526478     7.000000
+H     7.000000     7.000000     7.000000
+%ENDBLOCK POSITIONS_ABS
+%BLOCK SPECIES
+H H 1 -1 9.0
+O O 8 -1 9.0
+%ENDBLOCK SPECIES
+%BLOCK SPECIES_POT
+H H_NCP19_PBE.usp
+O O_NCP19_PBE.usp
+%ENDBLOCK SPECIES_POT
 
 --------------------------------------------------------------------------------
 -------------------------------- END INPUT FILE --------------------------------
@@ -2224,7 +2220,7 @@ O O_NCP19_PBE.usp
                            -------------------------------
                                      Cell Contents
                            -------------------------------
- 
+
             xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
             x  Element    Atom      Absolute co-ordinates of atoms     x
             x            Number        x           y           z       x
@@ -2233,7 +2229,7 @@ O O_NCP19_PBE.usp
             x    H         2       13.228083   16.112708   13.228083   x
             x    H         3       13.228083   13.228083   13.228083   x
             xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
- 
+
            ........................................................
            |         *** NGWF optimisation converged ***          |
            | RMS NGWF gradient =    0.00000049365477              |
@@ -2278,11 +2274,11 @@ O O_NCP19_PBE.usp
 **********************************************************
 * TOTAL:           -0.00000000   0.00000000   0.00000000 *
 **********************************************************
- 
+
                            -------------------------------
                                      Cell Contents
                            -------------------------------
- 
+
             xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
             x  Element    Atom      Absolute co-ordinates of atoms     x
             x            Number        x           y           z       x
@@ -2291,7 +2287,7 @@ O O_NCP19_PBE.usp
             x    H         2       13.228083   16.112708   13.228083   x
             x    H         3       13.228083   13.228083   13.228083   x
             xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-  
+
 
 ================================================================================
  Starting BFGS iteration    1 ...
@@ -2300,11 +2296,11 @@ O O_NCP19_PBE.usp
 --------------------------------------------------------------------------------
  BFGS: starting iteration   1 with trial guess (lambda=    1.000000)
 --------------------------------------------------------------------------------
- 
+
                            -------------------------------
                                      Cell Contents
                            -------------------------------
- 
+
             xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
             x  Element    Atom      Absolute co-ordinates of atoms     x
             x            Number        x           y           z       x
@@ -2359,21 +2355,21 @@ O O_NCP19_PBE.usp
 **********************************************************
 * TOTAL:            0.00000000   0.00000000   0.00000000 *
 **********************************************************
-  
+
 
 ================================================================================
  Starting BFGS iteration    2 ...
 ================================================================================
-  
+
 
 --------------------------------------------------------------------------------
  BFGS: starting iteration   2 with trial guess (lambda=    1.000000)
 --------------------------------------------------------------------------------
- 
+
                            -------------------------------
                                      Cell Contents
                            -------------------------------
- 
+
             xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
             x  Element    Atom      Absolute co-ordinates of atoms     x
             x            Number        x           y           z       x
@@ -2382,7 +2378,7 @@ O O_NCP19_PBE.usp
             x    H         2       13.228083   16.124318   13.228784   x
             x    H         3       13.228082   13.216473   13.228784   x
             xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
- 
+
            ........................................................
            |         *** NGWF optimisation converged ***          |
            | RMS NGWF gradient =    0.00000192244606              |
@@ -2431,11 +2427,11 @@ O O_NCP19_PBE.usp
 --------------------------------------------------------------------------------
  BFGS: improving iteration   2 with line minimization (lambda=    2.139448)
 --------------------------------------------------------------------------------
- 
+
                            -------------------------------
                                      Cell Contents
                            -------------------------------
- 
+
             xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
             x  Element    Atom      Absolute co-ordinates of atoms     x
             x            Number        x           y           z       x
@@ -2489,21 +2485,21 @@ O O_NCP19_PBE.usp
 **********************************************************
 * TOTAL:            0.00000000  -0.00000000  -0.00000000 *
 **********************************************************
-  
+
 
 ================================================================================
  Starting BFGS iteration    3 ...
 ================================================================================
-  
+
 
 --------------------------------------------------------------------------------
  BFGS: starting iteration   3 with trial guess (lambda=    1.000000)
 --------------------------------------------------------------------------------
- 
+
                            -------------------------------
                                      Cell Contents
                            -------------------------------
- 
+
             xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
             x  Element    Atom      Absolute co-ordinates of atoms     x
             x            Number        x           y           z       x
@@ -2512,7 +2508,7 @@ O O_NCP19_PBE.usp
             x    H         2       13.228083   16.130115   13.231676   x
             x    H         3       13.228081   13.210676   13.231676   x
             xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
- 
+
            ........................................................
            |         *** NGWF optimisation converged ***          |
            | RMS NGWF gradient =    0.00000195824432              |
@@ -2561,11 +2557,11 @@ O O_NCP19_PBE.usp
 ================================================================================
  BFGS : Final Configuration:
 ================================================================================
- 
+
                            -------------------------------
                                      Cell Contents
                            -------------------------------
- 
+
             xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
             x  Element    Atom      Absolute co-ordinates of atoms     x
             x            Number        x           y           z       x
