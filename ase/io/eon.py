@@ -16,6 +16,12 @@ from ase.geometry import cell_to_cellpar, cellpar_to_cell
 from ase.utils import writer
 
 
+def print_con_atom_header(ostring, ntypes, natoms, atommasses):
+    ostring.append(str(ntypes))
+    ostring.append(' '.join([str(n) for n in natoms]))
+    ostring.append(' '.join([str(n) for n in atommasses]))
+
+
 def read_eon(fileobj, index=-1):
     """Reads an EON reactant.con file.  If *fileobj* is the name of a
     "states" directory created by EON, all the structures will be read."""
@@ -121,9 +127,7 @@ def write_eon(fileobj, images):
     natoms = [symbols.count(at) for at in atomtypes]
     ntypes = len(atomtypes)
 
-    out.append(str(ntypes))
-    out.append(' '.join([str(n) for n in natoms]))
-    out.append(' '.join([str(n) for n in atommasses]))
+    print_con_atom_header(out, ntypes, natoms, atommasses)
 
     atom_id = 0
     for n in range(ntypes):
@@ -223,9 +227,7 @@ def write_eon_traj(fileobj, images):
         natoms = [symbols.count(at) for at in atomtypes]
         ntypes = len(atomtypes)
 
-        out.append(str(ntypes))
-        out.append(' '.join([str(n) for n in natoms]))
-        out.append(' '.join([str(n) for n in atommasses]))
+        print_con_atom_header(out, ntypes, natoms, atommasses)
 
         atom_id = 0
         for n in range(ntypes):
