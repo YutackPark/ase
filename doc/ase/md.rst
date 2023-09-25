@@ -329,7 +329,7 @@ the gromacs manual at www.gromacs.org. or amber at ambermd.org
   # Room temperature simulation (300K, 0.1 fs time step, atmospheric pressure)
   dyn = NPTBerendsen(atoms, timestep=0.1 * units.fs, temperature_K=300,
                      taut=100 * units.fs, pressure_au=1.01325 * units.bar,
-                     taup=1000 * units.fs, compressibility=4.57e-5 / units.bar)
+                     taup=1000 * units.fs, compressibility_au=4.57e-5 / units.bar)
 
 
 Contour Exploration
