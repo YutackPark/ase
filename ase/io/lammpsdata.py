@@ -13,7 +13,7 @@ def read_lammps_data(
     Z_of_type: dict = None,
     sort_by_id: bool = True,
     units: str = "metal",
-    style: str = None,
+    atom_style: str = None,
 ):
     """Method which reads a LAMMPS data file.
 
@@ -32,7 +32,7 @@ def read_lammps_data(
     units : str, optional
         `LAMMPS units <https://docs.lammps.org/units.html>`__. Default is
         "metal".
-    style : {"atomic", "charge", "full"} etc., optional
+    atom_style : {"atomic", "charge", "full"} etc., optional
         `LAMMPS atom style <https://docs.lammps.org/atom_style.html>`__.
         If None, `atom_style` is guessed in the following priority (1) comment
         after `Atoms` (2) length of fields (valid only `atomic` and `full`).
@@ -129,10 +129,10 @@ def read_lammps_data(
             header = False
             if section == "Atoms":  # id *
                 # guess `atom_style` from the comment after `Atoms` if exists
-                if style is None and line_comment != "":
-                    style = line_comment
+                if atom_style is None and line_comment != "":
+                    atom_style = line_comment
                 mol_id_in, type_in, charge_in, pos_in, travel_in = \
-                    _read_atoms_section(fileobj, natoms, style)
+                    _read_atoms_section(fileobj, natoms, atom_style)
             continue
 
         if header:
