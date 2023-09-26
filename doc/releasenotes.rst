@@ -197,12 +197,11 @@ Calculators:
 .. _Plumed: https://www.plumed.org/
 .. _MOPAC: https://doi.org/10.5281/zenodo.6511958
 
-* :class:`ase.calculators.nwchem.NWChem` now supports 
+* :class:`ase.calculators.nwchem.NWChem` now supports
   making initial guesses for wavefunctions using smaller basis
   sets and faster theories
-  
 
-* :class:`ase.calculators.nwchem.NWChem` added support for 
+* :class:`ase.calculators.nwchem.NWChem` added support for
   direct and RI-MP2 computations.
 
 Optimizers:
@@ -224,6 +223,9 @@ Thermochemistry:
   cutting them down to the physically appropriate amount.
 
 I/O:
+
+* Add support for reading POSCAR files with negative and multiple scaling
+  factors in :func:`ase.io.vasp.read_vasp` (:mr:`3029`)
 
 * Fix parsing of dipole moment in :mod:`ase.io.nwchem` from output files
   with trailing spaces (:mr:`3018`)
