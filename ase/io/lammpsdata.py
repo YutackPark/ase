@@ -1,6 +1,7 @@
 import re
-import numpy as np
+import warnings
 
+import numpy as np
 from ase.atoms import Atoms
 from ase.calculators.lammps import Prism, convert
 from ase.data import atomic_masses, atomic_numbers
@@ -14,6 +15,7 @@ def read_lammps_data(
     sort_by_id: bool = True,
     units: str = "metal",
     atom_style: str = None,
+    style: str = None,
 ):
     """Method which reads a LAMMPS data file.
 
@@ -38,6 +40,11 @@ def read_lammps_data(
         after `Atoms` (2) length of fields (valid only `atomic` and `full`).
         Default is None.
     """
+    if style is not None:
+        warnings.warn(
+            FutureWarning('"style" is deprecated; please use "atom_style".'),
+        )
+        atom_style = style
     # begin read_lammps_data
     file_comment = next(fileobj).rstrip()
 
