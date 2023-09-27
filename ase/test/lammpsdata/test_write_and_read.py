@@ -37,7 +37,7 @@ class _Base:
         # alphabetical order. To be consistent, here spiecies are also sorted.
         species = sorted(set(atoms_ref.get_chemical_symbols()))
         Z_of_type = {i + 1: atomic_numbers[s] for i, s in enumerate(species)}
-        atoms = read_lammps_data(buf, Z_of_type=Z_of_type, style="atomic")
+        atoms = read_lammps_data(buf, Z_of_type=Z_of_type, atom_style="atomic")
         compare(atoms, atoms_ref)
 
     def check_masses2numbers(self, atoms_ref: Atoms):
@@ -45,7 +45,7 @@ class _Base:
         buf = io.StringIO()
         write_lammps_data(buf, atoms_ref, masses=True)
         buf.seek(0)
-        atoms = read_lammps_data(buf, style="atomic")
+        atoms = read_lammps_data(buf, atom_style="atomic")
         compare(atoms, atoms_ref)
 
 
@@ -95,12 +95,12 @@ def test_atom_style(atom_style: str):
 
     # test if the `atom_style` can be guessed from the comment
     buf.seek(0)
-    atoms = read_lammps_data(buf, style=None)
+    atoms = read_lammps_data(buf, atom_style=None)
     compare(atoms, atoms_ref)
 
     # test when `atom_style` is explicitly specified
     buf.seek(0)
-    atoms = read_lammps_data(buf, style=atom_style)
+    atoms = read_lammps_data(buf, atom_style=atom_style)
     compare(atoms, atoms_ref)
 
     if atom_style not in ["atomic", "full"]:
@@ -109,5 +109,5 @@ def test_atom_style(atom_style: str):
     # test if `atom_style` can be guessed from the length of fields
     # remove comment in the "Atoms" line
     buf = io.StringIO(re.sub(".*Atoms.*#.*", "Atoms", buf.getvalue()))
-    atoms = read_lammps_data(buf, style=None)
+    atoms = read_lammps_data(buf, atom_style=None)
     compare(atoms, atoms_ref)
