@@ -13,6 +13,7 @@ def read_lammps_data(
     fileobj,
     Z_of_type: dict = None,
     sort_by_id: bool = True,
+    read_image_flags: bool = True,
     units: str = "metal",
     atom_style: str = None,
     style: str = None,
@@ -31,6 +32,9 @@ def read_lammps_data(
     sort_by_id : bool, optional
         Order the particles according to their id. Might be faster to set it
         False. Default is True.
+    read_image_flags: bool, default True
+        If True, the lattice translation vectors derived from image flags are
+        added to atomic positions.
     units : str, optional
         `LAMMPS units <https://docs.lammps.org/units.html>`__. Default is
         "metal".
@@ -249,13 +253,18 @@ def read_lammps_data(
         cell=cell,
         pbc=[True, True, True],
     )
+
+    # add lattice translation vectors
+    if read_image_flags and travel is not None:
+        scaled_positions = atoms.get_scaled_positions(wrap=False) + travel
+        atoms.set_scaled_positions(scaled_positions)
+
     # set velocities (can't do it via constructor)
     if velocities is not None:
         atoms.set_velocities(velocities)
+
     atoms.arrays["id"] = ids
     atoms.arrays["type"] = types
-    if travel is not None:
-        atoms.arrays["travel"] = travel
     if mol_id is not None:
         atoms.arrays["mol-id"] = mol_id
     if charge is not None:
@@ -379,6 +388,7 @@ def write_lammps_data(
     reduce_cell: bool = False,
     force_skew: bool = False,
     prismobj: Prism = None,
+    write_image_flags: bool = False,
     masses: bool = False,
     velocities: bool = False,
     units: str = "metal",
@@ -402,6 +412,9 @@ def write_lammps_data(
         Whether the cell shape is reduced or not, by default False
     prismobj : Prism|None, optional
         Prism, by default None
+    write_image_flags : bool, default False
+        If True, the image flags, i.e., in which images of the periodic
+        simulation box the atoms are, are written.
     masses : bool, optional
         Whether the atomic masses are written or not, by default False
     velocities : bool, optional
@@ -444,19 +457,17 @@ def write_lammps_data(
     fd.write(f"{n_atom_types} atom types\n\n")
 
     if prismobj is None:
-        p = Prism(atoms.get_cell(), reduce_cell=reduce_cell)
-    else:
-        p = prismobj
+        prismobj = Prism(atoms.get_cell(), reduce_cell=reduce_cell)
 
     # Get cell parameters and convert from ASE units to LAMMPS units
-    xhi, yhi, zhi, xy, xz, yz = convert(p.get_lammps_prism(), "distance",
-                                        "ASE", units)
+    xhi, yhi, zhi, xy, xz, yz = convert(
+        prismobj.get_lammps_prism(), "distance", "ASE", units)
 
     fd.write(f"0.0 {xhi:23.17g}  xlo xhi\n")
     fd.write(f"0.0 {yhi:23.17g}  ylo yhi\n")
     fd.write(f"0.0 {zhi:23.17g}  zlo zhi\n")
 
-    if force_skew or p.is_skewed():
+    if force_skew or prismobj.is_skewed():
         fd.write(f"{xy:23.17g} {xz:23.17g} {yz:23.17g}  xy xz yz\n")
     fd.write("\n")
 
@@ -467,27 +478,48 @@ def write_lammps_data(
     # cell along periodic directions is desired, this should be done manually
     # on the Atoms object itself beforehand.
     fd.write(f"Atoms # {atom_style}\n\n")
-    pos = p.vector_to_lammps(atoms.get_positions(), wrap=False)
+
+    if write_image_flags:
+        scaled_positions = atoms.get_scaled_positions(wrap=False)
+        image_flags = np.floor(scaled_positions).astype(int)
+
+    # when `write_image_flags` is True, the positions are wrapped while the
+    # unwrapped positions can be recovered from the image flags
+    pos = prismobj.vector_to_lammps(
+        atoms.get_positions(),
+        wrap=write_image_flags,
+    )
 
     if atom_style == 'atomic':
+        # Convert position from ASE units to LAMMPS units
+        pos = convert(pos, "distance", "ASE", units)
         for i, r in enumerate(pos):
-            # Convert position from ASE units to LAMMPS units
-            r = convert(r, "distance", "ASE", units)
             s = species.index(symbols[i]) + 1
-            fd.write(
-                "{0:>6} {1:>3} {2:23.17g} {3:23.17g} {4:23.17g}\n".format(
-                    *(i + 1, s) + tuple(r)
-                )
+            line = (
+                f"{i+1:>6} {s:>3}"
+                f" {r[0]:23.17g} {r[1]:23.17g} {r[2]:23.17g}"
             )
+            if write_image_flags:
+                img = image_flags[i]
+                line += f" {img[0]:6d} {img[1]:6d} {img[2]:6d}"
+            line += "\n"
+            fd.write(line)
     elif atom_style == 'charge':
         charges = atoms.get_initial_charges()
+        # Convert position and charge from ASE units to LAMMPS units
+        pos = convert(pos, "distance", "ASE", units)
+        charges = convert(charges, "charge", "ASE", units)
         for i, (q, r) in enumerate(zip(charges, pos)):
-            # Convert position and charge from ASE units to LAMMPS units
-            r = convert(r, "distance", "ASE", units)
-            q = convert(q, "charge", "ASE", units)
             s = species.index(symbols[i]) + 1
-            fd.write("{0:>6} {1:>3} {2:>5} {3:23.17g} {4:23.17g} {5:23.17g}\n"
-                     .format(*(i + 1, s, q) + tuple(r)))
+            line = (
+                f"{i+1:>6} {s:>3} {q:>5}"
+                f" {r[0]:23.17g} {r[1]:23.17g} {r[2]:23.17g}"
+            )
+            if write_image_flags:
+                img = image_flags[i]
+                line += f" {img[0]:6d} {img[1]:6d} {img[2]:6d}"
+            line += "\n"
+            fd.write(line)
     elif atom_style == 'full':
         charges = atoms.get_initial_charges()
         # The label 'mol-id' has apparenlty been introduced in read earlier,
@@ -521,27 +553,30 @@ def write_lammps_data(
             #    non-bonded atom or if you don't care to keep track of molecule
             #    assignments.
 
+        # Convert position and charge from ASE units to LAMMPS units
+        pos = convert(pos, "distance", "ASE", units)
+        charges = convert(charges, "charge", "ASE", units)
         for i, (m, q, r) in enumerate(zip(molecules, charges, pos)):
-            # Convert position and charge from ASE units to LAMMPS units
-            r = convert(r, "distance", "ASE", units)
-            q = convert(q, "charge", "ASE", units)
             s = species.index(symbols[i]) + 1
-            fd.write("{0:>6} {1:>3} {2:>3} {3:>5} {4:23.17g} {5:23.17g} "
-                     "{6:23.17g}\n".format(*(i + 1, m, s, q) + tuple(r)))
+            line = (
+                f"{i+1:>6} {m:>3} {s:>3} {q:>5}"
+                f" {r[0]:23.17g} {r[1]:23.17g} {r[2]:23.17g}"
+            )
+            if write_image_flags:
+                img = image_flags[i]
+                line += f" {img[0]:6d} {img[1]:6d} {img[2]:6d}"
+            line += "\n"
+            fd.write(line)
     else:
-        raise NotImplementedError
+        raise ValueError(atom_style)
 
     if velocities and atoms.get_velocities() is not None:
         fd.write("\n\nVelocities\n\n")
-        vel = p.vector_to_lammps(atoms.get_velocities())
+        vel = prismobj.vector_to_lammps(atoms.get_velocities())
+        # Convert velocity from ASE units to LAMMPS units
+        vel = convert(vel, "velocity", "ASE", units)
         for i, v in enumerate(vel):
-            # Convert velocity from ASE units to LAMMPS units
-            v = convert(v, "velocity", "ASE", units)
-            fd.write(
-                "{0:>6} {1:23.17g} {2:23.17g} {3:23.17g}\n".format(
-                    *(i + 1,) + tuple(v)
-                )
-            )
+            fd.write(f"{i+1:>6} {v[0]:23.17g} {v[1]:23.17g} {v[2]:23.17g}\n")
 
     fd.flush()
 
