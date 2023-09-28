@@ -4,6 +4,7 @@ Refer to DFTB+ manual for GEN format description.
 
 Note: GEN format only supports single snapshot.
 """
+from typing import Dict, Sequence, Union
 
 from ase.atoms import Atoms
 from ase.utils import reader, writer
@@ -70,7 +71,11 @@ def read_gen(fileobj):
 
 
 @writer
-def write_gen(fileobj, images, fractional=False):
+def write_gen(
+    fileobj,
+    images: Union[Atoms, Sequence[Atoms]],
+    fractional: bool = False,
+):
     """Write structure in GEN format (refer to DFTB+ manual).
        Multiple snapshots are not allowed. """
     if not isinstance(images, (list, tuple)):
@@ -87,9 +92,9 @@ def write_gen(fileobj, images, fractional=False):
     symbols = images[0].get_chemical_symbols()
 
     # Define a dictionary with symbols-id
-    symboldict = dict()
+    symboldict: Dict[str, int] = {}
     for sym in symbols:
-        if not (sym in symboldict):
+        if sym not in symboldict:
             symboldict[sym] = len(symboldict) + 1
     # An ordered symbol list is needed as ordered dictionary
     # is just available in python 2.7

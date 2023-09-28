@@ -1,3 +1,5 @@
+from typing import Sequence, Union
+
 import numpy as np
 from ase.atoms import Atoms
 from ase.utils import reader, writer
@@ -172,7 +174,11 @@ def read_dftb_lattice(fileobj, images=None):
 
 
 @writer
-def write_dftb(fileobj, images, fractional=False):
+def write_dftb(
+    fileobj,
+    images: Union[Atoms, Sequence[Atoms]],
+    fractional: bool = False,
+):
     """Write structure in GEN format (refer to DFTB+ manual).
        Multiple snapshots are not allowed. """
     from ase.io.gen import write_gen
