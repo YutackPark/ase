@@ -172,11 +172,11 @@ def read_dftb_lattice(fileobj, images=None):
 
 
 @writer
-def write_dftb(fileobj, images):
+def write_dftb(fileobj, images, fractional=False):
     """Write structure in GEN format (refer to DFTB+ manual).
        Multiple snapshots are not allowed. """
     from ase.io.gen import write_gen
-    write_gen(fileobj, images)
+    write_gen(fileobj, images, fractional=fractional)
 
 
 def write_dftb_velocities(atoms, filename):

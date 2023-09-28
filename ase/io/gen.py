@@ -19,8 +19,13 @@ def read_gen(fileobj):
     natoms = int(line[0])
     pb_flag = line[1]
     if line[1] not in ['C', 'F', 'S']:
-        raise IOError('Error in line #1: only C (Cluster), S (Supercell) '
-                      'or F (Fraction) are valid options')
+        if line[1] == 'H':
+            raise IOError('Error in line #1: H (Helical) is valid but not '
+                          'supported. Only C (Cluster), S (Supercell) '
+                          'or F (Fraction) are supported options')
+        else:
+            raise IOError('Error in line #1: only C (Cluster), S (Supercell) '
+                          'or F (Fraction) are supported options')
 
     # Read atomic symbols
     line = lines[1].split()
@@ -65,7 +70,7 @@ def read_gen(fileobj):
 
 
 @writer
-def write_gen(fileobj, images):
+def write_gen(fileobj, images, fractional=False):
     """Write structure in GEN format (refer to DFTB+ manual).
        Multiple snapshots are not allowed. """
     if not isinstance(images, (list, tuple)):
@@ -98,7 +103,9 @@ def write_gen(fileobj, images):
     # directions. If your structure is not periodical in all
     # the directions, be sure you have set big periodicity
     # vectors in the non-periodic directions
-    if images[0].pbc.any():
+    if fractional:
+        pb_flag = 'F'
+    elif images[0].pbc.any():
         pb_flag = 'S'
     else:
         pb_flag = 'C'
@@ -110,12 +117,19 @@ def write_gen(fileobj, images):
         for s in orderedsymbols:
             fileobj.write('%-5s' % s)
         fileobj.write('\n')
-        for sym, (x, y, z) in zip(symbols, atoms.get_positions()):
+
+        if fractional:
+            coords = atoms.get_scaled_positions(wrap=False)
+        else:
+            coords = atoms.get_positions(wrap=False)
+
+        for sym, (x, y, z) in zip(symbols, coords):
             ind += 1
             symbolid = symboldict[sym]
             fileobj.write('%-6d %d %22.15f %22.15f %22.15f\n' % (ind,
                           symbolid, x, y, z))
-    if images[0].pbc.any():
+
+    if images[0].pbc.any() or fractional:
         fileobj.write('%22.15f %22.15f %22.15f \n' % (0.0, 0.0, 0.0))
         fileobj.write('%22.15f %22.15f %22.15f \n' %
                       (images[0].get_cell()[0][0],
