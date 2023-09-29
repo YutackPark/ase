@@ -1,16 +1,13 @@
+import re
 import warnings
 from copy import deepcopy
-from glob import glob
 from os.path import basename, dirname, isfile
 from pathlib import Path
-from ase.cell import Cell
-import time
-import re
 
 import numpy as np
-
 from ase.atoms import Atoms
 from ase.calculators.singlepoint import SinglePointDFTCalculator
+from ase.cell import Cell
 from ase.units import Bohr
 
 no_positions_error = (
@@ -217,7 +214,6 @@ def read_onetep_in(fd, **kwargs):
     # We don't need a fully valid onetep
     # input to read the keywords, just
     # the keywords
-    
     if kwargs.get('only_keywords', False):
         return {'keywords': keywords}
     # Necessary if we have only one atom
@@ -593,7 +589,7 @@ def read_onetep_out(fd, index=-1, improving=False, **kwargs):
             # 'species' but sometimes no trailing space will
             # be present.
             if key in line or \
-                key.strip() == line.strip():
+                    key.strip() == line.strip():
                 match = key
                 break
         if match:
@@ -769,7 +765,8 @@ def read_onetep_out(fd, index=-1, improving=False, **kwargs):
         while idx + n < len(fdo_lines):
             if '| Total' in fdo_lines[idx + n]:
                 energies.append(float(fdo_lines[idx + n].split()[-2]))
-            if 'LOCAL ENERGY COMPONENTS FROM MATRIX TRACES' in fdo_lines[idx + n]:
+            if 'LOCAL ENERGY COMPONENTS FROM MATRIX TRACES' \
+                    in fdo_lines[idx + n]:
                 return energies[-1] * units['Hartree']
             # Something is wrong with this ONETEP output
             if len(energies) > 2:
