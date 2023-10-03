@@ -177,7 +177,7 @@ def opencew(filename, world=None):
 
 def _opencew(filename, world=None):
     if world is None:
-        from ase.parallel import world
+        from ase.parallel import world, broadcast
 
     closelater = []
 
@@ -198,7 +198,7 @@ def _opencew(filename, world=None):
             closelater.append(fd)
 
         # Synchronize:
-        error = world.sum(error)
+        error = broadcast(error, 0, world)
         if error == errno.EEXIST:
             return None
         if error:
