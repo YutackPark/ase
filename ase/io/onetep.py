@@ -277,13 +277,13 @@ def write_onetep_in(
     Two ways to work with the function:
 
         - By providing only (simple) keywords present in
-        the parameters. ngwf_count and ngwf_radius
-        accept multiple types as described in the Parameters
-        section.
+          the parameters. ngwf_count and ngwf_radius
+          accept multiple types as described in the Parameters
+          section.
 
         - If the keywords parameters is provided as a dictionary
-        these keywords will be used to write the input file and
-        will take priority.
+          these keywords will be used to write the input file and
+          will take priority.
 
     If no pseudopotentials are provided in the parameters and
     the function will try to look for suitable pseudopotential
