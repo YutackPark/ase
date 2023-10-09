@@ -276,10 +276,11 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
         Calculator.__init__(self, *args, **kwargs)
         self.lmp = None
 
-    def __del__(self):
+    def clean(self):
         if self.started:
             self.lmp.close()
             self.started = False
+            self.initialized = False
             self.lmp = None
 
     def set_cell(self, atoms, change=False):
@@ -541,8 +542,8 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
         # otherwise check_state will always trigger a new calculation
         self.atoms = atoms.copy()
 
-        if not self.parameters.keep_alive:
-            self.lmp.close()
+        if not self.parameters["keep_alive"]:
+            self.clean()
 
     def lammpsbc(self, atoms):
         """Determine LAMMPS boundary types based on ASE pbc settings. For
