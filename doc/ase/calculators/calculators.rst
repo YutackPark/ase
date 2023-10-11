@@ -248,7 +248,6 @@ the :meth:`set` method:
    jacapo
    kim
    lammps
-   lammpsrun
    mopac
    nwchem
    octopus
