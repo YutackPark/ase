@@ -134,7 +134,7 @@ Keyword                                  Description
 
 ``keep_alive``           Boolean
                          whether to keep the lammps routine alive for more
-                         commands
+                         commands. Default is True.
 
 =======================  ======================================================
 
@@ -260,7 +260,7 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
         atom_type_masses=None,
         log_file=None,
         lammps_name='',
-        keep_alive=False,
+        keep_alive=True,
         lammps_header=['units metal',
                        'atom_style atomic',
                        'atom_modify map array sort 0 0'],
