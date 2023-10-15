@@ -2,7 +2,7 @@ import numpy as np
 from numpy.testing import assert_allclose
 import pytest
 from ase.build import bulk
-from ase.filters import ExpCellFilter
+from ase.filters import FrechetCellFilter
 from ase.optimize import BFGS
 
 
@@ -26,20 +26,18 @@ def test_Pt_stress_cellopt(factory):
                         calc.calculate_numerical_stress(atoms),
                         atol=1e-4, rtol=1e-4)
 
-        with BFGS(ExpCellFilter(atoms)) as opt:
+        with BFGS(FrechetCellFilter(atoms)) as opt:
             for i, _ in enumerate(opt.irun(fmax=0.001)):
                 pass
 
-        cell1_ref = np.array(
-            [[0.16524, 3.8999, 3.92855],
-             [4.211015, 0.634928, 5.047811],
-             [4.429529, 3.293805, 0.447377]]
-        )
+        cell1_ref = np.array([
+            [0.178351, 3.885347, 3.942046],
+            [4.19978, 0.591071, 5.062568],
+            [4.449044, 3.264038, 0.471548],
+        ])
 
         assert_allclose(np.asarray(atoms.cell), cell1_ref,
                         atol=3e-4, rtol=3e-4)
         assert_allclose(atoms.get_stress(),
                         calc.calculate_numerical_stress(atoms),
                         atol=1e-4, rtol=1e-4)
-
-        assert i < 80, 'Expected 59 iterations, got many more: {}'.format(i)

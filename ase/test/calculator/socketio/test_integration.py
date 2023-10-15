@@ -4,7 +4,7 @@ import numpy as np
 from ase.build import bulk
 
 from ase.optimize import BFGS
-from ase.filters import ExpCellFilter
+from ase.filters import FrechetCellFilter
 from ase.units import Ry
 
 
@@ -16,7 +16,7 @@ def test_socketio_espresso(factory):
     atoms = bulk('Si')
     atoms.rattle(stdev=.2, seed=42)
 
-    with BFGS(ExpCellFilter(atoms)) as opt, \
+    with BFGS(FrechetCellFilter(atoms)) as opt, \
             pytest.warns(UserWarning, match='Subprocess exited'), \
             factory.socketio(unixsocket=f'ase_test_socketio_{factory.name}',
                              kpts=[2, 2, 2]) as atoms.calc:
