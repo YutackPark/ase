@@ -13,7 +13,8 @@ from ase.io.gen import read_gen
 def test_gen(write_format: str, cell: list, pbc: bool, fractional: bool):
     """Test for `write_gen` and `read_gen`"""
     if fractional and cell is None:
-        pytest.skip(f"'fractional' {fractional} is invalid for cell '{cell}'")
+        # fractional==True is invalid when cell is None.
+        return
 
     positions = [[-0.1, 1.2, 0.3], [-0.1, 0.0, 0.2], [0.4, -0.9, 0.0]]
     atoms = Atoms(symbols="OCO", pbc=pbc, cell=cell, positions=positions)
