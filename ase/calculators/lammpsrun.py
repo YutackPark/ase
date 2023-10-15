@@ -507,21 +507,25 @@ class LAMMPS(Calculator):
 
             # get thermo output
             if _custom_thermo_mark.match(line):
-                bool_match = True
-                while bool_match:
+                while True:
                     line = fileobj.readline()
+                    if 'WARNING:' in line:
+                        continue
+
                     bool_match = _custom_thermo_re.match(line)
-                    if bool_match:
-                        # create a dictionary between each of the
-                        # thermo_style args and it's corresponding value
-                        thermo_content.append(
-                            dict(
-                                zip(
-                                    self.parameters['thermo_args'],
-                                    map(float, bool_match.groups()),
-                                )
+                    if not bool_match:
+                        break
+
+                    # create a dictionary between each of the
+                    # thermo_style args and it's corresponding value
+                    thermo_content.append(
+                        dict(
+                            zip(
+                                self.parameters['thermo_args'],
+                                map(float, bool_match.groups()),
                             )
                         )
+                    )
             else:
                 line = fileobj.readline()
 

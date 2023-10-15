@@ -1,11 +1,16 @@
 """Filters"""
 from warnings import warn
+from itertools import product
 
 import numpy as np
 from ase.calculators.calculator import PropertyNotImplementedError
 from ase.stress import full_3x3_to_voigt_6_stress, voigt_6_to_full_3x3_stress
+from ase.utils import deprecated
 
-__all__ = ['Filter', 'StrainFilter', 'UnitCellFilter', 'ExpCellFilter']
+__all__ = [
+    'Filter', 'StrainFilter', 'UnitCellFilter', 'FrechetCellFilter',
+    'ExpCellFilter'
+]
 
 
 class Filter:
@@ -441,11 +446,11 @@ class UnitCellFilter(Filter):
         return (len(self.atoms) + 3)
 
 
-class ExpCellFilter(UnitCellFilter):
+class FrechetCellFilter(UnitCellFilter):
     """Modify the supercell and the atom positions."""
 
     def __init__(self, atoms, mask=None,
-                 cell_factor=None,
+                 exp_cell_factor=None,
                  hydrostatic_strain=False,
                  constant_volume=False,
                  scalar_pressure=0.0):
@@ -464,24 +469,20 @@ class ExpCellFilter(UnitCellFilter):
         forces consistent with numerical derivatives of the potential energy
         with respect to the cell degrees of freedom.
 
-        For full details see:
-            E. B. Tadmor, G. S. Smith, N. Bernstein, and E. Kaxiras,
-            Phys. Rev. B 59, 235 (1999)
-
         You can still use constraints on the atoms, e.g. FixAtoms, to control
         the relaxation of the atoms.
 
         >>> # this should be equivalent to the StrainFilter
         >>> atoms = Atoms(...)
         >>> atoms.set_constraint(FixAtoms(mask=[True for atom in atoms]))
-        >>> ecf = ExpCellFilter(atoms)
+        >>> ecf = FrechetCellFilter(atoms)
 
-        You should not attach this ExpCellFilter object to a
+        You should not attach this FrechetCellFilter object to a
         trajectory. Instead, create a trajectory for the atoms, and
         attach it to an optimizer like this:
 
         >>> atoms = Atoms(...)
-        >>> ecf = ExpCellFilter(atoms)
+        >>> ecf = FrechetCellFilter(atoms)
         >>> qn = QuasiNewton(ecf)
         >>> traj = Trajectory('TiO2.traj', 'w', atoms)
         >>> qn.attach(traj)
@@ -497,8 +498,11 @@ class ExpCellFilter(UnitCellFilter):
 
         Additional optional arguments:
 
-        cell_factor: (DEPRECATED)
-            Retained for backwards compatibility, but no longer used.
+        exp_cell_factor: float (default float(len(atoms)))
+            Scaling factor for cell variables. The cell gradients in
+            FrechetCellFilter.get_forces() is divided by exp_cell_factor.
+            By default, set the number of atoms. We recommend to set
+            an extensive value for this parameter.
 
         hydrostatic_strain: bool (default False)
             Constrain the cell by only allowing hydrostatic deformation.
@@ -512,6 +516,182 @@ class ExpCellFilter(UnitCellFilter):
         scalar_pressure: float (default 0.0)
             Applied pressure to use for enthalpy pV term. As above, this
             breaks energy/force consistency.
+
+        Implementation note:
+
+        The implementation is based on that of Christoph Ortner in JuLIP.jl:
+        https://github.com/JuliaMolSim/JuLIP.jl/blob/master/src/expcell.jl
+
+        The initial implementation of ExpCellFilter gave inconsistent gradients
+        for cell variables (matrix log of the deformation tensor). If you would
+        like to keep the previous behavior, please use ExpCellFilter.
+
+        The derivation of gradients of energy w.r.t positions and the log of the
+        deformation tensor is given in
+        https://github.com/lan496/lan496.github.io/blob/main/notes/cell_grad.pdf
+        """
+
+        Filter.__init__(self, atoms, indices=range(len(atoms)))
+        UnitCellFilter.__init__(self, atoms, mask=mask,
+                                hydrostatic_strain=hydrostatic_strain,
+                                constant_volume=constant_volume,
+                                scalar_pressure=scalar_pressure)
+
+        # We defer the scipy import to avoid high immediate import overhead
+        from scipy.linalg import expm, logm, expm_frechet
+        self.expm = expm
+        self.logm = logm
+        self.expm_frechet = expm_frechet
+
+        # Scaling factor for cell gradients
+        if exp_cell_factor is None:
+            exp_cell_factor = float(len(atoms))
+        self.exp_cell_factor = exp_cell_factor
+
+    def get_positions(self):
+        pos = UnitCellFilter.get_positions(self)
+        natoms = len(self.atoms)
+        pos[natoms:] = self.logm(pos[natoms:]) * self.exp_cell_factor
+        return pos
+
+    def set_positions(self, new, **kwargs):
+        natoms = len(self.atoms)
+        new2 = new.copy()
+        new2[natoms:] = self.expm(new[natoms:] / self.exp_cell_factor)
+        UnitCellFilter.set_positions(self, new2, **kwargs)
+
+    def get_forces(self, **kwargs):
+        # forces on atoms are same as UnitCellFilter, we just
+        # need to modify the stress contribution
+        stress = self.atoms.get_stress(**kwargs)
+        volume = self.atoms.get_volume()
+        virial = -volume * (voigt_6_to_full_3x3_stress(stress) +
+                            np.diag([self.scalar_pressure] * 3))
+
+        cur_deform_grad = self.deform_grad()
+        cur_deform_grad_log = self.logm(cur_deform_grad)
+
+        if self.hydrostatic_strain:
+            vtr = virial.trace()
+            virial = np.diag([vtr / 3.0, vtr / 3.0, vtr / 3.0])
+
+        # Zero out components corresponding to fixed lattice elements
+        if (self.mask != 1.0).any():
+            virial *= self.mask
+
+        # Cell gradient for UnitCellFilter
+        ucf_cell_grad = virial @ np.linalg.inv(cur_deform_grad.T)
+
+        # Cell gradient for FrechetCellFilter
+        deform_grad_log_force = np.zeros((3, 3))
+        for mu, nu in product(range(3), repeat=2):
+            dir = np.zeros((3, 3))
+            dir[mu, nu] = 1.0
+            # Directional derivative of deformation to (mu, nu) strain direction
+            expm_der = self.expm_frechet(
+                cur_deform_grad_log,
+                dir,
+                compute_expm=False
+            )
+            deform_grad_log_force[mu, nu] = np.sum(expm_der * ucf_cell_grad)
+
+        # Cauchy stress used for convergence testing
+        convergence_crit_stress = -(virial / volume)
+        if self.constant_volume:
+            # apply constraint to force
+            dglf_trace = deform_grad_log_force.trace()
+            np.fill_diagonal(deform_grad_log_force,
+                             np.diag(deform_grad_log_force) - dglf_trace / 3.0)
+            # apply constraint to Cauchy stress used for convergence testing
+            ccs_trace = convergence_crit_stress.trace()
+            np.fill_diagonal(convergence_crit_stress,
+                             np.diag(convergence_crit_stress) - ccs_trace / 3.0)
+
+        atoms_forces = self.atoms.get_forces(**kwargs)
+        atoms_forces = atoms_forces @ cur_deform_grad
+
+        # pack gradients into vector
+        natoms = len(self.atoms)
+        forces = np.zeros((natoms + 3, 3))
+        forces[:natoms] = atoms_forces
+        forces[natoms:] = deform_grad_log_force / self.exp_cell_factor
+        self.stress = full_3x3_to_voigt_6_stress(convergence_crit_stress)
+        return forces
+
+
+class ExpCellFilter(UnitCellFilter):
+
+    @deprecated(DeprecationWarning(
+        'Use FrechetCellFilter for better convergence w.r.t. cell variables.'
+    ))
+    def __init__(self, atoms, mask=None,
+                 cell_factor=None,
+                 hydrostatic_strain=False,
+                 constant_volume=False,
+                 scalar_pressure=0.0):
+        r"""Create a filter that returns the atomic forces and unit cell
+            stresses together, so they can simultaneously be minimized.
+
+            The first argument, atoms, is the atoms object. The optional second
+            argument, mask, is a list of booleans, indicating which of the six
+            independent components of the strain are relaxed.
+
+            - True = relax to zero
+            - False = fixed, ignore this component
+
+            Degrees of freedom are the positions in the original undeformed
+            cell, plus the log of the deformation tensor (extra 3 "atoms"). This
+            gives forces consistent with numerical derivatives of the potential
+            energy with respect to the cell degrees of freedom.
+
+            For full details see:
+                E. B. Tadmor, G. S. Smith, N. Bernstein, and E. Kaxiras,
+                Phys. Rev. B 59, 235 (1999)
+
+            You can still use constraints on the atoms, e.g. FixAtoms, to
+            control the relaxation of the atoms.
+
+            >>> # this should be equivalent to the StrainFilter
+            >>> atoms = Atoms(...)
+            >>> atoms.set_constraint(FixAtoms(mask=[True for atom in atoms]))
+            >>> ecf = ExpCellFilter(atoms)
+
+            You should not attach this ExpCellFilter object to a
+            trajectory. Instead, create a trajectory for the atoms, and
+            attach it to an optimizer like this:
+
+            >>> atoms = Atoms(...)
+            >>> ecf = ExpCellFilter(atoms)
+            >>> qn = QuasiNewton(ecf)
+            >>> traj = Trajectory('TiO2.traj', 'w', atoms)
+            >>> qn.attach(traj)
+            >>> qn.run(fmax=0.05)
+
+            Helpful conversion table:
+
+            - 0.05 eV/A^3   = 8 GPA
+            - 0.003 eV/A^3  = 0.48 GPa
+            - 0.0006 eV/A^3 = 0.096 GPa
+            - 0.0003 eV/A^3 = 0.048 GPa
+            - 0.0001 eV/A^3 = 0.02 GPa
+
+            Additional optional arguments:
+
+            cell_factor: (DEPRECATED)
+                Retained for backwards compatibility, but no longer used.
+
+            hydrostatic_strain: bool (default False)
+                Constrain the cell by only allowing hydrostatic deformation.
+                The virial tensor is replaced by np.diag([np.trace(virial)]*3).
+
+            constant_volume: bool (default False)
+                Project out the diagonal elements of the virial tensor to allow
+                relaxations at constant volume, e.g. for mapping out an
+                energy-volume curve.
+
+            scalar_pressure: float (default 0.0)
+                Applied pressure to use for enthalpy pV term. As above, this
+                breaks energy/force consistency.
 
         Implementation details:
 
@@ -532,7 +712,7 @@ class ExpCellFilter(UnitCellFilter):
 
         where
 
-               \nabla E(U) : V  =  [S exp(-U)'] : L(U,V)
+                \nabla E(U) : V  =  [S exp(-U)'] : L(U,V)
                                 =  L'(U, S exp(-U)') : V
                                 =  L(U', S exp(-U)') : V
                                 =  L(U, S exp(-U)) : V     (provided U = U')
@@ -540,32 +720,33 @@ class ExpCellFilter(UnitCellFilter):
         where the : operator represents double contraction,
         i.e. A:B = trace(A'B), and
 
-          F = deformation tensor - 3x3 matrix
-          F0 = reference deformation tensor - 3x3 matrix, np.eye(3) here
-          U = cell degrees of freedom used here - 3x3 matrix
-          V = perturbation to cell DoFs - 3x3 matrix
-          v = perturbation to position DoFs
-          x = atomic positions in deformed cell
-          z = atomic positions in original cell
-          \phi = potential energy
-          S = stress tensor [3x3 matrix]
-          L(U, V) = directional derivative of exp at U in direction V, i.e
-          d/dt exp(U + t V)|_{t=0} = L(U, V)
+            F = deformation tensor - 3x3 matrix
+            F0 = reference deformation tensor - 3x3 matrix, np.eye(3) here
+            U = cell degrees of freedom used here - 3x3 matrix
+            V = perturbation to cell DoFs - 3x3 matrix
+            v = perturbation to position DoFs
+            x = atomic positions in deformed cell
+            z = atomic positions in original cell
+            \phi = potential energy
+            S = stress tensor [3x3 matrix]
+            L(U, V) = directional derivative of exp at U in direction V, i.e
+            d/dt exp(U + t V)|_{t=0} = L(U, V)
 
         This means we can write
 
-          d/dt E(U + t V)|_{t=0} = L(U, S exp (-U)) : V
+            d/dt E(U + t V)|_{t=0} = L(U, S exp (-U)) : V
 
         and therefore the contribution to the gradient of the energy is
 
-          \nabla E(U) / \nabla U_ij =  [L(U, S exp(-U))]_ij
+            \nabla E(U) / \nabla U_ij =  [L(U, S exp(-U))]_ij
         """
-
         Filter.__init__(self, atoms, indices=range(len(atoms)))
         UnitCellFilter.__init__(self, atoms, mask, cell_factor,
                                 hydrostatic_strain,
                                 constant_volume, scalar_pressure)
         if cell_factor is not None:
+            # cell_factor used in UnitCellFilter does not affect on gradients of
+            # ExpCellFilter.
             warn("cell_factor is deprecated")
         self.cell_factor = 1.0
 
@@ -573,18 +754,6 @@ class ExpCellFilter(UnitCellFilter):
         from scipy.linalg import expm, logm
         self.expm = expm
         self.logm = logm
-
-    def get_positions(self):
-        pos = UnitCellFilter.get_positions(self)
-        natoms = len(self.atoms)
-        pos[natoms:] = self.logm(self.deform_grad())
-        return pos
-
-    def set_positions(self, new, **kwargs):
-        natoms = len(self.atoms)
-        new2 = new.copy()
-        new2[natoms:] = self.expm(new[natoms:])
-        UnitCellFilter.set_positions(self, new2, **kwargs)
 
     def get_forces(self, **kwargs):
         forces = UnitCellFilter.get_forces(self, **kwargs)
