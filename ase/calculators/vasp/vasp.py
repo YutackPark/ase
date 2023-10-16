@@ -774,7 +774,7 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
         return nelect
 
     def get_k_point_weights(self):
-        filename = self._indir('IBZKPT')
+        filename = 'IBZKPT'
         return self.read_k_point_weights(filename)
 
     def get_dos(self, spin=None, **kwargs):
