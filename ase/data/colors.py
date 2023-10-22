@@ -1,7 +1,6 @@
 # flake8: noqa
 import numpy as np
 
-
 # Jmol colors.  See: http://jmol.sourceforge.net/jscolors/#color_U
 jmol_colors = np.array([
 (1.000,0.000,0.000) ,# None
