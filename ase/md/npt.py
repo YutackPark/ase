@@ -24,7 +24,6 @@ import weakref
 from typing import IO, Optional, Tuple, Union
 
 import numpy as np
-
 from ase import Atoms, units
 from ase.md.md import MolecularDynamics
 

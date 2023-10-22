@@ -1,6 +1,6 @@
 """Logging for molecular dynamics."""
 import weakref
-from typing import Any, IO, Union
+from typing import IO, Any, Union
 
 from ase import Atoms, units
 from ase.parallel import world

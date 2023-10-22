@@ -2,7 +2,6 @@ import warnings
 from typing import IO, Optional, Union
 
 import numpy as np
-
 from ase import Atoms
 from ase.md.md import MolecularDynamics
 

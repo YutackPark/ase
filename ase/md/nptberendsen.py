@@ -3,7 +3,6 @@ import warnings
 from typing import IO, Optional, Union
 
 import numpy as np
-
 from ase import Atoms, units
 from ase.md.nvtberendsen import NVTBerendsen
 

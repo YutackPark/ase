@@ -1,10 +1,9 @@
 from typing import Any, List, Optional
 
 import numpy as np
-
 from ase import Atoms
-from ase.md.langevin import Langevin
 from ase.calculators.mixing import MixedCalculator
+from ase.md.langevin import Langevin
 
 
 class SwitchLangevin(Langevin):

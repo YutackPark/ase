@@ -1,20 +1,17 @@
-import numpy as np
-import shutil
 import os
+import shutil
 import types
-from math import log
-from math import exp
 from contextlib import ExitStack
+from math import exp, log
 from pathlib import Path
 from warnings import warn
 
-from ase.io import Trajectory
-from ase.io import read
-from ase.mep import NEB
-from ase.optimize import BFGS
-from ase.optimize import FIRE
-from ase.calculators.singlepoint import SinglePointCalculator
 import ase.parallel as mpi
+import numpy as np
+from ase.calculators.singlepoint import SinglePointCalculator
+from ase.io import Trajectory, read
+from ase.mep import NEB
+from ase.optimize import BFGS, FIRE
 
 
 class AutoNEB:

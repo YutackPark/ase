@@ -8,14 +8,13 @@ There is, currently, only one implemented method: The Dimer method.
 import sys
 import time
 import warnings
-from math import cos, sin, atan, tan, degrees, pi, sqrt
-from typing import Dict, Any
+from math import atan, cos, degrees, pi, sin, sqrt, tan
+from typing import Any, Dict
 
 import numpy as np
-
+from ase.calculators.singlepoint import SinglePointCalculator
 from ase.optimize.optimize import Optimizer
 from ase.parallel import world
-from ase.calculators.singlepoint import SinglePointCalculator
 from ase.utils import IOContext
 
 # Handy vector methods

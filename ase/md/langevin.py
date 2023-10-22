@@ -2,10 +2,9 @@
 from typing import IO, Optional, Union
 
 import numpy as np
-
 from ase import Atoms, units
 from ase.md.md import MolecularDynamics
-from ase.parallel import world, DummyMPI
+from ase.parallel import DummyMPI, world
 
 
 class Langevin(MolecularDynamics):
