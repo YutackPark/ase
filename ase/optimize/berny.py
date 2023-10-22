@@ -1,10 +1,20 @@
+from typing import IO, Optional, Union
+
+from ase import Atoms
 from ase.optimize.optimize import Optimizer
 from ase.units import Ha, Bohr
 
 
 class Berny(Optimizer):
-    def __init__(self, atoms, restart=None, logfile='-', trajectory=None,
-                 master=None, dihedral=True):
+    def __init__(
+        self,
+        atoms: Atoms,
+        restart: Optional[str] = None,
+        logfile: Union[IO, str] = '-',
+        trajectory: Optional[str] = None,
+        master: Optional[bool] = None,
+        dihedral: bool = True,
+    ):
         """Berny optimizer.
 
         This is a light ASE wrapper around the ``Berny`` optimizer from

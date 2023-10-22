@@ -1,5 +1,8 @@
+from typing import IO, Optional, Union
+
 import numpy as np
 
+from ase import Atoms
 from ase.optimize.optimize import Optimizer
 
 
@@ -7,8 +10,15 @@ class MDMin(Optimizer):
     # default parameters
     defaults = {**Optimizer.defaults, 'dt': 0.2}
 
-    def __init__(self, atoms, restart=None, logfile='-', trajectory=None,
-                 dt=None, master=None):
+    def __init__(
+        self,
+        atoms: Atoms,
+        restart: Optional[str] = None,
+        logfile: Union[IO, str] = '-',
+        trajectory: Optional[str] = None,
+        dt: Optional[float] = None,
+        master: Optional[bool] = None,
+    ):
         """Parameters:
 
         atoms: Atoms object

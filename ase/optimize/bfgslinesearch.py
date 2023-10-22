@@ -6,8 +6,12 @@
 # *****END NOTICE************
 
 import time
+from typing import IO, Optional, Union
+
 import numpy as np
 from numpy import eye, absolute, sqrt, isinf
+
+from ase import Atoms
 from ase.utils.linesearch import LineSearch
 from ase.optimize.optimize import Optimizer
 
@@ -22,9 +26,20 @@ __version__ = '0.1'
 
 
 class BFGSLineSearch(Optimizer):
-    def __init__(self, atoms, restart=None, logfile='-', maxstep=None,
-                 trajectory=None, c1=0.23, c2=0.46, alpha=10.0, stpmax=50.0,
-                 master=None, force_consistent=None):
+    def __init__(
+        self,
+        atoms: Atoms,
+        restart: Optional[str] = None,
+        logfile: Union[IO, str] = '-',
+        maxstep: float = None,
+        trajectory: Optional[str] = None,
+        c1: float = 0.23,
+        c2: float = 0.46,
+        alpha: float = 10.0,
+        stpmax: float = 50.0,
+        master: Optional[bool] = None,
+        force_consistent: Optional[bool] = None,
+    ):
         """Optimize atomic positions in the BFGSLineSearch algorithm, which
         uses both forces and potential energy information.
 
