@@ -2709,7 +2709,7 @@ class CastepInputFile:
         attrparse = '_parse_%s' % attr.lower()
 
         # Check for any conflicts if the value is not None
-        if not (value is None):
+        if value is not None:
             cset = self._conflict_dict.get(attr.lower(), {})
             for c in cset:
                 if (c in self._options and self._options[c].value):

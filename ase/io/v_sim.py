@@ -53,7 +53,7 @@ def read_v_sim(fd):
 
         elif re_node.match(line):
             unit = 1.0
-            if not ("reduced" in keywords):
+            if "reduced" not in keywords:
                 if (("bohr" in keywords) or ("bohrd0" in keywords) or
                         ("atomic" in keywords) or ("atomicd0" in keywords)):
                     unit = units.Bohr
