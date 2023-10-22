@@ -3,11 +3,10 @@
 from math import sqrt
 from sys import stdout
 
-import numpy as np
-
 import ase.units as units
-from ase.parallel import parprint, paropen
-from ase.vibrations import Vibrations
+import numpy as np
+from ase.parallel import paropen, parprint
+from ase.vibrations.vibrations import Vibrations
 
 
 class Infrared(Vibrations):

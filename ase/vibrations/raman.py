@@ -1,11 +1,10 @@
-import numpy as np
-
 import ase.units as u
+import numpy as np
+from ase.dft import monkhorst_pack
 from ase.parallel import world
 from ase.phonons import Phonons
-from ase.vibrations.vibrations import Vibrations, AtomicDisplacements
-from ase.dft import monkhorst_pack
 from ase.utils import IOContext
+from ase.vibrations.vibrations import AtomicDisplacements, Vibrations
 
 
 class RamanCalculatorBase(IOContext):

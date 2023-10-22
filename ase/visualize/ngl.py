@@ -13,8 +13,7 @@ class NGLDisplay:
     def __init__(self, atoms, xsize=500, ysize=500):
         import nglview
         import nglview.color
-
-        from ipywidgets import Dropdown, FloatSlider, IntSlider, HBox, VBox
+        from ipywidgets import Dropdown, FloatSlider, HBox, IntSlider, VBox
         self.atoms = atoms
         if isinstance(atoms[0], Atoms):
             # Assume this is a trajectory or struct list
