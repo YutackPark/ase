@@ -1,4 +1,4 @@
-from ase.data import atomic_numbers, reference_states, chemical_symbols
+from ase.data import atomic_numbers, chemical_symbols, reference_states
 
 
 def get_element_info(symbol, latticeconstant):
