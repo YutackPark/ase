@@ -1,21 +1,19 @@
 import errno
 import functools
-import os
 import io
+import os
 import pickle
+import re
+import string
 import sys
 import time
-import string
 import warnings
+from contextlib import ExitStack, contextmanager
 from importlib import import_module
-from math import sin, cos, radians, atan2, degrees
-from contextlib import contextmanager, ExitStack
-from math import gcd
-from pathlib import PurePath, Path
-import re
+from math import atan2, cos, degrees, gcd, radians, sin
+from pathlib import Path, PurePath
 
 import numpy as np
-
 from ase.formula import formula_hill, formula_metal
 
 __all__ = ['basestring', 'import_module', 'seterr', 'plural',

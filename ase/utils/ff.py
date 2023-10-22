@@ -1,7 +1,7 @@
 # flake8: noqa
 import numpy as np
+from ase import units
 from numpy import linalg
-from ase import units 
 
 # Three variables extracted from what used to be endless repetitions below.
 Ax = np.array([[1, 0, 0, -1, 0, 0, 0, 0, 0],

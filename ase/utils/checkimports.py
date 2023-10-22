@@ -14,7 +14,7 @@ import os
 import re
 import sys
 from pprint import pprint
-from subprocess import run, PIPE
+from subprocess import PIPE, run
 from typing import List, Optional, Set
 
 

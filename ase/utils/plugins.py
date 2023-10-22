@@ -2,7 +2,7 @@
 Utilities for plugins to ase
 """
 
-from typing import NamedTuple, Union, List, Optional
+from typing import List, NamedTuple, Optional, Union
 
 
 # Name is defined in the entry point

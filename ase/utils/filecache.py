@@ -1,12 +1,13 @@
-from pathlib import Path
 import json
-from collections.abc import MutableMapping, Mapping
+from collections.abc import Mapping, MutableMapping
 from contextlib import contextmanager
-from ase.io.jsonio import read_json, write_json
+from pathlib import Path
+
 from ase.io.jsonio import encode as encode_json
-from ase.io.ulm import ulmopen, NDArrayReader, Writer, InvalidULMFileError
-from ase.utils import opencew
+from ase.io.jsonio import read_json, write_json
+from ase.io.ulm import InvalidULMFileError, NDArrayReader, Writer, ulmopen
 from ase.parallel import world
+from ase.utils import opencew
 
 
 def missing(key):
