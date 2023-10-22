@@ -2,8 +2,8 @@
 
 from ase.mep import NEB as RealNEB
 from ase.mep import NEBTools as RealNEBTools
-from ase.mep import interpolate as realinterpolate
 from ase.mep import idpp_interpolate as realidpp_interpolate
+from ase.mep import interpolate as realinterpolate
 from ase.utils import deprecated
 
 

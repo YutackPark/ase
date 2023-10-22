@@ -1,10 +1,10 @@
 import json
+
 import numpy as np
 
 import ase.units as units
 from ase import Atoms
 from ase.data import chemical_symbols
-
 
 nomad_api_template = ('https://labdev-nomad.esc.rzg.mpg.de/'
                       'api/resolve/{hash}?format=recursiveJson')
