@@ -1,5 +1,6 @@
-from ase.spectrum.band_structure import *  # noqa: F401,F403
 import warnings
+
+from ase.spectrum.band_structure import *  # noqa: F401,F403
 from numpy import VisibleDeprecationWarning
 
 warnings.warn("ase.dft.band_structure has been moved to "

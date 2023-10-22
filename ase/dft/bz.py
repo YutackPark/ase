@@ -1,5 +1,6 @@
-from typing import Dict, Any
-from math import pi, sin, cos
+from math import cos, pi, sin
+from typing import Any, Dict
+
 import numpy as np
 
 
@@ -64,9 +65,8 @@ class SpacePlot:
     point_options: Dict[str, Any] = {}
 
     def __init__(self, *, elev=None):
-        from mpl_toolkits.mplot3d import Axes3D
-        from mpl_toolkits.mplot3d import proj3d
         from matplotlib.patches import FancyArrowPatch
+        from mpl_toolkits.mplot3d import Axes3D, proj3d
         Axes3D  # silence pyflakes
 
         class Arrow3D(FancyArrowPatch):
@@ -114,6 +114,7 @@ class SpacePlot:
 
     def adjust_view(self, ax, minp, maxp):
         import matplotlib.pyplot as plt
+
         # ax.set_aspect('equal') <-- won't work anymore in 3.1.0
         ax.view_init(azim=self.azim / pi * 180, elev=self.elev / pi * 180)
         # We want aspect 'equal', but apparently there was a bug in
