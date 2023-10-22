@@ -1,6 +1,7 @@
 import time
-from ase.utils import writer
+
 from ase.io.utils import PlottingVariables, make_patch_list
+from ase.utils import writer
 
 
 class EPS(PlottingVariables):

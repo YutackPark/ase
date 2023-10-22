@@ -92,7 +92,7 @@ def read_turbomole_gradient(fd, index=-1):
     del lines[end - 1 - start:]
 
     # Interpret $grad section
-    from ase import Atoms, Atom
+    from ase import Atom, Atoms
     from ase.calculators.singlepoint import SinglePointCalculator
     from ase.units import Bohr, Hartree
     images = []

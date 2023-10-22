@@ -21,21 +21,20 @@ There is a folder for each frame, and the data is in the ASE Ulm format.
 """
 
 import os
-import sys
 import shutil
+import sys
 import time
 from pathlib import Path
 
 import numpy as np
-
 from ase import Atoms
+from ase.calculators.singlepoint import (PropertyNotImplementedError,
+                                         SinglePointCalculator)
 # The system json module causes memory leaks!  Use ase's own.
 # import json
 from ase.io import jsonio
 from ase.io.ulm import open as ulmopen
-from ase.parallel import paropen, world, barrier
-from ase.calculators.singlepoint import (SinglePointCalculator,
-                                         PropertyNotImplementedError)
+from ase.parallel import barrier, paropen, world
 
 
 class BundleTrajectory:

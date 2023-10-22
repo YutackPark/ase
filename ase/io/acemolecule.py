@@ -1,9 +1,9 @@
-import numpy as np
 import ase.units
+import numpy as np
 from ase.atoms import Atoms
 from ase.calculators.singlepoint import SinglePointCalculator
-from ase.io import read
 from ase.data import chemical_symbols
+from ase.io import read
 
 
 def parse_geometry(filename):

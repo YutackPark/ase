@@ -12,7 +12,6 @@ conserve the scaled positions, not the absolute ones.
 import warnings
 
 import numpy as np
-
 from ase.atoms import Atoms
 from ase.cell import Cell
 from ase.io.espresso import label_to_symbol

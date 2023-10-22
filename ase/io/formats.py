@@ -13,28 +13,28 @@ read_xyz() generator and a write_xyz() function.  This and other
 information can be obtained from ioformats['xyz'].
 """
 
-import io
-import re
 import functools
 import inspect
-import os
-import sys
+import io
 import numbers
+import os
+import re
+import sys
 import warnings
 from pathlib import Path, PurePath
-from typing import (
-    IO, List, Any, Iterable, Tuple, Union, Sequence, Dict, Optional)
+from typing import (IO, Any, Dict, Iterable, List, Optional, Sequence, Tuple,
+                    Union)
 
 if sys.version_info >= (3, 8):
     from importlib.metadata import entry_points
 else:
     from importlib_metadata import entry_points
 
-from ase.atoms import Atoms
-from ase.utils.plugins import ExternalIOFormat
 from importlib import import_module
-from ase.parallel import parallel_function, parallel_generator
 
+from ase.atoms import Atoms
+from ase.parallel import parallel_function, parallel_generator
+from ase.utils.plugins import ExternalIOFormat
 
 PEEK_BYTES = 50000
 

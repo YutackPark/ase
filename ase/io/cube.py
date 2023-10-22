@@ -8,7 +8,6 @@ http://local.wasp.uwa.edu.au/~pbourke/dataformats/cube/
 import time
 
 import numpy as np
-
 from ase.atoms import Atoms
 from ase.io import read
 from ase.units import Bohr

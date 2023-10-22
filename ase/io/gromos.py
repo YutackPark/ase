@@ -5,7 +5,6 @@ its procedure src/gmxlib/confio.c (write_g96_conf)
 """
 
 import numpy as np
-
 from ase import Atoms
 from ase.data import chemical_symbols
 from ase.utils import reader, writer

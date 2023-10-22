@@ -6,14 +6,14 @@ Authors: Simone Sturniolo (ase implementation), Tim Green (original magres
 """
 
 import re
-import numpy as np
 from collections import OrderedDict
 
 import ase.units
+import numpy as np
 from ase.atoms import Atoms
+from ase.calculators.singlepoint import SinglePointDFTCalculator
 from ase.spacegroup import Spacegroup
 from ase.spacegroup.spacegroup import SpacegroupNotFoundError
-from ase.calculators.singlepoint import SinglePointDFTCalculator
 
 _mprops = {
     'ms': ('sigma', 1),
