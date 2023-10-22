@@ -1,20 +1,20 @@
 """Module for calculating phonons of periodic systems."""
 
-from math import pi, sqrt
 import warnings
+from math import pi, sqrt
 from pathlib import Path
 
 import numpy as np
-import numpy.linalg as la
 import numpy.fft as fft
+import numpy.linalg as la
 
 import ase
 import ase.units as units
-from ase.parallel import world
 from ase.dft import monkhorst_pack
 from ase.io.trajectory import Trajectory
-from ase.utils.filecache import MultiFileJSONCache
+from ase.parallel import world
 from ase.utils import deprecated
+from ase.utils.filecache import MultiFileJSONCache
 
 
 class Displacement:
@@ -713,6 +713,7 @@ class Phonons(Displacement):
 
     def get_dos(self, kpts=(10, 10, 10), npts=1000, delta=1e-3, indices=None):
         from ase.spectrum.dosdata import RawDOSData
+
         # dos = self.dos(kpts, npts, delta, indices)
         kpts_kc = monkhorst_pack(kpts)
         omega_w = self.band_structure(kpts_kc).ravel()

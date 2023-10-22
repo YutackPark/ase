@@ -1,9 +1,10 @@
-import ase
 from typing import Mapping, Sequence, Union
-import numpy as np
-from ase.utils.arraywrapper import arraylike
-from ase.utils import pbc2pbc
 
+import numpy as np
+
+import ase
+from ase.utils import pbc2pbc
+from ase.utils.arraywrapper import arraylike
 
 __all__ = ['Cell']
 

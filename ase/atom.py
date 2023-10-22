@@ -2,7 +2,7 @@
 
 import numpy as np
 
-from ase.data import atomic_numbers, chemical_symbols, atomic_masses
+from ase.data import atomic_masses, atomic_numbers, chemical_symbols
 
 # Singular, plural, default value:
 names = {'position': ('positions', np.zeros(3)),

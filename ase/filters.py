@@ -1,8 +1,9 @@
 """Filters"""
-from warnings import warn
 from itertools import product
+from warnings import warn
 
 import numpy as np
+
 from ase.calculators.calculator import PropertyNotImplementedError
 from ase.stress import full_3x3_to_voigt_6_stress, voigt_6_to_full_3x3_stress
 from ase.utils import deprecated
@@ -538,7 +539,7 @@ class FrechetCellFilter(UnitCellFilter):
                                 scalar_pressure=scalar_pressure)
 
         # We defer the scipy import to avoid high immediate import overhead
-        from scipy.linalg import expm, logm, expm_frechet
+        from scipy.linalg import expm, expm_frechet, logm
         self.expm = expm
         self.logm = logm
         self.expm_frechet = expm_frechet

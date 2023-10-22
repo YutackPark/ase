@@ -6,17 +6,13 @@ import numpy as np
 
 # `Filter` classes are imported for backward compatibility.
 from ase.filters import (  # noqa: F401 # pylint: disable=unused-import
-    Filter,
-    StrainFilter,
-    UnitCellFilter,
-    ExpCellFilter,
-)
-from ase.geometry import (find_mic, wrap_positions, get_distances_derivatives,
-                          get_angles_derivatives, get_dihedrals_derivatives,
-                          conditional_find_mic, get_angles, get_dihedrals)
+    ExpCellFilter, Filter, StrainFilter, UnitCellFilter)
+from ase.geometry import (conditional_find_mic, find_mic, get_angles,
+                          get_angles_derivatives, get_dihedrals,
+                          get_dihedrals_derivatives, get_distances_derivatives,
+                          wrap_positions)
+from ase.stress import full_3x3_to_voigt_6_stress, voigt_6_to_full_3x3_stress
 from ase.utils.parsemath import eval_expression
-from ase.stress import (full_3x3_to_voigt_6_stress,
-                        voigt_6_to_full_3x3_stress)
 
 __all__ = [
     'FixCartesian', 'FixBondLength', 'FixedMode',
