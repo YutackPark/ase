@@ -1,7 +1,8 @@
 from pathlib import Path
+
+from ase.db.core import KeyDescription
 from ase.db.row import row2dct
 from ase.formula import Formula
-from ase.db.core import KeyDescription
 
 
 class DatabaseProject:
@@ -84,8 +85,8 @@ class DatabaseProject:
     # it would fail on subclasses.  So we use staticmethod
     @staticmethod
     def load_db_as_ase_project(name, database):
-        from ase.db.table import all_columns
         from ase.db.core import get_key_descriptions
+        from ase.db.table import all_columns
 
         return DatabaseProject(
             name=name,
