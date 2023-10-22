@@ -8,11 +8,12 @@ different orientations.
 """
 
 import itertools
+
 import numpy as np
+from ase.cell import Cell
 from ase.geometry import complete_cell
 from ase.geometry.minkowski_reduction import minkowski_reduce
 from ase.utils import pbc2pbc
-from ase.cell import Cell
 
 
 def translate_pretty(fractional, pbc):
