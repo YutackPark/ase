@@ -1,12 +1,12 @@
-from abc import abstractmethod, ABC
 import functools
 import warnings
-import numpy as np
+from abc import ABC, abstractmethod
 from typing import Dict, List
 
-from ase.cell import Cell
+import numpy as np
 from ase.build.bulk import bulk as newbulk
-from ase.dft.kpoints import parse_path_string, sc_special_points, BandPath
+from ase.cell import Cell
+from ase.dft.kpoints import BandPath, parse_path_string, sc_special_points
 from ase.utils import pbc2pbc
 
 
