@@ -7,15 +7,14 @@ knowledge of the space group.
 
 """
 
-from typing import Dict, Any
-
-import numpy as np
-from scipy import spatial
+from typing import Any, Dict
 
 import ase
-from ase.symbols import string2symbols
-from ase.spacegroup import Spacegroup
+import numpy as np
 from ase.geometry import cellpar_to_cell
+from ase.spacegroup import Spacegroup
+from ase.symbols import string2symbols
+from scipy import spatial
 
 __all__ = ['crystal']
 
