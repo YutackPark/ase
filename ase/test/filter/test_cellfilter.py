@@ -131,7 +131,7 @@ def test_constant_volume(atoms: ase.Atoms, cellfilter):
     atoms_opt = atoms.copy()
     atoms_opt.calc = atoms.calc
     filter: Filter = cellfilter(atoms_opt, constant_volume=True)
-    opt = LBFGS(filter)
+    opt = LBFGS(filter)  # type: ignore[arg-type]
     opt.run()
 
     # Check if volume is conserved

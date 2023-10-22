@@ -1,5 +1,8 @@
+from typing import IO, Optional, Union
+
 import numpy as np
 
+from ase import Atoms
 from ase.optimize.sciopt import SciPyOptimizer, OptimizerConvergenceError
 
 
@@ -181,9 +184,19 @@ class ODE12r(SciPyOptimizer):
     Optimizer based on adaptive ODE solver :func:`ode12r`
     """
 
-    def __init__(self, atoms, logfile='-', trajectory=None,
-                 callback_always=False, alpha=1.0, master=None,
-                 force_consistent=None, precon=None, verbose=0, rtol=1e-2):
+    def __init__(
+        self,
+        atoms: Atoms,
+        logfile: Union[IO, str] = '-',
+        trajectory: Optional[str] = None,
+        callback_always: bool = False,
+        alpha: float = 1.0,
+        master: Optional[bool] = None,
+        force_consistent: Optional[bool] = None,
+        precon: Optional[str] = None,
+        verbose: int = 0,
+        rtol: float = 1e-2,
+    ):
         SciPyOptimizer.__init__(self, atoms, logfile, trajectory,
                                 callback_always, alpha, master,
                                 force_consistent)

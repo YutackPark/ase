@@ -1,8 +1,8 @@
 """Logging for molecular dynamics."""
-
 import weakref
+from typing import Any, IO, Union
 
-import ase.units as units
+from ase import Atoms, units
 from ase.parallel import world
 from ase.utils import IOContext
 
@@ -24,12 +24,17 @@ class MDLogger(IOContext):
     mode="a":      How the file is opened if logfile is a filename.
     """
 
-    def __init__(self, dyn, atoms, logfile, header=True, stress=False,
-                 peratom=False, mode="a"):
-        if hasattr(dyn, "get_time"):
-            self.dyn = weakref.proxy(dyn)
-        else:
-            self.dyn = None
+    def __init__(
+        self,
+        dyn: Any,  # not fully annotated so far to avoid a circular import
+        atoms: Atoms,
+        logfile: Union[IO, str],
+        header: bool = True,
+        stress: bool = False,
+        peratom: bool = False,
+        mode: str = "a",
+    ):
+        self.dyn = weakref.proxy(dyn) if hasattr(dyn, "get_time") else None
         self.atoms = atoms
         global_natoms = atoms.get_global_number_of_atoms()
         self.logfile = self.openfile(logfile, comm=world, mode=mode)

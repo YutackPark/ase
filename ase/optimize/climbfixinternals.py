@@ -1,5 +1,10 @@
+from typing import Any, Dict, IO, List, Optional, Type, Union
+
 from numpy.linalg import norm
+
+from ase import Atoms
 from ase.optimize.bfgs import BFGS
+from ase.optimize.optimize import Optimizer
 from ase.constraints import FixInternals
 
 
@@ -44,11 +49,21 @@ class BFGSClimbFixInternals(BFGS):
     .. literalinclude:: ../../ase/test/optimize/test_climb_fix_internals.py
        :end-before: # end example for documentation
     """
-    def __init__(self, atoms, restart=None, logfile='-', trajectory=None,
-                 maxstep=None, master=None, alpha=None,
-                 climb_coordinate=None,
-                 optB=BFGS, optB_kwargs=None, optB_fmax=0.05,
-                 optB_fmax_scaling=0.0):
+    def __init__(
+        self,
+        atoms: Atoms,
+        restart: Optional[str] = None,
+        logfile: Union[IO, str] = '-',
+        trajectory: Optional[str] = None,
+        maxstep: Optional[float] = None,
+        master: Optional[bool] = None,
+        alpha: Optional[float] = None,
+        climb_coordinate: Optional[List[FixInternals]] = None,
+        optB: Type[Optimizer] = BFGS,
+        optB_kwargs: Optional[Dict[str, Any]] = None,
+        optB_fmax: float = 0.05,
+        optB_fmax_scaling: float = 0.0,
+    ):
         """Allowed parameters are similar to the parent class
         :class:`~ase.optimize.bfgs.BFGS` with the following additions:
 
