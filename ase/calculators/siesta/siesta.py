@@ -337,7 +337,7 @@ class Siesta(FileIOCalculator):
             i += 1
 
         # Set up the non-default species.
-        non_default_species = [s for s in species if not s['tag'] is None]
+        non_default_species = [s for s in species if s['tag'] is not None]
         for spec in non_default_species:
             mask1 = (tags == spec['tag'])
             mask2 = (symbols == spec['symbol'])
@@ -893,7 +893,7 @@ class Siesta(FileIOCalculator):
                 else:
                     shutil.copy(pseudopotential, pseudo_targetpath)
 
-            if not spec['excess_charge'] is None:
+            if spec['excess_charge'] is not None:
                 atomic_number += 200
                 n_atoms = sum(np.array(species_numbers) == species_number)
 

@@ -113,7 +113,6 @@ def read_magres(fd, include_unrecognised=False):
                          'isc_orbital_p': '10^19.T^2.J^-1',
                          'isc_orbital_d': '10^19.T^2.J^-1',
                          'isc_spin': '10^19.T^2.J^-1',
-                         'isc': '10^19.T^2.J^-1',
                          'sus': '10^-6.cm^3.mol^-1',
                          'calc_cutoffenergy': 'Hartree', }
 
