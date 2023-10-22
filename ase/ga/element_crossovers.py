@@ -3,7 +3,6 @@ atoms objects.
 
 """
 import numpy as np
-
 from ase.ga.offspring_creator import OffspringCreator
 
 

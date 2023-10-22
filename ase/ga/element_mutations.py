@@ -1,7 +1,6 @@
 """Mutation classes, that mutate the elements in the supplied
 atoms objects."""
 import numpy as np
-
 from ase.data import atomic_numbers
 from ase.ga.offspring_creator import OffspringCreator
 

@@ -1,6 +1,7 @@
 """ An object which can be associated with a local relaxation in order
 to make the relaxations run more smoothly."""
 from math import sqrt
+
 import numpy as np
 
 
