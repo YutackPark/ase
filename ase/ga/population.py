@@ -1,9 +1,9 @@
 """ Implementation of a population for maintaining a GA population and
 proposing structures to pair. """
-from math import tanh, sqrt, exp
+from math import exp, sqrt, tanh
 from operator import itemgetter
-import numpy as np
 
+import numpy as np
 from ase.db.core import now
 from ase.ga import get_raw_score
 

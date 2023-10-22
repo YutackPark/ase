@@ -1,9 +1,10 @@
-import numpy as np
 from itertools import combinations_with_replacement
 from math import erf
-from scipy.spatial.distance import cdist
+
+import numpy as np
 from ase.neighborlist import NeighborList
 from ase.utils import pbc2pbc
+from scipy.spatial.distance import cdist
 
 
 class OFPComparator:
