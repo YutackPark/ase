@@ -123,8 +123,17 @@ class NeighborList:
                 if a.shape == b.shape:
                     delta = np.linalg.norm(a - b, axis=1)
                     # Indices of the two largest elements
-                    ind = np.argpartition(delta, -2)[-2:]
-                    if sum(delta[ind]) <= self.skin:
+                    try:
+                        ind = np.argpartition(delta, -2)[-2:]
+
+                        if sum(delta[ind]) <= self.skin:
+                            need_neigh_update = False
+                    except ValueError as error:
+                        # if there is only a single atom that gets displaced
+                        # np.argpartition(delta, -2) will fail with a
+                        # ValueError, a single atom has no neighbors to update
+                        if atoms.positions.shape[0] != 1:
+                            raise error
                         need_neigh_update = False
 
         return need_neigh_update
