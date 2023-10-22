@@ -1,6 +1,5 @@
-import numpy as np
-
 import ase.gui.ui as ui
+import numpy as np
 from ase.gui.i18n import _
 
 

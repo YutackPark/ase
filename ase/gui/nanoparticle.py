@@ -1,21 +1,20 @@
 """nanoparticle.py - Window for setting up crystalline nanoparticles.
 """
 from copy import copy
-from ase.gui.i18n import _
-
-import numpy as np
 
 import ase
 import ase.data
 import ase.gui.ui as ui
+import numpy as np
+from ase.cluster import wulff_construction
+from ase.cluster.cubic import BodyCenteredCubic, FaceCenteredCubic, SimpleCubic
+from ase.cluster.hexagonal import Graphite, HexagonalClosedPacked
+from ase.gui.i18n import _
+from ase.gui.widgets import Element, pybutton
 
 # Delayed imports:
 # ase.cluster.data
 
-from ase.cluster.cubic import FaceCenteredCubic, BodyCenteredCubic, SimpleCubic
-from ase.cluster.hexagonal import HexagonalClosedPacked, Graphite
-from ase.cluster import wulff_construction
-from ase.gui.widgets import Element, pybutton
 
 
 introtext = _("""\

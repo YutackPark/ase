@@ -7,7 +7,6 @@ from ase.build import nanotube
 from ase.gui.i18n import _
 from ase.gui.widgets import Element, pybutton
 
-
 introtext = _("""\
 Set up a Carbon nanotube by specifying the (n,m) roll-up vector.
 Please note that m <= n.
