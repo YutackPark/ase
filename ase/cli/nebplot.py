@@ -35,8 +35,8 @@ class CLICommand:
 
     @staticmethod
     def run(args, parser):
-        from ase.mep import NEBTools
         from ase.gui.images import Images
+        from ase.mep import NEBTools
 
         # Nothing will ever be stored in args.output; need to manually find
         # if its supplied by checking extensions.

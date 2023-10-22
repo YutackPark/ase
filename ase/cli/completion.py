@@ -7,7 +7,7 @@ Run this when ever options are changed::
 
 import sys
 from pathlib import Path
-from typing import List, Dict, Tuple
+from typing import Dict, List, Tuple
 
 # Path of the complete.py script:
 path = Path(__file__).with_name('complete.py')

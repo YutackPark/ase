@@ -1,8 +1,9 @@
 import string
+
 import numpy as np
+from ase.data import chemical_symbols
 from ase.io import string2index
 from ase.io.formats import parse_filename
-from ase.data import chemical_symbols
 
 # default fields
 

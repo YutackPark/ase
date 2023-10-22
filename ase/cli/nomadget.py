@@ -17,6 +17,7 @@ class CLICommand:
     @staticmethod
     def run(args):
         import json
+
         from ase.nomad import download
         for uri in args.uri:
             calculation = download(uri)
