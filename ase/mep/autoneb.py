@@ -10,7 +10,7 @@ import ase.parallel as mpi
 import numpy as np
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.io import Trajectory, read
-from ase.mep import NEB
+from ase.mep.neb import NEB
 from ase.optimize import BFGS, FIRE
 
 
