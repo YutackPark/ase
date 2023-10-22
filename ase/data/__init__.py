@@ -1,7 +1,5 @@
 import numpy as np
-
 from ase.data.vdw import vdw_radii
-
 
 __all__ = ['vdw_radii', 'chemical_symbols', 'ground_state_magnetic_moments',
            'reference_states', 'atomic_names', 'atomic_masses',
