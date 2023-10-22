@@ -7,9 +7,9 @@ The following lattice creators are defined:
     FaceCenteredOrthorhombic
 """
 
-from ase.lattice.bravais import Bravais
 import numpy as np
 from ase.data import reference_states as _refstate
+from ase.lattice.bravais import Bravais
 
 
 class SimpleOrthorhombicFactory(Bravais):
