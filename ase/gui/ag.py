@@ -59,8 +59,8 @@ class CLICommand:
 
     @staticmethod
     def run(args):
-        from ase.gui.images import Images
         from ase.atoms import Atoms
+        from ase.gui.images import Images
 
         images = Images()
 
@@ -95,6 +95,7 @@ class CLICommand:
                     print()
         else:
             import os
+
             from ase.gui.gui import GUI
 
             backend = os.environ.get('MPLBACKEND', '')

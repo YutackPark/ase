@@ -1,10 +1,9 @@
 import pickle
 import sys
 
-import numpy as np
-
-from ase.gui.i18n import _
 import ase.gui.ui as ui
+import numpy as np
+from ase.gui.i18n import _
 
 graph_help_text = _("""\
 Symbols:

@@ -1,18 +1,16 @@
 # type: ignore
 import re
 import sys
-from collections import namedtuple
-from functools import partial
-
-import numpy as np
 import tkinter as tk
 import tkinter.ttk as ttk
-from tkinter.messagebox import askokcancel as ask_question
-from tkinter.messagebox import showerror, showwarning, showinfo
+from collections import namedtuple
+from functools import partial
 from tkinter.filedialog import LoadFileDialog, SaveFileDialog
+from tkinter.messagebox import askokcancel as ask_question
+from tkinter.messagebox import showerror, showinfo, showwarning
 
+import numpy as np
 from ase.gui.i18n import _
-
 
 __all__ = [
     'error', 'ask_question', 'MainWindow', 'LoadFileDialog', 'SaveFileDialog',

@@ -1,11 +1,10 @@
 import os
-import numpy as np
 
-from ase.gui.i18n import _
-from ase import Atoms
 import ase.gui.ui as ui
+import numpy as np
+from ase import Atoms
 from ase.data import atomic_numbers, chemical_symbols
-
+from ase.gui.i18n import _
 
 current_selection_string = _('(selection)')
 

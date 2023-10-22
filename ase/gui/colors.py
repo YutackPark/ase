@@ -1,9 +1,7 @@
 """colors.py - select how to color the atoms in the GUI."""
-from ase.gui.i18n import _
-
-import numpy as np
-
 import ase.gui.ui as ui
+import numpy as np
+from ase.gui.i18n import _
 from ase.gui.utils import get_magmoms
 
 
@@ -154,8 +152,8 @@ class ColorWindow:
                           for red in np.linspace(0, 230, N)]
         else:
             try:
-                import pylab as plt
                 import matplotlib
+                import pylab as plt
                 cmap = plt.cm.get_cmap(cmap)
                 colorscale = [matplotlib.colors.rgb2hex(c[:3]) for c in
                               cmap(np.linspace(0, 1, N))]
