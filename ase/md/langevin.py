@@ -46,7 +46,9 @@ class Langevin(MolecularDynamics):
             The desired temperature, in Kelvin.
 
         friction: float
-            A friction coefficient, typically 1e-4 to 1e-2.
+            A friction coefficient in inverse ASE time units.
+            For example, set ``0.01 / ase.units.fs`` to provide
+            0.01 fs\\ :sup:`−1` (10 ps\\ :sup:`−1`).
 
         fixcm: bool (optional)
             If True, the position and momentum of the center of mass is
