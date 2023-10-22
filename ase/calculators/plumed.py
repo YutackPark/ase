@@ -1,10 +1,10 @@
+from os.path import exists
+
+import numpy as np
 from ase.calculators.calculator import Calculator, all_changes
 from ase.io.trajectory import Trajectory
-from ase.parallel import broadcast
-from ase.parallel import world
-import numpy as np
-from os.path import exists
-from ase.units import fs, mol, kJ, nm
+from ase.parallel import broadcast, world
+from ase.units import fs, kJ, mol, nm
 
 
 def restart_from_trajectory(prev_traj, *args, prev_steps=None, atoms=None,

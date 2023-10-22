@@ -1,15 +1,15 @@
 import os
 import socket
-from subprocess import Popen, PIPE
 from contextlib import contextmanager
+from subprocess import PIPE, Popen
 
-import numpy as np
-
-from ase.calculators.calculator import (Calculator, all_changes,
-                                        PropertyNotImplementedError)
 import ase.units as units
-from ase.utils import IOContext
+import numpy as np
+from ase.calculators.calculator import (Calculator,
+                                        PropertyNotImplementedError,
+                                        all_changes)
 from ase.stress import full_3x3_to_voigt_6_stress
+from ase.utils import IOContext
 
 
 def actualunixsocketname(name):
@@ -364,6 +364,7 @@ class SocketServer(IOContext):
             exitcode = self.proc.wait()
             if exitcode != 0:
                 import warnings
+
                 # Quantum Espresso seems to always exit with status 128,
                 # even if successful.
                 # Should investigate at some point
@@ -685,8 +686,8 @@ class PySocketIOClient:
         self._calculator_factory = calculator_factory
 
     def __call__(self, atoms, properties=None, port=None, unixsocket=None):
-        import sys
         import pickle
+        import sys
 
         # We pickle everything first, so we won't need to bother with the
         # process as long as it succeeds.
@@ -705,8 +706,8 @@ class PySocketIOClient:
 
     @staticmethod
     def main():
-        import sys
         import pickle
+        import sys
 
         socketinfo, atoms, get_calculator = pickle.load(sys.stdin.buffer)
         atoms.calc = get_calculator()

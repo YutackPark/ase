@@ -14,34 +14,32 @@ Contributors:
 """
 
 import difflib
-import numpy as np
+import glob
+import json
 import os
 import re
-import glob
 import shutil
-import sys
-import json
-import time
-import tempfile
-import warnings
 import subprocess
-from copy import deepcopy
+import sys
+import tempfile
+import time
+import warnings
 from collections import namedtuple
+from copy import deepcopy
 from itertools import product
 from pathlib import Path
 from typing import List, Set
 
 import ase
 import ase.units as units
+import numpy as np
+from ase.calculators.calculator import (PropertyNotImplementedError,
+                                        compare_atoms, kpts2sizeandoffsets)
 from ase.calculators.general import Calculator
-from ase.calculators.calculator import compare_atoms
-from ase.calculators.calculator import PropertyNotImplementedError
-from ase.calculators.calculator import kpts2sizeandoffsets
-from ase.dft.kpoints import BandPath
-from ase.parallel import paropen
-from ase.io.castep import read_param
-from ase.io.castep import read_bands
 from ase.constraints import FixCartesian
+from ase.dft.kpoints import BandPath
+from ase.io.castep import read_bands, read_param
+from ase.parallel import paropen
 
 __all__ = [
     'Castep',

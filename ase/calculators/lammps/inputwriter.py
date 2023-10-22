@@ -1,8 +1,8 @@
 """
 Stream input commands to lammps to perform desired simulations
 """
-from ase.parallel import paropen
 from ase.calculators.lammps.unitconvert import convert
+from ase.parallel import paropen
 
 # "End mark" used to indicate that the calculation is done
 CALCULATION_END_MARK = "__end_of_ase_invoked_calculation__"

@@ -1,5 +1,4 @@
 import numpy as np
-
 from ase.calculators.calculator import Calculator
 from ase.neighborlist import neighbor_list
 

@@ -1,18 +1,17 @@
-import os
 import copy
+import os
 import subprocess
-from math import pi, sqrt
-from pathlib import Path
-from typing import Union, Optional, List, Set, Dict, Any
 import warnings
 from abc import abstractmethod
+from math import pi, sqrt
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Set, Union
 
 import numpy as np
-
+from ase.calculators.abc import GetPropertiesMixin
 from ase.cell import Cell
 from ase.outputs import Properties, all_outputs
 from ase.utils import jsonable
-from ase.calculators.abc import GetPropertiesMixin
 
 from .names import names
 
@@ -862,6 +861,7 @@ class Calculator(BaseCalculator):
     def band_structure(self):
         """Create band-structure object for plotting."""
         from ase.spectrum.band_structure import get_band_structure
+
         # XXX This calculator is supposed to just have done a band structure
         # calculation, but the calculator may not have the correct Fermi level
         # if it updated the Fermi level after changing k-points.

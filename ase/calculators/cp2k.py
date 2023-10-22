@@ -7,13 +7,14 @@ Author: Ole Schuett <ole.schuett@mat.ethz.ch>
 
 import os
 import os.path
+from subprocess import PIPE, Popen
 from warnings import warn
-from subprocess import Popen, PIPE
-import numpy as np
+
 import ase.io
+import numpy as np
+from ase.calculators.calculator import (Calculator, CalculatorSetupError,
+                                        Parameters, all_changes)
 from ase.units import Rydberg
-from ase.calculators.calculator import (Calculator, all_changes, Parameters,
-                                        CalculatorSetupError)
 
 
 class CP2K(Calculator):

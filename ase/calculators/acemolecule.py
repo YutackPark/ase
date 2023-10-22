@@ -1,8 +1,8 @@
 import os
 from copy import deepcopy
+
+from ase.calculators.calculator import FileIOCalculator, ReadError
 from ase.io import read
-from ase.calculators.calculator import ReadError
-from ase.calculators.calculator import FileIOCalculator
 
 
 class ACE(FileIOCalculator):

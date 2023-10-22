@@ -20,26 +20,24 @@
 
 
 import os
-import shutil
 import shlex
-from subprocess import Popen, PIPE, TimeoutExpired
-from threading import Thread
-from re import compile as re_compile, IGNORECASE
-from tempfile import mkdtemp, NamedTemporaryFile, mktemp as uns_mktemp
+import shutil
 import warnings
-from typing import Dict, Any
-import numpy as np
+from re import IGNORECASE
+from re import compile as re_compile
+from subprocess import PIPE, Popen, TimeoutExpired
+from tempfile import NamedTemporaryFile, mkdtemp
+from tempfile import mktemp as uns_mktemp
+from threading import Thread
+from typing import Any, Dict
 
-from ase.calculators.calculator import Calculator
-from ase.calculators.calculator import all_changes
-from ase.data import chemical_symbols
-from ase.data import atomic_masses
+import numpy as np
+from ase.calculators.calculator import Calculator, all_changes
+from ase.calculators.lammps import (CALCULATION_END_MARK, Prism, convert,
+                                    write_lammps_in)
+from ase.data import atomic_masses, chemical_symbols
 from ase.io.lammpsdata import write_lammps_data
 from ase.io.lammpsrun import read_lammps_dump
-from ase.calculators.lammps import Prism
-from ase.calculators.lammps import write_lammps_in
-from ase.calculators.lammps import CALCULATION_END_MARK
-from ase.calculators.lammps import convert
 
 __all__ = ["LAMMPS"]
 

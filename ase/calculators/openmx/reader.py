@@ -21,14 +21,15 @@ functional theories.
 #  from ase.calculators import SinglePointDFTCalculator
 import os
 import struct
+
 import numpy as np
-from ase.units import Ha, Bohr, Debye
 from ase.io import ParseError
+from ase.units import Bohr, Debye, Ha
 
 
 def read_openmx(filename=None, debug=False):
-    from ase.calculators.openmx import OpenMX
     from ase import Atoms
+    from ase.calculators.openmx import OpenMX
     """
     Read results from typical OpenMX output files and returns the atom object
     In default mode, it reads every implementd properties we could get from
@@ -244,8 +245,8 @@ def read_scfout_file(filename=None):
     dipole_moment_core[4]:
     dipole_moment_background[4]:
     """
-    from numpy import insert as ins
     from numpy import cumsum as cum
+    from numpy import insert as ins
     from numpy import split as spl
     from numpy import sum, zeros
     if not os.path.isfile(filename):

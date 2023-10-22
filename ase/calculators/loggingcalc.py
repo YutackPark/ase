@@ -6,10 +6,9 @@ number of enery and force calls
 import json
 import logging
 import time
-from typing import Dict, Any
+from typing import Any, Dict
 
 import numpy as np
-
 from ase.calculators.calculator import Calculator, all_properties
 
 logger = logging.getLogger(__name__)

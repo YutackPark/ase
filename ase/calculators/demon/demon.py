@@ -5,17 +5,16 @@ http://www.demon-software.com
 """
 import os
 import os.path as op
-import subprocess
 import shutil
+import subprocess
 
-import numpy as np
-
-from ase.units import Bohr, Hartree
 import ase.data
-from ase.calculators.calculator import FileIOCalculator, ReadError
-from ase.calculators.calculator import Parameters, all_changes
-from ase.calculators.calculator import equal
 import ase.io
+import numpy as np
+from ase.calculators.calculator import (FileIOCalculator, Parameters,
+                                        ReadError, all_changes, equal)
+from ase.units import Bohr, Hartree
+
 from .demon_io import parse_xray
 
 m_e_to_amu = 1822.88839

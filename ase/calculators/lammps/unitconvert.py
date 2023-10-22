@@ -5,6 +5,7 @@ See: https://lammps.sandia.gov/doc/units.html
  """
 
 from ase import units
+
 from . import unitconvert_constants as u
 
 # !TODO add reduced Lennard-Jones units?

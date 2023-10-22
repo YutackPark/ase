@@ -1,13 +1,14 @@
 # type: ignore
 """turbomole parameters management classes and functions"""
 
-import re
 import os
-from math import log10, floor
+import re
+from math import floor, log10
+
 import numpy as np
-from ase.units import Ha, Bohr
+from ase.calculators.turbomole.reader import parse_data_group, read_data_group
 from ase.calculators.turbomole.writer import add_data_group, delete_data_group
-from ase.calculators.turbomole.reader import read_data_group, parse_data_group
+from ase.units import Bohr, Ha
 
 
 class TurbomoleParameters(dict):

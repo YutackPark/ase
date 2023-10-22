@@ -7,10 +7,11 @@ Initial development: markus.kaukonen@iki.fi
 """
 
 import os
+
 import numpy as np
 from ase.calculators.calculator import (FileIOCalculator, kpts2ndarray,
                                         kpts2sizeandoffsets)
-from ase.units import Hartree, Bohr
+from ase.units import Bohr, Hartree
 
 
 class Dftb(FileIOCalculator):
@@ -349,7 +350,7 @@ class Dftb(FileIOCalculator):
 
     def read_forces(self):
         """Read Forces from dftb output file (results.tag)."""
-        from ase.units import Hartree, Bohr
+        from ase.units import Bohr, Hartree
 
         # Initialise the indices so their scope
         # reaches outside of the for loop
@@ -534,7 +535,7 @@ class PointChargePotential:
 
     def read_forces_on_pointcharges(self):
         """Read Forces from dftb output file (results.tag)."""
-        from ase.units import Hartree, Bohr
+        from ase.units import Bohr, Hartree
         with open(os.path.join(self.directory, 'detailed.out'), 'r') as fd:
             lines = fd.readlines()
 

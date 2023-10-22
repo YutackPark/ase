@@ -1,7 +1,6 @@
-import numpy as np
-from ase.calculators.calculator import FileIOCalculator
-from ase.calculators.calculator import SCFError
 import ase.units
+import numpy as np
+from ase.calculators.calculator import FileIOCalculator, SCFError
 
 
 class QChem(FileIOCalculator):
