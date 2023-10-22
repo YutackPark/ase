@@ -4,14 +4,13 @@
 import ctypes
 
 import numpy as np
-from numpy.linalg import norm
-
 from ase.calculators.calculator import Calculator
-from ase.data import (atomic_numbers as ase_atomic_numbers,
-                      chemical_symbols as ase_chemical_symbols,
-                      atomic_masses as ase_atomic_masses)
 from ase.calculators.lammps import convert
+from ase.data import atomic_masses as ase_atomic_masses
+from ase.data import atomic_numbers as ase_atomic_numbers
+from ase.data import chemical_symbols as ase_chemical_symbols
 from ase.geometry import wrap_positions
+from numpy.linalg import norm
 
 # TODO
 # 1. should we make a new lammps object each time ?
@@ -629,7 +628,7 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
         # Only import lammps when running a calculation
         # so it is not required to use other parts of the
         # module
-        from lammps import lammps, LMP_STYLE_ATOM, LMP_TYPE_VECTOR
+        from lammps import LMP_STYLE_ATOM, LMP_TYPE_VECTOR, lammps
 
         self.LMP_STYLE_ATOM = LMP_STYLE_ATOM
         self.LMP_TYPE_VECTOR = LMP_TYPE_VECTOR

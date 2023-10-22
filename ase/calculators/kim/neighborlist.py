@@ -1,12 +1,12 @@
 from collections import defaultdict
 
-import numpy as np
 import kimpy
-from kimpy import neighlist
-from ase.neighborlist import neighbor_list
+import numpy as np
 from ase import Atom
+from ase.neighborlist import neighbor_list
+from kimpy import neighlist
 
-from .kimpy_wrappers import check_call_wrapper, c_int, c_double
+from .kimpy_wrappers import c_double, c_int, check_call_wrapper
 
 
 class NeighborList:

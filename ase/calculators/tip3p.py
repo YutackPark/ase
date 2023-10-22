@@ -1,8 +1,7 @@
 """TIP3P potential."""
 
-import numpy as np
-
 import ase.units as units
+import numpy as np
 from ase.calculators.calculator import Calculator, all_changes
 
 qH = 0.417

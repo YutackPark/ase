@@ -5,18 +5,14 @@ Daniel S. Karls
 University of Minnesota
 """
 
-from abc import ABC
 import functools
+from abc import ABC
 
-import numpy as np
 import kimpy
+import numpy as np
 
-from .exceptions import (
-    KIMModelNotFound,
-    KIMModelInitializationError,
-    KimpyError,
-    KIMModelParameterError,
-)
+from .exceptions import (KIMModelInitializationError, KIMModelNotFound,
+                         KIMModelParameterError, KimpyError)
 
 # Function used for casting parameter/extent indices to C-compatible ints
 c_int = np.intc

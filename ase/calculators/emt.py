@@ -1,15 +1,14 @@
 """Effective medium theory potential."""
 
-from math import sqrt, exp, log
+from math import exp, log, sqrt
 
 import numpy as np
-
-from ase.data import chemical_symbols, atomic_numbers
-from ase.units import Bohr
+from ase.calculators.calculator import (Calculator,
+                                        PropertyNotImplementedError,
+                                        all_changes)
+from ase.data import atomic_numbers, chemical_symbols
 from ase.neighborlist import NeighborList
-from ase.calculators.calculator import (Calculator, all_changes,
-                                        PropertyNotImplementedError)
-
+from ase.units import Bohr
 
 parameters = {
     #      E0     s0    V0     eta2    kappa   lambda  n0
@@ -241,6 +240,7 @@ class EMT(Calculator):
 
 def main():
     import sys
+
     from ase.io import read, write
     inputfile = sys.argv[1]
     outputfile = sys.argv[2]

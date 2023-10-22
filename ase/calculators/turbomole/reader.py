@@ -2,12 +2,13 @@
 
 import os
 import re
-import warnings
 import subprocess
+import warnings
+
 import numpy as np
 from ase import Atom, Atoms
-from ase.units import Ha, Bohr
 from ase.calculators.calculator import ReadError
+from ase.units import Bohr, Ha
 
 
 def execute_command(args):

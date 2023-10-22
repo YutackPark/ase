@@ -7,12 +7,11 @@ https://onetep.org"""
 from os import environ
 from pathlib import Path
 from subprocess import check_call
+
+from ase.calculators.genericfileio import (CalculatorTemplate,
+                                           GenericFileIOCalculator,
+                                           read_stdout)
 from ase.io import read, write
-from ase.calculators.genericfileio import (
-    CalculatorTemplate,
-    GenericFileIOCalculator,
-    read_stdout
-)
 
 
 def find_onetep_command(cmd):

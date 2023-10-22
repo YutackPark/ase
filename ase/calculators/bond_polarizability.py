@@ -1,9 +1,10 @@
 from typing import Tuple
-import numpy as np
 
-from ase.units import Bohr, Ha
+import numpy as np
 from ase.data import covalent_radii
 from ase.neighborlist import NeighborList
+from ase.units import Bohr, Ha
+
 from .polarizability import StaticPolarizabilityCalculator
 
 

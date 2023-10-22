@@ -12,23 +12,22 @@ http://www.uam.es/departamentos/ciencias/fismateriac/siesta
 
 import os
 import re
+import shutil
 import tempfile
 import warnings
-import shutil
-from os.path import join, isfile, islink
-import numpy as np
+from os.path import isfile, islink, join
 
-from ase.units import Ry, eV, Bohr
+import numpy as np
+from ase.calculators.calculator import (FileIOCalculator, Parameters,
+                                        ReadError, all_changes)
+from ase.calculators.siesta.import_functions import (get_valence_charge,
+                                                     read_rho,
+                                                     read_vca_synth_block)
+from ase.calculators.siesta.parameters import (PAOBasisBlock, Species,
+                                               format_fdf)
 from ase.data import atomic_numbers
 from ase.io.siesta import read_siesta_xv
-from ase.calculators.siesta.import_functions import read_rho
-from ase.calculators.siesta.import_functions import \
-    get_valence_charge, read_vca_synth_block
-from ase.calculators.calculator import FileIOCalculator, ReadError
-from ase.calculators.calculator import Parameters, all_changes
-from ase.calculators.siesta.parameters import PAOBasisBlock, Species
-from ase.calculators.siesta.parameters import format_fdf
-
+from ase.units import Bohr, Ry, eV
 
 meV = 0.001 * eV
 
@@ -57,7 +56,7 @@ def get_siesta_version(executable: str) -> str:
 
     temp_dirname = tempfile.mkdtemp(prefix='siesta-version-check-')
     try:
-        from subprocess import Popen, PIPE
+        from subprocess import PIPE, Popen
         proc = Popen([executable],
                      stdin=PIPE,
                      stdout=PIPE,
@@ -759,10 +758,11 @@ class Siesta(FileIOCalculator):
           1 -- means that the coordinate will be updated during relaxation
           0 -- mains that the coordinate will be fixed during relaxation
         """
-        from ase.constraints import (FixAtoms, FixedLine, FixedPlane,
-                                     FixCartesian)
         import sys
         import warnings
+
+        from ase.constraints import (FixAtoms, FixCartesian, FixedLine,
+                                     FixedPlane)
 
         a = atoms
         a2c = np.ones((len(a), 3), dtype=int)

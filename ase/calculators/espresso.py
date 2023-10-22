@@ -5,10 +5,11 @@ Run pw.x jobs.
 
 
 import os
-from ase.calculators.genericfileio import (
-    GenericFileIOCalculator, CalculatorTemplate, read_stdout)
-from ase.io import read, write
 
+from ase.calculators.genericfileio import (CalculatorTemplate,
+                                           GenericFileIOCalculator,
+                                           read_stdout)
+from ase.io import read, write
 
 compatibility_msg = (
     'Espresso calculator is being restructured.  Please use e.g. '
@@ -39,8 +40,8 @@ class EspressoProfile:
         return self.parse_version(stdout)
 
     def run(self, directory, inputfile, outputfile):
-        from subprocess import check_call
         import os
+        from subprocess import check_call
         argv = list(self.argv) + ['-in', str(inputfile)]
         with open(directory / outputfile, 'wb') as fd:
             check_call(argv, cwd=directory, stdout=fd, env=os.environ)

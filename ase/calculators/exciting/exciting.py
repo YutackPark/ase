@@ -16,12 +16,11 @@ from pathlib import Path
 from typing import Any, Mapping
 
 import ase.io.exciting
-
-from ase.calculators.genericfileio import (
-    GenericFileIOCalculator, CalculatorTemplate)
-from ase.calculators.exciting.runner import (
-    SimpleBinaryRunner, SubprocessRunResults)
 from ase.calculators.calculator import PropertyNotImplementedError
+from ase.calculators.exciting.runner import (SimpleBinaryRunner,
+                                             SubprocessRunResults)
+from ase.calculators.genericfileio import (CalculatorTemplate,
+                                           GenericFileIOCalculator)
 
 
 class ExcitingProfile:

@@ -19,14 +19,13 @@ http://cms.mpi.univie.ac.at/vasp/
 """
 
 import os
-import warnings
 import shutil
-from os.path import join, isfile, islink
+import warnings
+from os.path import isfile, islink, join
 from typing import List, Sequence, Tuple
 
-import numpy as np
-
 import ase
+import numpy as np
 from ase.calculators.calculator import kpts2ndarray
 from ase.calculators.vasp.setups import get_default_setups
 

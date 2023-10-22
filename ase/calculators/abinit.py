@@ -3,14 +3,14 @@
 http://www.abinit.org/
 """
 
-import re
-
 import os
+import re
+from pathlib import Path
+from subprocess import check_call, check_output
+
 import ase.io.abinit as io
 from ase.calculators.genericfileio import (CalculatorTemplate,
                                            GenericFileIOCalculator)
-from subprocess import check_output, check_call
-from pathlib import Path
 
 
 def get_abinit_version(command):

@@ -1,6 +1,5 @@
-import numpy as np
-
 import ase.units as units
+import numpy as np
 from ase.calculators.calculator import Calculator, all_changes
 from ase.data import atomic_masses
 from ase.geometry import find_mic
