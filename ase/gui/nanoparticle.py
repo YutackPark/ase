@@ -16,7 +16,6 @@ from ase.gui.widgets import Element, pybutton
 # ase.cluster.data
 
 
-
 introtext = _("""\
 Create a nanoparticle either by specifying the number of layers, or using the
 Wulff construction.  Please press the [Help] button for instructions on how to
