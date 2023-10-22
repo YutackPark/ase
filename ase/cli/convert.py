@@ -60,6 +60,7 @@ class CLICommand:
     @staticmethod
     def run(args, parser):
         import os
+
         from ase.io import read, write
 
         if args.verbose:

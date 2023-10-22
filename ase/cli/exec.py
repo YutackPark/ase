@@ -46,6 +46,7 @@ class CLICommand:
     @staticmethod
     def run(args, parser):
         import runpy
+
         from ase.io import read
 
         if not (args.exec_code or args.exec_file):
