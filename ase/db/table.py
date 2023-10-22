@@ -1,8 +1,7 @@
-from typing import Optional, List
+from typing import List, Optional
+
 import numpy as np
-
 from ase.db.core import float_to_time_string, now
-
 
 all_columns = ('id', 'age', 'user', 'formula', 'calculator',
                'energy', 'natoms', 'fmax', 'pbc', 'volume',
