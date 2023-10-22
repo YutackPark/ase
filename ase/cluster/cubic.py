@@ -3,9 +3,8 @@ Function-like objects that creates cubic clusters.
 """
 
 import numpy as np
-
-from ase.data import reference_states as _refstate
 from ase.cluster.factory import ClusterFactory
+from ase.data import reference_states as _refstate
 
 
 class SimpleCubicFactory(ClusterFactory):

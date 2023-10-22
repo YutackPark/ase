@@ -1,6 +1,6 @@
 import math
-import numpy as np
 
+import numpy as np
 from ase import Atoms
 from ase.cluster.base import ClusterBase
 
