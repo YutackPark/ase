@@ -1,6 +1,6 @@
 import numpy as np
-from ase.neighborlist import NeighborList
 from ase.data import covalent_radii
+from ase.neighborlist import NeighborList
 
 
 def get_bond_list(atoms, nl, rs):
