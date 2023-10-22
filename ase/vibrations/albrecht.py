@@ -1,12 +1,12 @@
 import sys
-import numpy as np
 from itertools import combinations_with_replacement
 
 import ase.units as u
-from ase.parallel import parprint, paropen
+import numpy as np
+from ase.parallel import paropen, parprint
+from ase.vibrations.franck_condon import (FranckCondonOverlap,
+                                          FranckCondonRecursive)
 from ase.vibrations.resonant_raman import ResonantRaman
-from ase.vibrations.franck_condon import FranckCondonOverlap
-from ase.vibrations.franck_condon import FranckCondonRecursive
 
 
 class Albrecht(ResonantRaman):

@@ -1,21 +1,19 @@
 """Storage and analysis for vibrational data"""
 
 import collections
-from math import sin, pi, sqrt
-from numbers import Real, Integral
+from math import pi, sin, sqrt
+from numbers import Integral, Real
 from typing import Any, Dict, Iterator, List, Sequence, Tuple, TypeVar, Union
 
-import numpy as np
-
-from ase.atoms import Atoms
-import ase.units as units
 import ase.io
-from ase.utils import jsonable, lazymethod
-
+import ase.units as units
+import numpy as np
+from ase.atoms import Atoms
 from ase.calculators.singlepoint import SinglePointCalculator
-from ase.spectrum.dosdata import RawDOSData
+from ase.constraints import FixAtoms, FixCartesian, constrained_indices
 from ase.spectrum.doscollection import DOSCollection
-from ase.constraints import constrained_indices, FixCartesian, FixAtoms
+from ase.spectrum.dosdata import RawDOSData
+from ase.utils import jsonable, lazymethod
 
 RealSequence4D = Sequence[Sequence[Sequence[Sequence[Real]]]]
 VD = TypeVar('VD', bound='VibrationsData')

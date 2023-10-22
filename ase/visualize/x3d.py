@@ -4,8 +4,9 @@ try:
     from StringIO import StringIO
 except ImportError:
     from io import StringIO
-from IPython.display import HTML
+
 from ase.io.x3d import write_x3d
+from IPython.display import HTML
 
 
 def view_x3d(atoms, *args, **kwargs):
