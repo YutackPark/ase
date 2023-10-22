@@ -2,11 +2,10 @@
 import time
 
 import numpy as np
-
-from ase.transport.tools import dagger
-from ase.transport.selfenergy import LeadSelfEnergy
-from ase.transport.greenfunction import GreenFunction
 from ase.parallel import world
+from ase.transport.greenfunction import GreenFunction
+from ase.transport.selfenergy import LeadSelfEnergy
+from ase.transport.tools import dagger
 
 
 class STM:
