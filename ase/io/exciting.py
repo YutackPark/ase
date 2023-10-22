@@ -38,8 +38,9 @@ def parse_output(info_out_file_path):
         A dictionary containing information about how the calculation was setup
         and results from the calculations SCF cycles.
     """
-    from excitingtools.exciting_dict_parsers.groundstate_parser import (
-        parse_info_out)
+    from excitingtools.exciting_dict_parsers.groundstate_parser import \
+        parse_info_out
+
     # Check for the file:
     if not Path(info_out_file_path).is_file():
         raise FileNotFoundError
@@ -56,9 +57,9 @@ def write_input_xml_file(
         atoms: ASE Atoms object.
         input_parameters: Ground state parameters to affect exciting calc.
     """
-    from excitingtools import ExcitingGroundStateInput
-    from excitingtools import ExcitingInputXML
-    from excitingtools import ExcitingStructure
+    from excitingtools import (ExcitingGroundStateInput, ExcitingInputXML,
+                               ExcitingStructure)
+
     # Convert ground state dictionary into expected input object.
     ground_state = ExcitingGroundStateInput(**input_parameters)
     structure = ExcitingStructure(atoms, species_path=species_path)
@@ -86,9 +87,7 @@ def ase_atoms_from_exciting_input_xml(
     Returns:
         ASE atoms object with all the relevant fields filled.
     """
-    from excitingtools.exciting_obj_parsers.input_xml import (
-        parse_input_xml)
-    from excitingtools.structure.ase_utilities import (
-        exciting_structure_to_ase)
+    from excitingtools.exciting_obj_parsers.input_xml import parse_input_xml
+    from excitingtools.structure.ase_utilities import exciting_structure_to_ase
     structure = parse_input_xml(input_xml_path).structure
     return exciting_structure_to_ase(structure)

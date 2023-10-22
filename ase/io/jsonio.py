@@ -4,7 +4,6 @@ import json
 import numpy as np
 from ase.utils import reader, writer
 
-
 # Note: We are converting JSON classes to the recommended mechanisms
 # by the json module.  That means instead of classes, we will use the
 # functions default() and object_hook().

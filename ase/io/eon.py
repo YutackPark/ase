@@ -5,14 +5,13 @@
 See http://theory.cm.utexas.edu/eon/index.html for a description of EON.
 """
 import os
-from warnings import warn
 from glob import glob
+from warnings import warn
 
 import numpy as np
-
 from ase.atoms import Atoms
 from ase.constraints import FixAtoms
-from ase.geometry import cellpar_to_cell, cell_to_cellpar
+from ase.geometry import cell_to_cellpar, cellpar_to_cell
 from ase.utils import writer
 
 

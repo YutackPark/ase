@@ -1,11 +1,13 @@
-from io import StringIO
-from ase.io import read
-from ase.utils import reader, writer
-from ase.units import Hartree, Bohr
-from pathlib import Path
-import re
 import os
+import re
+from io import StringIO
+from pathlib import Path
+
 import numpy as np
+from ase.io import read
+from ase.units import Bohr, Hartree
+from ase.utils import reader, writer
+
 # Made from NWChem interface
 
 

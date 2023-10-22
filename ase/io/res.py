@@ -14,9 +14,9 @@ import glob
 import re
 
 from ase.atoms import Atoms
-from ase.geometry import cellpar_to_cell, cell_to_cellpar
 from ase.calculators.calculator import Calculator
 from ase.calculators.singlepoint import SinglePointCalculator
+from ase.geometry import cell_to_cellpar, cellpar_to_cell
 
 __all__ = ['Res', 'read_res', 'write_res']
 

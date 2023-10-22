@@ -122,14 +122,12 @@ Versions
 
 import numbers
 from pathlib import Path
-from typing import Union, Set
+from typing import Set, Union
 
 import numpy as np
-
 from ase.io.formats import is_compressed
-from ase.io.jsonio import encode, decode
+from ase.io.jsonio import decode, encode
 from ase.utils import plural
-
 
 VERSION = 3
 N1 = 42  # block size - max number of items: 1, N1, N1*N1, N1*N1*N1, ...

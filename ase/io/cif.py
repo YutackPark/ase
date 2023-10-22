@@ -6,22 +6,20 @@ global blocks, nested loops and multi-data values are not supported.
 The "latin-1" encoding is required by the IUCR specification.
 """
 
+import collections.abc
 import io
 import re
 import shlex
 import warnings
-from typing import Dict, List, Tuple, Optional, Union, Iterator, Any, Sequence
-import collections.abc
+from typing import Any, Dict, Iterator, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
-
 from ase import Atoms
 from ase.cell import Cell
-from ase.spacegroup import crystal
-from ase.spacegroup.spacegroup import spacegroup_from_data, Spacegroup
 from ase.io.cif_unicode import format_unicode, handle_subscripts
+from ase.spacegroup import crystal
+from ase.spacegroup.spacegroup import Spacegroup, spacegroup_from_data
 from ase.utils import iofunction
-
 
 rhombohedral_spacegroups = {146, 148, 155, 160, 161, 166, 167}
 

@@ -4,7 +4,6 @@ from collections import deque
 from os.path import splitext
 
 import numpy as np
-
 from ase.atoms import Atoms
 from ase.calculators.lammps import convert
 from ase.calculators.singlepoint import SinglePointCalculator

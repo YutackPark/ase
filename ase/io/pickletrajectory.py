@@ -1,17 +1,16 @@
-import os
-import sys
-import errno
-import pickle
-import warnings
 import collections
+import errno
+import os
+import pickle
+import sys
+import warnings
 
 import numpy as np
-
 from ase.atoms import Atoms
-from ase.calculators.singlepoint import SinglePointCalculator
 from ase.calculators.calculator import PropertyNotImplementedError
+from ase.calculators.singlepoint import SinglePointCalculator
 from ase.constraints import FixAtoms
-from ase.parallel import world, barrier
+from ase.parallel import barrier, world
 
 
 class PickleTrajectory:

@@ -14,14 +14,14 @@ Some parts are adapted from the extxyz reader.
 Contributed by Patrick Melix <chemistry@melix.me>
 """
 
-import numpy as np
-from itertools import islice
 import os
+from itertools import islice
 
-from ase.atoms import Atoms, Atom
+import numpy as np
+from ase.atoms import Atom, Atoms
 from ase.cell import Cell
-from ase.io.formats import index2range
 from ase.data import atomic_numbers
+from ase.io.formats import index2range
 
 __all__ = ['read_cp2k_dcd', 'iread_cp2k_dcd', 'read_cp2k_restart']
 

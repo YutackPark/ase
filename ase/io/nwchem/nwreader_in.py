@@ -1,9 +1,9 @@
 import re
 
 import numpy as np
-
 from ase import Atoms
 from ase.geometry import cellpar_to_cell
+
 from .parser import _define_pattern
 
 # Geometry block parser

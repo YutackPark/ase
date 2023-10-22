@@ -1,14 +1,13 @@
 """ Read/Write DL_POLY_4 CONFIG files """
-import re
 import itertools
-from typing import IO, Tuple, List, Union, Optional, Generator, Iterable
+import re
+from typing import IO, Generator, Iterable, List, Optional, Tuple, Union
 
 import numpy as np
-
 from ase.atoms import Atoms
-from ase.units import _auf, _amu, _auv
-from ase.data import chemical_symbols
 from ase.calculators.singlepoint import SinglePointCalculator
+from ase.data import chemical_symbols
+from ase.units import _amu, _auf, _auv
 from ase.utils import reader, writer
 
 __all__ = ["read_dlp4", "write_dlp4"]

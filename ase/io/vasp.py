@@ -8,12 +8,12 @@ from pathlib import Path
 from typing import List
 
 import numpy as np
-
 from ase import Atoms
-from ase.utils import reader, writer
 from ase.io import ParseError
 from ase.io.formats import string2index
 from ase.io.utils import ImageIterator
+from ase.utils import reader, writer
+
 from .vasp_parsers import vasp_outcar_parsers as vop
 
 __all__ = [
@@ -244,7 +244,7 @@ def read_vasp(filename='CONTCAR'):
 
 def set_constraints(atoms: Atoms, selective_flags: np.ndarray):
     """Set constraints based on selective_flags"""
-    from ase.constraints import FixConstraint, FixAtoms, FixScaled
+    from ase.constraints import FixAtoms, FixConstraint, FixScaled
 
     constraints: List[FixConstraint] = []
     indices = []
@@ -387,11 +387,12 @@ def read_vasp_xml(filename='vasprun.xml', index=-1):
     """
 
     import xml.etree.ElementTree as ET
-    from ase.constraints import FixAtoms, FixScaled
+    from collections import OrderedDict
+
     from ase.calculators.singlepoint import (SinglePointDFTCalculator,
                                              SinglePointKPoint)
+    from ase.constraints import FixAtoms, FixScaled
     from ase.units import GPa
-    from collections import OrderedDict
 
     tree = ET.iterparse(filename, events=['start', 'end'])
 
@@ -752,7 +753,7 @@ def write_vasp(filename,
     atomic species, e.g. 'C N H Cu'.
     """
 
-    from ase.constraints import FixAtoms, FixScaled, FixedPlane, FixedLine
+    from ase.constraints import FixAtoms, FixedLine, FixedPlane, FixScaled
 
     fd = filename  # @writer decorator ensures this arg is a file descriptor
 

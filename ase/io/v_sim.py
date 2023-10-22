@@ -17,9 +17,10 @@ def read_v_sim(fd):
     https://l_sim.gitlab.io/v_sim/sample.html#sample_ascii
     """
 
+    import re
+
     from ase import Atoms, units
     from ase.geometry import cellpar_to_cell
-    import re
 
     # Read comment:
     fd.readline()
@@ -101,7 +102,7 @@ def write_v_sim(fd, atoms):
     V_sim format is specified here:
     https://l_sim.gitlab.io/v_sim/sample.html#sample_ascii
     """
-    from ase.geometry import cellpar_to_cell, cell_to_cellpar
+    from ase.geometry import cell_to_cellpar, cellpar_to_cell
 
     # Convert the lattice vectors to triangular matrix by converting
     #   to and from a set of lengths and angles
