@@ -12,8 +12,8 @@ the following assumptions are made about the lammps data file:
     ignored even if they exist)
 """
 import io
-import re
 import pathlib
+import re
 
 import numpy as np
 from ase.calculators.lammps import convert

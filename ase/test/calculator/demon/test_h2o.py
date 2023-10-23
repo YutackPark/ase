@@ -1,8 +1,8 @@
 def test_h2o():
     import ase.calculators.demon as demon
+    import numpy as np
     from ase import Atoms
     from ase.optimize import BFGS
-    import numpy as np
 
     tol = 1.0e-6
 

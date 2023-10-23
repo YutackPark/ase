@@ -5,8 +5,8 @@ from io import StringIO
 
 import ase.io
 
-from .parse_lammps_data_file import lammpsdata_file_extracted_sections
 from .comparison import compare_with_pytest_approx
+from .parse_lammps_data_file import lammpsdata_file_extracted_sections
 
 # Relative tolerance for comparing floats with pytest.approx
 REL_TOL = 1e-2

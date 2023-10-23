@@ -3,7 +3,8 @@ def test_eos():
     import scipy  # skip test early if no scipy
     from ase.build import bulk
     from ase.calculators.emt import EMT
-    from ase.eos import EquationOfState as EOS, eos_names
+    from ase.eos import EquationOfState as EOS
+    from ase.eos import eos_names
     scipy  # silence pyflakes
 
     b = bulk('Al', 'fcc', a=4.0, orthorhombic=True)

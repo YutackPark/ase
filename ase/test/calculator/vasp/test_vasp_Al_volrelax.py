@@ -1,8 +1,8 @@
-import pytest
 import numpy as np
+import pytest
 from ase import io
-from ase.optimize import BFGS
 from ase.build import bulk
+from ase.optimize import BFGS
 
 calc = pytest.mark.calculator
 

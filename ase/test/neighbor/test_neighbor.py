@@ -1,10 +1,10 @@
-import numpy.random as random
 import numpy as np
+import numpy.random as random
 import pytest
 from ase import Atoms
-from ase.neighborlist import (NeighborList, PrimitiveNeighborList,
-                              NewPrimitiveNeighborList)
 from ase.build import bulk
+from ase.neighborlist import (NeighborList, NewPrimitiveNeighborList,
+                              PrimitiveNeighborList)
 
 
 def count(nl, atoms):

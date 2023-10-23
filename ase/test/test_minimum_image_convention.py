@@ -1,10 +1,10 @@
-import pytest
 import numpy as np
-from numpy.testing import assert_allclose
-from ase.lattice.cubic import FaceCenteredCubic
-from ase.neighborlist import mic as NeighborListMic
-from ase.neighborlist import NeighborList, PrimitiveNeighborList
+import pytest
 from ase.geometry import find_mic
+from ase.lattice.cubic import FaceCenteredCubic
+from ase.neighborlist import NeighborList, PrimitiveNeighborList
+from ase.neighborlist import mic as NeighborListMic
+from numpy.testing import assert_allclose
 
 
 @pytest.mark.parametrize("dim", [2, 3])

@@ -2,9 +2,8 @@ import os
 
 import numpy as np
 import pytest
-
-from ase.calculators.socketio import SocketIOCalculator, PySocketIOClient
 from ase.calculators.emt import EMT
+from ase.calculators.socketio import PySocketIOClient, SocketIOCalculator
 
 
 @pytest.mark.skipif(os.name != 'posix', reason='only posix')

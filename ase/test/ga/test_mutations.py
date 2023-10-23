@@ -1,10 +1,10 @@
 def test_mutations(seed):
-    from ase.ga.startgenerator import StartGenerator
-    from ase.ga.utilities import closest_distances_generator
-    from ase.ga.standardmutations import RattleMutation, PermutationMutation
     import numpy as np
     from ase.build import fcc111
     from ase.constraints import FixAtoms
+    from ase.ga.standardmutations import PermutationMutation, RattleMutation
+    from ase.ga.startgenerator import StartGenerator
+    from ase.ga.utilities import closest_distances_generator
 
     # set up the random number generator
     rng = np.random.RandomState(seed)

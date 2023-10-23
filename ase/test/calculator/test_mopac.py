@@ -1,10 +1,9 @@
 import pytest
-from numpy.testing import assert_allclose
-
 from ase.build import molecule
 from ase.calculators.mopac import MOPAC
 from ase.io.trajectory import Trajectory
 from ase.optimize import BFGS
+from numpy.testing import assert_allclose
 
 
 @pytest.mark.calculator

@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
-from ase.build import molecule
 from ase import io
+from ase.build import molecule
 
 
 @pytest.fixture()

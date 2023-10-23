@@ -1,11 +1,11 @@
 # additional tests of the dftb I/O
-import numpy as np
 from io import StringIO
-from ase.atoms import Atoms
-from ase.units import AUT, Bohr, second
-from ase.io.dftb import (read_dftb, read_dftb_lattice,
-                         read_dftb_velocities, write_dftb_velocities)
 
+import numpy as np
+from ase.atoms import Atoms
+from ase.io.dftb import (read_dftb, read_dftb_lattice, read_dftb_velocities,
+                         write_dftb_velocities)
+from ase.units import AUT, Bohr, second
 
 # test ase.io.dftb.read_dftb
 # with GenFormat-style Geometry section, periodic and non-periodic

@@ -1,7 +1,6 @@
 import pytest
 from ase.build import bulk, molecule
-from ase.calculators.espresso import EspressoProfile, Espresso
-
+from ase.calculators.espresso import Espresso, EspressoProfile
 
 espresso_versions = [
     ('6.4.1', """

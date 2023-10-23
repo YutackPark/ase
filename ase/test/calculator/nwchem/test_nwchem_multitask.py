@@ -1,8 +1,7 @@
 """Tests for the NWChem computations which use more than one task"""
+import ase
 import numpy as np
 import pytest
-
-import ase
 from ase.build import molecule
 
 

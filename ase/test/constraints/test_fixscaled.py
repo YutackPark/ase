@@ -1,8 +1,7 @@
 import numpy as np
-
 from ase.build import bulk
-from ase.constraints import FixScaled
 from ase.calculators.emt import EMT
+from ase.constraints import FixScaled
 
 
 def test_fixscaled():

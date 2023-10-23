@@ -1,10 +1,9 @@
-import numpy as np
-import pytest
 import warnings
 
+import numpy as np
+import pytest
 from ase import Atom, Atoms
-from ase.io import read
-from ase.io import NetCDFTrajectory
+from ase.io import NetCDFTrajectory, read
 
 
 @pytest.fixture(scope='module')

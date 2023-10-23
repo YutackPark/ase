@@ -1,10 +1,10 @@
-import pytest
 import ase.units as units
-from ase.calculators.tip3p import TIP3P, epsilon0, sigma0, rOH, angleHOH
-from ase.calculators.qmmm import SimpleQMMM, EIQMMM, LJInteractions
+import pytest
+from ase.calculators.qmmm import EIQMMM, LJInteractions, SimpleQMMM
+from ase.calculators.tip3p import TIP3P, angleHOH, epsilon0, rOH, sigma0
+from ase.constraints import FixBondLengths
 from ase.data.s22 import create_s22_system as s22
 from ase.md.verlet import VelocityVerlet
-from ase.constraints import FixBondLengths
 
 
 @pytest.mark.slow

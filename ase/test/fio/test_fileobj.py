@@ -1,8 +1,8 @@
 
 # test reading and writing a file descriptor using its name
 
-import pytest
 import ase.io
+import pytest
 from ase.build import bulk
 from ase.calculators.calculator import compare_atoms
 

@@ -1,7 +1,7 @@
 import os
+
 import numpy as np
 import pytest
-
 from ase.lattice.cubic import FaceCenteredCubic
 from ase.utils.plotting import SimplePlottingAxes
 from ase.visualize.plot import plot_atoms

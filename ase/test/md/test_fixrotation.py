@@ -1,11 +1,11 @@
-from ase.units import fs
+import numpy as np
 from ase.build import bulk
 from ase.md import Langevin
 from ase.md.fix import FixRotation
-from ase.utils import seterr
 from ase.md.velocitydistribution import (MaxwellBoltzmannDistribution,
                                          Stationary)
-import numpy as np
+from ase.units import fs
+from ase.utils import seterr
 
 
 def check_inertia(atoms):

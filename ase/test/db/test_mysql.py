@@ -1,11 +1,10 @@
 import os
 
 import pytest
-
-from ase.db import connect
 from ase import Atoms
-from ase.calculators.emt import EMT
 from ase.build import molecule
+from ase.calculators.emt import EMT
+from ase.db import connect
 
 
 @pytest.fixture(scope='module')

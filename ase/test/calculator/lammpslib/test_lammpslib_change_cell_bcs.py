@@ -1,5 +1,4 @@
 import pytest
-
 from ase.lattice.cubic import FaceCenteredCubic
 
 

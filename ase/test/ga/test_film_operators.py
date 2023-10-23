@@ -1,12 +1,12 @@
 def test_film_operators(seed):
-    from ase.ga.startgenerator import StartGenerator
-    from ase.ga.cutandsplicepairing import CutAndSplicePairing
-    from ase.ga.standardmutations import StrainMutation
-    from ase.ga.utilities import (closest_distances_generator, atoms_too_close,
-                                  CellBounds)
     import numpy as np
     from ase import Atoms
     from ase.build import molecule
+    from ase.ga.cutandsplicepairing import CutAndSplicePairing
+    from ase.ga.standardmutations import StrainMutation
+    from ase.ga.startgenerator import StartGenerator
+    from ase.ga.utilities import (CellBounds, atoms_too_close,
+                                  closest_distances_generator)
 
     # set up the random number generator
     rng = np.random.RandomState(seed)

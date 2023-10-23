@@ -1,10 +1,10 @@
 import numpy as np
 import pytest
+from ase.calculators.combine_mm import CombineMM
+from ase.calculators.tip3p import TIP3P, epsilon0, sigma0
+from ase.constraints import FixBondLengths
 from ase.data import s22
 from ase.optimize import FIRE
-from ase.constraints import FixBondLengths
-from ase.calculators.tip3p import TIP3P, epsilon0, sigma0
-from ase.calculators.combine_mm import CombineMM
 
 
 def make_atoms():

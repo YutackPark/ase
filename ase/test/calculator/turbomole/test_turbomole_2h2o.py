@@ -1,7 +1,7 @@
 # type: ignore
-from numpy.linalg import norm
-from ase.collections import s22
 from ase.calculators.turbomole import Turbomole
+from ase.collections import s22
+from numpy.linalg import norm
 
 
 def test_turbomole_2h2o():

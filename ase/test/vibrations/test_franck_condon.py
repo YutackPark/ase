@@ -1,15 +1,14 @@
 import sys
-import numpy as np
 from math import factorial
-from pytest import approx, fixture
 
+import numpy as np
 from ase.build import molecule
 from ase.calculators.emt import EMT
 from ase.optimize import BFGS
 from ase.vibrations import Vibrations
-from ase.vibrations.franck_condon import (FranckCondonOverlap,
-                                          FranckCondonRecursive,
-                                          FranckCondon)
+from ase.vibrations.franck_condon import (FranckCondon, FranckCondonOverlap,
+                                          FranckCondonRecursive)
+from pytest import approx, fixture
 
 
 def equal(x, y, tolerance=0, fail=True, msg=''):

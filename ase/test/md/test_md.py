@@ -1,7 +1,7 @@
 from ase import Atoms
 from ase.calculators.emt import EMT
-from ase.md import VelocityVerlet
 from ase.io import Trajectory
+from ase.md import VelocityVerlet
 
 
 def test_md(testdir):

@@ -1,6 +1,6 @@
 import numpy as np
-from pytest import mark
 from ase import Atoms
+from pytest import mark
 
 
 def squeeze_dimer(atoms, d):

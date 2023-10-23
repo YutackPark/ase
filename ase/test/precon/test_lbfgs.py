@@ -1,10 +1,9 @@
 import numpy as np
 import pytest
-
 from ase.build import bulk
 from ase.calculators.emt import EMT
-from ase.optimize.precon import Exp, PreconLBFGS, PreconFIRE
-from ase.constraints import FixBondLength, FixAtoms
+from ase.constraints import FixAtoms, FixBondLength
+from ase.optimize.precon import Exp, PreconFIRE, PreconLBFGS
 
 
 # @pytest.mark.skip('FAILS WITH PYAMG')

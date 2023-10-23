@@ -2,9 +2,9 @@ import io
 
 import numpy as np
 import pytest
-from ase.io import read, write
 from ase.build import bulk
 from ase.calculators.calculator import compare_atoms
+from ase.io import read, write
 
 
 @pytest.fixture(name="atoms")

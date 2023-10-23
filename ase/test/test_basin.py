@@ -2,8 +2,8 @@ import numpy as np
 import pytest
 from ase import Atoms, io
 from ase.calculators.lj import LennardJones
-from ase.optimize.basin import BasinHopping
 from ase.io import read
+from ase.optimize.basin import BasinHopping
 from ase.units import kB
 
 

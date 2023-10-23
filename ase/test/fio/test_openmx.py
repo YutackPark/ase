@@ -1,9 +1,10 @@
 import io
+
 import numpy as np
 from ase import Atoms
-from ase.units import Ha, Bohr
 # from ase.io import read
-from ase.calculators.openmx.reader import read_openmx, read_eigenvalues
+from ase.calculators.openmx.reader import read_eigenvalues, read_openmx
+from ase.units import Bohr, Ha
 
 openmx_out_sample = """
 System.CurrentDirectory        ./

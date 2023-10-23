@@ -1,5 +1,5 @@
-from ase.build import graphene_nanoribbon
 import numpy as np
+from ase.build import graphene_nanoribbon
 
 
 def test_get_angles():

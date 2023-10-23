@@ -4,8 +4,8 @@ from ase import Atoms
 from ase.build import molecule
 from ase.calculators.emt import EMT
 from ase.constraints import FixCom
-from ase.optimize import BFGS
 from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
+from ase.optimize import BFGS
 
 
 @pytest.fixture(name="atoms")

@@ -1,5 +1,5 @@
-from ase.atoms import Atoms
 import pytest
+from ase.atoms import Atoms
 
 
 @pytest.mark.calculator_lite

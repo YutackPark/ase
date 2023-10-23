@@ -1,7 +1,7 @@
 # type: ignore
 import numpy as np
-from ase.calculators.turbomole import Turbomole
 from ase.build import molecule
+from ase.calculators.turbomole import Turbomole
 
 
 def test_turbomole_h2o():

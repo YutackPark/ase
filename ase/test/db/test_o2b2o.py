@@ -1,7 +1,8 @@
 import pickle
-from ase.db.core import object_to_bytes, bytes_to_object
-from ase.cell import Cell
+
 import numpy as np
+from ase.cell import Cell
+from ase.db.core import bytes_to_object, object_to_bytes
 
 
 def test_o2b2o():

@@ -1,7 +1,6 @@
 import pytest
 from ase.io.cif import read_cif
 
-
 cif = """data_Quartz
 loop_
 _publ_author_name

@@ -3,10 +3,9 @@ from io import StringIO
 
 import numpy as np
 import pytest
-
+from ase import units
 from ase.io import read
 from ase.io.formats import match_magic
-from ase import units
 
 BUF_H2O = r"""
  Entering Gaussian System, Link 0=g16

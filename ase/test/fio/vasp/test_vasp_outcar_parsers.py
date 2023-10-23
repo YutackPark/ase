@@ -1,9 +1,8 @@
 # flake8: noqa
-import pytest
-
-import numpy as np
-from ase.io import ParseError
 import ase.io.vasp_parsers.vasp_outcar_parsers as vop
+import numpy as np
+import pytest
+from ase.io import ParseError
 
 
 def compare_result_to_expected(result, exp):

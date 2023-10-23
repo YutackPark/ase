@@ -1,6 +1,6 @@
 """Test Pourbaix diagram."""
-import pytest
 import numpy as np
+import pytest
 from ase.phasediagram import Pourbaix, solvated
 
 

@@ -1,4 +1,5 @@
 from pathlib import Path
+
 import pytest
 from ase.io import read
 from ase.io.formats import UnknownFileTypeError

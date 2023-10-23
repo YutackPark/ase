@@ -1,15 +1,15 @@
 from itertools import product
 
+import ase
 import numpy as np
 import pytest
-
-import ase
-from ase.units import GPa
 from ase.build import bulk
 from ase.calculators.test import gradient_test
-from ase.filters import UnitCellFilter, FrechetCellFilter, Filter, ExpCellFilter
-from ase.optimize import LBFGS, MDMin
+from ase.filters import (ExpCellFilter, Filter, FrechetCellFilter,
+                         UnitCellFilter)
 from ase.io import Trajectory
+from ase.optimize import LBFGS, MDMin
+from ase.units import GPa
 
 
 @pytest.fixture

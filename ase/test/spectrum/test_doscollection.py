@@ -1,11 +1,10 @@
-import pytest
 from typing import Iterable
 
 import numpy as np
-from ase.spectrum.doscollection import (DOSCollection,
-                                        GridDOSCollection,
+import pytest
+from ase.spectrum.doscollection import (DOSCollection, GridDOSCollection,
                                         RawDOSCollection)
-from ase.spectrum.dosdata import DOSData, RawDOSData, GridDOSData
+from ase.spectrum.dosdata import DOSData, GridDOSData, RawDOSData
 
 
 class MinimalDOSCollection(DOSCollection):

@@ -1,9 +1,9 @@
-import tempfile
 import os
+import tempfile
 
 import pytest
-from ase.calculators.aims import Aims
 from ase import Atoms
+from ase.calculators.aims import Aims
 
 
 @pytest.mark.skip('legacy test with hardcoded paths and commands')

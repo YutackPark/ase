@@ -1,14 +1,14 @@
 from functools import partial
 
 import pytest
-
-from ase.calculators.emt import EMT
-from ase.optimize import (MDMin, FIRE, LBFGS, LBFGSLineSearch, BFGSLineSearch,
-                          BFGS, GoodOldQuasiNewton, GPMin, Berny, ODE12r)
-from ase.optimize.sciopt import SciPyFminCG, SciPyFminBFGS
-from ase.optimize.precon import PreconFIRE, PreconLBFGS, PreconODE12r
-from ase.cluster import Icosahedron
 from ase.build import bulk
+from ase.calculators.emt import EMT
+from ase.cluster import Icosahedron
+from ase.optimize import (BFGS, FIRE, LBFGS, Berny, BFGSLineSearch,
+                          GoodOldQuasiNewton, GPMin, LBFGSLineSearch, MDMin,
+                          ODE12r)
+from ase.optimize.precon import PreconFIRE, PreconLBFGS, PreconODE12r
+from ase.optimize.sciopt import SciPyFminBFGS, SciPyFminCG
 
 
 @pytest.fixture(scope='module')

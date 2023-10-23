@@ -1,6 +1,6 @@
-from numpy.testing import assert_allclose
 import pytest
 from ase.build import molecule
+from numpy.testing import assert_allclose
 
 
 @pytest.mark.skip(reason='we do not know how to compile psi4')

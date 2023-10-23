@@ -1,7 +1,8 @@
+from math import pi
+
 import pytest
 from ase import Atoms
 from ase.units import _e, _eps0  # for reference values only
-from math import pi              #
 from numpy.testing import assert_allclose
 
 

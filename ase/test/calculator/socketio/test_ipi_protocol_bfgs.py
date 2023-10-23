@@ -2,13 +2,12 @@ import os
 import sys
 import threading
 
-import pytest
 import numpy as np
-
-from ase.calculators.socketio import SocketClient, SocketIOCalculator
+import pytest
 from ase.calculators.emt import EMT
-from ase.optimize import BFGS
+from ase.calculators.socketio import SocketClient, SocketIOCalculator
 from ase.cluster.icosahedron import Icosahedron
+from ase.optimize import BFGS
 
 # If multiple test suites are running, we don't want port clashes.
 # Thus we generate a port from the pid.

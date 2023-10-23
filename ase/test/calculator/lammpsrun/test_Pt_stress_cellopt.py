@@ -1,9 +1,9 @@
 import numpy as np
-from numpy.testing import assert_allclose
 import pytest
 from ase.build import bulk
 from ase.filters import FrechetCellFilter
 from ase.optimize import BFGS
+from numpy.testing import assert_allclose
 
 
 @pytest.mark.calculator_lite

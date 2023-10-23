@@ -1,9 +1,9 @@
-import pytest
 import ase.build
+import pytest
 from ase import Atoms
-from ase.lattice.cubic import FaceCenteredCubic
 from ase.geometry.dimensionality import (analyze_dimensionality,
                                          isolate_components)
+from ase.lattice.cubic import FaceCenteredCubic
 
 
 @pytest.mark.parametrize("method", ['TSA', 'RDA'])

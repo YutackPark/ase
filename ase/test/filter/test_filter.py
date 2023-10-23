@@ -1,7 +1,7 @@
 from ase.build import molecule
+from ase.calculators.emt import EMT
 from ase.filters import Filter
 from ase.optimize import QuasiNewton
-from ase.calculators.emt import EMT
 
 
 def test_filter(testdir):

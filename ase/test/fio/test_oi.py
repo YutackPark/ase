@@ -1,12 +1,11 @@
 import warnings
 
-import pytest
 import numpy as np
-
+import pytest
 from ase import Atoms
-from ase.io import write, read, iread
-from ase.io.formats import all_formats, ioformats
 from ase.calculators.singlepoint import SinglePointCalculator
+from ase.io import iread, read, write
+from ase.io.formats import all_formats, ioformats
 
 try:
     import matplotlib
