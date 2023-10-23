@@ -1,7 +1,7 @@
 # creates: culayer.png truncated.png
 
-from ase.io import write
 from ase.cluster.cubic import FaceCenteredCubic
+from ase.io import write
 
 surfaces = [(1, 0, 0), (1, 1, 0), (1, 1, 1)]
 layers = [6, 9, 5]

@@ -1,10 +1,11 @@
 import numpy as np
+
 from ase import Atoms
-from ase.constraints import FixAtoms
 from ase.calculators.emt import EMT
+from ase.constraints import FixAtoms
+from ase.lattice.cubic import FaceCenteredCubic
 from ase.mep import NEB
 from ase.optimize.fire import FIRE as QuasiNewton
-from ase.lattice.cubic import FaceCenteredCubic
 
 # Set the number of images you want.
 nimages = 5

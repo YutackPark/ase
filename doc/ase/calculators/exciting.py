@@ -1,7 +1,6 @@
 from ase import Atoms
 from ase.calculators.exciting.exciting import ExcitingGroundStateTemplate
 
-
 # test structure, not real
 nitrogen_trioxide_atoms = Atoms(
     'NO3', cell=[[2, 2, 0], [0, 4, 0], [0, 0, 6]],

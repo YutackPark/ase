@@ -1,11 +1,12 @@
 # creates: matplotlib_plot_atoms1.png, matplotlib_plot_atoms2.png
 # creates: matplotlib_plot_atoms3.png
 
-import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-from ase.visualize.plot import plot_atoms
+import matplotlib.pyplot as plt
+
 from ase.lattice.cubic import FaceCenteredCubic
 from ase.spacegroup import crystal
+from ase.visualize.plot import plot_atoms
 
 slab = FaceCenteredCubic('Au', size=(2, 2, 2))
 fig, ax = plt.subplots()

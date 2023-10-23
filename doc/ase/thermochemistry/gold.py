@@ -1,7 +1,7 @@
-from ase.spacegroup import crystal
 from ase.calculators.emt import EMT
 from ase.optimize import QuasiNewton
 from ase.phonons import Phonons
+from ase.spacegroup import crystal
 from ase.thermochemistry import CrystalThermo
 
 # Set up gold bulk and attach EMT calculator
