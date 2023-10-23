@@ -1,5 +1,6 @@
-from ase.lattice import RHL
 from pathlib import Path
+
+from ase.lattice import RHL
 
 
 def test_ase_bandstructure(cli, plt, testdir):

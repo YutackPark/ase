@@ -1,9 +1,8 @@
-import pytest
 import numpy as np
+import pytest
 from ase.build import bulk
-from ase.spacegroup import crystal, Spacegroup
+from ase.spacegroup import Spacegroup, crystal, utils
 from ase.spacegroup.spacegroup import SpacegroupValueError
-from ase.spacegroup import utils
 
 
 @pytest.fixture(params=[

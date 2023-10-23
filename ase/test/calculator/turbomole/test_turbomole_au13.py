@@ -1,7 +1,7 @@
 # type: ignore
 import numpy as np
-from ase.cluster.cubic import FaceCenteredCubic
 from ase.calculators.turbomole import Turbomole
+from ase.cluster.cubic import FaceCenteredCubic
 
 
 def test_turbomole_au13():

@@ -1,11 +1,11 @@
 import numpy as np
-from numpy.random import RandomState
 import pytest
-from ase.phonons import Phonons
-from ase.data import atomic_numbers
-from ase.optimize import FIRE
 from ase.build import bulk
+from ase.data import atomic_numbers
 from ase.md.velocitydistribution import PhononHarmonics
+from ase.optimize import FIRE
+from ase.phonons import Phonons
+from numpy.random import RandomState
 
 
 @pytest.mark.slow

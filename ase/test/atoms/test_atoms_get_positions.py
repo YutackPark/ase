@@ -1,7 +1,6 @@
 import numpy as np
 from ase import Atoms
 
-
 pbc = [1, 1, 0]
 cell = [[1, 0, 0], [0, 1, 0], [0, 0, 4]]
 

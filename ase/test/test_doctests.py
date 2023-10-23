@@ -1,9 +1,8 @@
 import doctest
 import importlib
 
-import pytest
 import numpy as np
-
+import pytest
 
 module_names = """\
 ase.atoms

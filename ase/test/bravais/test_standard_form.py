@@ -6,12 +6,10 @@ standard cell correctly.
 2) For those Bravais lattices that we can recognize in non-standard form,
    Niggli-reduce them and recognize them as well."""
 
-import pytest
 import numpy as np
-
-from ase.lattice import (get_lattice_from_canonical_cell, all_variants,
+import pytest
+from ase.lattice import (all_variants, get_lattice_from_canonical_cell,
                          identify_lattice)
-
 
 variants = [lat for lat in all_variants() if lat.ndim == 3]
 

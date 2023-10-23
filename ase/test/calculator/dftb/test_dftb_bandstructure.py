@@ -1,5 +1,4 @@
 import pytest
-
 from ase.build import bulk
 from ase.utils import tokenize_version
 

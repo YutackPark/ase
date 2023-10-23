@@ -1,8 +1,8 @@
 import pytest
+from ase import Atoms
 from ase.calculators.test import FreeElectrons
 from ase.lattice import all_variants
 from ase.spectrum.band_structure import calculate_band_structure
-from ase import Atoms
 
 
 @pytest.mark.parametrize("i, lat",

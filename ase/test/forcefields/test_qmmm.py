@@ -1,12 +1,11 @@
-from math import cos, sin, pi
-
-import numpy as np
+from math import cos, pi, sin
 
 import ase.units as units
+import numpy as np
 from ase import Atoms
-from ase.calculators.tip3p import TIP3P, epsilon0, sigma0, rOH, angleHOH
-from ase.calculators.qmmm import (SimpleQMMM, EIQMMM, LJInteractions,
-                                  LJInteractionsGeneral)
+from ase.calculators.qmmm import (EIQMMM, LJInteractions,
+                                  LJInteractionsGeneral, SimpleQMMM)
+from ase.calculators.tip3p import TIP3P, angleHOH, epsilon0, rOH, sigma0
 from ase.constraints import FixInternals
 from ase.optimize import GPMin
 

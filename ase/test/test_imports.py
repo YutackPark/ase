@@ -1,9 +1,10 @@
 import contextlib
-from pathlib import Path
 from importlib import import_module
-from numpy import VisibleDeprecationWarning
-import pytest
+from pathlib import Path
+
 import ase
+import pytest
+from numpy import VisibleDeprecationWarning
 
 # This test imports modules.
 #

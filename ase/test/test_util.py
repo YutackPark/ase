@@ -1,6 +1,6 @@
 import pytest
-from ase.utils import (deprecated, devnull, tokenize_version,
-                       get_python_package_path_description)
+from ase.utils import (deprecated, devnull,
+                       get_python_package_path_description, tokenize_version)
 
 
 def test_deprecated_decorator():

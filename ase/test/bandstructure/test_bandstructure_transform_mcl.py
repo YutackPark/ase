@@ -1,10 +1,9 @@
 import numpy as np
-
 from ase import Atoms
-from ase.utils import workdir
-from ase.spectrum.band_structure import calculate_band_structure
 from ase.calculators.test import FreeElectrons
 from ase.cell import Cell
+from ase.spectrum.band_structure import calculate_band_structure
+from ase.utils import workdir
 
 
 def test_bandstructure_transform_mcl(testdir):

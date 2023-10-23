@@ -1,13 +1,10 @@
-import pytest
-import numpy as np
-from numpy.testing import assert_allclose
-from ase.spacegroup import (get_bravais_class,
-                            get_point_group,
-                            polar_space_group,
-                            Spacegroup)
-from ase.spacegroup.spacegroup import SpacegroupNotFoundError
 import ase.lattice
-
+import numpy as np
+import pytest
+from ase.spacegroup import (Spacegroup, get_bravais_class, get_point_group,
+                            polar_space_group)
+from ase.spacegroup.spacegroup import SpacegroupNotFoundError
+from numpy.testing import assert_allclose
 
 TOL = 1E-10
 

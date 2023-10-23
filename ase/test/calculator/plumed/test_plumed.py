@@ -1,14 +1,13 @@
-from ase import Atoms
+import numpy as np
+import pytest
+from ase import Atoms, units
 from ase.calculators.emt import EMT
 from ase.calculators.idealgas import IdealGas
-from ase.md.verlet import VelocityVerlet
 from ase.calculators.lj import LennardJones
-import numpy as np
-from ase.io.trajectory import Trajectory
-from pytest import approx
-import pytest
 from ase.calculators.plumed import restart_from_trajectory
-from ase import units
+from ase.io.trajectory import Trajectory
+from ase.md.verlet import VelocityVerlet
+from pytest import approx
 
 
 @pytest.mark.calculator_lite

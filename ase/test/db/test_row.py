@@ -1,5 +1,5 @@
-from ase.db.row import AtomsRow
 from ase import Atoms
+from ase.db.row import AtomsRow
 
 
 def test_row():

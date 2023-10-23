@@ -1,7 +1,6 @@
 import pytest
 from ase.utils import xwopen
 
-
 pytestmark = pytest.mark.usefixtures('testdir')
 
 

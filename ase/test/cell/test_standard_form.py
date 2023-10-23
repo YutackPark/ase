@@ -1,7 +1,7 @@
 def test_standard_form():
     import numpy as np
-    from numpy.testing import assert_allclose
     from ase.cell import Cell
+    from numpy.testing import assert_allclose
 
     TOL = 1E-10
     rng = np.random.RandomState(0)

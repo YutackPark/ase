@@ -1,5 +1,6 @@
-import pytest
 import itertools
+
+import pytest
 from ase.cell import Cell
 
 

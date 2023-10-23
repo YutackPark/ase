@@ -1,9 +1,8 @@
-import pytest
-import numpy as np
-from ase import Atom, Atoms
-from ase.build import bulk
 import ase.io
-from ase import units
+import numpy as np
+import pytest
+from ase import Atom, Atoms, units
+from ase.build import bulk
 from ase.md.verlet import VelocityVerlet
 
 

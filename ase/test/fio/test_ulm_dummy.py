@@ -1,6 +1,5 @@
 """Test ase.io.ulm.DummyWriter."""
 import numpy as np
-
 from ase.io.ulm import DummyWriter
 
 

@@ -1,6 +1,6 @@
-import pytest
 import numpy as np
-from ase.lattice import (bravais_lattices, all_variants,
+import pytest
+from ase.lattice import (all_variants, bravais_lattices,
                          get_lattice_from_canonical_cell)
 
 

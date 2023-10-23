@@ -1,6 +1,5 @@
-import pytest
 import numpy as np
-
+import pytest
 from ase.io import write
 
 calc = pytest.mark.calculator

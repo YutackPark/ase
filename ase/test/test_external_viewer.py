@@ -1,11 +1,10 @@
 import sys
 
 import pytest
-
+from ase.build import bulk
 from ase.io import read
 from ase.visualize import view
-from ase.visualize.viewers import CLIViewer, CLI_VIEWERS, PyViewer
-from ase.build import bulk
+from ase.visualize.viewers import CLI_VIEWERS, CLIViewer, PyViewer
 
 
 @pytest.fixture

@@ -1,7 +1,6 @@
 import numpy as np
-
-from ase.spacegroup import crystal
 from ase.io import write
+from ase.spacegroup import crystal
 
 
 def test_diamond(testdir):

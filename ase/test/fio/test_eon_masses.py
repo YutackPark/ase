@@ -1,9 +1,9 @@
 """Check that reading and writing masses in .con files is consistent."""
 
-from numpy import asarray
-import ase.lattice.compounds
 import ase.data
 import ase.io
+import ase.lattice.compounds
+from numpy import asarray
 
 
 def test_eon_masses():

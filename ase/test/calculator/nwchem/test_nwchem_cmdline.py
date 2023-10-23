@@ -1,7 +1,7 @@
 import pytest
 from ase.db import connect
-from ase.io.jsonio import read_json
 from ase.io import read
+from ase.io.jsonio import read_json
 from numpy.testing import assert_allclose
 
 

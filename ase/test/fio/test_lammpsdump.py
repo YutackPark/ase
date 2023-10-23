@@ -1,6 +1,5 @@
 import numpy as np
 import pytest
-
 from ase.io.formats import ioformats, match_magic
 
 # some of the possible bound parameters

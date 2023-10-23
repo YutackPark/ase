@@ -1,7 +1,6 @@
 from ase import Atoms
 from ase.calculators.gaussian import Gaussian
 
-
 basis = """H     0
 S   3   1.00
      13.0107010              0.19682158E-01

@@ -1,13 +1,12 @@
 """Test file for exciting file input and output methods."""
 
-from pathlib import Path
-
-import pytest
-import numpy as np
 import xml.etree.ElementTree as ET
+from pathlib import Path
 
 import ase
 import ase.io.exciting
+import numpy as np
+import pytest
 # Import a realistic looking exciting text output file as a string.
 from ase.test.calculator.exciting.test_exciting import LDA_VWN_AR_INFO_OUT
 

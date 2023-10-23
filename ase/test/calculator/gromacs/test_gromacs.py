@@ -1,9 +1,7 @@
 """ test run for gromacs calculator """
 
 import pytest
-
-from ase.calculators.gromacs import parse_gromacs_version, get_gromacs_version
-
+from ase.calculators.gromacs import get_gromacs_version, parse_gromacs_version
 
 sample_header = """\
 blahblah...

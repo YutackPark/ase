@@ -1,10 +1,9 @@
 # flake8: noqa
-import pytest
 from io import StringIO
+
 import numpy as np
-
+import pytest
 from ase.io.proteindatabank import read_proteindatabank
-
 
 header1 = """
 CRYST1    2.000    2.000    2.000  90.00  90.00  90.00 P 1

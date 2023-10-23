@@ -8,7 +8,6 @@ orientation and checking that it gets rotated into the expected configuration
 """
 import numpy as np
 import pytest
-
 from ase.io.opls import OPLSff, OPLSStructure
 
 

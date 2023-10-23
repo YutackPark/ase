@@ -1,6 +1,6 @@
 from ase.build import bulk
-from ase.calculators.loggingcalc import LoggingCalculator
 from ase.calculators.emt import EMT
+from ase.calculators.loggingcalc import LoggingCalculator
 
 
 def test_loggingcalc(tmp_path, figure):

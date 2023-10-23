@@ -1,7 +1,6 @@
 import pytest
-from ase.db import connect
 from ase import Atoms
-
+from ase.db import connect
 
 # Data for a plot:
 plot = {'a': [0, 1, 2],

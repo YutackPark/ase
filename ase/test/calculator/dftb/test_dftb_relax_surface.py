@@ -1,7 +1,7 @@
 import pytest
 from ase.build import diamond100
-from ase.optimize import BFGS
 from ase.constraints import FixAtoms
+from ase.optimize import BFGS
 
 
 @pytest.mark.calculator_lite

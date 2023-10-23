@@ -1,6 +1,6 @@
 def test_surface_stack():
-    from ase.build.surface import _all_surface_functions
     from ase.build import stack
+    from ase.build.surface import _all_surface_functions
     from ase.calculators.calculator import compare_atoms
 
     # The purpose of this test is to test the stack() function and verify

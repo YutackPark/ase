@@ -1,6 +1,5 @@
 def test_cfg():
     import numpy as np
-
     from ase.build import molecule
     from ase.io import read, write
 

@@ -1,15 +1,14 @@
 """Test to ensure that md logger and trajectory contain same data"""
+import ase.units as u
 import numpy as np
 import pytest
-
-from ase.optimize import FIRE, BFGS
-from ase.data import s22
 from ase.calculators.tip3p import TIP3P
 from ase.constraints import FixBondLengths
-from ase.md.verlet import VelocityVerlet
-from ase.md.langevin import Langevin
+from ase.data import s22
 from ase.io import Trajectory
-import ase.units as u
+from ase.md.langevin import Langevin
+from ase.md.verlet import VelocityVerlet
+from ase.optimize import BFGS, FIRE
 
 
 @pytest.fixture

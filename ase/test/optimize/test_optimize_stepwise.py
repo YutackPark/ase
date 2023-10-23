@@ -1,8 +1,7 @@
 import pytest
-
 from ase.build import bulk
-from ase.calculators.emt import EMT
 from ase.calculators.calculator import compare_atoms
+from ase.calculators.emt import EMT
 from ase.io.trajectory import Trajectory
 from ase.optimize import BFGS
 

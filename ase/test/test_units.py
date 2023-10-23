@@ -2,9 +2,8 @@
 implementation that SciPy brings with it.
 """
 
-import pytest
-
 import ase.units
+import pytest
 from ase.units import create_units
 
 

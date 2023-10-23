@@ -2,9 +2,9 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from ase.calculators.subprocesscalculator import NamedPackedCalculator
+from ase.build import bulk, molecule
 from ase.calculators.emt import EMT
-from ase.build import molecule, bulk
+from ase.calculators.subprocesscalculator import NamedPackedCalculator
 from ase.optimize import BFGS
 
 
@@ -92,8 +92,8 @@ def parallel_dummy_function(a, b):
 
 
 def test_function_evaluation():
-    from ase.calculators.subprocesscalculator import (
-        ParallelDispatch, MPICommand)
+    from ase.calculators.subprocesscalculator import (MPICommand,
+                                                      ParallelDispatch)
 
     with ParallelDispatch(MPICommand.serial()) as parallel:
         result = parallel.call(parallel_dummy_function, 2, b=3)

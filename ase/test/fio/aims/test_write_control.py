@@ -7,12 +7,12 @@ and assert we find expected values.
 # Standard imports.
 import io
 import re
-# Third party imports.
-import pytest
 
-import ase.io.aims
 import ase.build
 import ase.calculators.aims
+import ase.io.aims
+# Third party imports.
+import pytest
 
 
 @pytest.fixture

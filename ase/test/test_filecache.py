@@ -1,9 +1,7 @@
 import numpy as np
 import pytest
-from ase.utils.filecache import (MultiFileJSONCache, CombinedJSONCache,
-                                 MultiFileULMCache,
-                                 Locked)
-
+from ase.utils.filecache import (CombinedJSONCache, Locked, MultiFileJSONCache,
+                                 MultiFileULMCache)
 
 pytestmark = pytest.mark.usefixtures('testdir')
 

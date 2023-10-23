@@ -1,10 +1,9 @@
-import pytest
+from io import StringIO
 from pathlib import Path
 
 import numpy as np
+import pytest
 from ase.io import read
-from io import StringIO
-
 
 parent = Path(__file__).parents[2]
 

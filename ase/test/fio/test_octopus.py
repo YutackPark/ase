@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
-from ase.build import molecule, bulk, fcc111
-from ase.units import Bohr
+from ase.build import bulk, fcc111, molecule
 from ase.io.octopus.input import atoms2kwargs
+from ase.units import Bohr
 
 
 def getcoords(block):

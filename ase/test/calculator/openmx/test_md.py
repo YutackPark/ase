@@ -1,11 +1,10 @@
 import numpy as np
 import pytest
-
-from ase.units import Ry, Ha
+from ase import Atoms
+from ase.filters import UnitCellFilter
 from ase.io.trajectory import Trajectory
 from ase.optimize import QuasiNewton
-from ase.filters import UnitCellFilter
-from ase import Atoms
+from ase.units import Ha, Ry
 from ase.utils import tokenize_version
 
 

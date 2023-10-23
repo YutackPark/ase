@@ -1,8 +1,8 @@
+import argparse
 import os
 import sys
-from pathlib import Path
 import warnings
-import argparse
+from pathlib import Path
 
 from ase.cli.main import CLIError
 
@@ -151,6 +151,7 @@ class CLICommand:
     @staticmethod
     def run(args):
         from subprocess import Popen
+
         from ase.calculators.names import names as calc_names
 
         if args.help_calculators:

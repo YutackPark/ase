@@ -1,10 +1,8 @@
-import pytest
 import numpy as np
-
+import pytest
 from ase.build import bulk
-
-from ase.optimize import BFGS
 from ase.filters import FrechetCellFilter
+from ase.optimize import BFGS
 from ase.units import Ry
 
 

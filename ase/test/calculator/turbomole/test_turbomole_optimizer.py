@@ -1,9 +1,8 @@
 # type: ignore
-import pytest
 import numpy as np
-from ase.calculators.turbomole import TurbomoleOptimizer
-from ase.calculators.turbomole import Turbomole
+import pytest
 from ase.build import molecule
+from ase.calculators.turbomole import Turbomole, TurbomoleOptimizer
 
 
 @pytest.fixture

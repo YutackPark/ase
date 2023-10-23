@@ -1,12 +1,11 @@
 import numpy as np
 import pytest
-
 from ase.build import bulk
+from ase.calculators.emt import EMT
 from ase.constraints import FixAtoms
 from ase.filters import UnitCellFilter
-from ase.calculators.emt import EMT
-from ase.optimize.precon import make_precon, Precon
 from ase.neighborlist import neighbor_list
+from ase.optimize.precon import Precon, make_precon
 from ase.utils.ff import Bond
 
 

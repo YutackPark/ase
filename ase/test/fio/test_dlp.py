@@ -1,10 +1,10 @@
 # flake8: noqa
 # tests of the dlpoly I/O
-from ase import io as aseIO
-from ase.io.dlp4 import iread_dlp_history
 from io import StringIO
 
 import numpy as np
+from ase import io as aseIO
+from ase.io.dlp4 import iread_dlp_history
 
 # Test HISTORY reading with no frames count
 fd = StringIO("""                                                                             tes

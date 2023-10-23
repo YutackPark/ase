@@ -3,9 +3,9 @@ import math
 
 import numpy as np
 import pytest
-from ase import Atoms, Atom
-from ase.build import (fcc111, fcc211, add_adsorbate, bulk, surface,
-                       mx2, graphene)
+from ase import Atom, Atoms
+from ase.build import (add_adsorbate, bulk, fcc111, fcc211, graphene, mx2,
+                       surface)
 
 
 def test_surface():

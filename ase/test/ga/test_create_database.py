@@ -1,8 +1,8 @@
 import os
+
 import numpy as np
 from ase.build import fcc111
-from ase.ga.data import PrepareDB
-from ase.ga.data import DataConnection
+from ase.ga.data import DataConnection, PrepareDB
 
 
 def test_create_database(tmp_path):
