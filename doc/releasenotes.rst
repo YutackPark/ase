@@ -217,6 +217,9 @@ Optimizers:
 * Fixed a bug when `PreconImages` is initialized with a list of `precon` objects
   in :class:`ase.optimize.precon.precon.PreconImages`
 
+* :class:`ase.optimize.mdmin.MDMin` now takes in a `maxstep` parameter that
+  directly restricts how much atoms can move in a single optimization step.
+
 Thermochemistry:
 
 * All thermochemistry modules now sort the vibrational energies before

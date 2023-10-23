@@ -17,6 +17,7 @@ class MDMin(Optimizer):
         logfile: Union[IO, str] = '-',
         trajectory: Optional[str] = None,
         dt: Optional[float] = None,
+        maxstep: Optional[float] = None,
         master: Optional[bool] = None,
     ):
         """Parameters:
@@ -35,16 +36,21 @@ class MDMin(Optimizer):
         logfile: string
             Text file used to write summary information.
 
+        dt: float
+            Time step for integrating the equation of motion.
+
+        maxstep: float
+            Spatial step limit in Angstrom. This allows larger values of dt
+            while being more robust to instabilities in the optimization.
+
         master: boolean
             Defaults to None, which causes only rank 0 to save files.  If
             set to true,  this rank will save files.
         """
         Optimizer.__init__(self, atoms, restart, logfile, trajectory, master)
 
-        if dt is None:
-            self.dt = self.defaults['dt']
-        else:
-            self.dt = dt
+        self.dt = dt or self.defaults['dt']
+        self.maxstep = maxstep or self.defaults['maxstep']
 
     def initialize(self):
         self.v = None
@@ -71,5 +77,13 @@ class MDMin(Optimizer):
 
         self.v += 0.5 * self.dt * forces
         pos = atoms.get_positions()
-        atoms.set_positions(pos + self.dt * self.v)
+        dpos = self.dt * self.v
+
+        # For any dpos magnitude larger than maxstep, scaling
+        # is <1. We add a small float to prevent overflows/zero-div errors.
+        # All displacement vectors (rows) of dpos which have a norm larger
+        # than self.maxstep are scaled to it.
+        scaling = self.maxstep / (1e-6 + np.max(np.linalg.norm(dpos, axis=1)))
+        dpos *= np.clip(scaling, 0.0, 1.0)
+        atoms.set_positions(pos + dpos)
         self.dump((self.v, self.dt))
