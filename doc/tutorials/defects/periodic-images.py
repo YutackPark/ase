@@ -1,8 +1,9 @@
 # creates: periodic-images-1.svg periodic-images-2.svg
 
-import numpy as np
-import matplotlib.pyplot as plt
 from itertools import product
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 class CellFigure():
@@ -29,7 +30,7 @@ class CellFigure():
         for xv in xvecs:
             vectors.append(np.dot(cell, xv + offset))
         vectors = np.array(vectors)
-        from matplotlib.patches import Polygon, Circle
+        from matplotlib.patches import Circle, Polygon
         if fill_color is not None:
             self.ax.add_patch(Polygon(vectors,
                                       closed=True,

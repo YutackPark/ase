@@ -1,5 +1,5 @@
-from ase.io import read
 from ase.calculators.emt import EMT
+from ase.io import read
 from ase.mep import NEB
 from ase.optimize import BFGS
 

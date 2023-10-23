@@ -1,7 +1,6 @@
-from ase.collections import g2
 from ase.calculators.octopus import Octopus
+from ase.collections import g2
 from ase.optimize import QuasiNewton
-
 
 # Water molecule with somewhat randomized initial positions:
 atoms = g2['H2O']

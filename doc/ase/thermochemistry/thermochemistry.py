@@ -1,8 +1,8 @@
 # creates:  nitrogen.txt, ethane.txt, gold.txt
 import os
+import subprocess
 import sys
 import tempfile
-import subprocess
 
 
 def run_script_and_get_output(script):

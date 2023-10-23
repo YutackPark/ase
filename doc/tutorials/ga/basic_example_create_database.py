@@ -1,10 +1,10 @@
+import numpy as np
+
+from ase.build import fcc111
+from ase.constraints import FixAtoms
 from ase.ga.data import PrepareDB
 from ase.ga.startgenerator import StartGenerator
-from ase.ga.utilities import closest_distances_generator
-from ase.ga.utilities import get_all_atom_types
-from ase.constraints import FixAtoms
-import numpy as np
-from ase.build import fcc111
+from ase.ga.utilities import closest_distances_generator, get_all_atom_types
 
 db_file = 'gadb.db'
 

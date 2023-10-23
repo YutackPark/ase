@@ -5,7 +5,6 @@ import runpy
 from ase.io import read, write
 from ase.mep import NEBTools
 
-
 runpy.run_path('diffusion1.py')
 runpy.run_path('diffusion2.py')
 runpy.run_path('diffusion4.py')

@@ -1,6 +1,6 @@
-from ase.io import read
-from ase.constraints import FixAtoms
 from ase.calculators.emt import EMT
+from ase.constraints import FixAtoms
+from ase.io import read
 from ase.mep import NEB
 from ase.optimize import BFGS
 

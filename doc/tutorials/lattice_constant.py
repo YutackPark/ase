@@ -2,10 +2,9 @@
 
 import numpy as np
 
-from ase.io import Trajectory
 from ase.build import bulk
 from ase.calculators.emt import EMT
-from ase.io import read
+from ase.io import Trajectory, read
 
 a0 = 3.52 / np.sqrt(2)
 c0 = np.sqrt(8 / 3.0) * a0

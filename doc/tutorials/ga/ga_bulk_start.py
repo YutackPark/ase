@@ -1,8 +1,8 @@
 from ase import Atoms
 from ase.data import atomic_numbers
-from ase.ga.utilities import closest_distances_generator, CellBounds
-from ase.ga.startgenerator import StartGenerator
 from ase.ga.data import PrepareDB
+from ase.ga.startgenerator import StartGenerator
+from ase.ga.utilities import CellBounds, closest_distances_generator
 
 # Number of random initial structures to generate
 N = 20

@@ -1,8 +1,8 @@
-from ase import Atoms, Atom
+from ase import Atom, Atoms
 from ase.build import fcc110
-from ase.optimize.minimahopping import MinimaHopping
 from ase.calculators.emt import EMT
 from ase.constraints import FixAtoms, Hookean
+from ase.optimize.minimahopping import MinimaHopping
 
 # Make the Pt 110 slab.
 atoms = fcc110('Pt', (2, 2, 2), vacuum=7.)
