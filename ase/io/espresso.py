@@ -316,7 +316,7 @@ def read_espresso_out(fileobj, index=slice(None), results_required=True):
                           "set verbosity='high' to print them."
 
         for kpts_index in indexes[_PW_KPTS]:
-            nkpts = int(pwo_lines[kpts_index].split()[4])
+            nkpts = int(re.findall(r'\b\d+\b', pwo_lines[kpts_index])[0])
             kpts_index += 2
 
             if pwo_lines[kpts_index].strip() == kpoints_warning:
