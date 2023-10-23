@@ -13,48 +13,90 @@ theory, plane waves, and pseudopotentials.
 
 The ASE calculator is an interface to the ``pw.x`` executable.
 
-Setup
-=====
+Calculations using the Espresso calculator can be run by defining an 
+``EspressoProfile`` and setting up an ``Espresso`` calculator with it::
 
-Set up the calculator like a standard ``FileIOCalculator``:
+  from ase.calculators.espresso import Espresso, EspressoProfile
 
- * ``export ASE_ESPRESSO_COMMAND="/path/to/pw.x -in PREFIX.pwi > PREFIX.pwo"``
+  espresso_profile = EspressoProfile(["pw.x"])
+  calc = Espresso(profile=espresso_profile)
+
+The above ``calc`` object will run the ``pw.x`` executable on 1 core. 
+The argument to the ``EspressoProfile`` object is a list of tokens that
+can be executed in the shell to run QE as desired. An example of such a 
+list would be::
+
+  ["mpirun", "-np", "16", "pw.x"] # Run QE on 16 cores
+
+Lists like the above can be obtained conveniently using string splitting.
+Below we provide a few examples of QE run commands::
+
+  "mpirun -np 16 pw.x" # Run QE on 16 cores, with default parallelism.
+  "mpirun -np 64 pw.x -nk 2" # Run QE on 64 cores, parallel over 2 kpoints.
+
+  # As above, diagonalize using Scalapack/Elpa 
+  # (if your QE was installed with support) on an 8x8
+  # grid of processors.
+  "mpirun -np 64 pw.x -ndiag 64"
+
+For calculations one would define the profile and the calculator as::
+  
+  from ase.calculators.espresso import Espresso, EspressoProfile
+
+  NSLOTS = 64
+  espresso_profile = EspressoProfile(f"mpirun -np {NSLOTS} pw.x".split())
+
+  # This line is incomplete, since the user must also provide calculation
+  # inputs before a successful calculation can be run.
+  calc = Espresso(profile=espresso_profile)
 
 Any calculation will need pseudopotentials for the elements involved. The
 directory for the pseudopotential files can be set with the ``pseudo_dir``
 parameter, otherwise QE will look in ``$ESPRESSO_PSEUDO`` if it is set
 as an environment variable if set; otherwise ``$HOME/espresso/pseudo/`` is
-used. The pseudopotentils are assigned for each element as a dictionary::
+used. The pseudopotentials are assigned for each element as a dictionary::
 
-    pseudopotentials = {'Na': 'Na_pbe_v1.uspp.F.UPF',
-                        'Cl': 'Cl.pbe-n-rrkjus_psl.1.0.0.UPF'}
+    pseudopotentials = {'Na': 'na_pbe_v1.5.uspp.F.UPF',
+                        'Cl': 'cl_pbe_v1.4.uspp.F.UPF'}
 
+A recommended list of pseudopotentials is the SSSP curated set, which can be
+found on `Materials Cloud <https://www.materialscloud.org
+/discover/sssp/table/efficiency>`_.
 
-A simple calculation can be set up::
+A simple calculation can be set up like so::
 
     from ase.build import bulk
-    from ase.calculators.espresso import Espresso
-    from ase.constraints import UnitCellFilter
+    from ase.calculators.espresso import Espresso, EspressoProfile
+    from ase.constraints import ExpCellFilter
     from ase.optimize import LBFGS
 
     rocksalt = bulk('NaCl', crystalstructure='rocksalt', a=6.0)
-    calc = Espresso(pseudopotentials=pseudopotentials,
+
+    # Pseudopotentials from SSSP Efficiency v1.3.0
+    pseudopotentials = {'Na': 'na_pbe_v1.5.uspp.F.UPF',
+                        'Cl': 'cl_pbe_v1.4.uspp.F.UPF'}
+                        
+    calc = Espresso(profile=EspressoProfile("mpirun -np 4 pw.x".split()),
+                    ecutwfc=25, # This is unconverged and used for this example
+                    pseudopotentials=pseudopotentials,
+                    pseudo_dir=path_to_pseudopotentials,
                     tstress=True, tprnfor=True, kpts=(3, 3, 3))
     rocksalt.calc = calc
 
-    ucf = UnitCellFilter(rocksalt)
-    opt = LBFGS(ucf)
+    filt = ExpCellFilter(rocksalt)
+    opt = LBFGS(filt)
     opt.run(fmax=0.005)
 
     # cubic lattic constant
     print((8*rocksalt.get_volume()/len(rocksalt))**(1.0/3.0))
 
-
 Parameters
 ==========
 
-The calculator will interpret any of the documented options for ``pw.x``:
-http://www.quantum-espresso.org
+The calculator will interpret most documented options for ``pw.x``
+found at the `PW input description <https://www.quantum-espresso.org/
+Doc/INPUT_PW.html>`_, current exceptions being (at least) the ``HUBBARD``, 
+``&FCP``, ``&RISM`` sections.
 
 All parameters must be given in QE units, usually Ry or atomic units
 in line with the documentation. ASE does not add any defaults over the
@@ -67,11 +109,14 @@ in ``input_data``, but it is not necessary::
 
     input_data = {
         'system': {
-            'ecutwfc': 64,
-            'ecutrho': 576}
+          'ecutwfc': 64,
+          'ecutrho': 576}
         'disk_io': 'low'}  # automatically put into 'control'
 
-    calc = Espresso(pseudopotentials=pseudopotentials,
+    calc = Espresso(profile=my_predefined_profile,
+                    pseudopotentials=pseudopotentials,
+                    # Optionally, if the ESPRESSO_PSEUDO env var isn't set
+                    pseudo_dir=path_to_pseudopotentials,
                     tstress=True, tprnfor=True,  # kwargs added to parameters
                     input_data=input_data)
 
