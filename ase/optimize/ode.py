@@ -174,9 +174,6 @@ def ode12r(f, X0, h=None, verbose=1, fmax=1e-6, maxtol=1e3, steps=100,
             raise OptimizerConvergenceError('ODE12r terminates unsuccessfully'
                                             f' Step size {h} too small')
 
-    raise OptimizerConvergenceError(f'ODE12r terminates unsuccessfully after '
-                                    f'{steps} iterations.')
-
 
 class ODE12r(SciPyOptimizer):
     """
