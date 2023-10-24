@@ -2,6 +2,7 @@ def test_fixedmode():
     """Test that FixedMode can be set, turned into a dict, and
     back to a constraint with the same mode."""
     import numpy as np
+
     from ase.build import molecule
     from ase.constraints import FixedMode, dict2constraint
 

@@ -1,5 +1,6 @@
 def test_json_arrays():
     import numpy as np
+
     from ase.io.jsonio import decode, encode
 
     def check(obj):

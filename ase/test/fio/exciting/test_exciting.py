@@ -3,10 +3,11 @@
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-import ase
-import ase.io.exciting
 import numpy as np
 import pytest
+
+import ase
+import ase.io.exciting
 # Import a realistic looking exciting text output file as a string.
 from ase.test.calculator.exciting.test_exciting import LDA_VWN_AR_INFO_OUT
 

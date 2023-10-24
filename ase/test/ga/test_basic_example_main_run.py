@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from ase.build import fcc111
 from ase.calculators.emt import EMT
 from ase.constraints import FixAtoms

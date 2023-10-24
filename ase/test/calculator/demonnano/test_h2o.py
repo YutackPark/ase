@@ -1,5 +1,6 @@
 def test_h2o():
     import numpy as np
+
     from ase import Atoms
     from ase.calculators.demonnano import DemonNano
     from ase.optimize import BFGS

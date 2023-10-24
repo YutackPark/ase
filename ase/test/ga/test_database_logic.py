@@ -3,6 +3,7 @@ db_file = 'gadb_logics_test.db'
 
 def test_database_logic(seed, testdir):
     import numpy as np
+
     from ase.build import fcc111
     from ase.constraints import FixAtoms
     from ase.ga import set_raw_score

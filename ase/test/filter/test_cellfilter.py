@@ -1,8 +1,9 @@
 from itertools import product
 
-import ase
 import numpy as np
 import pytest
+
+import ase
 from ase.build import bulk
 from ase.calculators.test import gradient_test
 from ase.filters import (ExpCellFilter, Filter, FrechetCellFilter,

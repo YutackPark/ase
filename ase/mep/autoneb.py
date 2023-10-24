@@ -6,8 +6,9 @@ from math import exp, log
 from pathlib import Path
 from warnings import warn
 
-import ase.parallel as mpi
 import numpy as np
+
+import ase.parallel as mpi
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.io import Trajectory, read
 from ase.mep.neb import NEB

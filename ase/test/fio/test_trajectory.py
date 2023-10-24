@@ -1,4 +1,5 @@
 import pytest
+
 from ase import Atom, Atoms
 from ase.calculators.calculator import PropertyNotImplementedError
 from ase.constraints import FixBondLength

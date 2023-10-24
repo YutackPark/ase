@@ -1,6 +1,7 @@
 # type: ignore
-import ase.io.rmc6f as rmc6f
 import numpy as np
+
+import ase.io.rmc6f as rmc6f
 from ase import Atoms
 from ase.io import read, write
 from ase.lattice.compounds import TRI_Fe2O3

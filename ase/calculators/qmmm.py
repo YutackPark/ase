@@ -1,6 +1,7 @@
 from typing import Sequence
 
 import numpy as np
+
 from ase.calculators.calculator import Calculator
 from ase.cell import Cell
 from ase.data import atomic_numbers

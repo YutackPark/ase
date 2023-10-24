@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from ase.lattice import (all_variants, bravais_lattices,
                          get_lattice_from_canonical_cell)
 

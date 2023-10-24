@@ -1,8 +1,9 @@
 """Check that reading and writing .con files is consistent."""
 
+from numpy import array
+
 import ase
 import ase.io
-from numpy import array
 
 # Error tolerance.
 TOL = 1e-6

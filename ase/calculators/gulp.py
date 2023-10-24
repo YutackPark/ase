@@ -15,6 +15,7 @@ import os
 import re
 
 import numpy as np
+
 from ase.calculators.calculator import FileIOCalculator, ReadError
 from ase.units import Ang, eV
 

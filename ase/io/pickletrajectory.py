@@ -6,6 +6,7 @@ import sys
 import warnings
 
 import numpy as np
+
 from ase.atoms import Atoms
 from ase.calculators.calculator import PropertyNotImplementedError
 from ase.calculators.singlepoint import SinglePointCalculator

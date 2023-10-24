@@ -6,10 +6,11 @@
 import os
 import re
 import sys
-from setuptools import setup, find_packages
-from setuptools.command.build_py import build_py as _build_py
 from glob import glob
 from os.path import join
+
+from setuptools import find_packages, setup
+from setuptools.command.build_py import build_py as _build_py
 
 python_min_version = (3, 6)
 python_requires = '>=' + '.'.join(str(num) for num in python_min_version)

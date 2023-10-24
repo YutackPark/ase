@@ -3,6 +3,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+
 from ase.io import read
 from ase.io.siesta import read_fdf, read_struct_out
 from ase.units import Bohr

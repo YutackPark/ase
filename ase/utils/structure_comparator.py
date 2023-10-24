@@ -4,9 +4,10 @@ from collections import Counter
 from itertools import combinations, filterfalse, product
 
 import numpy as np
+from scipy.spatial import cKDTree as KDTree
+
 from ase import Atom, Atoms
 from ase.build.tools import niggli_reduce
-from scipy.spatial import cKDTree as KDTree
 
 
 def normalize(cell):

@@ -6,6 +6,7 @@ from itertools import permutations
 from operator import itemgetter
 
 import numpy as np
+
 from ase.ga.element_mutations import get_periodic_table_distance
 from ase.ga.offspring_creator import OffspringCreator
 from ase.utils import atoms_to_spglib_cell

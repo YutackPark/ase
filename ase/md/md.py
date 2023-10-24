@@ -3,6 +3,7 @@ import warnings
 from typing import IO, Optional, Union
 
 import numpy as np
+
 from ase import Atoms, units
 from ase.io.trajectory import Trajectory
 from ase.md.logger import MDLogger

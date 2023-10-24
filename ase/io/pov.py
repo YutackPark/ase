@@ -9,6 +9,7 @@ from pathlib import Path
 from subprocess import DEVNULL, check_call
 
 import numpy as np
+
 from ase import Atoms
 from ase.constraints import FixAtoms
 from ase.io.utils import PlottingVariables

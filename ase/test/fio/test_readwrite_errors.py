@@ -2,6 +2,7 @@ def test_readwrite_errors():
     from io import StringIO
 
     import pytest
+
     from ase.build import bulk
     from ase.io import read, write
     from ase.io.formats import UnknownFileTypeError

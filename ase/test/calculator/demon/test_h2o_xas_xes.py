@@ -1,5 +1,6 @@
-import ase.calculators.demon as demon
 import numpy as np
+
+import ase.calculators.demon as demon
 from ase import Atoms
 
 

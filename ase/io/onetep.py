@@ -5,6 +5,7 @@ from os.path import basename, dirname, isfile
 from pathlib import Path
 
 import numpy as np
+
 from ase.atoms import Atoms
 from ase.calculators.singlepoint import SinglePointDFTCalculator
 from ase.cell import Cell

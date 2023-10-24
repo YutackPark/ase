@@ -1,5 +1,6 @@
 # type: ignore
 import numpy as np
+
 from ase.calculators.turbomole import Turbomole
 from ase.cluster.cubic import FaceCenteredCubic
 

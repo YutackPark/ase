@@ -1,5 +1,6 @@
 """Tools for generating new random starting candidates."""
 import numpy as np
+
 from ase import Atoms
 from ase.build import molecule
 from ase.data import atomic_numbers

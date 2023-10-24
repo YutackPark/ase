@@ -3,6 +3,7 @@ read and write gromacs geometry files
 """
 
 import numpy as np
+
 from ase import units
 from ase.atoms import Atoms
 from ase.data import atomic_numbers

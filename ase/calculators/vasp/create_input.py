@@ -24,8 +24,9 @@ import warnings
 from os.path import isfile, islink, join
 from typing import List, Sequence, Tuple
 
-import ase
 import numpy as np
+
+import ase
 from ase.calculators.calculator import kpts2ndarray
 from ase.calculators.vasp.setups import get_default_setups
 

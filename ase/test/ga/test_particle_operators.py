@@ -1,5 +1,6 @@
 def test_particle_operators(seed):
     import numpy as np
+
     from ase.cluster import Icosahedron
     from ase.ga.particle_crossovers import CutSpliceCrossover
 

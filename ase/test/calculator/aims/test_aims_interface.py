@@ -2,6 +2,7 @@ import os
 import tempfile
 
 import pytest
+
 from ase import Atoms
 from ase.calculators.aims import Aims
 

@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from typing import Dict, List
 
 import numpy as np
+
 from ase.build.bulk import bulk as newbulk
 from ase.cell import Cell
 from ase.dft.kpoints import BandPath, parse_path_string, sc_special_points

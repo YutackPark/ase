@@ -1,4 +1,5 @@
 import pytest
+
 from ase.build import bulk
 
 omx_par = {'definition_of_atomic_species': [['Al', 'Al8.0-p1', 'Al_CA13'],

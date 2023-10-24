@@ -3,6 +3,7 @@ import os.path
 
 import numpy as np
 import pytest
+
 from ase import Atoms
 from ase.calculators.turbomole import Turbomole
 

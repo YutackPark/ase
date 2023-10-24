@@ -10,7 +10,6 @@ import ase.optimize
 from ase.calculators.emt import EMT
 from ase.io import Trajectory
 
-
 all_optimizers = ase.optimize.__all__ + ['PreconLBFGS', 'PreconFIRE',
                                          'SciPyFminCG', 'SciPyFminBFGS']
 all_optimizers.remove('QuasiNewton')

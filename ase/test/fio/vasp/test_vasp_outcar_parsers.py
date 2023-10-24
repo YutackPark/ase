@@ -1,7 +1,8 @@
 # flake8: noqa
-import ase.io.vasp_parsers.vasp_outcar_parsers as vop
 import numpy as np
 import pytest
+
+import ase.io.vasp_parsers.vasp_outcar_parsers as vop
 from ase.io import ParseError
 
 

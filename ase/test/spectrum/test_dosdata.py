@@ -3,6 +3,7 @@ from typing import Any, List, Tuple
 
 import numpy as np
 import pytest
+
 from ase.spectrum.dosdata import DOSData, GridDOSData, RawDOSData
 
 

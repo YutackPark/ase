@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Mapping
 
 import pytest
+
 from ase.calculators.calculator import get_calculator_class
 from ase.calculators.calculator import names as calculator_names
 from ase.calculators.genericfileio import read_stdout

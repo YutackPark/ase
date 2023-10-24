@@ -3,6 +3,7 @@ reporting the same values as in the ContourExploration object."""
 
 import numpy as np
 import pytest
+
 from ase import io
 from ase.md.contour_exploration import ContourExploration
 

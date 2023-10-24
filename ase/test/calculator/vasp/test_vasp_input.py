@@ -2,6 +2,7 @@ from unittest import mock
 
 import numpy as np
 import pytest
+
 from ase.build import bulk
 from ase.calculators.vasp.create_input import (GenerateVaspInput,
                                                _args_without_comment,

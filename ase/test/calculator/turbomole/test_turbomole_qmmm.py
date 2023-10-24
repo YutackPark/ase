@@ -2,6 +2,7 @@
 from math import cos, pi, sin
 
 import numpy as np
+
 from ase import Atoms
 from ase.calculators.qmmm import EIQMMM, LJInteractions, SimpleQMMM
 from ase.calculators.tip3p import TIP3P, angleHOH, epsilon0, rOH, sigma0

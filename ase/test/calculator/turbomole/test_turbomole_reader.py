@@ -1,6 +1,7 @@
 """unit tests for the turbomole reader module"""
 
 import pytest
+
 from ase.calculators.turbomole.reader import parse_data_group
 
 

@@ -1,4 +1,5 @@
 import numpy as np
+
 from ase.io import write
 from ase.spacegroup import crystal
 

@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from ase import Atom, Atoms
 from ase.io.nwchem import write_nwchem_in
 

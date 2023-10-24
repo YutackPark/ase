@@ -1,9 +1,10 @@
 import pytest
+from numpy.testing import assert_allclose
+
 from ase.data import atomic_masses, atomic_numbers
 from ase.filters import UnitCellFilter
 from ase.optimize import QuasiNewton
 from ase.spacegroup import crystal
-from numpy.testing import assert_allclose
 
 
 @pytest.mark.calculator_lite

@@ -1,10 +1,11 @@
 import numpy as np
+from numpy import linalg
+
 from ase.transport.greenfunction import GreenFunction
 from ase.transport.selfenergy import BoxProbe, LeadSelfEnergy
 from ase.transport.tools import (cutcoupling, dagger, fermidistribution,
                                  rotate_matrix, subdiagonalize)
 from ase.units import kB
-from numpy import linalg
 
 
 class TransportCalculator:

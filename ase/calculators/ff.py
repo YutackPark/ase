@@ -1,4 +1,5 @@
 import numpy as np
+
 from ase.calculators.calculator import Calculator
 from ase.utils import ff
 

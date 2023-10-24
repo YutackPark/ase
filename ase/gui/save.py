@@ -1,7 +1,8 @@
 """Dialog for saving one or more configurations."""
 
-import ase.gui.ui as ui
 import numpy as np
+
+import ase.gui.ui as ui
 from ase.gui.i18n import _
 from ase.io.formats import (filetype, get_ioformat, parse_filename,
                             string2index, write)

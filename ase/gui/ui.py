@@ -10,6 +10,7 @@ from tkinter.messagebox import askokcancel as ask_question
 from tkinter.messagebox import showerror, showinfo, showwarning
 
 import numpy as np
+
 from ase.gui.i18n import _
 
 __all__ = [

@@ -1,6 +1,7 @@
 def test_eos():
     import numpy as np
     import scipy  # skip test early if no scipy
+
     from ase.build import bulk
     from ase.calculators.emt import EMT
     from ase.eos import EquationOfState as EOS

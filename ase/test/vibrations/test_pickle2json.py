@@ -1,6 +1,7 @@
 import pickle
 
 import pytest
+
 from ase.build import molecule
 from ase.calculators.emt import EMT
 from ase.vibrations import Vibrations

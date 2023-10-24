@@ -9,12 +9,13 @@ knowledge of the space group.
 
 from typing import Any, Dict
 
-import ase
 import numpy as np
+from scipy import spatial
+
+import ase
 from ase.geometry import cellpar_to_cell
 from ase.spacegroup import Spacegroup
 from ase.symbols import string2symbols
-from scipy import spatial
 
 __all__ = ['crystal']
 

@@ -1,6 +1,7 @@
 from math import cos, radians, sin
 
 import pytest
+
 from ase import Atoms
 from ase.calculators.emt import EMT
 from ase.constraints import FixAtoms

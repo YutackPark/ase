@@ -5,6 +5,7 @@ https://nwchemgit.github.io
 import os
 
 import numpy as np
+
 from ase import io
 from ase.calculators.calculator import FileIOCalculator
 from ase.spectrum.band_structure import BandStructure

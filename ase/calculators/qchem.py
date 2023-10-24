@@ -1,5 +1,6 @@
-import ase.units
 import numpy as np
+
+import ase.units
 from ase.calculators.calculator import FileIOCalculator, SCFError
 
 

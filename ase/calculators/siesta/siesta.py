@@ -18,6 +18,7 @@ import warnings
 from os.path import isfile, islink, join
 
 import numpy as np
+
 from ase.calculators.calculator import (FileIOCalculator, Parameters,
                                         ReadError, all_changes)
 from ase.calculators.siesta.import_functions import (get_valence_charge,

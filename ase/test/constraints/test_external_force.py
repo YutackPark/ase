@@ -1,8 +1,9 @@
+from numpy.linalg import norm
+
 from ase import Atoms
 from ase.calculators.emt import EMT
 from ase.constraints import ExternalForce, FixBondLength
 from ase.optimize import FIRE
-from numpy.linalg import norm
 
 fmax = 0.001
 

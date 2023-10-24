@@ -8,6 +8,7 @@ Daniel S. Karls
 University of Minnesota
 """
 import numpy as np
+
 from ase.calculators.calculator import Calculator, compare_atoms
 
 from . import kimpy_wrappers, neighborlist

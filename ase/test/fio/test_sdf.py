@@ -1,6 +1,7 @@
 import io
 
 import pytest
+
 from ase import Atoms
 from ase.io.sdf import get_num_atoms_sdf_v2000, read_sdf
 

@@ -1,8 +1,9 @@
 from math import cos, pi, sin
 
-import ase.units as units
 import numpy as np
 import pytest
+
+import ase.units as units
 from ase import Atoms
 from ase.build import add_adsorbate, fcc111
 from ase.calculators.emt import EMT

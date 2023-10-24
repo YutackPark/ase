@@ -257,6 +257,7 @@ class DiffusionCoefficient:
 
         # Necessary if user hasn't supplied an axis.
         import matplotlib.pyplot as plt
+
         # Convert from ASE time units to fs (aesthetic)
         from ase.units import fs as fs_conversion
 

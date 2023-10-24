@@ -1,5 +1,6 @@
 def test_build():
     import numpy as np
+
     from ase import Atom, Atoms
 
     a = Atoms([Atom('Cu')])

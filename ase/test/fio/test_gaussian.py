@@ -4,6 +4,7 @@ from io import StringIO
 
 import numpy as np
 import pytest
+
 from ase.atoms import Atoms
 from ase.calculators.calculator import InputError
 from ase.calculators.gaussian import Gaussian

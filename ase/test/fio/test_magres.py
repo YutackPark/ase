@@ -1,4 +1,5 @@
 import numpy as np
+
 from ase.build import bulk
 from ase.calculators.singlepoint import SinglePointDFTCalculator
 from ase.io import read, write

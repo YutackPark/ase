@@ -1,6 +1,7 @@
 from functools import partial
 
 import pytest
+
 from ase.build import bulk
 from ase.calculators.emt import EMT
 from ase.cluster import Icosahedron

@@ -4,6 +4,7 @@ from typing import (Any, Dict, Iterable, List, Optional, Sequence, TypeVar,
                     Union, overload)
 
 import numpy as np
+
 from ase.spectrum.dosdata import DOSData, Floats, GridDOSData, Info, RawDOSData
 from ase.utils.plotting import SimplePlottingAxes
 

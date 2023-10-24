@@ -1,5 +1,6 @@
-import ase.build
 import pytest
+
+import ase.build
 from ase import Atoms
 from ase.geometry.dimensionality import (analyze_dimensionality,
                                          isolate_components)

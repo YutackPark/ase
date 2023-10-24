@@ -3,6 +3,7 @@
 from io import StringIO
 
 import numpy as np
+
 from ase import io as aseIO
 from ase.io.dlp4 import iread_dlp_history
 

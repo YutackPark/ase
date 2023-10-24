@@ -1,4 +1,5 @@
 import numpy as np
+
 from ase.dft.dos import DOS
 from ase.dft.kpoints import monkhorst_pack
 

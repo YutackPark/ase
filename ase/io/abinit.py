@@ -5,6 +5,7 @@ from os.path import join
 from pathlib import Path
 
 import numpy as np
+
 from ase import Atoms
 from ase.calculators.calculator import all_properties
 from ase.calculators.singlepoint import SinglePointCalculator

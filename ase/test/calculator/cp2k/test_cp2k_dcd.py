@@ -8,6 +8,7 @@ import subprocess
 
 import numpy as np
 import pytest
+
 from ase import io
 from ase.build import molecule
 from ase.calculators.calculator import compare_atoms

@@ -2,6 +2,7 @@
 geometries using a somewhat agressive angle_limit for each stepsize.'''
 import numpy as np
 import pytest
+
 from ase import Atoms
 from ase.calculators.emt import EMT
 from ase.constraints import FixAtoms

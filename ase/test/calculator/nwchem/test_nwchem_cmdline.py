@@ -1,8 +1,9 @@
 import pytest
+from numpy.testing import assert_allclose
+
 from ase.db import connect
 from ase.io import read
 from ase.io.jsonio import read_json
-from numpy.testing import assert_allclose
 
 
 @pytest.mark.skip('CLI fixture lacks information about configured executables')

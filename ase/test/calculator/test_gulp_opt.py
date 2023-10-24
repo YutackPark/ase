@@ -1,5 +1,6 @@
 def test_gulp_opt():
     import numpy as np
+
     from ase.build import bulk, molecule
     from ase.calculators.gulp import GULP
     from ase.filters import FrechetCellFilter

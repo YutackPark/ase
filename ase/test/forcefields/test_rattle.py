@@ -1,5 +1,6 @@
-import ase.units as units
 import pytest
+
+import ase.units as units
 from ase.calculators.qmmm import EIQMMM, LJInteractions, SimpleQMMM
 from ase.calculators.tip3p import TIP3P, angleHOH, epsilon0, rOH, sigma0
 from ase.constraints import FixBondLengths

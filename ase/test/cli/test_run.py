@@ -1,4 +1,5 @@
 import pytest
+
 from ase.build import bulk
 from ase.io import write
 

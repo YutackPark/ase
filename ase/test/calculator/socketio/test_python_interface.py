@@ -2,6 +2,7 @@ import os
 
 import numpy as np
 import pytest
+
 from ase.calculators.emt import EMT
 from ase.calculators.socketio import PySocketIOClient, SocketIOCalculator
 

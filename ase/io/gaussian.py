@@ -5,6 +5,7 @@ from collections.abc import Iterable
 from copy import deepcopy
 
 import numpy as np
+
 from ase import Atoms
 from ase.calculators.calculator import Calculator, InputError
 from ase.calculators.gaussian import Gaussian

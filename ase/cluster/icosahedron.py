@@ -1,4 +1,5 @@
 import numpy as np
+
 from ase import Atoms
 from ase.cluster.util import get_element_info
 

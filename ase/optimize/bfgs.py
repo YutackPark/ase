@@ -1,5 +1,5 @@
-from typing import IO, Optional, Union
 import warnings
+from typing import IO, Optional, Union
 
 import numpy as np
 from numpy.linalg import eigh

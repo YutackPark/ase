@@ -14,6 +14,7 @@ import warnings
 from typing import Any, Dict, Iterator, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
+
 from ase import Atoms
 from ase.cell import Cell
 from ase.io.cif_unicode import format_unicode, handle_subscripts

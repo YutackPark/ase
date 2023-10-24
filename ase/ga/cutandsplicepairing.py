@@ -1,5 +1,6 @@
 """Implementation of the cut-and-splice paring operator."""
 import numpy as np
+
 from ase import Atoms
 from ase.ga.offspring_creator import OffspringCreator
 from ase.ga.utilities import (atoms_too_close, atoms_too_close_two_sets,

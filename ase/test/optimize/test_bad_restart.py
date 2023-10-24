@@ -1,4 +1,5 @@
 import pytest
+
 from ase import Atoms
 from ase.optimize import BFGS, RestartError
 

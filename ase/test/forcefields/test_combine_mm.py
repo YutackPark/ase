@@ -7,6 +7,7 @@ def test_combine_mm():
     from math import cos, pi, sin
 
     import numpy as np
+
     from ase import Atoms, units
     from ase.calculators.combine_mm import CombineMM
     from ase.calculators.counterions import AtomicCounterIon as ACI

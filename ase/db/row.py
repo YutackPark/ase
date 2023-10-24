@@ -2,6 +2,7 @@ from random import randint
 from typing import Any, Dict
 
 import numpy as np
+
 from ase import Atoms
 from ase.calculators.calculator import (PropertyNotImplementedError,
                                         all_properties,

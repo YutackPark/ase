@@ -16,6 +16,7 @@ import pathlib
 import re
 
 import numpy as np
+
 from ase.calculators.lammps import convert
 
 

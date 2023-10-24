@@ -5,6 +5,7 @@ Author: Ole Schuett <ole.schuett@mat.ethz.ch>
 """
 
 import pytest
+
 from ase import units
 from ase.atoms import Atoms
 from ase.build import molecule

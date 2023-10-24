@@ -1,6 +1,7 @@
 from math import pi
 
 import numpy as np
+
 from ase.atoms import Atoms
 from ase.calculators.calculator import Calculator, kpts2ndarray
 from ase.units import Bohr, Ha

@@ -1,6 +1,7 @@
 import numpy as np
-from ase.lattice.cubic import FaceCenteredCubic
 from pytest import mark
+
+from ase.lattice.cubic import FaceCenteredCubic
 
 
 @mark.calculator_lite

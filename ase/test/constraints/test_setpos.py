@@ -1,5 +1,6 @@
 def test_setpos():
     import numpy as np
+
     from ase.build import molecule
     from ase.constraints import FixAtoms
 

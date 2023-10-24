@@ -13,10 +13,11 @@ from typing import Sequence
 from warnings import warn
 
 import numpy as np
+from packaging import version
+
 from ase import Atoms
 from ase.calculators.calculator import FileIOCalculator, Parameters, ReadError
 from ase.units import Debye, kcal, mol
-from packaging import version
 
 
 class MOPAC(FileIOCalculator):

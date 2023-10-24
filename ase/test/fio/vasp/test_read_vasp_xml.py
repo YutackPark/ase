@@ -3,6 +3,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+
 from ase.io import read
 
 parent = Path(__file__).parents[2]

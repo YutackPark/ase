@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from ase.build import molecule
 from ase.md.velocitydistribution import Stationary, ZeroRotation
 

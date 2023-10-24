@@ -1,5 +1,7 @@
 import numpy as np
 import pytest
+from pytest import approx
+
 from ase import Atoms, units
 from ase.calculators.emt import EMT
 from ase.calculators.idealgas import IdealGas
@@ -7,7 +9,6 @@ from ase.calculators.lj import LennardJones
 from ase.calculators.plumed import restart_from_trajectory
 from ase.io.trajectory import Trajectory
 from ase.md.verlet import VelocityVerlet
-from pytest import approx
 
 
 @pytest.mark.calculator_lite

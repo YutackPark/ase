@@ -1,4 +1,5 @@
 import numpy as np
+
 from ase import Atoms
 from ase.calculators.test import FreeElectrons
 from ase.cell import Cell

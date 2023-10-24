@@ -1,4 +1,5 @@
 import numpy as np
+
 from ase import Atoms
 
 pbc = [1, 1, 0]

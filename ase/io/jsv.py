@@ -8,8 +8,9 @@ By Jesper Friis, Jan. 2012
 
 import re
 
-import ase
 import numpy as np
+
+import ase
 from ase.geometry import cell_to_cellpar, cellpar_to_cell
 from ase.spacegroup import Spacegroup, crystal
 

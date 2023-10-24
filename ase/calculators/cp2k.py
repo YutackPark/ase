@@ -10,8 +10,9 @@ import os.path
 from subprocess import PIPE, Popen
 from warnings import warn
 
-import ase.io
 import numpy as np
+
+import ase.io
 from ase.calculators.calculator import (Calculator, CalculatorSetupError,
                                         Parameters, all_changes)
 from ase.units import Rydberg

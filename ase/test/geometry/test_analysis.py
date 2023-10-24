@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from ase.build import molecule
 from ase.geometry.analysis import Analysis, get_max_volume_estimate
 

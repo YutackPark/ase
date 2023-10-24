@@ -1,9 +1,10 @@
 import os
 from pathlib import Path
 
-import ase.gui.ui as ui
 import numpy as np
 import pytest
+
+import ase.gui.ui as ui
 from ase import Atoms
 from ase.build import bulk, molecule
 from ase.calculators.singlepoint import SinglePointCalculator

@@ -9,6 +9,7 @@ import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
 import numpy as np
+
 from ase.data import covalent_radii
 from ase.data.colors import jmol_colors
 from ase.utils import writer

@@ -2,6 +2,7 @@
 
 import numpy as np
 import pytest
+
 from ase.build import bulk
 from ase.calculators.emt import EMT
 from ase.md.contour_exploration import ContourExploration

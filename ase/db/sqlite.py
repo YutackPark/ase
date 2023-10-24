@@ -21,8 +21,9 @@ import sqlite3
 import sys
 from contextlib import contextmanager
 
-import ase.io.jsonio
 import numpy as np
+
+import ase.io.jsonio
 from ase.calculators.calculator import all_properties
 from ase.data import atomic_numbers
 from ase.db.core import (Database, bytes_to_object, invop, lock, now,

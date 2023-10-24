@@ -125,6 +125,7 @@ from pathlib import Path
 from typing import Set, Union
 
 import numpy as np
+
 from ase.io.formats import is_compressed
 from ase.io.jsonio import decode, encode
 from ase.utils import plural

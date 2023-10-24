@@ -2,6 +2,7 @@ import warnings
 
 import numpy as np
 import pytest
+
 from ase import Atom, Atoms
 from ase.io import NetCDFTrajectory, read
 

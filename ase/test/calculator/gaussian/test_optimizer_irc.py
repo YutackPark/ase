@@ -1,4 +1,5 @@
 import pytest
+
 from ase import Atoms
 from ase.calculators.gaussian import Gaussian, GaussianIRC, GaussianOptimizer
 from ase.io import read

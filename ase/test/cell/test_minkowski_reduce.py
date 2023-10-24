@@ -1,8 +1,9 @@
 import numpy as np
 import pytest
+from numpy.testing import assert_allclose, assert_almost_equal
+
 from ase.cell import Cell
 from ase.geometry import minkowski_reduce
-from numpy.testing import assert_allclose, assert_almost_equal
 
 TOL = 1E-14
 

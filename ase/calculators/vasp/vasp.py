@@ -28,8 +28,9 @@ from typing import Any, Dict, List, Tuple
 from warnings import warn
 from xml.etree import ElementTree
 
-import ase
 import numpy as np
+
+import ase
 from ase.calculators import calculator
 from ase.calculators.calculator import Calculator
 from ase.calculators.singlepoint import SinglePointDFTCalculator

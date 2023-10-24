@@ -1,7 +1,8 @@
 from math import cos, pi, sin
 
-import ase.units as units
 import numpy as np
+
+import ase.units as units
 from ase import Atoms
 from ase.calculators.qmmm import (EIQMMM, LJInteractions,
                                   LJInteractionsGeneral, SimpleQMMM)

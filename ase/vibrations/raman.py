@@ -1,5 +1,6 @@
-import ase.units as u
 import numpy as np
+
+import ase.units as u
 from ase.dft import monkhorst_pack
 from ase.parallel import world
 from ase.phonons import Phonons

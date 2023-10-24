@@ -1,4 +1,5 @@
 import pytest
+
 from ase.db import connect
 
 cmd = """

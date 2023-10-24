@@ -4,6 +4,7 @@ from math import factorial
 from operator import mul
 
 import numpy as np
+
 from ase.units import C, _hbar, kB, kg
 from ase.vibrations import Vibrations
 

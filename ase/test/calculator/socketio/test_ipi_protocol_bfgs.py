@@ -4,6 +4,7 @@ import threading
 
 import numpy as np
 import pytest
+
 from ase.calculators.emt import EMT
 from ase.calculators.socketio import SocketClient, SocketIOCalculator
 from ase.cluster.icosahedron import Icosahedron

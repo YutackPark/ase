@@ -8,10 +8,11 @@ Before usage, input files (infile, topologyfile, incoordfile)
 
 import subprocess
 
-import ase.units as units
 import numpy as np
-from ase.calculators.calculator import Calculator, FileIOCalculator
 from scipy.io import netcdf
+
+import ase.units as units
+from ase.calculators.calculator import Calculator, FileIOCalculator
 
 
 class Amber(FileIOCalculator):
@@ -192,9 +193,10 @@ class Amber(FileIOCalculator):
         if filename == '':
             filename = self.outcoordfile
 
-        import ase.units as units
         import numpy as np
         from scipy.io import netcdf
+
+        import ase.units as units
 
         fin = netcdf.netcdf_file(filename, 'r')
         all_coordinates = fin.variables['coordinates'][:]

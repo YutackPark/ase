@@ -1,4 +1,5 @@
 import numpy as np
+
 from ase import Atoms
 from ase.calculators.siesta.parameters import PAOBasisBlock, Species
 

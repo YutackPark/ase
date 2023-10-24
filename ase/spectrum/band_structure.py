@@ -1,5 +1,6 @@
-import ase  # Annotations
 import numpy as np
+
+import ase  # Annotations
 from ase.calculators.calculator import PropertyNotImplementedError
 from ase.utils import jsonable
 

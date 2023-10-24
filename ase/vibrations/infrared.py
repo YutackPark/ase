@@ -3,8 +3,9 @@
 from math import sqrt
 from sys import stdout
 
-import ase.units as units
 import numpy as np
+
+import ase.units as units
 from ase.parallel import paropen, parprint
 from ase.vibrations.vibrations import Vibrations
 

@@ -4,6 +4,7 @@ from pathlib import Path
 from warnings import warn
 
 import numpy as np
+
 from ase.calculators.calculator import (BaseCalculator, Calculator,
                                         FileIOCalculator)
 from ase.io import write

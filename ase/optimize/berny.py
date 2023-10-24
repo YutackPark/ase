@@ -2,7 +2,7 @@ from typing import IO, Optional, Union
 
 from ase import Atoms
 from ase.optimize.optimize import Optimizer
-from ase.units import Ha, Bohr
+from ase.units import Bohr, Ha
 
 
 class Berny(Optimizer):
@@ -55,7 +55,8 @@ class Berny(Optimizer):
         dihedral: boolean
             Defaults to True, which means that dihedral angles will be used.
         """
-        from berny import Berny as _Berny, Geometry
+        from berny import Berny as _Berny
+        from berny import Geometry
 
         self._restart_data = None  # Optimizer.__init__() may overwrite
         Optimizer.__init__(self, atoms, restart, logfile, trajectory, master)

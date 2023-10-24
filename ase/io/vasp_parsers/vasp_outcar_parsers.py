@@ -7,8 +7,9 @@ from pathlib import Path, PurePath
 from typing import Any, Dict, Iterator, List, Optional, Sequence, TextIO, Union
 from warnings import warn
 
-import ase
 import numpy as np
+
+import ase
 from ase import Atoms
 from ase.calculators.singlepoint import (SinglePointDFTCalculator,
                                          SinglePointKPoint)

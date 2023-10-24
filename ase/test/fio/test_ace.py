@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from ase.atoms import Atoms
 from ase.io.acemolecule import read_acemolecule_input, read_acemolecule_out
 

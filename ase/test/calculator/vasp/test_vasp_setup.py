@@ -1,4 +1,5 @@
 import pytest
+
 from ase.atoms import Atoms
 
 calc = pytest.mark.calculator

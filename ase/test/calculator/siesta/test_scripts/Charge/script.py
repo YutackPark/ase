@@ -3,6 +3,7 @@
 # This could model interaction with other molecules not explicitly
 # handled.
 import numpy as np
+
 from ase import Atoms
 from ase.calculators.siesta import Siesta
 from ase.calculators.siesta.parameters import Species

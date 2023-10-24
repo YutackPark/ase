@@ -5,9 +5,10 @@ from math import pi, sin, sqrt
 from numbers import Integral, Real
 from typing import Any, Dict, Iterator, List, Sequence, Tuple, TypeVar, Union
 
+import numpy as np
+
 import ase.io
 import ase.units as units
-import numpy as np
 from ase.atoms import Atoms
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.constraints import FixAtoms, FixCartesian, constrained_indices

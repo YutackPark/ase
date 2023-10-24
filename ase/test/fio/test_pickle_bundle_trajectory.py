@@ -4,6 +4,7 @@ from subprocess import check_call, check_output
 
 import numpy as np
 import pytest
+
 from ase.build import bulk
 from ase.calculators.calculator import compare_atoms
 from ase.calculators.emt import EMT

@@ -4,6 +4,7 @@ Check the many ways of specifying KPOINTS
 import os
 
 import pytest
+
 from ase.build import bulk
 from ase.calculators.vasp.create_input import format_kpoints
 

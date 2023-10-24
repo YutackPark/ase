@@ -9,6 +9,7 @@ computem software.
 """
 
 import numpy as np
+
 from ase.atoms import Atoms, symbols2numbers
 from ase.utils import reader
 

@@ -2,6 +2,7 @@ import re
 import warnings
 
 import numpy as np
+
 from ase.atoms import Atoms
 from ase.calculators.lammps import Prism, convert
 from ase.data import atomic_masses, atomic_numbers

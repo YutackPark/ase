@@ -9,6 +9,7 @@ Initial development: markus.kaukonen@iki.fi
 import os
 
 import numpy as np
+
 from ase.calculators.calculator import (FileIOCalculator, kpts2ndarray,
                                         kpts2sizeandoffsets)
 from ase.units import Bohr, Hartree

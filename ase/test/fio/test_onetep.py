@@ -10,9 +10,10 @@ from io import StringIO
 
 import numpy as np
 import pytest
+from pytest import approx
+
 from ase.io import read, write
 from ase.io.onetep import get_onetep_keywords
-from pytest import approx
 
 eV2au = 27.2116529
 angtobohr = 1.889726134583

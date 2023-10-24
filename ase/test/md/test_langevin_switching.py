@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from ase import units
 from ase.build import bulk
 from ase.calculators.harmonic import SpringCalculator

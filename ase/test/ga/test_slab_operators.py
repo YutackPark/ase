@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from ase.build import fcc111
 from ase.ga.slab_operators import (CutSpliceSlabCrossover,
                                    NeighborhoodElementMutation,

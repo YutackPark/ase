@@ -36,6 +36,7 @@ The keywords are given, for instance, as follows:
 import os
 
 import numpy as np
+
 from ase.calculators.calculator import FileIOCalculator
 from ase.io import write
 from ase.units import Bohr, Hartree

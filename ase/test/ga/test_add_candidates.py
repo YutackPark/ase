@@ -1,4 +1,5 @@
 import pytest
+
 from ase.build import fcc111
 from ase.ga import set_raw_score
 from ase.ga.data import DataConnection, PrepareDB

@@ -1,4 +1,5 @@
 import numpy as np
+
 from ase.atom import Atom
 from ase.atoms import Atoms
 from ase.units import Bohr

@@ -10,6 +10,7 @@ temperature.
 from typing import Optional
 
 import numpy as np
+
 from ase import Atoms, units
 from ase.md.md import process_temperature
 from ase.parallel import world

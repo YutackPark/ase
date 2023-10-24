@@ -5,6 +5,7 @@
 from typing import List, Optional
 
 import numpy as np
+
 from ase import Atoms
 from ase.geometry.rdf import get_containing_cell_length, get_rdf
 from ase.neighborlist import (build_neighbor_list, get_distance_indices,

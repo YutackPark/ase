@@ -1,5 +1,6 @@
 def test_cutandsplicepairing(seed):
     import numpy as np
+
     from ase.build import fcc111
     from ase.constraints import FixAtoms
     from ase.ga.cutandsplicepairing import CutAndSplicePairing

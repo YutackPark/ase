@@ -1,4 +1,5 @@
 import numpy as np
+
 from ase import Atom
 from ase.build import bulk
 from ase.calculators.checkpoint import Checkpoint, CheckpointCalculator

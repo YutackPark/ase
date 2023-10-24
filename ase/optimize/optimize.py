@@ -3,7 +3,7 @@ import collections.abc
 import time
 from math import sqrt
 from os.path import isfile
-from typing import Any, Callable, Dict, IO, List, Optional, Union
+from typing import IO, Any, Callable, Dict, List, Optional, Union
 
 from ase import Atoms
 from ase.calculators.calculator import PropertyNotImplementedError

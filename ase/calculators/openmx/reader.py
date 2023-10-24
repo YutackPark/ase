@@ -23,6 +23,7 @@ import os
 import struct
 
 import numpy as np
+
 from ase.io import ParseError
 from ase.units import Bohr, Debye, Ha
 

@@ -1,11 +1,11 @@
-from typing import Any, Dict, IO, List, Optional, Type, Union
+from typing import IO, Any, Dict, List, Optional, Type, Union
 
 from numpy.linalg import norm
 
 from ase import Atoms
+from ase.constraints import FixInternals
 from ase.optimize.bfgs import BFGS
 from ase.optimize.optimize import Optimizer
-from ase.constraints import FixInternals
 
 
 class BFGSClimbFixInternals(BFGS):

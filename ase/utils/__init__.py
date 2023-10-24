@@ -14,6 +14,7 @@ from math import atan2, cos, degrees, gcd, radians, sin
 from pathlib import Path, PurePath
 
 import numpy as np
+
 from ase.formula import formula_hill, formula_metal
 
 __all__ = ['basestring', 'import_module', 'seterr', 'plural',
