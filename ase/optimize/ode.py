@@ -67,7 +67,6 @@ def ode12r(f, X0, h=None, verbose=1, fmax=1e-6, maxtol=1e3, steps=100,
     if callback is None:
         def callback(X):
             pass
-    callback(X)
 
     if residual is None:
         def residual(F, X):
