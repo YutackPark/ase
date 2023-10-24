@@ -127,6 +127,7 @@ class SciPyOptimizer(Optimizer):
             self.call_fmin(fmax / self.H0, steps)
         except Converged:
             pass
+        return self.converged()
 
     def dump(self, data):
         pass
@@ -281,6 +282,7 @@ class SciPyGradientlessOptimizer(Optimizer):
             self.call_fmin(xtol, ftol, steps)
         except Converged:
             pass
+        return self.converged()
 
     def dump(self, data):
         pass
