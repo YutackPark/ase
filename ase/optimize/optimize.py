@@ -148,14 +148,11 @@ class Dynamics(IOContext):
 
             # let the user inspect the step and change things before logging
             # and predicting the next step
-            yield False
+            yield self.converged()
 
             # log the step
             self.log()
             self.call_observers()
-
-        # finally check if algorithm was converged
-        yield self.converged()
 
     def run(self):
         """Run dynamics algorithm.
