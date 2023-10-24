@@ -139,16 +139,20 @@ class Dynamics(IOContext):
             self.log()
             self.call_observers()
 
+        is_converged = self.converged()
+
         # run the algorithm until converged or max_steps reached
-        while not self.converged() and self.nsteps < self.max_steps:
+        while not is_converged and self.nsteps < self.max_steps:
 
             # compute the next step
             self.step()
             self.nsteps += 1
 
+            is_converged = self.converged()
+
             # let the user inspect the step and change things before logging
             # and predicting the next step
-            yield self.converged()
+            yield is_converged
 
             # log the step
             self.log()
