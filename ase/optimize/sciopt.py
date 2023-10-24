@@ -290,7 +290,7 @@ class SciPyGradientlessOptimizer(Optimizer):
     def load(self):
         pass
 
-    def call_fmin(self, fmax, steps):
+    def call_fmin(self, xtol, ftol, steps):
         raise NotImplementedError
 
 
