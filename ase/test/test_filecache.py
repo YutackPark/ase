@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from ase.utils.filecache import (CombinedJSONCache, Locked, MultiFileJSONCache,
                                  MultiFileULMCache)
 

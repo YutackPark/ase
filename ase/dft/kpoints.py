@@ -2,8 +2,9 @@ import re
 import warnings
 from typing import Dict
 
-import ase  # Annotations
 import numpy as np
+
+import ase  # Annotations
 from ase.cell import Cell
 from ase.utils import jsonable
 

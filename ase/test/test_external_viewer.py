@@ -1,6 +1,7 @@
 import sys
 
 import pytest
+
 from ase.build import bulk
 from ase.io import read
 from ase.visualize import view

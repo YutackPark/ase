@@ -16,9 +16,10 @@ import os.path as op
 #import subprocess
 import pathlib as pl
 
+import numpy as np
+
 import ase.data
 import ase.io
-import numpy as np
 from ase.calculators.calculator import FileIOCalculator, Parameters, ReadError
 from ase.units import Bohr, Hartree
 

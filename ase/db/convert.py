@@ -2,6 +2,7 @@ import optparse
 import os
 
 import numpy as np
+
 from ase.db import connect
 from ase.db.sqlite import index_statements
 

@@ -49,6 +49,7 @@ multiple images of car format separated with $end
 from datetime import datetime
 
 import numpy as np
+
 from ase import Atom, Atoms
 from ase.geometry.cell import cell_to_cellpar, cellpar_to_cell
 from ase.units import Bohr

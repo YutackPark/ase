@@ -1,4 +1,5 @@
 import numpy as np
+
 from ase.data import covalent_radii
 from ase.neighborlist import NeighborList
 

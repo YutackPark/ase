@@ -2,10 +2,11 @@
 """
 from copy import copy
 
+import numpy as np
+
 import ase
 import ase.data
 import ase.gui.ui as ui
-import numpy as np
 from ase.cluster import wulff_construction
 from ase.cluster.cubic import BodyCenteredCubic, FaceCenteredCubic, SimpleCubic
 from ase.cluster.hexagonal import Graphite, HexagonalClosedPacked

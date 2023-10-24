@@ -3,6 +3,7 @@ def test_counterions():
         PBCs and with cutoff """
 
     import numpy as np
+
     from ase import Atoms, units
     from ase.calculators.counterions import AtomicCounterIon as ACI
 

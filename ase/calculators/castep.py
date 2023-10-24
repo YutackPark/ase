@@ -30,9 +30,10 @@ from itertools import product
 from pathlib import Path
 from typing import List, Set
 
+import numpy as np
+
 import ase
 import ase.units as units
-import numpy as np
 from ase.calculators.calculator import (PropertyNotImplementedError,
                                         compare_atoms, kpts2sizeandoffsets)
 from ase.calculators.general import Calculator

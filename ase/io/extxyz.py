@@ -14,6 +14,7 @@ import warnings
 from io import StringIO, UnsupportedOperation
 
 import numpy as np
+
 from ase.atoms import Atoms
 from ase.calculators.calculator import BaseCalculator, all_properties
 from ase.calculators.singlepoint import SinglePointCalculator

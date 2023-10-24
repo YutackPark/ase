@@ -6,8 +6,9 @@ This is a base class for numerous classes setting up pieces of crystal.
 import math
 from typing import Optional, Sequence
 
-import ase.data
 import numpy as np
+
+import ase.data
 from ase.atoms import Atoms
 
 

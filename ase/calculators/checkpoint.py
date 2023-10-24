@@ -43,8 +43,9 @@ is performed:
 
 from typing import Any, Dict
 
-import ase
 import numpy as np
+
+import ase
 from ase.calculators.calculator import Calculator
 from ase.db import connect
 

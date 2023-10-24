@@ -14,6 +14,7 @@ import warnings
 from math import floor, log10
 
 import numpy as np
+
 from ase.calculators.calculator import (FileIOCalculator,
                                         PropertyNotImplementedError, ReadError)
 from ase.calculators.turbomole import reader

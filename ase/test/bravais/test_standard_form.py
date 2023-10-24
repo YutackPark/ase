@@ -8,6 +8,7 @@ standard cell correctly.
 
 import numpy as np
 import pytest
+
 from ase.lattice import (all_variants, get_lattice_from_canonical_cell,
                          identify_lattice)
 

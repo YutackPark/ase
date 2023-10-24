@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Union
 
 import numpy as np
+
 from ase import Atom, Atoms
 from ase.calculators.calculator import kpts2mp
 from ase.calculators.singlepoint import SinglePointDFTCalculator

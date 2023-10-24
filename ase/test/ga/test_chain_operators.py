@@ -1,5 +1,6 @@
 def test_chain_operators(seed):
     import numpy as np
+
     from ase import Atoms
     from ase.ga.cutandsplicepairing import CutAndSplicePairing
     from ase.ga.standardmutations import StrainMutation

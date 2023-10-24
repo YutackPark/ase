@@ -1,11 +1,12 @@
 import os
+
 import numpy as np
+
 from ase import io, units
+from ase.md import MDLogger, VelocityVerlet
+from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
 from ase.optimize import QuasiNewton
 from ase.parallel import paropen, world
-from ase.md import VelocityVerlet
-from ase.md import MDLogger
-from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
 
 
 class MinimaHopping:

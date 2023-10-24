@@ -9,6 +9,7 @@ from glob import glob
 from warnings import warn
 
 import numpy as np
+
 from ase.atoms import Atoms
 from ase.constraints import FixAtoms
 from ase.geometry import cell_to_cellpar, cellpar_to_cell

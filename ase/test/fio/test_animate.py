@@ -1,6 +1,7 @@
 import warnings
 
 import pytest
+
 from ase.build import bulk, fcc111, molecule
 from ase.io.animation import write_animation
 

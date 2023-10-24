@@ -1,5 +1,6 @@
 """Tests for FixCom."""
 import pytest
+
 from ase import Atoms
 from ase.build import molecule
 from ase.calculators.emt import EMT

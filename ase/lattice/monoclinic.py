@@ -6,6 +6,7 @@ The following lattice creator is defined:
 """
 
 import numpy as np
+
 from ase.lattice.triclinic import TriclinicFactory
 
 

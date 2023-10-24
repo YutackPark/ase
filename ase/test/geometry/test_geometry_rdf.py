@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from ase.build.bulk import bulk
 from ase.build.molecule import molecule
 from ase.calculators.emt import EMT

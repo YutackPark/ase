@@ -1,5 +1,5 @@
-from typing import Callable, IO, Optional, Union
 import warnings
+from typing import IO, Callable, Optional, Union
 
 import numpy as np
 

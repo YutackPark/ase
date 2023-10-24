@@ -7,6 +7,7 @@ environment variables
 
 import numpy as np
 import pytest
+
 from ase.io import read
 
 calc = pytest.mark.calculator

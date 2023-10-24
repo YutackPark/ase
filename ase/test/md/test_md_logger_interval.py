@@ -1,6 +1,7 @@
-import ase.units as units
 import numpy as np
 import pytest
+
+import ase.units as units
 from ase.calculators.tip3p import TIP3P
 from ase.constraints import FixBondLengths
 from ase.data import s22

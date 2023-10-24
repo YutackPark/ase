@@ -1,4 +1,5 @@
 import pytest
+
 from ase.build import bulk
 from ase.spectrum.band_structure import calculate_band_structure
 

@@ -3,6 +3,7 @@ from pathlib import Path
 from re import compile
 
 import numpy as np
+
 from ase import Atoms
 from ase.units import Bohr
 from ase.utils import reader

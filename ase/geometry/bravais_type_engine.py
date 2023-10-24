@@ -1,6 +1,7 @@
 import itertools
 
 import numpy as np
+
 from ase.cell import Cell
 from ase.lattice import UnconventionalLattice, bravais_lattices, bravais_names
 

@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import pytest
+
 from ase import Atoms
 from ase.build import add_adsorbate, fcc211
 from ase.calculators.emt import EMT

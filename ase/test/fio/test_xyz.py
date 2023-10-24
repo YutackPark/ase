@@ -1,6 +1,7 @@
 import filecmp
 
 import pytest
+
 from ase.build import molecule
 from ase.calculators.calculator import compare_atoms
 from ase.calculators.emt import EMT

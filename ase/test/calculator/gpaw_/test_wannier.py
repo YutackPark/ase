@@ -2,6 +2,7 @@ from functools import partial
 
 import numpy as np
 import pytest
+
 from ase import Atoms
 from ase.build import bulk, molecule
 from ase.dft.kpoints import monkhorst_pack

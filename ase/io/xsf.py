@@ -1,4 +1,5 @@
 import numpy as np
+
 from ase.atoms import Atoms
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.data import atomic_numbers

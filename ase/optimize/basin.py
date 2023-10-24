@@ -3,10 +3,10 @@ from typing import IO, Type, Union
 import numpy as np
 
 from ase import Atoms, units
-from ase.optimize.optimize import Dynamics, Optimizer
-from ase.optimize.fire import FIRE
-from ase.parallel import world
 from ase.io.trajectory import Trajectory
+from ase.optimize.fire import FIRE
+from ase.optimize.optimize import Dynamics, Optimizer
+from ase.parallel import world
 
 
 class BasinHopping(Dynamics):

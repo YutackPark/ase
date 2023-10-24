@@ -2,6 +2,7 @@ from subprocess import DEVNULL, check_call
 
 import numpy as np
 import pytest
+
 from ase import Atoms
 from ase.build import molecule
 from ase.cell import Cell

@@ -1,5 +1,6 @@
 def test_bravais_orcc_mcl():
     import numpy as np
+
     from ase import Atoms
     from ase.calculators.emt import EMT
     from ase.cell import Cell

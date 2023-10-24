@@ -3,6 +3,7 @@ from io import StringIO
 
 import numpy as np
 import pytest
+
 from ase import units
 from ase.io import read
 from ase.io.formats import match_magic

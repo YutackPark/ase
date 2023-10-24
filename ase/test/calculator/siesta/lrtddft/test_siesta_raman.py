@@ -1,4 +1,5 @@
 import pytest
+
 from ase.build import molecule
 from ase.calculators.siesta.siesta_lrtddft import RamanCalculatorInterface
 from ase.vibrations.placzek import PlaczekStatic

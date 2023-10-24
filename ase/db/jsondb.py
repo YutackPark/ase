@@ -3,6 +3,7 @@ import sys
 from contextlib import ExitStack
 
 import numpy as np
+
 from ase.db.core import Database, lock, now, ops
 from ase.db.row import AtomsRow
 from ase.io.jsonio import decode, encode

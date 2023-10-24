@@ -2,6 +2,7 @@ import warnings
 from math import sqrt
 
 import numpy as np
+
 from ase import Atoms
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.constraints import FixAtoms

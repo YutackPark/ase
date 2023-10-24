@@ -9,6 +9,7 @@ Author: Ole Schuett <ole.schuett@mat.ethz.ch>
 from io import StringIO
 
 import pytest
+
 from ase.io.cp2k import read_cp2k_restart
 
 

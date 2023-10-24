@@ -1,4 +1,5 @@
 import pytest
+
 from ase.build import bulk, molecule
 from ase.calculators.espresso import Espresso, EspressoProfile
 

@@ -3,8 +3,9 @@ import socket
 from contextlib import contextmanager
 from subprocess import PIPE, Popen
 
-import ase.units as units
 import numpy as np
+
+import ase.units as units
 from ase.calculators.calculator import (Calculator,
                                         PropertyNotImplementedError,
                                         all_changes)

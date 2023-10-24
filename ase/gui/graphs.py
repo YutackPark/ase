@@ -1,8 +1,9 @@
 import pickle
 import sys
 
-import ase.gui.ui as ui
 import numpy as np
+
+import ase.gui.ui as ui
 from ase.gui.i18n import _
 
 graph_help_text = _("""\

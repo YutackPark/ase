@@ -1,4 +1,5 @@
 import numpy as np
+
 from ase import Atoms
 from ase.neighborlist import natural_cutoffs
 

@@ -1,4 +1,5 @@
 import pytest
+
 from ase import Atoms
 from ase.calculators.calculator import compare_atoms
 from ase.db import connect

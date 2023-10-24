@@ -1,5 +1,6 @@
-import ase
 import pytest
+
+import ase
 from ase.build import bulk
 from ase.calculators.lj import LennardJones
 from ase.filters import Filter, FrechetCellFilter, UnitCellFilter

@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import List
 
 import numpy as np
+
 from ase import Atoms
 from ase.io import ParseError
 from ase.io.formats import string2index

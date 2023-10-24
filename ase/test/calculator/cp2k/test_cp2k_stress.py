@@ -6,6 +6,7 @@ Author: Ole Schuett <ole.schuett@mat.ethz.ch>
 
 import numpy as np
 import pytest
+
 from ase.build import bulk
 from ase.filters import UnitCellFilter
 from ase.optimize import MDMin

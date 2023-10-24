@@ -1,6 +1,7 @@
 import pytest
-from ase.build import fcc111
 from numpy.testing import assert_allclose
+
+from ase.build import fcc111
 
 
 @pytest.mark.calculator_lite

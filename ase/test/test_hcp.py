@@ -1,8 +1,9 @@
 import numpy as np
+from scipy.optimize import fmin_bfgs
+
 from ase.build import bulk
 from ase.calculators.emt import EMT
 from ase.io import Trajectory, read
-from scipy.optimize import fmin_bfgs
 
 
 class NDPoly:

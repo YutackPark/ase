@@ -1,6 +1,7 @@
 from itertools import chain
 
 import numpy as np
+
 from ase import Atoms
 from ase.ga.offspring_creator import OffspringCreator
 

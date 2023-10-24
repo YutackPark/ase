@@ -1,7 +1,8 @@
 """Test to ensure that md logger and trajectory contain same data"""
-import ase.units as u
 import numpy as np
 import pytest
+
+import ase.units as u
 from ase.calculators.tip3p import TIP3P
 from ase.constraints import FixBondLengths
 from ase.data import s22

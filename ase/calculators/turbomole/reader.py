@@ -6,6 +6,7 @@ import subprocess
 import warnings
 
 import numpy as np
+
 from ase import Atom, Atoms
 from ase.calculators.calculator import ReadError
 from ase.units import Bohr, Ha

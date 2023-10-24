@@ -1,6 +1,7 @@
 import os
 
 import pytest
+
 from ase.db import connect
 
 pytestmark = pytest.mark.usefixtures('testdir')

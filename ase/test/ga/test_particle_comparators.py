@@ -1,4 +1,5 @@
 import numpy as np
+
 from ase.cluster import Icosahedron
 from ase.ga.particle_comparator import NNMatComparator
 from ase.ga.particle_mutations import RandomPermutation

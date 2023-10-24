@@ -1,7 +1,8 @@
 """Test runner classes to run exciting simulations using subproces."""
 
-import ase.calculators.exciting.runner
 import pytest
+
+import ase.calculators.exciting.runner
 
 
 @pytest.mark.parametrize(

@@ -2,11 +2,12 @@
 
 import xml.etree.ElementTree as ET
 
+import numpy as np
+import pytest
+
 import ase
 import ase.calculators.exciting.exciting
 import ase.calculators.exciting.runner
-import numpy as np
-import pytest
 
 # Note this is an imitation of an exciting INFO.out output file.
 # We've removed many of the lines of text that were originally in this outfile

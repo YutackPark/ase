@@ -2,6 +2,7 @@
 # https://wiki.openchemistry.org/Chemical_JSON
 import numpy as np
 import pytest
+
 from ase import io
 
 ethane = """{

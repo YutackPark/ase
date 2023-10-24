@@ -4,6 +4,7 @@ from copy import deepcopy
 from subprocess import TimeoutExpired, call
 
 import numpy as np
+
 from ase import Atoms
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.units import Bohr, Debye, Hartree

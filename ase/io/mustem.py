@@ -7,6 +7,7 @@ See https://github.com/HamishGBrown/MuSTEM for the source code of muSTEM.
 """
 
 import numpy as np
+
 from ase.atoms import Atoms, symbols2numbers
 from ase.data import chemical_symbols
 from ase.utils import reader, writer

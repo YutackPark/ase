@@ -26,6 +26,7 @@ import time
 import warnings
 
 import numpy as np
+
 from ase.calculators.calculator import (Calculator, FileIOCalculator,
                                         all_changes, equal,
                                         kptdensity2monkhorstpack)

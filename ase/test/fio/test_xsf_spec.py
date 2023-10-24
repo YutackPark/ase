@@ -2,6 +2,7 @@ from pathlib import Path
 
 import numpy as np
 import numpy.testing as npt
+
 from ase.io import read, write
 
 # This reads and writes XSF examples taken from the

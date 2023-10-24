@@ -1,6 +1,7 @@
 from math import sqrt
 
 import pytest
+
 from ase import Atom, Atoms, io
 from ase.calculators.emt import EMT
 from ase.constraints import FixAtoms

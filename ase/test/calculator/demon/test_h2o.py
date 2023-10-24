@@ -1,6 +1,7 @@
 def test_h2o():
-    import ase.calculators.demon as demon
     import numpy as np
+
+    import ase.calculators.demon as demon
     from ase import Atoms
     from ase.optimize import BFGS
 

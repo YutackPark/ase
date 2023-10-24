@@ -1,10 +1,11 @@
 import numpy as np
+from numpy.linalg import eigh, norm, pinv
+from scipy.linalg import lstsq  # performs better than numpy.linalg.lstsq
+
 from ase import units
 from ase.calculators.calculator import (BaseCalculator, CalculationFailed,
                                         Calculator, CalculatorSetupError,
                                         all_changes)
-from numpy.linalg import eigh, norm, pinv
-from scipy.linalg import lstsq  # performs better than numpy.linalg.lstsq
 
 
 class HarmonicCalculator(BaseCalculator):

@@ -3,6 +3,7 @@ Function-like objects that creates cubic clusters.
 """
 
 import numpy as np
+
 from ase.cluster.compounds import L1_2
 from ase.cluster.cubic import FaceCenteredCubic
 

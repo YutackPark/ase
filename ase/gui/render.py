@@ -1,7 +1,8 @@
 from os import unlink
 
-import ase.gui.ui as ui
 import numpy as np
+
+import ase.gui.ui as ui
 from ase.gui.i18n import _
 from ase.io.pov import get_bondpairs, write_pov
 

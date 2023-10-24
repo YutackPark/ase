@@ -1,4 +1,5 @@
 import pytest
+
 from ase import Atoms
 from ase.calculators.test import FreeElectrons
 from ase.lattice import all_variants

@@ -8,9 +8,10 @@ import os.path as op
 import shutil
 import subprocess
 
+import numpy as np
+
 import ase.data
 import ase.io
-import numpy as np
 from ase.calculators.calculator import (FileIOCalculator, Parameters,
                                         ReadError, all_changes, equal)
 from ase.units import Bohr, Hartree

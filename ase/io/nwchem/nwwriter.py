@@ -6,6 +6,7 @@ from copy import deepcopy
 from typing import List, Optional, Tuple
 
 import numpy as np
+
 from ase.calculators.calculator import KPoints, kpts2kpts
 
 _special_kws = ['center', 'autosym', 'autoz', 'theory', 'basis', 'xc', 'task',

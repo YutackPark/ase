@@ -1,4 +1,5 @@
 import pytest
+
 from ase.build import diamond100
 from ase.constraints import FixAtoms
 from ase.optimize import BFGS

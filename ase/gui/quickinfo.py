@@ -4,6 +4,7 @@
 import warnings
 
 import numpy as np
+
 from ase.gui.i18n import _
 
 ucellformat = """\

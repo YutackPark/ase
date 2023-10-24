@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
 import numpy as np
+
 from ase import Atoms
 from ase.io.xsd import SetChild, _write_xsd_html
 

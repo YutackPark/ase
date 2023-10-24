@@ -11,6 +11,7 @@ https://doi.org/10.1103/PhysRevMaterials.3.034003
 from collections import defaultdict
 
 import numpy as np
+
 from ase.geometry.dimensionality.disjoint_set import DisjointSet
 
 # Numpy has a large overhead for lots of small vectors.  The cross product is

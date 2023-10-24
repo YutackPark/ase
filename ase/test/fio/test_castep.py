@@ -1,9 +1,10 @@
 import re
 import warnings
 
-import ase.build
 import numpy as np
 import pytest
+
+import ase.build
 from ase.io import read, write
 
 

@@ -7,6 +7,7 @@ http://tddft.org/programs/octopus/
 """
 
 import numpy as np
+
 from ase.calculators.genericfileio import (CalculatorTemplate,
                                            GenericFileIOCalculator)
 from ase.io.octopus.input import generate_input, process_special_kwargs

@@ -3,7 +3,7 @@ from typing import IO, Optional, Union
 import numpy as np
 
 from ase import Atoms
-from ase.optimize.sciopt import SciPyOptimizer, OptimizerConvergenceError
+from ase.optimize.sciopt import OptimizerConvergenceError, SciPyOptimizer
 
 
 def ode12r(f, X0, h=None, verbose=1, fmax=1e-6, maxtol=1e3, steps=100,
@@ -200,7 +200,8 @@ class ODE12r(SciPyOptimizer):
         SciPyOptimizer.__init__(self, atoms, logfile, trajectory,
                                 callback_always, alpha, master,
                                 force_consistent)
-        from ase.optimize.precon.precon import make_precon  # avoid circular dep
+        from ase.optimize.precon.precon import \
+            make_precon  # avoid circular dep
         self.precon = make_precon(precon)
         self.verbose = verbose
         self.rtol = rtol

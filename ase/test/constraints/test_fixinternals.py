@@ -1,6 +1,7 @@
 import copy
 
 import pytest
+
 from ase.build import molecule
 from ase.calculators.emt import EMT
 from ase.constraints import FixInternals

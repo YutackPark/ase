@@ -5,11 +5,12 @@ the SingleCalculatorNEB class.
 Intending to be a *true* unittest, by testing small things
 """
 
+from pytest import raises, warns
+
 from ase import Atoms
 from ase.calculators.emt import EMT
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.mep import neb
-from pytest import raises, warns
 
 
 def test_get_neb_method():

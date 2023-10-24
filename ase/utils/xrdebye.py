@@ -11,6 +11,7 @@ X-ray wavelength dict.
 from math import acos, cos, exp, pi, sin, sqrt
 
 import numpy as np
+
 from ase.data import atomic_numbers
 
 # Table (1) of

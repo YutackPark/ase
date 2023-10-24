@@ -1,6 +1,7 @@
 import pickle
 
 import numpy as np
+
 from ase.cell import Cell
 from ase.db.core import bytes_to_object, object_to_bytes
 

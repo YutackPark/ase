@@ -3,6 +3,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 import numpy as np
+
 from ase.utils.filecache import MultiFileJSONCache
 
 description = """

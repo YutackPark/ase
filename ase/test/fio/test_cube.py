@@ -3,6 +3,7 @@ import tempfile
 
 import numpy as np
 import numpy.testing as npt
+
 from ase import Atoms
 from ase.io.cube import ATOMS, DATA, read_cube, read_cube_data, write_cube
 from ase.units import Bohr

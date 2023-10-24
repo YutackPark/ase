@@ -5,6 +5,7 @@ from string import digits
 from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
+
 from ase import Atoms
 from ase.units import Angstrom, Bohr, nm
 

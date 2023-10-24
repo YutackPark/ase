@@ -22,6 +22,7 @@ from glob import glob
 from shutil import which
 
 import numpy as np
+
 from ase import units
 from ase.calculators.calculator import (EnvironmentError, FileIOCalculator,
                                         all_changes)

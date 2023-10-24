@@ -1,5 +1,6 @@
 def test_dmol():
     import numpy as np
+
     from ase.build import bulk, molecule
     from ase.calculators.dmol import find_transformation
     from ase.io import read, write

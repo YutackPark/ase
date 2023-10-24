@@ -1,6 +1,7 @@
 import itertools
 
 import numpy as np
+
 from ase.cell import Cell
 from ase.utils import pbc2pbc
 

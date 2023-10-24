@@ -1,6 +1,7 @@
 import warnings
 
 import numpy as np
+
 from ase.build import bulk
 from ase.calculators.emt import EMT
 from ase.io import read, write

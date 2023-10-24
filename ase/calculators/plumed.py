@@ -1,6 +1,7 @@
 from os.path import exists
 
 import numpy as np
+
 from ase.calculators.calculator import Calculator, all_changes
 from ase.io.trajectory import Trajectory
 from ase.parallel import broadcast, world

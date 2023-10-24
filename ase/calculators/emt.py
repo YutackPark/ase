@@ -3,6 +3,7 @@
 from math import exp, log, sqrt
 
 import numpy as np
+
 from ase.calculators.calculator import (Calculator,
                                         PropertyNotImplementedError,
                                         all_changes)

@@ -1,6 +1,7 @@
 import optparse
 
 import numpy as np
+
 from ase.calculators.calculator import get_calculator_class
 from ase.data import covalent_radii
 from ase.data.colors import cpk_colors

@@ -1,6 +1,7 @@
 # type: ignore
 import numpy as np
 import pytest
+
 from ase.build import molecule
 from ase.calculators.turbomole import Turbomole, TurbomoleOptimizer
 

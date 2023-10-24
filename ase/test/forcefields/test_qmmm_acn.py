@@ -1,5 +1,6 @@
-import ase.units as units
 import numpy as np
+
+import ase.units as units
 from ase import Atoms
 from ase.calculators.acn import (ACN, epsilon_c, epsilon_me, epsilon_n, m_me,
                                  r_cn, r_mec, sigma_c, sigma_me, sigma_n)

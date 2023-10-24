@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from ase.quaternions import Quaternion
 
 TEST_N = 200

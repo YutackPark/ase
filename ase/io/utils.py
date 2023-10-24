@@ -3,6 +3,7 @@ from math import sqrt
 from typing import IO
 
 import numpy as np
+
 from ase.data import atomic_numbers, covalent_radii
 from ase.data.colors import jmol_colors
 from ase.io.formats import string2index

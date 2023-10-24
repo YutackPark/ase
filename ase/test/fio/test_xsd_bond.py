@@ -6,6 +6,7 @@ def test_xsd_bond():
     from collections import OrderedDict
 
     import numpy as np
+
     from ase import Atoms
     from ase.io import write
 

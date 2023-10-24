@@ -8,11 +8,12 @@ and assert we find expected values.
 import io
 import re
 
+# Third party imports.
+import pytest
+
 import ase.build
 import ase.calculators.aims
 import ase.io.aims
-# Third party imports.
-import pytest
 
 
 @pytest.fixture

@@ -5,6 +5,7 @@ The following lattice creator is defined:
 """
 
 import numpy as np
+
 from ase.data import reference_states as _refstate
 from ase.lattice.bravais import Bravais
 

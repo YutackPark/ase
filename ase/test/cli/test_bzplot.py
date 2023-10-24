@@ -1,4 +1,5 @@
 import pytest
+
 from ase import Atoms
 from ase.build import bulk, fcc111
 from ase.io import write

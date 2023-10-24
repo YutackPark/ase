@@ -1,6 +1,7 @@
 import pytest
-from ase.build import molecule
 from numpy.testing import assert_allclose
+
+from ase.build import molecule
 
 
 @pytest.fixture()

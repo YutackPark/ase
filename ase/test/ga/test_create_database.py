@@ -1,6 +1,7 @@
 import os
 
 import numpy as np
+
 from ase.build import fcc111
 from ase.ga.data import DataConnection, PrepareDB
 

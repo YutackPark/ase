@@ -8,6 +8,8 @@ import re
 import warnings
 from copy import deepcopy
 
+import numpy as np
+
 import ase
 # independent unit management included here:
 # When high accuracy is required, this allows to easily pin down
@@ -16,7 +18,6 @@ import ase
 #
 # ase.units in in ase-3.6.0.2515 is based on CODATA1986
 import ase.units
-import numpy as np
 from ase.constraints import FixAtoms, FixCartesian, FixedLine, FixedPlane
 from ase.geometry.cell import cellpar_to_cell
 from ase.parallel import paropen

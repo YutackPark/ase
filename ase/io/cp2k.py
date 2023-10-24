@@ -18,6 +18,7 @@ import os
 from itertools import islice
 
 import numpy as np
+
 from ase.atoms import Atom, Atoms
 from ase.cell import Cell
 from ase.data import atomic_numbers

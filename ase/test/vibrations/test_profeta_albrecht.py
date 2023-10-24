@@ -4,6 +4,7 @@ Test Placzek and Albrecht resonant Raman implementations
 from pathlib import Path
 
 import pytest
+
 from ase.calculators.h2morse import (H2Morse, H2MorseExcitedStates,
                                      H2MorseExcitedStatesCalculator)
 from ase.vibrations.albrecht import Albrecht

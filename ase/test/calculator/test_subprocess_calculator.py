@@ -2,6 +2,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+
 from ase.build import bulk, molecule
 from ase.calculators.emt import EMT
 from ase.calculators.subprocesscalculator import NamedPackedCalculator

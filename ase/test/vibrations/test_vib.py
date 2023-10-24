@@ -2,16 +2,17 @@
 import os
 from pathlib import Path
 
-import ase.io
 import numpy as np
 import pytest
+from numpy.testing import assert_array_almost_equal
+
+import ase.io
 from ase import Atoms, units
 from ase.build import add_adsorbate, fcc111
 from ase.calculators.qmmm import ForceConstantCalculator
 from ase.constraints import FixAtoms, FixCartesian
 from ase.thermochemistry import IdealGasThermo
 from ase.vibrations import Vibrations, VibrationsData
-from numpy.testing import assert_array_almost_equal
 
 
 @pytest.fixture

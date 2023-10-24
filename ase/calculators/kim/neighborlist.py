@@ -2,9 +2,10 @@ from collections import defaultdict
 
 import kimpy
 import numpy as np
+from kimpy import neighlist
+
 from ase import Atom
 from ase.neighborlist import neighbor_list
-from kimpy import neighlist
 
 from .kimpy_wrappers import c_double, c_int, check_call_wrapper
 

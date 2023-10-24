@@ -5,6 +5,7 @@ Atoms object in V_Sim 3.5+ ascii format.
 """
 
 import numpy as np
+
 from ase.utils import reader, writer
 
 

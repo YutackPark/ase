@@ -22,6 +22,7 @@ import subprocess
 import warnings
 
 import numpy as np
+
 from ase.calculators.openmx.reader import rn as read_nth_to_last_value
 
 

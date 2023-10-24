@@ -1,6 +1,7 @@
 import pytest
-from ase.build import bulk
 from numpy.testing import assert_allclose
+
+from ase.build import bulk
 
 
 @pytest.mark.calculator_lite

@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from ase.atoms import Atoms
 from ase.calculators.calculator import compare_atoms
 from ase.io.orca import read_geom_orcainp, read_orca_outputs, write_orca

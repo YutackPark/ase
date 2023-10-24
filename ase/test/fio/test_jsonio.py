@@ -2,6 +2,7 @@ import io
 from datetime import datetime
 
 import numpy as np
+
 from ase.io.jsonio import decode, encode, read_json, write_json
 
 

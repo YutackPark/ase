@@ -1,5 +1,6 @@
-import ase
 import pytest
+
+import ase
 from ase.calculators.lj import LennardJones
 from ase.constraints import FixBondLength
 from ase.optimize import FIRE

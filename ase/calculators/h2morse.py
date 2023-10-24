@@ -1,6 +1,7 @@
 from itertools import count
 
 import numpy as np
+
 from ase import Atoms
 from ase.calculators.calculator import all_changes
 from ase.calculators.excitation_list import Excitation, ExcitationList

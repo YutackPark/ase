@@ -4,6 +4,7 @@ from io import StringIO
 from pathlib import Path
 
 import numpy as np
+
 from ase.io import read
 from ase.units import Bohr, Hartree
 from ase.utils import reader, writer

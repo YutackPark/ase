@@ -4,6 +4,7 @@ import re
 from typing import IO, Generator, Iterable, List, Optional, Tuple, Union
 
 import numpy as np
+
 from ase.atoms import Atoms
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.data import chemical_symbols

@@ -5,6 +5,7 @@ https://wiki.openchemistry.org/Chemical_JSON
 import json
 
 import numpy as np
+
 from ase import Atoms
 from ase.cell import Cell
 

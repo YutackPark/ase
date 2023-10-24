@@ -3,6 +3,7 @@ from io import StringIO
 
 import numpy as np
 import pytest
+
 from ase.io.proteindatabank import read_proteindatabank
 
 header1 = """

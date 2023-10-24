@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Union
 
 import numpy as np
+
 from ase.calculators.abc import GetPropertiesMixin
 from ase.cell import Cell
 from ase.outputs import Properties, all_outputs

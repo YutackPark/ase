@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from ase import Atoms, io
 from ase.calculators.lj import LennardJones
 from ase.io import read

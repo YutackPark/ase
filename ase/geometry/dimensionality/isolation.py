@@ -13,6 +13,7 @@ import collections
 import itertools
 
 import numpy as np
+
 from ase import Atoms
 from ase.geometry.cell import complete_cell
 from ase.geometry.dimensionality import (analyze_dimensionality,

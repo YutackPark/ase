@@ -1,5 +1,6 @@
 # flake8: noqa
 import numpy as np
+
 from ase.transport.calculators import TransportCalculator
 
 # Aux. function to write data to a text file.

@@ -1,6 +1,7 @@
 import os.path as op
 
 import numpy as np
+
 from ase.calculators.calculator import ReadError
 from ase.units import Hartree
 

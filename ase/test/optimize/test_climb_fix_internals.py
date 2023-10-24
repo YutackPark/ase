@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from ase.build import add_adsorbate, fcc100
 from ase.calculators.emt import EMT
 from ase.constraints import FixAtoms, FixInternals

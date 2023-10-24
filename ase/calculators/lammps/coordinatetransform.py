@@ -3,6 +3,7 @@ import warnings
 from typing import Sequence
 
 import numpy as np
+
 from ase.geometry import wrap_positions
 
 

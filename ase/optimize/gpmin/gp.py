@@ -1,6 +1,7 @@
 import numpy as np
+from scipy.linalg import cho_factor, cho_solve, solve_triangular
 from scipy.optimize import minimize
-from scipy.linalg import solve_triangular, cho_factor, cho_solve
+
 from ase.optimize.gpmin.kernel import SquaredExponential
 from ase.optimize.gpmin.prior import ZeroPrior
 

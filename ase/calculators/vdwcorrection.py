@@ -1,12 +1,13 @@
 """van der Waals correction schemes for DFT"""
 import numpy as np
+from scipy.special import erfc, erfinv
+
 from ase.calculators.calculator import Calculator
 from ase.calculators.polarizability import StaticPolarizabilityCalculator
 from ase.neighborlist import neighbor_list
 from ase.parallel import myslice, world
 from ase.units import Bohr, Hartree
 from ase.utils import IOContext
-from scipy.special import erfc, erfinv
 
 # dipole polarizabilities and C6 values from
 # X. Chu and A. Dalgarno, J. Chem. Phys. 121 (2004) 4083

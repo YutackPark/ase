@@ -2,6 +2,7 @@ from math import cos, sin, sqrt
 from os.path import basename
 
 import numpy as np
+
 from ase.calculators.calculator import PropertyNotImplementedError
 from ase.data import atomic_numbers
 from ase.data.colors import jmol_colors

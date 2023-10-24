@@ -1,11 +1,11 @@
-from math import sin, cos, pi
+from math import cos, pi, sin
 
 from ase import Atoms
-from ase.build import fcc111, fcc100, add_adsorbate
-from ase.db import connect
-from ase.constraints import FixAtoms
-from ase.lattice.cubic import FaceCenteredCubic
+from ase.build import add_adsorbate, fcc100, fcc111
 from ase.cluster import wulff_construction
+from ase.constraints import FixAtoms
+from ase.db import connect
+from ase.lattice.cubic import FaceCenteredCubic
 
 
 def get_systems():

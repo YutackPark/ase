@@ -7,6 +7,7 @@ def test_hookean():
     """
 
     import numpy as np
+
     from ase import Atom, Atoms, units
     from ase.build import fcc110
     from ase.calculators.emt import EMT

@@ -4,13 +4,14 @@
 import ctypes
 
 import numpy as np
+from numpy.linalg import norm
+
 from ase.calculators.calculator import Calculator
 from ase.calculators.lammps import convert
 from ase.data import atomic_masses as ase_atomic_masses
 from ase.data import atomic_numbers as ase_atomic_numbers
 from ase.data import chemical_symbols as ase_chemical_symbols
 from ase.geometry import wrap_positions
-from numpy.linalg import norm
 
 # TODO
 # 1. should we make a new lammps object each time ?

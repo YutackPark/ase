@@ -8,8 +8,9 @@ Authors: Simone Sturniolo (ase implementation), Tim Green (original magres
 import re
 from collections import OrderedDict
 
-import ase.units
 import numpy as np
+
+import ase.units
 from ase.atoms import Atoms
 from ase.calculators.singlepoint import SinglePointDFTCalculator
 from ase.spacegroup import Spacegroup

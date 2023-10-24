@@ -2,6 +2,7 @@ from math import cos, pi, sqrt
 
 import numpy as np
 import pytest
+
 from ase import Atoms, data
 from ase.lattice.cubic import FaceCenteredCubic
 

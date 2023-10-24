@@ -1,6 +1,7 @@
 import re
 
 import numpy as np
+
 from ase.units import Angstrom, Bohr, Debye, Hartree, eV
 
 

@@ -5,6 +5,7 @@ import warnings
 from typing import Tuple
 
 import numpy as np
+
 from ase import __version__
 from ase.atoms import Atoms
 from ase.calculators.calculator import PropertyNotImplementedError

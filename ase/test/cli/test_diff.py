@@ -1,6 +1,7 @@
 import re
 
 import pytest
+
 from ase.build import add_adsorbate, fcc100
 from ase.calculators.emt import EMT
 from ase.cli.template import (MapFormatter, Table, TableFormat, prec_round,

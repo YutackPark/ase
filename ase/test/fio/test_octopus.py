@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from ase.build import bulk, fcc111, molecule
 from ase.io.octopus.input import atoms2kwargs
 from ase.units import Bohr

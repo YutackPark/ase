@@ -4,9 +4,10 @@ import zlib
 from pathlib import Path
 from subprocess import PIPE, Popen, check_output
 
-import ase
 import numpy as np
 import pytest
+
+import ase
 from ase.dependencies import all_dependencies
 from ase.test.factories import (CalculatorInputs, NoSuchCalculator,
                                 factory_classes, get_factories,

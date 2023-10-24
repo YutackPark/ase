@@ -5,9 +5,10 @@
 
 from pathlib import Path
 
-import ase.io
 import numpy as np
 import pytest
+
+import ase.io
 from ase.atoms import Atoms
 from ase.build import bulk, molecule
 from ase.calculators.calculator import compare_atoms

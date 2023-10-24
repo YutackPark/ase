@@ -9,12 +9,13 @@ from math import pi, sqrt
 from time import time
 
 import numpy as np
+from scipy.linalg import qr
+
 from ase.dft.bandgap import bandgap
 from ase.dft.kpoints import get_monkhorst_pack_size_and_offset
 from ase.io.jsonio import read_json, write_json
 from ase.parallel import paropen
 from ase.transport.tools import dagger, normalize
-from scipy.linalg import qr
 
 dag = dagger
 

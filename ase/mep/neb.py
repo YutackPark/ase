@@ -4,8 +4,11 @@ import time
 import warnings
 from abc import ABC, abstractmethod
 
-import ase.parallel
 import numpy as np
+from scipy.integrate import cumtrapz
+from scipy.interpolate import CubicSpline
+
+import ase.parallel
 from ase.build import minimize_rotation_and_translation
 from ase.calculators.calculator import Calculator
 from ase.calculators.singlepoint import SinglePointCalculator
@@ -17,8 +20,6 @@ from ase.optimize.precon import Precon, PreconImages
 from ase.optimize.sciopt import OptimizerConvergenceError
 from ase.utils import deprecated, lazyproperty
 from ase.utils.forcecurve import fit_images
-from scipy.integrate import cumtrapz
-from scipy.interpolate import CubicSpline
 
 
 class Spring:

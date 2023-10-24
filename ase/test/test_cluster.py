@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from ase.cluster.decahedron import Decahedron
 from ase.cluster.icosahedron import Icosahedron
 from ase.cluster.octahedron import Octahedron

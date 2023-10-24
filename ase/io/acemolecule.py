@@ -1,5 +1,6 @@
-import ase.units
 import numpy as np
+
+import ase.units
 from ase.atoms import Atoms
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.data import chemical_symbols

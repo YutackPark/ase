@@ -1,6 +1,7 @@
 from typing import List, Optional
 
 import numpy as np
+
 from ase.cluster.base import ClusterBase
 from ase.cluster.cluster import Cluster
 from ase.data import atomic_numbers as ref_atomic_numbers

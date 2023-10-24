@@ -77,6 +77,7 @@ import os
 import re
 
 import numpy as np
+
 from ase import Atoms
 from ase.calculators.calculator import FileIOCalculator, Parameters, ReadError
 from ase.io import read

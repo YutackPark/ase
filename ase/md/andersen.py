@@ -1,10 +1,11 @@
 """Andersen dynamics class."""
 from typing import IO, Optional, Union
 
+from numpy import cos, log, ones, pi, random, repeat
+
 from ase import Atoms, units
 from ase.md.md import MolecularDynamics
 from ase.parallel import DummyMPI, world
-from numpy import cos, log, ones, pi, random, repeat
 
 
 class Andersen(MolecularDynamics):

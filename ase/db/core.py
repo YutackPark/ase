@@ -9,6 +9,7 @@ from time import time
 from typing import Any, Dict, List
 
 import numpy as np
+
 from ase.atoms import Atoms
 from ase.calculators.calculator import all_changes, all_properties
 from ase.data import atomic_numbers

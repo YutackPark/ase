@@ -1,5 +1,7 @@
 import numpy as np
 import pytest
+from numpy.testing import assert_array_almost_equal
+
 from ase import Atoms
 from ase.calculators.calculator import CalculationFailed, CalculatorSetupError
 from ase.calculators.emt import EMT
@@ -7,7 +9,6 @@ from ase.calculators.harmonic import HarmonicCalculator, HarmonicForceField
 from ase.optimize import BFGS
 from ase.units import fs
 from ase.vibrations import Vibrations
-from numpy.testing import assert_array_almost_equal
 
 ref_pos = np.asarray([[8.7161, 7.96276, 8.48206], [8.60594, 8.04985, 9.44464],
                       [8.0154, 8.52264, 8.10545]])

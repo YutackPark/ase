@@ -1,4 +1,5 @@
 import pytest
+
 from ase.utils import (deprecated, devnull,
                        get_python_package_path_description, tokenize_version)
 

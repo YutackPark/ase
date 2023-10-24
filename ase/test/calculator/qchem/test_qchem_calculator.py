@@ -1,5 +1,6 @@
 def test_qchem_calculator():
     import numpy as np
+
     from ase.build import molecule
     from ase.calculators.qchem import QChem
     from ase.optimize import LBFGS

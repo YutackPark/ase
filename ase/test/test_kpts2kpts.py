@@ -1,4 +1,5 @@
 import pytest
+
 from ase import Atoms
 from ase.calculators.calculator import kpts2kpts
 from ase.lattice import all_variants

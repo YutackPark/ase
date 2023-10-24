@@ -5,6 +5,7 @@ def test_mixingcalc():
     """
     import numpy as np
     import pytest
+
     from ase.build import fcc111
     from ase.calculators.calculator import CalculatorSetupError
     from ase.calculators.emt import EMT

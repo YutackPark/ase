@@ -1,6 +1,7 @@
 from math import acos, pi, sqrt
 
 import numpy as np
+
 from ase.data import atomic_names as names
 from ase.data import chemical_symbols as symbols
 from ase.gui.i18n import _

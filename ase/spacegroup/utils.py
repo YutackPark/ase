@@ -1,6 +1,7 @@
 from typing import List
 
 import numpy as np
+
 from ase import Atoms
 
 from .spacegroup import _SPACEGROUP, Spacegroup

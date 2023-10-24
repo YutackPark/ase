@@ -1,7 +1,8 @@
 import os
 
-import ase.gui.ui as ui
 import numpy as np
+
+import ase.gui.ui as ui
 from ase import Atoms
 from ase.data import atomic_numbers, chemical_symbols
 from ase.gui.i18n import _

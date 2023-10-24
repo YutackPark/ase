@@ -1,4 +1,5 @@
 import pytest
+
 from ase import Atoms
 from ase.calculators.lj import LennardJones
 from ase.mep import NEB, NEBTools, idpp_interpolate

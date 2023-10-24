@@ -2,6 +2,7 @@ import re
 from collections import OrderedDict
 
 import numpy as np
+
 from ase import Atoms
 from ase.calculators.singlepoint import (SinglePointDFTCalculator,
                                          SinglePointKPoint)

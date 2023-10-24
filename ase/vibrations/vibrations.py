@@ -5,9 +5,10 @@ from collections import namedtuple
 from math import log, pi, sqrt
 from pathlib import Path
 
+import numpy as np
+
 import ase.io
 import ase.units as units
-import numpy as np
 from ase.parallel import paropen, world
 from ase.utils.filecache import get_json_cache
 

@@ -1,4 +1,5 @@
 import numpy as np
+
 from ase import Atoms
 from ase.calculators.calculator import kpts2sizeandoffsets as k2so
 

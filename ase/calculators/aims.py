@@ -11,6 +11,7 @@ import os
 import re
 
 import numpy as np
+
 from ase.calculators.genericfileio import (CalculatorTemplate,
                                            GenericFileIOCalculator)
 from ase.io.aims import write_aims, write_control

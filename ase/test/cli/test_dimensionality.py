@@ -1,5 +1,6 @@
-import ase.build
 import pytest
+
+import ase.build
 from ase.io import write
 
 

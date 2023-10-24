@@ -1,4 +1,5 @@
 import pytest
+
 from ase.build import bulk
 
 calc = pytest.mark.calculator

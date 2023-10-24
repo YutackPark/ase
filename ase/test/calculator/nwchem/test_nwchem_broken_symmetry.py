@@ -1,7 +1,8 @@
 """Check if we can deal with spin-broken symmetries."""
 import pytest
-from ase import Atoms
 from numpy import array
+
+from ase import Atoms
 
 
 @pytest.mark.calculator('nwchem')

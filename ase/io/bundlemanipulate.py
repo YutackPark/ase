@@ -19,6 +19,7 @@ import os
 from typing import Optional
 
 import numpy as np
+
 from ase.io.bundletrajectory import UlmBundleBackend
 
 

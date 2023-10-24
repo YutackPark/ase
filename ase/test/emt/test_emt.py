@@ -1,5 +1,6 @@
 def test_emt():
     import numpy as np
+
     from ase import Atoms
     from ase.calculators.emt import EMT
 

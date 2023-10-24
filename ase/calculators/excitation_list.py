@@ -1,4 +1,5 @@
 import numpy as np
+
 from ase.units import Bohr, Hartree
 
 

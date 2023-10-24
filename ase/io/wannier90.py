@@ -2,6 +2,7 @@
 from typing import IO, Any, Dict
 
 import numpy as np
+
 from ase import Atoms
 
 

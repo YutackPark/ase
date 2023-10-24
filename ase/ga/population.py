@@ -4,6 +4,7 @@ from math import exp, sqrt, tanh
 from operator import itemgetter
 
 import numpy as np
+
 from ase.db.core import now
 from ase.ga import get_raw_score
 

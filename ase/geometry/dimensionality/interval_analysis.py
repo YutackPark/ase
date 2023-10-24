@@ -10,6 +10,7 @@ https://doi.org/10.1103/PhysRevMaterials.3.034003
 from collections import namedtuple
 
 import numpy as np
+
 from ase.geometry.dimensionality import rank_determination, topology_scaling
 from ase.geometry.dimensionality.bond_generator import next_bond
 

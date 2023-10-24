@@ -2,6 +2,7 @@
 from math import cos, pi, sin
 
 import numpy as np
+
 from ase import Atoms
 from ase.calculators.lammpslib import convert_cell
 from ase.cell import Cell

@@ -9,11 +9,11 @@ import time
 from typing import IO, Optional, Union
 
 import numpy as np
-from numpy import eye, absolute, sqrt, isinf
+from numpy import absolute, eye, isinf, sqrt
 
 from ase import Atoms
-from ase.utils.linesearch import LineSearch
 from ase.optimize.optimize import Optimizer
+from ase.utils.linesearch import LineSearch
 
 # These have been copied from Numeric's MLab.py
 # I don't think they made the transition to scipy_core

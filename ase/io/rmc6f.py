@@ -2,6 +2,7 @@ import re
 import time
 
 import numpy as np
+
 from ase.atoms import Atoms
 from ase.cell import Cell
 from ase.utils import reader, writer
