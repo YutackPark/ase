@@ -104,3 +104,11 @@ def test_optimize(optcls, atoms, ref_atoms, kwargs):
 
     assert final_fmax < fmax
     assert e_err < 1.75e-5  # (This tolerance is arbitrary)
+
+
+def test_unconverged(optcls, atoms, kwargs):
+    """Test if things work properly when forces are not converged."""
+    fmax = 1e-9  # small value to not get converged
+    with optcls(atoms, **kwargs) as opt:
+        opt.run(fmax=fmax, steps=1)  # only one step to not get converged
+    assert not opt.converged()
