@@ -204,6 +204,12 @@ Calculators:
 * :class:`ase.calculators.nwchem.NWChem` added support for
   direct and RI-MP2 computations.
 
+Algorithms:
+
+* Change :func:`ase.optimize.optimize.Dynamics.irun` so that it yields its
+  convergence status *after* logging and dumping for the corresponding step
+  (:mr:`3072`)
+
 Optimizers:
 
 * Add :class:`ase.optimize.climbfixinternals.ClimbFixInternals` class for
