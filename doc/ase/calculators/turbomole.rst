@@ -282,6 +282,7 @@ geometry optimization iterations   int         None           None          True
                             task   str       energy           None          True
                            title   str           ''           None         False
                     total charge   int            0           None         False
+               transition vector   int         None           None          True
                              uhf  bool         None           None         False
            use basis set library  bool         True           None         False
                          use dft  bool         True           None         False
