@@ -91,7 +91,8 @@ def test_optimize(optcls, atoms, ref_atoms, kwargs):
     """Test if forces can be converged using the optimizer."""
     fmax = 0.01
     with optcls(atoms, **kwargs) as opt:
-        opt.run(fmax=fmax)
+        is_converged = opt.run(fmax=fmax)
+    assert is_converged  # check if opt.run() returns True when converged
 
     forces = atoms.get_forces()
     final_fmax = max((forces**2).sum(axis=1) ** 0.5)
