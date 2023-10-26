@@ -128,35 +128,31 @@ class Dynamics(IOContext):
         >>> for _ in opt2:
         >>>     opt1.run()
         """
-
-        # compute initial structure and log the first step
+        # compute the initial step
         self.atoms.get_forces()
 
-        # yield the first time to inspect before logging
-        yield False
-
+        # log the initial step
         if self.nsteps == 0:
             self.log()
             self.call_observers()
 
+        # check convergence
         is_converged = self.converged()
+        yield is_converged
 
         # run the algorithm until converged or max_steps reached
         while not is_converged and self.nsteps < self.max_steps:
-
             # compute the next step
             self.step()
             self.nsteps += 1
 
-            is_converged = self.converged()
-
-            # let the user inspect the step and change things before logging
-            # and predicting the next step
-            yield is_converged
-
             # log the step
             self.log()
             self.call_observers()
+
+            # check convergence
+            is_converged = self.converged()
+            yield is_converged
 
     def run(self):
         """Run dynamics algorithm.
