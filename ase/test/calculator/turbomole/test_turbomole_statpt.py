@@ -36,7 +36,7 @@ def test_turbomole_statpt():
     assert calc.converged
     assert atoms is not calc.atoms
     dist_mat = calc.atoms.get_all_distances()[np.triu_indices(len(atoms), k=1)]
-    assert assert_allclose(dist_mat, dist_mat_ref)
+    assert_allclose(dist_mat, dist_mat_ref)
 
     calc = Turbomole(**{'task': 'frequencies', 'restart': True})
     calc.calculate()
