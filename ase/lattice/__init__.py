@@ -74,6 +74,8 @@ class BravaisLattice(ABC):
     def variant(self) -> str:
         """Return name of lattice variant.
 
+        >>> from ase.lattice import BCT
+
         >>> BCT(3, 5).variant
         'BCT2'
         """
@@ -118,6 +120,8 @@ class BravaisLattice(ABC):
     @property
     def special_point_names(self) -> List[str]:
         """Return all special point names as a list of strings.
+
+        >>> from ase.lattice import BCT
 
         >>> BCT(3, 5).special_point_names
         ['G', 'N', 'P', 'S', 'S1', 'X', 'Y', 'Y1', 'Z']
@@ -168,6 +172,8 @@ class BravaisLattice(ABC):
         """Return a :class:`~ase.dft.kpoints.BandPath` for this lattice.
 
         See :meth:`ase.cell.Cell.bandpath` for description of parameters.
+
+        >>> from ase.lattice import BCT
 
         >>> BCT(3, 5).bandpath()
         BandPath(path='GXYSGZS1NPY1Z,XP', cell=[3x3], \

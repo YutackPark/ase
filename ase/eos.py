@@ -367,6 +367,8 @@ def calculate_eos(atoms, npoints=5, eps=0.04, trajectory=None, callback=None):
 
     >>> from ase.build import bulk
     >>> from ase.calculators.emt import EMT
+    >>> from ase.eos import calculate_eos
+
     >>> a = bulk('Cu', 'fcc', a=3.6)
     >>> a.calc = EMT()
     >>> eos = calculate_eos(a, trajectory='Cu.traj')

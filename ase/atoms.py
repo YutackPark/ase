@@ -103,6 +103,8 @@ class Atoms:
 
     These three are equivalent:
 
+    >>> from ase import Atom
+
     >>> d = 1.104  # N2 bondlength
     >>> a = Atoms('N2', [(0, 0, 0), (0, 0, d)])
     >>> a = Atoms(numbers=[7, 7], positions=[(0, 0, 0), (0, 0, d)])

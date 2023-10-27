@@ -180,6 +180,9 @@ class FixAtoms(IndexedConstraint):
     --------
     Fix all Copper atoms:
 
+    >>> from ase.build import bulk
+
+    >>> atoms = bulk('Cu', 'fcc', a=3.6)
     >>> mask = (atoms.symbols == 'Cu')
     >>> c = FixAtoms(mask=mask)
     >>> atoms.set_constraint(c)
@@ -679,11 +682,14 @@ class FixedPlane(IndexedConstraint):
         --------
         Fix all Copper atoms to only move in the yz-plane:
 
+        >>> from ase.build import bulk
         >>> from ase.constraints import FixedPlane
+
+        >>> atoms = bulk('Cu', 'fcc', a=3.6)
         >>> c = FixedPlane(
-        >>>     indices=[atom.index for atom in atoms if atom.symbol == 'Cu'],
-        >>>     direction=[1, 0, 0],
-        >>> )
+        ...     indices=[atom.index for atom in atoms if atom.symbol == 'Cu'],
+        ...     direction=[1, 0, 0],
+        ... )
         >>> atoms.set_constraint(c)
 
         or constrain a single atom with the index 0 to move in the xy-plane:
@@ -744,9 +750,9 @@ class FixedLine(IndexedConstraint):
 
         >>> from ase.constraints import FixedLine
         >>> c = FixedLine(
-        >>>     indices=[atom.index for atom in atoms if atom.symbol == 'Cu'],
-        >>>     direction=[1, 0, 0],
-        >>> )
+        ...     indices=[atom.index for atom in atoms if atom.symbol == 'Cu'],
+        ...     direction=[1, 0, 0],
+        ... )
         >>> atoms.set_constraint(c)
 
         or constrain a single atom with the index 0 to move in the z-direction:
@@ -1927,6 +1933,11 @@ class ExternalForce(FixConstraint):
     sure that *ExternalForce* comes first in the list if there are overlaps
     between atom1-2 and atom3-4:
 
+    >>> from ase.build import bulk
+
+    >>> atoms = bulk('Cu', 'fcc', a=3.6)
+    >>> atom1, atom2, atom3, atom4 = atoms[:4]
+    >>> fext = 1.0
     >>> con1 = ExternalForce(atom1, atom2, f_ext)
     >>> con2 = FixBondLength(atom3, atom4)
     >>> atoms.set_constraint([con1, con2])
@@ -2008,6 +2019,10 @@ class MirrorForce(FixConstraint):
     sure that *MirrorForce* comes first in the list if there are overlaps
     between atom1-2 and atom3-4:
 
+    >>> from ase.build import bulk
+
+    >>> atoms = bulk('Cu', 'fcc', a=3.6)
+    >>> atom1, atom2, atom3, atom4 = atoms[:4]
     >>> con1 = MirrorForce(atom1, atom2)
     >>> con2 = FixBondLength(atom3, atom4)
     >>> atoms.set_constraint([con1, con2])
@@ -2123,6 +2138,10 @@ class MirrorTorque(FixConstraint):
     sure that *MirrorTorque* comes first in the list if there are overlaps
     between atom1-4 and atom5-6:
 
+    >>> from ase.build import bulk
+
+    >>> atoms = bulk('Cu', 'fcc', a=3.6)
+    >>> atom1, atom2, atom3, atom4, atom5, atom6 = atoms[:6]
     >>> con1 = MirrorTorque(atom1, atom2, atom3, atom4)
     >>> con2 = FixBondLength(atom5, atom6)
     >>> atoms.set_constraint([con1, con2])
