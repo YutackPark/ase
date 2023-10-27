@@ -1,8 +1,8 @@
 import importlib.util
-import os
 import shutil
 
 from ase.calculators.calculator import names
+from ase.config import cfg
 
 builtins = {'eam', 'emt', 'ff', 'lj', 'morse', 'tip3p', 'tip4p'}
 
@@ -54,8 +54,8 @@ def detect(name):
             return d
 
     envvar = get_executable_env_var(name)
-    if envvar in os.environ:
-        d['command'] = os.environ[envvar]
+    if envvar in cfg:
+        d['command'] = cfg[envvar]
         d['envvar'] = envvar
         d['type'] = 'environment'
         return d
