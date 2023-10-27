@@ -43,9 +43,8 @@ class Symbols(collections.abc.Sequence):
     Symbols('C2OH6')
     >>> atoms.symbols[:3]
     Symbols('C2O')
-    >>> atoms.symbols == 'H'
-    array([False, False, False,  True,  True,  True,  True,  True,  True], \
-dtype=bool)
+    >>> atoms.symbols == 'H'  # doctest: +ELLIPSIS
+    array([False, False, False,  True,  True,  True,  True,  True,  True]...)
     >>> atoms.symbols[-3:] = 'Pu'
     >>> atoms.symbols
     Symbols('C2OH3Pu3')

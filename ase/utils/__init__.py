@@ -80,6 +80,8 @@ def seterr(**kwargs):
 def plural(n, word):
     """Use plural for n!=1.
 
+    >>> from ase.utils import plural
+
     >>> plural(0, 'egg'), plural(1, 'egg'), plural(2, 'egg')
     ('0 eggs', '1 egg', '2 eggs')
     """
