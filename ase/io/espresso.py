@@ -165,8 +165,8 @@ def read_espresso_out(fileobj, index=slice(None), results_required=True):
         for config_index, config_index_next in zip(
                 all_config_indexes,
                 all_config_indexes[1:] + [len(pwo_lines)]):
-            if any([config_index < results_index < config_index_next
-                    for results_index in results_indexes]):
+            if any(config_index < results_index < config_index_next
+                    for results_index in results_indexes):
                 results_config_indexes.append(config_index)
 
         # slice from the subset
@@ -1742,7 +1742,7 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
         pwi.append('K_POINTS crystal_b\n')
         assert hasattr(kgrid, 'path') or 'path' in kgrid
         kgrid = kpts2ndarray(kgrid, atoms=atoms)
-        pwi.append('%s\n' % len(kgrid))
+        pwi.append(f'{len(kgrid)}\n')
         for k in kgrid:
             pwi.append('{k[0]:.14f} {k[1]:.14f} {k[2]:.14f} 0\n'.format(k=k))
         pwi.append('\n')

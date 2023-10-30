@@ -573,11 +573,11 @@ def write_magres(fd, image):
 
         if 'lattice' in data:
             for lat in data['lattice']:
-                out.append("  lattice %s" % tensor_string(lat))
+                out.append(f"  lattice {tensor_string(lat)}")
 
         if 'symmetry' in data:
             for sym in data['symmetry']:
-                out.append('  symmetry %s' % sym)
+                out.append(f'  symmetry {sym}')
 
         if 'atom' in data:
             for a in data['atom']:

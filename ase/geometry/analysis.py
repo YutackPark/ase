@@ -615,7 +615,7 @@ class Analysis:
                 for idx in self._get_symbol_idxs(image, elements):
                     tmp_image.append(image[idx])
             # lists
-            elif isinstance(elements, list) or isinstance(elements, tuple):
+            elif isinstance(elements, (list, tuple)):
                 # list of ints
                 if all(isinstance(x, int) for x in elements):
                     if len(elements) == 2:

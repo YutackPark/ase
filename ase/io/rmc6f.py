@@ -58,7 +58,7 @@ def _read_line_of_atoms_section(fields):
     style = ncols2style[ncols]
 
     # Create the position dictionary
-    properties = list()
+    properties = []
     element = str(fields[1])
     if style == 'no_labels':
         # id element xf yf zf ref_num ucell_x ucell_y ucell_z
@@ -283,7 +283,7 @@ def _write_output(filename, header_lines, data, fmt, order=None):
 
     # Write header section
     for line in header_lines:
-        fd.write("%s \n" % line)
+        fd.write(f"{line} \n")
 
     # If specifying the order, fix the atom id and write to file
     natoms = data.shape[0]

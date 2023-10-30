@@ -651,7 +651,7 @@ class FixedMode(FixConstraint):
                 'kwargs': {'mode': self.mode.tolist()}}
 
     def __repr__(self):
-        return 'FixedMode(%s)' % self.mode.tolist()
+        return f'FixedMode({self.mode.tolist()})'
 
 
 def _normalize(direction):
@@ -1057,8 +1057,8 @@ class FixInternals(FixConstraint):
             if maxerr < self.epsilon:
                 return
         msg = 'FixInternals.adjust_positions did not converge.'
-        if any([constr.targetvalue > 175. or constr.targetvalue < 5. for constr
-                in self.constraints if isinstance(constr, self.FixAngle)]):
+        if any(constr.targetvalue > 175. or constr.targetvalue < 5. for constr
+                in self.constraints if isinstance(constr, self.FixAngle)):
             msg += (' This may be caused by an almost planar angle.'
                     ' Support for planar angles would require the'
                     ' implementation of ghost, i.e. dummy, atoms.'
@@ -1462,8 +1462,8 @@ class FixParametricRelations(FixConstraint):
             int_fmt_str = "{:0" + \
                 str(int(np.ceil(np.log10(len(params) + 1)))) + "d}"
 
-            param_dct = dict()
-            param_map = dict()
+            param_dct = {}
+            param_map = {}
 
             # Construct a standardized param template for A/B filling
             for param_ind, param in enumerate(params):
@@ -1825,7 +1825,7 @@ class Hookean(FixConstraint):
             dct['kwargs']['a1'] = self.index
             dct['kwargs']['a2'] = self.plane
         else:
-            raise NotImplementedError('Bad type: %s' % self._type)
+            raise NotImplementedError(f'Bad type: {self._type}')
         return dct
 
     def adjust_positions(self, atoms, newpositions):

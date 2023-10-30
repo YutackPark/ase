@@ -565,9 +565,9 @@ def _get_pw_kpts(chunk):
 # SinglePointKPoint objects.
 class NWChemKpts:
     def __init__(self):
-        self.data = dict()
-        self.ibz_kpts = dict()
-        self.weights = dict()
+        self.data = {}
+        self.ibz_kpts = {}
+        self.weights = {}
 
     def add_ibz_kpt(self, index, raw_kpt):
         kpt = np.array([float(x.strip('>')) for x in raw_kpt.split()[1:4]])
@@ -575,7 +575,7 @@ class NWChemKpts:
 
     def add_eval(self, index, spin, energy, occ):
         if index not in self.data:
-            self.data[index] = dict()
+            self.data[index] = {}
         if spin not in self.data[index]:
             self.data[index][spin] = []
         self.data[index][spin].append((energy, occ))

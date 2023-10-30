@@ -184,7 +184,7 @@ class Population:
                                                             self.all_cand,
                                                             self.comparator)
                     self.pop.append(a)
-                    self.pop.sort(key=lambda x: get_raw_score(x),
+                    self.pop.sort(key=get_raw_score,
                                   reverse=True)
                 return
 
@@ -198,7 +198,7 @@ class Population:
                                                 self.all_cand,
                                                 self.comparator)
         self.pop.append(a)
-        self.pop.sort(key=lambda x: get_raw_score(x), reverse=True)
+        self.pop.sort(key=get_raw_score, reverse=True)
 
     def __get_fitness__(self, indecies, with_history=True):
         """Calculates the fitness using the formula from
@@ -367,7 +367,7 @@ class RandomPopulation(Population):
         # Get all relaxed candidates from the database
         ue = self.use_extinct
         all_cand = self.dc.get_all_relaxed_candidates(use_extinct=ue)
-        all_cand.sort(key=lambda x: get_raw_score(x), reverse=True)
+        all_cand.sort(key=get_raw_score, reverse=True)
         # all_cand.sort(key=lambda x: x.get_potential_energy())
 
         if len(all_cand) > 0:
@@ -477,7 +477,7 @@ class FitnessSharingPopulation(Population):
         self.alpha_sh = alpha_sh
         self.fit_scaling = 1.
 
-        self.sh_cache = dict()
+        self.sh_cache = {}
 
         Population.__init__(self, data_connection, population_size,
                             comparator, logfile, use_extinct)
@@ -527,7 +527,7 @@ class FitnessSharingPopulation(Population):
         # Get all relaxed candidates from the database
         ue = self.use_extinct
         all_cand = self.dc.get_all_relaxed_candidates(use_extinct=ue)
-        all_cand.sort(key=lambda x: get_raw_score(x), reverse=True)
+        all_cand.sort(key=get_raw_score, reverse=True)
 
         if len(all_cand) > 0:
             shared_fit = self.__get_fitness__(all_cand)
@@ -693,7 +693,7 @@ class RankFitnessPopulation(Population):
         # Get all relaxed candidates from the database
         ue = self.use_extinct
         all_cand = self.dc.get_all_relaxed_candidates(use_extinct=ue)
-        all_cand.sort(key=lambda x: get_raw_score(x), reverse=True)
+        all_cand.sort(key=get_raw_score, reverse=True)
 
         if len(all_cand) > 0:
             fitf = self.__get_fitness__(all_cand)
@@ -907,7 +907,7 @@ class MultiObjectivePopulation(RankFitnessPopulation):
         # Get all relaxed candidates from the database
         ue = self.use_extinct
         all_cand = self.dc.get_all_relaxed_candidates(use_extinct=ue)
-        all_cand.sort(key=lambda x: get_raw_score(x), reverse=True)
+        all_cand.sort(key=get_raw_score, reverse=True)
 
         if len(all_cand) > 0:
             fitf = self.__get_fitness__(all_cand)

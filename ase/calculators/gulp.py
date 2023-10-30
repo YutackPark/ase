@@ -121,7 +121,7 @@ class GULP(FileIOCalculator):
 
         if p.options:
             for t in p.options:
-                s += '%s\n' % t
+                s += f'{t}\n'
         with open(self.prefix + '.gin', 'w') as fd:
             fd.write(s)
 

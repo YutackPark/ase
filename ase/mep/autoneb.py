@@ -463,8 +463,8 @@ class AutoNEB:
 
     def __initialize__(self):
         '''Load files from the filesystem.'''
-        if not os.path.isfile('%s000.traj' % self.prefix):
-            raise OSError('No file with name %s000.traj' % self.prefix,
+        if not os.path.isfile(f'{self.prefix}000.traj'):
+            raise OSError(f'No file with name {self.prefix}000.traj',
                           'was found. Should contain initial image')
 
         # Find the images that exist

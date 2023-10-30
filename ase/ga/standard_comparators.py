@@ -8,7 +8,7 @@ def get_sorted_dist_list(atoms, mic=False):
         describing the cluster in atoms. """
     numbers = atoms.numbers
     unique_types = set(numbers)
-    pair_cor = dict()
+    pair_cor = {}
     for n in unique_types:
         i_un = [i for i in range(len(atoms)) if atoms[i].number == n]
         d = []

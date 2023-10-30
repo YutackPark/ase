@@ -249,7 +249,7 @@ class OpenMX(FileIOCalculator):
         cmd = bashArgs + \
             'mpirun -hostfile $PBS_NODEFILE openmx {} > {}'.format(
                 inputfile, outfile)
-        echoArgs = ["echo", "$' %s'" % cmd]
+        echoArgs = ["echo", f"$' {cmd}'"]
         qsubArgs = ["qsub", "-N", jobName, "-l", "nodes=%d:ppn=%d" %
                     (nodes, processes), "-l", "walltime=" + self.walltime]
         wholeCmd = " ".join(echoArgs) + " | " + " ".join(qsubArgs)
@@ -415,10 +415,9 @@ class OpenMX(FileIOCalculator):
 
         for key, value in kwargs.items():
             if key not in self.default_parameters.keys():
-                raise KeyError('Unkown keyword "%s" and value "%s".' %
-                               (key, value))
+                raise KeyError(f'Unkown keyword "{key}" and value "{value}".')
             if key == 'xc' and value not in self.default_parameters.allowed_xc:
-                raise KeyError('Given xc "%s" is not allowed' % value)
+                raise KeyError(f'Given xc "{value}" is not allowed')
             if key in ['dat_arguments'] and isinstance(value, dict):
                 # For values that are dictionaries, verify subkeys, too.
                 default_dict = self.default_parameters[key]
@@ -497,7 +496,7 @@ class OpenMX(FileIOCalculator):
                 "be a format string" +
                 " with four string arguments.\n" +
                 "Example : 'mpirun -np 4 openmx ./%s -nt 2 > ./%s'.\n" +
-                "Got '%s'" % command)
+                f"Got '{command}'")
         return command
 
     def get_stress(self, atoms=None):
@@ -699,7 +698,7 @@ class OpenMX(FileIOCalculator):
         prev_position = 0
         last_position = 0
         while not os.path.isfile(file):
-            self.prind('Waiting for %s to come out' % file)
+            self.prind(f'Waiting for {file} to come out')
             time.sleep(5)
         with open(file) as fd:
             while running(**args):

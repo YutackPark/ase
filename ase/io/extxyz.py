@@ -231,7 +231,7 @@ def key_val_str_to_dict_regex(s):
                 str_to_bool = {'T': True, 'F': False}
 
                 if len(value.split()) > 1:
-                    if all([x in str_to_bool.keys() for x in value.split()]):
+                    if all(x in str_to_bool.keys() for x in value.split()):
                         value = [str_to_bool[x] for x in value.split()]
                 elif value in str_to_bool:
                     value = str_to_bool[value]
@@ -247,7 +247,7 @@ def escape(string):
             '{' in string or '}' in string or
             '[' in string or ']' in string):
         string = string.replace('"', '\\"')
-        string = '"%s"' % string
+        string = f'"{string}"'
     return string
 
 
@@ -274,7 +274,7 @@ def key_val_dict_to_str(dct, sep=' '):
         return val
 
     def known_types_to_str(val):
-        if isinstance(val, bool) or isinstance(val, np.bool_):
+        if isinstance(val, (bool, np.bool_)):
             return 'T' if val else 'F'
         elif isinstance(val, numbers.Real):
             return f'{val}'
@@ -962,7 +962,7 @@ def write_xyz(fileobj, images, comment='', columns=None,
             elif column == 'move_mask':
                 arrays[column] = cnstr
             else:
-                raise ValueError('Missing array "%s"' % column)
+                raise ValueError(f'Missing array "{column}"')
 
         if write_results:
             for key in per_atom_results:
@@ -1001,7 +1001,7 @@ def write_xyz(fileobj, images, comment='', columns=None,
             nat -= nPBC
         # Write the output
         fileobj.write('%d\n' % nat)
-        fileobj.write('%s\n' % comm)
+        fileobj.write(f'{comm}\n')
         for i in range(natoms):
             fileobj.write(fmt % tuple(data[i]))
 

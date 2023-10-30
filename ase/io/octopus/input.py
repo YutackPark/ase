@@ -53,7 +53,7 @@ def octbool2bool(value):
     elif value in ['no', 'f', 'false', '0']:
         return False
     else:
-        raise ValueError('Failed to interpret "%s" as a boolean.' % value)
+        raise ValueError(f'Failed to interpret "{value}" as a boolean.')
 
 
 def list2block(name, rows):

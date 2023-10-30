@@ -215,7 +215,7 @@ class ASENeighborList(NeighborList):
         # Loop over all neighbor pairs. Because this loop will generally
         # include image atoms (for periodic systems), we keep track of
         # which atoms/images we've accounted for in the `used` dictionary.
-        used = dict()
+        used = {}
         for neigh_i, neigh_j, rel_pos, offset, dist in zip(
                 neigh_indices_i, neigh_indices_j,
                 relative_pos, neigh_cell_offsets, dists

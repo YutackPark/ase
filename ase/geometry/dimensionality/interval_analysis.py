@@ -82,7 +82,7 @@ def build_kintervals(atoms, method_name):
     method = {'RDA': rank_determination.RDA,
               'TSA': topology_scaling.TSA}[method_name]
 
-    assert all([e in [0, 1] for e in atoms.pbc])
+    assert all(e in [0, 1] for e in atoms.pbc)
     num_atoms = len(atoms)
     intervals = []
     kprev = 0

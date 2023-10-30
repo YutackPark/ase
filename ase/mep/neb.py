@@ -480,9 +480,7 @@ class BaseNEB:
                 self.world.broadcast(forces[i - 1], root)
 
         # if this is the first force call, we need to build the preconditioners
-        if (self.precon is None or isinstance(self.precon, str) or
-                isinstance(self.precon, Precon) or
-                isinstance(self.precon, list)):
+        if self.precon is None or isinstance(self.precon, (str, Precon, list)):
             self.precon = PreconImages(self.precon, images)
 
         # apply preconditioners to transform forces
@@ -1065,7 +1063,7 @@ def interpolate(images, mic=False, interpolate_cell=False,
                                                images[i].positions)
                 except AssertionError:
                     raise RuntimeError(f"Constraint(s) in image number {i} \n"
-                                       f"affect the interpolation results.\n"
+                                       "affect the interpolation results.\n"
                                        "Please specify if you want to \n"
                                        "apply or ignore the constraints \n"
                                        "during the interpolation \n"

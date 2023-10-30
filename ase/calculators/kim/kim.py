@@ -106,7 +106,7 @@ def KIM(model_name, simulator=None, options=None, debug=False):
     """
 
     if options is None:
-        options = dict()
+        options = {}
 
     # If this is a KIM Portable Model (supports KIM API), return
     # support through a KIM-compliant simulator

@@ -148,7 +148,7 @@ def ode12r(f, X0, h=None, verbose=1, fmax=1e-6, maxtol=1e3, steps=100,
                     f"large at iteration number {nit}")
 
             if converged(Fn, X):
-                log(f"ODE12r: terminates successfully "
+                log("ODE12r: terminates successfully "
                     f"after {nit} iterations.")
                 return X
 

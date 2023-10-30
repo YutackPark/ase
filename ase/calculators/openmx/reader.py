@@ -102,7 +102,7 @@ def read_file(filename, debug=False):
     out_data = {}
     line = '\n'
     if (debug):
-        print('Read results from %s' % filename)
+        print(f'Read results from {filename}')
     with open(filename) as fd:
         '''
          Read output file line by line. When the `line` matches the pattern

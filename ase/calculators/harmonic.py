@@ -167,7 +167,7 @@ class HarmonicForceField:
     @staticmethod
     def check_input(coord_functions, variable_orientation, cartesian):
         if None in coord_functions:
-            if not all([func is None for func in coord_functions]):
+            if not all(func is None for func in coord_functions):
                 msg = ('A user-defined coordinate system requires both '
                        '`get_q_from_x` and `get_jacobian`.')
                 raise CalculatorSetupError(msg)

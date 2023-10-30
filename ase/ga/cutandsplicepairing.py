@@ -411,7 +411,7 @@ class CutAndSplicePairing(OffspringCreator):
 
         # For each atom type make the pairing
         unique_sym.sort()
-        use_total = dict()
+        use_total = {}
         for s in unique_sym:
             used = []
             not_used = []

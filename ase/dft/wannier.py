@@ -561,8 +561,8 @@ class Wannier:
         # Compute the number of extra degrees of freedom (EDF)
         self.edf_k = self.nwannier - self.fixedstates_k
 
-        self.log('Wannier: Fixed states            : %s' % self.fixedstates_k)
-        self.log('Wannier: Extra degrees of freedom: %s' % self.edf_k)
+        self.log(f'Wannier: Fixed states            : {self.fixedstates_k}')
+        self.log(f'Wannier: Extra degrees of freedom: {self.edf_k}')
 
         self.kklst_dk, k0_dkc = get_kklst(self.kpt_kc, self.Gdir_dc)
 

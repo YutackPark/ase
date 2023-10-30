@@ -340,7 +340,7 @@ def write_aims(
             xyz = fix_cart[i]
             for n in range(3):
                 if xyz[n]:
-                    fd.write("    constrain_relaxation %s\n" % "xyz"[n])
+                    fd.write(f"    constrain_relaxation {'xyz'[n]}\n")
         if atom.charge:
             fd.write("    initial_charge %16.6f\n" % atom.charge)
         if atom.magmom:
@@ -795,7 +795,7 @@ class AimsOutChunk:
             The last time one of the keys appears in self.lines
         """
         for ll, line in enumerate(self.lines[line_start:][::-1]):
-            if any([key in line for key in keys]):
+            if any(key in line for key in keys):
                 return len(self.lines) - ll - 1
 
         return LINE_NOT_FOUND
@@ -1631,7 +1631,7 @@ def get_aims_out_chunks(fd, header_chunk):
                 ),
                 "Calculation of numerical stress completed",
             ]
-            if any([pattern in line for pattern in patterns]):
+            if any(pattern in line for pattern in patterns):
                 ignore_chunk_end_line = True
             elif "Begin self-consistency loop: Re-initialization" in line:
                 ignore_chunk_end_line = False

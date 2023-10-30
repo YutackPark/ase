@@ -212,9 +212,8 @@ class Demon(FileIOCalculator):
 
         self.write_input(self.atoms, properties, system_changes)
         if self.command is None:
-            raise RuntimeError('Please set $%s environment variable ' %
-                               ('DEMON_COMMAND') +
-                               'or supply the command keyword')
+            raise RuntimeError(f'Please set ${"DEMON_COMMAND"} environment '
+                               'variable or supply the command keyword')
         command = self.command  # .replace('PREFIX', self.prefix)
 
         # basis path

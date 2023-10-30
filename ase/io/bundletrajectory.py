@@ -442,8 +442,8 @@ class BundleTrajectory:
                 self.delete_bundle(self.filename)
             elif not backup:
                 barrier()
-                self.log('Deleting old "%s" as backup is turned off.' %
-                         (self.filename,))
+                self.log(
+                    f'Deleting old "{self.filename}" as backup is turned off.')
                 self.delete_bundle(self.filename)
             else:
                 barrier()
@@ -616,8 +616,9 @@ class BundleTrajectory:
             # Only the master deletes
             if not cls.is_bundle(filename, allowempty=True):
                 raise OSError(
-                    'Cannot remove "%s" as it is not a bundle trajectory.'
-                    % (filename,))
+                    f'Cannot remove "{filename}" as it is not a bundle '
+                    'trajectory.'
+                )
             if os.path.islink(filename):
                 # A symbolic link to a bundle.  Only remove the link.
                 os.remove(filename)
@@ -809,14 +810,14 @@ class UlmBundleBackend:
         fn = os.path.join(framedir, name + '.ulm')
         if split is None or os.path.exists(fn):
             with ulmopen(fn, 'r') as fd:
-                info = dict()
+                info = {}
                 info['shape'] = fd.shape
                 info['type'] = fd.dtype
                 info['stored_as'] = fd.stored_as
                 info['identical'] = fd.all_identical
             return info
         else:
-            info = dict()
+            info = {}
             for i in range(split):
                 fn = os.path.join(framedir, name + '_' + str(i) + '.ulm')
                 with ulmopen(fn, 'r') as fd:
@@ -940,8 +941,8 @@ def print_bundletrajectory_info(filename):
     if metadata['backend'] == 'ulm':
         backend = UlmBundleBackend(True, False)
     else:
-        raise NotImplementedError('Backend %s not supported.'
-                                  % (metadata['backend'],))
+        raise NotImplementedError(
+            f'Backend {metadata["backend"]} not supported.')
     frame = os.path.join(filename, 'F0')
     small = backend.read_small(frame)
     print('Contents of first frame:')
@@ -956,8 +957,7 @@ def print_bundletrajectory_info(filename):
         elif k == 'natoms':
             print('  Number of atoms: %i' % (v,))
         elif hasattr(v, 'shape'):
-            print('  %s: shape = %s, type = %s' %
-                  (k, str(v.shape), str(v.dtype)))
+            print(f'  {k}: shape = {str(v.shape)}, type = {str(v.dtype)}')
             if k == 'cell':
                 print('        [[%12.6f, %12.6f, %12.6f],' % tuple(v[0]))
                 print('         [%12.6f, %12.6f, %12.6f],' % tuple(v[1]))

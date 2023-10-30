@@ -278,7 +278,7 @@ class DataConnection:
         """
         entries = self.c.select(pairing=1)
 
-        frequency = dict()
+        frequency = {}
         pairs = []
         for e in entries:
             c1, c2 = e.data['parents']
@@ -334,7 +334,7 @@ class DataConnection:
             t.info['confid'] = v.gaid
             t.info['relax_id'] = v.id
             trajs.append(t)
-        trajs.sort(key=lambda x: get_raw_score(x),
+        trajs.sort(key=get_raw_score,
                    reverse=True)
         return trajs
 

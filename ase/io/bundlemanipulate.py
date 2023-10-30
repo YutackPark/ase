@@ -163,8 +163,7 @@ def read_bundle_info(name):
         mdata = json.load(fd)
 
     if 'format' not in mdata or mdata['format'] != 'BundleTrajectory':
-        raise OSError("'%s' does not appear to be a BundleTrajectory" %
-                      (name,))
+        raise OSError(f"'{name}' does not appear to be a BundleTrajectory")
     if mdata['version'] != 1:
         raise OSError("Cannot manipulate BundleTrajectories with version "
                       "number %s" % (mdata['version'],))

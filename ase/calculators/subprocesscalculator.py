@@ -79,7 +79,7 @@ class MPICommand:
         return [sys.executable, '-m', 'ase.calculators.subprocesscalculator']
 
     @classmethod
-    def parallel(cls, nprocs, mpi_argv=tuple()):
+    def parallel(cls, nprocs, mpi_argv=()):
         return cls(['mpiexec', '-n', str(nprocs)]
                    + list(mpi_argv)
                    + cls.python_argv()

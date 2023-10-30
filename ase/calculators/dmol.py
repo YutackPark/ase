@@ -459,7 +459,7 @@ class DMol3(FileIOCalculator):
         """Reads the different energy contributions."""
 
         lines = self._outmol_lines()
-        energies = dict()
+        energies = {}
         for n, line in enumerate(lines):
             if line.startswith('Energy components'):
                 m = n + 1

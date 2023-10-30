@@ -118,8 +118,7 @@ class DimerEigenmodeSearch:
             self.control = control
             # kwargs must be empty if a control object is supplied
             for key in kwargs:
-                e = '__init__() got an unexpected keyword argument \'%s\'' % \
-                    (key)
+                e = f'__init__() got an unexpected keyword argument \'{(key)}\''
                 raise TypeError(e)
 
         self.dR = self.control.get_parameter('dimer_separation')
@@ -328,8 +327,8 @@ class MinModeControl(IOContext):
         # Overwrite the defaults with the input parameters given
         for key in kwargs:
             if key not in self.parameters:
-                e = 'Invalid parameter >>%s<< with value >>%s<< in %s' % \
-                    (key, str(kwargs[key]), self.__class__.__name__)
+                e = (f'Invalid parameter >>{key}<< with value >>'
+                     f'{str(kwargs[key])}<< in {self.__class__.__name__}')
                 raise ValueError(e)
             else:
                 self.set_parameter(key, kwargs[key], log=False)
@@ -348,8 +347,7 @@ class MinModeControl(IOContext):
     def set_parameter(self, parameter, value, log=True):
         """Change a parameter's value."""
         if parameter not in self.parameters:
-            e = 'Invalid parameter >>%s<< with value >>%s<<' % \
-                (parameter, str(value))
+            e = f'Invalid parameter >>{parameter}<< with value >>{str(value)}<<'
             raise ValueError(e)
         self.parameters[parameter] = value
         if log:
@@ -358,8 +356,7 @@ class MinModeControl(IOContext):
     def get_parameter(self, parameter):
         """Returns the value of a parameter."""
         if parameter not in self.parameters:
-            e = 'Invalid parameter >>%s<<' % \
-                (parameter)
+            e = f'Invalid parameter >>{(parameter)}<<'
             raise ValueError(e)
         return self.parameters[parameter]
 
@@ -615,7 +612,7 @@ class MinModeAtoms:
                 e = 'initial_eigenmode must use either \'gauss\' or ' + \
                     '\'displacement\', if the latter is used the atoms ' + \
                     'must have moved away from the original positions.' + \
-                    'You have requested \'%s\'.' % method
+                    f'You have requested \'{method}\'.'
                 raise NotImplementedError(e)  # NYI
             eigenmodes = [eigenmode]
 
@@ -839,11 +836,11 @@ class MinModeAtoms:
         # Check for conflicts
         if displacement_vector is not None and method.lower() != 'vector':
             e = 'displacement_vector was supplied but a different method ' + \
-                '(\'%s\') was chosen.\n' % str(method)
+                f'(\'{str(method)}\') was chosen.\n'
             raise ValueError(e)
         elif displacement_vector is None and method.lower() == 'vector':
             e = 'A displacement_vector must be supplied when using ' + \
-                'method = \'%s\'.\n' % str(method)
+                f'method = \'{str(method)}\'.\n'
             raise ValueError(e)
         elif displacement_center is not None and radius is None and \
                 number_of_atoms is None:
@@ -917,8 +914,7 @@ class MinModeAtoms:
                                     self.control.get_parameter('gauss_std')
                             diff = self.random_state.normal(0.0, gauss_std)
                         else:
-                            e = 'Invalid displacement method >>%s<<' % \
-                                str(method)
+                            e = f'Invalid displacement method >>{str(method)}<<'
                             raise ValueError(e)
                         diff_line.append(diff)
                     displacement_vector.append(diff_line)

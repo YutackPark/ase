@@ -961,9 +961,9 @@ def get_ionization_energy(name, vertical=True):
     available.
     """
     if name not in data:
-        raise KeyError('System %s not in database.' % name)
+        raise KeyError(f'System {name} not in database.')
     elif 'ionization energy' not in data[name]:
-        raise KeyError('No data on ionization energy for system %s.' % name)
+        raise KeyError(f'No data on ionization energy for system {name}.')
     else:
         if vertical and 'vertical ionization energy' in data[name]:
             return data[name]['vertical ionization energy']

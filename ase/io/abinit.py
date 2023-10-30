@@ -237,9 +237,9 @@ def write_abinit_in(fd, atoms, param=None, species=None, pseudos=None):
                             'a sequence of lines')
         for line in param['raw']:
             if isinstance(line, tuple):
-                fd.write(' '.join(['%s' % x for x in line]) + '\n')
+                fd.write(' '.join([f'{x}' for x in line]) + '\n')
             else:
-                fd.write('%s\n' % line)
+                fd.write(f'{line}\n')
 
     fd.write('#Definition of the unit cell\n')
     fd.write('acell\n')
@@ -614,7 +614,7 @@ def read_abinit_gsr(filename):
                   cell=cell,
                   pbc=True)
 
-    results = dict()
+    results = {}
 
     def addresult(name, abinit_name, unit=1):
         if abinit_name not in data.variables:
@@ -660,20 +660,20 @@ def get_ppp_list(atoms, species, raise_exception, xc, pps,
                 if pps in ['paw']:
                     hghtemplate = '%s-%s-%s.paw'  # E.g. "H-GGA-hard-uspp.paw"
                     names.append(hghtemplate % (s, xcn, '*'))
-                    names.append('%s[.-_]*.paw' % s)
+                    names.append(f'{s}[.-_]*.paw')
                 elif pps in ['pawxml']:
                     hghtemplate = '%s.%s%s.xml'  # E.g. "H.GGA_PBE-JTH.xml"
                     names.append(hghtemplate % (s, xcn, '*'))
-                    names.append('%s[.-_]*.xml' % s)
+                    names.append(f'{s}[.-_]*.xml')
                 elif pps in ['hgh.k']:
                     hghtemplate = '%s-q%s.hgh.k'  # E.g. "Co-q17.hgh.k"
                     names.append(hghtemplate % (s, '*'))
-                    names.append('%s[.-_]*.hgh.k' % s)
-                    names.append('%s[.-_]*.hgh' % s)
+                    names.append(f'{s}[.-_]*.hgh.k')
+                    names.append(f'{s}[.-_]*.hgh')
                 elif pps in ['tm']:
                     hghtemplate = '%d%s%s.pspnc'  # E.g. "44ru.pspnc"
                     names.append(hghtemplate % (number, s, '*'))
-                    names.append('%s[.-_]*.pspnc' % s)
+                    names.append(f'{s}[.-_]*.pspnc')
                 elif pps in ['psp8']:
                     hghtemplate = '%s.psp8'  # E.g. "Si.psp8"
                     names.append(hghtemplate % (s))
@@ -687,7 +687,7 @@ def get_ppp_list(atoms, species, raise_exception, xc, pps,
                     # then pick the correct one afterwards.
                     names.append(hghtemplate % (number, s, '*'))
                     names.append('%d%s%s.hgh' % (number, s, '*'))
-                    names.append('%s[.-_]*.hgh' % s)
+                    names.append(f'{s}[.-_]*.hgh')
                 else:  # default extension
                     names.append('%02d-%s.%s.%s' % (number, s, xcn, pps))
                     names.append('%02d[.-_]%s*.%s' % (number, s, pps))

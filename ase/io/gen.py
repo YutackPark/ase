@@ -31,7 +31,7 @@ def read_gen(fileobj):
     # Read atomic symbols
     line = lines[1].split()
     # Define a dictionary with symbols-id
-    symboldict = dict()
+    symboldict = {}
     symbolid = 1
     for symb in line:
         symboldict[symbolid] = symb

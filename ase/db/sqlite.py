@@ -889,7 +889,7 @@ class SQLite3Database(Database):
 
         # Check if all datatypes are the same
         all_types = [type(v) for v in values]
-        if any([t != all_types[0] for t in all_types]):
+        if any(t != all_types[0] for t in all_types):
             typenames = [t.__name__ for t in all_types]
             raise ValueError("Inconsistent datatypes in the table. "
                              "given types: {}".format(typenames))

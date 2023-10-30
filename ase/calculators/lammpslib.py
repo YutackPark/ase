@@ -577,7 +577,7 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
             n_diff = len(atoms.numbers)
 
         if n_diff > 0:
-            if any([("reax/c" in cmd) for cmd in self.parameters.lmpcmds]):
+            if any(("reax/c" in cmd) for cmd in self.parameters.lmpcmds):
                 self.lmp.command("pair_style lj/cut 2.5")
                 self.lmp.command("pair_coeff * * 1 1")
 
