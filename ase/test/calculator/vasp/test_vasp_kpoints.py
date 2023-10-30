@@ -46,6 +46,7 @@ def test_vasp_kpoints_111(atoms):
 def test_vasp_kpoints_3_tuple(atoms):
     string = format_kpoints(gamma=False, kpts=(4, 4, 4), atoms=atoms)
     lines = string.split('\n')
+    assert lines[1] == '0'
     assert lines[2] == 'Monkhorst-Pack'
     assert lines[3] == '4 4 4'
 
@@ -56,7 +57,6 @@ def check_kpoints_string(string, lineno, value):
 
 def test_vasp_kpoints_auto(atoms):
     string = format_kpoints(atoms=atoms, kpts=20)
-
     check_kpoints_string(string, 1, '0')
     check_kpoints_string(string, 2, 'Auto')
     check_kpoints_string(string, 3, '20')
@@ -129,3 +129,12 @@ def test_explicit_auto_weight(atoms, testdir):
     """)
 
     assert filecmp_ignore_whitespace('KPOINTS', 'KPOINTS.ref')
+
+
+def test_bandpath(atoms):
+    bandpath = atoms.cell.bandpath('GXMGRX,MR', npoints=100)
+    string = format_kpoints(atoms=atoms, kpts=bandpath.kpts, reciprocal=True)
+    check_kpoints_string(string, 1, '100')
+    check_kpoints_string(string, 2, 'Reciprocal')
+    check_kpoints_string(string, 3, '0.000000 0.000000 0.000000 1.0')
+    check_kpoints_string(string, 102, '0.500000 0.500000 0.500000 1.0')
