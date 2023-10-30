@@ -10,6 +10,7 @@ from ase.calculators.genericfileio import (
     CalculatorTemplate,
     GenericFileIOCalculator,
     read_stdout,
+    BaseProfile
 )
 from ase.io import read, write
 
@@ -27,33 +28,29 @@ compatibility_msg = (
 #                 'Please try running Quantum Espresso with "high" verbosity.'
 
 
-class EspressoProfile:
-    def __init__(self, argv, pseudo_path=None):
-        self.argv = tuple(argv)
+class EspressoProfile(BaseProfile):
+    def __init__(self, exc, pseudo_path, **kwargs):
+        super().__init__(**kwargs)
+        self.exc = exc
         self.pseudo_path = pseudo_path
 
     @staticmethod
     def parse_version(stdout):
         import re
-
         match = re.match(r"\s*Program PWSCF\s*v\.(\S+)", stdout, re.M)
         assert match is not None
         return match.group(1)
 
     def version(self):
-        stdout = read_stdout(self.argv)
+        stdout = read_stdout(self.exc)
         return self.parse_version(stdout)
 
-    def run(self, directory, inputfile, outputfile):
-        import os
-        from subprocess import check_call
-
-        argv = list(self.argv) + ["-in", str(inputfile)]
-        with open(directory / outputfile, "wb") as fd:
-            check_call(argv, cwd=directory, stdout=fd, env=os.environ)
+    def get_calculator_command(self, inputfile):
+        return [self.exc, '-in', inputfile]
 
 
 class EspressoTemplate(CalculatorTemplate):
+
     def __init__(self):
         super().__init__(
             "espresso",
@@ -81,11 +78,9 @@ class EspressoTemplate(CalculatorTemplate):
         atoms = read(path, format="espresso-out")
         return dict(atoms.calc.properties())
 
-    def load_profile(self, cfg):
-        return EspressoProfile(
-            argv=cfg.getargv("argv"), pseudo_path=cfg["pseudo_path"]
-        )
-
+    def load_profile(self, cfg, **kwargs):
+        return EspressoProfile.from_config(cfg, self.name, **kwargs)
+            
     def socketio_parameters(self, unixsocket, port):
         return {}
 
@@ -105,6 +100,8 @@ class Espresso(GenericFileIOCalculator):
         command=GenericFileIOCalculator._deprecated,
         label=GenericFileIOCalculator._deprecated,
         directory=".",
+        parallel_info=None,
+        parallel=True,
         **kwargs,
     ):
         """
@@ -201,5 +198,7 @@ class Espresso(GenericFileIOCalculator):
             profile=profile,
             template=template,
             directory=directory,
+            parallel_info=parallel_info,
+            parallel=parallel,
             parameters=kwargs,
         )
