@@ -93,6 +93,11 @@ class DMol3(FileIOCalculator):
                           'symmetry': 'on'}
     discard_results_on_any_change = True
 
+    if 'DMOL_COMMAND' in FileIOCalculator.cfg:
+        command = FileIOCalculator.cfg['DMOL_COMMAND'] + ' PREFIX > PREFIX.out'
+    else:
+        command = None
+
     def __init__(self, restart=None,
                  ignore_bad_restart_file=FileIOCalculator._deprecated,
                  label='dmol_calc/tmp', atoms=None, **kwargs):
