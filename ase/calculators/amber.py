@@ -241,7 +241,7 @@ class Amber(FileIOCalculator):
 
     def read_energy(self, filename='mden'):
         """ read total energy from amber file """
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             lines = fd.readlines()
         self.results['energy'] = \
             float(lines[16].split()[2]) * units.kcal / units.mol
@@ -275,7 +275,7 @@ class Amber(FileIOCalculator):
         subprocess.check_call(parmed_command, shell=True, cwd=self.directory)
 
     def get_virtual_charges(self, atoms):
-        with open(self.topologyfile, 'r') as fd:
+        with open(self.topologyfile) as fd:
             topology = fd.readlines()
         for n, line in enumerate(topology):
             if '%FLAG CHARGE' in line:

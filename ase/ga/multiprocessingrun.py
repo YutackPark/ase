@@ -36,8 +36,8 @@ class MultiprocessingRun:
         """Relax the atoms object a by submitting the relaxation
         to the pool of cpus."""
         self.dc.mark_as_queued(a)
-        fname = '{0}/cand{1}.traj'.format(self.tmp_folder,
-                                          a.info['confid'])
+        fname = '{}/cand{}.traj'.format(self.tmp_folder,
+                                        a.info['confid'])
         write(fname, a)
         self.results.append(self.pool.apply_async(self.relax_function,
                                                   [fname]))

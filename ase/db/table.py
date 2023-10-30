@@ -54,7 +54,7 @@ def cut(txt, length):
 def cutlist(lst, length):
     if len(lst) <= length or length == 0:
         return lst
-    return lst[:9] + ['... ({} more)'.format(len(lst) - 9)]
+    return lst[:9] + [f'... ({len(lst) - 9} more)']
 
 
 class Table:
@@ -134,7 +134,7 @@ class Table:
 
         if self.limit and nrows == self.limit:
             n = self.connection.count(query)
-            print('Rows:', n, '(showing first {})'.format(self.limit))
+            print('Rows:', n, f'(showing first {self.limit})')
         else:
             print('Rows:', nrows)
 
@@ -184,7 +184,7 @@ class Row:
                 numbers.add(column)
             elif isinstance(value, float):
                 numbers.add(column)
-                value = '{:.3f}'.format(value)
+                value = f'{value:.3f}'
             elif value is None:
                 value = ''
             self.strings.append(value)

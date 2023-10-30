@@ -463,7 +463,7 @@ class Atoms:
                 a = a.copy()
 
         if name in self.arrays:
-            raise RuntimeError('Array {} already present'.format(name))
+            raise RuntimeError(f'Array {name} already present')
 
         for b in self.arrays.values():
             if len(a) != len(b):
@@ -992,12 +992,12 @@ class Atoms:
             symbols = self.get_chemical_formula('reduce')
         else:
             symbols = self.get_chemical_formula('hill')
-        tokens.append("symbols='{0}'".format(symbols))
+        tokens.append(f"symbols='{symbols}'")
 
         if self.pbc.any() and not self.pbc.all():
-            tokens.append('pbc={0}'.format(self.pbc.tolist()))
+            tokens.append(f'pbc={self.pbc.tolist()}')
         else:
-            tokens.append('pbc={0}'.format(self.pbc[0]))
+            tokens.append(f'pbc={self.pbc[0]}')
 
         cell = self.cell
         if cell:
@@ -1005,25 +1005,25 @@ class Atoms:
                 cell = cell.lengths().tolist()
             else:
                 cell = cell.tolist()
-            tokens.append('cell={0}'.format(cell))
+            tokens.append(f'cell={cell}')
 
         for name in sorted(self.arrays):
             if name in ['numbers', 'positions']:
                 continue
-            tokens.append('{0}=...'.format(name))
+            tokens.append(f'{name}=...')
 
         if self.constraints:
             if len(self.constraints) == 1:
                 constraint = self.constraints[0]
             else:
                 constraint = self.constraints
-            tokens.append('constraint={0}'.format(repr(constraint)))
+            tokens.append(f'constraint={repr(constraint)}')
 
         if self._calc is not None:
-            tokens.append('calculator={0}(...)'
+            tokens.append('calculator={}(...)'
                           .format(self._calc.__class__.__name__))
 
-        return '{0}({1})'.format(self.__class__.__name__, ', '.join(tokens))
+        return '{}({})'.format(self.__class__.__name__, ', '.join(tokens))
 
     def __add__(self, other):
         atoms = self.copy()
@@ -1930,7 +1930,7 @@ class Atoms:
         """Get volume of unit cell."""
         if self.cell.rank != 3:
             raise ValueError(
-                'You have {0} lattice vectors: volume not defined'
+                'You have {} lattice vectors: volume not defined'
                 .format(self.cell.rank))
         return self.cell.volume
 

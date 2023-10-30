@@ -10,6 +10,7 @@ class NGLDisplay:
     particular instance of the viewer by adding further widgets
     manipulating the structure.
     """
+
     def __init__(self, atoms, xsize=500, ysize=500):
         import nglview
         import nglview.color

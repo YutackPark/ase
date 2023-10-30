@@ -22,7 +22,7 @@ class CLICommand:
         for uri in args.uri:
             calculation = download(uri)
             identifier = calculation.hash.replace('/', '.')
-            fname = 'nmd.{}.nomad-json'.format(identifier)
+            fname = f'nmd.{identifier}.nomad-json'
             with open(fname, 'w') as fd:
                 json.dump(calculation, fd)
             print(uri)

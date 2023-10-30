@@ -120,7 +120,7 @@ def read_magres(fd, include_unrecognised=False):
         if d[0] in d and d[1] == allowed_units[d[0]]:
             pass
         else:
-            raise RuntimeError('Unrecognized units: %s %s' % (d[0], d[1]))
+            raise RuntimeError(f'Unrecognized units: {d[0]} {d[1]}')
 
         return d
 
@@ -515,7 +515,7 @@ def write_magres(fd, image):
     def write_units(data, out):
         if 'units' in data:
             for tag, units in data['units']:
-                out.append('  units %s %s' % (tag, units))
+                out.append(f'  units {tag} {units}')
 
     def write_magres_block(data):
         """
@@ -594,7 +594,7 @@ def write_magres(fd, image):
 
         for tag, data in data.items():
             for value in data:
-                out.append('%s %s' % (tag, ' '.join(str(x) for x in value)))
+                out.append('{} {}'.format(tag, ' '.join(str(x) for x in value)))
 
         return '\n'.join(out)
 
@@ -609,15 +609,15 @@ def write_magres(fd, image):
 
     for b in block_writers:
         if b in image_data:
-            fd.write('[{0}]\n'.format(b))
+            fd.write(f'[{b}]\n')
             fd.write(block_writers[b](image_data[b]))
-            fd.write('\n[/{0}]\n'.format(b))
+            fd.write(f'\n[/{b}]\n')
 
     # Now on to check for any non-standard blocks...
     for i in image.info:
         if '_' in i:
             ismag, b = i.split('_', 1)
             if ismag == 'magresblock' and b not in block_writers:
-                fd.write('[{0}]\n'.format(b))
+                fd.write(f'[{b}]\n')
                 fd.write(image.info[i])
-                fd.write('[/{0}]\n'.format(b))
+                fd.write(f'[/{b}]\n')

@@ -18,9 +18,9 @@ def _format_value(val):
 
 
 def _write_block(name, args):
-    out = [' ${}'.format(name.upper())]
+    out = [f' ${name.upper()}']
     for key, val in args.items():
-        out.append('  {}={}'.format(key.upper(), _format_value(val)))
+        out.append(f'  {key.upper()}={_format_value(val)}')
     out.append(' $END')
     return '\n'.join(out)
 

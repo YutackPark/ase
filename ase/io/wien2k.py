@@ -7,7 +7,7 @@ from ase.utils import reader, writer
 
 def read_scf(filename):
     try:
-        with open(filename + '.scf', 'r') as fd:
+        with open(filename + '.scf') as fd:
             pip = fd.readlines()
         ene = []
         for line in pip:
@@ -125,9 +125,9 @@ def write_struct(fd, atoms2=None, rmt=None, lattice='P', zza=None):
             ro = 0.0001
         fd.write('%-10s NPT=%5i  R0=%9.8f RMT=%10.4f   Z:%10.5f\n' %
                  (atoms.get_chemical_symbols()[ii], 781, ro, rmt[ii], zz))
-        fd.write('LOCAL ROT MATRIX:    %9.7f %9.7f %9.7f\n' % (1.0, 0.0, 0.0))
-        fd.write('                     %9.7f %9.7f %9.7f\n' % (0.0, 1.0, 0.0))
-        fd.write('                     %9.7f %9.7f %9.7f\n' % (0.0, 0.0, 1.0))
+        fd.write(f'LOCAL ROT MATRIX:    {1.0:9.7f} {0.0:9.7f} {0.0:9.7f}\n')
+        fd.write(f'                     {0.0:9.7f} {1.0:9.7f} {0.0:9.7f}\n')
+        fd.write(f'                     {0.0:9.7f} {0.0:9.7f} {1.0:9.7f}\n')
     fd.write('   0\n')
 
 

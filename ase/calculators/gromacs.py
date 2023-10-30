@@ -24,8 +24,7 @@ from shutil import which
 import numpy as np
 
 from ase import units
-from ase.calculators.calculator import (EnvironmentError, FileIOCalculator,
-                                        all_changes)
+from ase.calculators.calculator import FileIOCalculator, all_changes
 from ase.io.gromos import read_gromos, write_gromos
 
 
@@ -135,7 +134,7 @@ class Gromacs(FileIOCalculator):
                     break
             else:
                 self.command = None
-                self.missing_gmx = 'missing gromacs executable {}'.format(gmxes)
+                self.missing_gmx = f'missing gromacs executable {gmxes}'
 
         self.do_qmmm = do_qmmm
         self.water_model = water_model
@@ -191,7 +190,7 @@ class Gromacs(FileIOCalculator):
         if self.command:
             subprocess.check_call(self.command + ' ' + command, shell=True)
         else:
-            raise EnvironmentError(self.missing_gmx)
+            raise OSError(self.missing_gmx)
 
     def generate_g96file(self):
         """ from current coordinates (self.structure_file)
@@ -209,7 +208,7 @@ class Gromacs(FileIOCalculator):
             '-f', self.label + '.g96',
             '-o', self.label + '.g96',
             self.params_runs.get('extra_editconf_parameters', ''),
-            '> {}.{}.log 2>&1'.format(self.label, subcmd)])
+            f'> {self.label}.{subcmd}.log 2>&1'])
         self._execute_gromacs(command)
 
     def run_genbox(self):
@@ -230,7 +229,7 @@ class Gromacs(FileIOCalculator):
             '-o', self.label + '.g96',
             '-p', self.label + '.top',
             self.params_runs.get('extra_genbox_parameters', ''),
-            '> {}.{}.log 2>&1'.format(self.label, subcmd)])
+            f'> {self.label}.{subcmd}.log 2>&1'])
         self._execute_gromacs(command)
 
     def run(self):
@@ -286,7 +285,7 @@ class Gromacs(FileIOCalculator):
             '-ff', self.params_runs['force_field'],
             '-water', self.params_runs['water'],
             self.params_runs.get('extra_pdb2gmx_parameters', ''),
-            '> {}.{}.log 2>&1'.format(self.label, subcmd)])
+            f'> {self.label}.{subcmd}.log 2>&1'])
         self._execute_gromacs(command)
 
         atoms = read_gromos(self.label + '.g96')
@@ -313,7 +312,7 @@ class Gromacs(FileIOCalculator):
             '-o', self.label + '.tpr',
             '-maxwarn', '100',
             self.params_runs.get('extra_grompp_parameters', ''),
-            '> {}.{}.log 2>&1'.format(self.label, subcmd)])
+            f'> {self.label}.{subcmd}.log 2>&1'])
         self._execute_gromacs(command)
 
     def write_energy_files(self):
@@ -396,7 +395,7 @@ class Gromacs(FileIOCalculator):
             '-f', self.label + '.edr',
             '-o', self.label + '.Energy.xvg',
             '< inputGenergy.txt',
-            '> {}.{}.log 2>&1'.format(self.label, subcmd)])
+            f'> {self.label}.{subcmd}.log 2>&1'])
         self._execute_gromacs(command)
         with open(self.label + '.Energy.xvg') as fd:
             lastline = fd.readlines()[-1]
@@ -413,9 +412,9 @@ class Gromacs(FileIOCalculator):
             '-s', self.label + '.tpr',
             '-of', self.label + '.Force.xvg',
             '< inputGtraj.txt',
-            '> {}.{}.log 2>&1'.format(self.label, subcmd)])
+            f'> {self.label}.{subcmd}.log 2>&1'])
         self._execute_gromacs(command)
-        with open(self.label + '.Force.xvg', 'r') as fd:
+        with open(self.label + '.Force.xvg') as fd:
             lastline = fd.readlines()[-1]
             forces = np.array([float(f) for f in lastline.split()[1:]])
         # We go for ASE units !gromacsForce.xvg

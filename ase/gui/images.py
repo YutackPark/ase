@@ -152,7 +152,7 @@ class Images:
                     names.append('{}@{}'.format(
                         actual_filename, start + i * step))
                 else:
-                    names.append('{}@{}'.format(actual_filename, start))
+                    names.append(f'{actual_filename}@{start}')
 
         self.initialize(images, names)
 

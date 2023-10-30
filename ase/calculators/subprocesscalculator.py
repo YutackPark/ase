@@ -322,6 +322,7 @@ class ParallelDispatch:
         parallel.call(function, args, kwargs)
 
     """
+
     def __init__(self, mpicommand):
         self._mpicommand = mpicommand
         self._protocol = None

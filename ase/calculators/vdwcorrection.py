@@ -247,9 +247,9 @@ class vdWTkatchenko09prl(Calculator, IOContext):
 
         # correction for effective C6
         na = len(atoms)
-        C6eff_a = np.empty((na))
-        alpha_a = np.empty((na))
-        R0eff_a = np.empty((na))
+        C6eff_a = np.empty(na)
+        alpha_a = np.empty(na)
+        R0eff_a = np.empty(na)
         for a, atom in enumerate(atoms):
             # free atom values
             alpha_a[a], C6eff_a[a] = self.vdWDB_alphaC6[atom.symbol]
@@ -407,8 +407,8 @@ def calculate_ts09_polarizability(atoms):
     volume_ratios = calc.hirshfeld.get_effective_volume_ratios()
 
     na = len(atoms)
-    alpha_a = np.empty((na))
-    alpha_eff_a = np.empty((na))
+    alpha_a = np.empty(na)
+    alpha_eff_a = np.empty(na)
     for a, atom in enumerate(atoms):
         # free atom values
         alpha_a[a], _ = calc.vdWDB_alphaC6[atom.symbol]

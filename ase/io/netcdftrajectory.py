@@ -293,7 +293,7 @@ class NetCDFTrajectory:
                     # data remains consistent.
                     if np.any(self._get_variable(array) != data):
                         raise ValueError('Trying to write Atoms object with '
-                                         'incompatible data for the {0} '
+                                         'incompatible data for the {} '
                                          'array.'.format(array))
                 else:
                     self._add_array(atoms, array, data.dtype, data.shape)
@@ -318,7 +318,7 @@ class NetCDFTrajectory:
                 # data remains consistent.
                 if np.any(self._get_variable(array) != data):
                     raise ValueError('Trying to write Atoms object with '
-                                     'incompatible data for the {0} '
+                                     'incompatible data for the {} '
                                      'array.'.format(array))
             else:
                 self._add_array(atoms, array, data.dtype, data.shape)
@@ -413,7 +413,7 @@ class NetCDFTrajectory:
                         self.nc.createDimension(self._Voigt_dim, 6)
                     dims += [self._Voigt_dim]
                 else:
-                    raise TypeError("Don't know how to dump array of shape {0}"
+                    raise TypeError("Don't know how to dump array of shape {}"
                                     " into NetCDF trajectory.".format(shape))
             if hasattr(type, 'char'):
                 t = self.dtype_conv.get(type.char, type)
@@ -428,13 +428,13 @@ class NetCDFTrajectory:
                     return self.nc.variables[n]
             if exc:
                 raise RuntimeError(
-                    'None of the variables {0} was found in the '
+                    'None of the variables {} was found in the '
                     'NetCDF trajectory.'.format(', '.join(name)))
         else:
             if name in self.nc.variables:
                 return self.nc.variables[name]
             if exc:
-                raise RuntimeError('Variables {0} was found in the NetCDF '
+                raise RuntimeError('Variables {} was found in the NetCDF '
                                    'trajectory.'.format(name))
         return None
 
@@ -619,7 +619,7 @@ class NetCDFTrajectory:
 
         All other arguments are stored, and passed to the function.
         """
-        if not isinstance(function, collections.Callable):
+        if not isinstance(function, collections.abc.Callable):
             raise ValueError('Callback object must be callable.')
         self.pre_observers.append((function, interval, args, kwargs))
 
@@ -633,7 +633,7 @@ class NetCDFTrajectory:
 
         All other arguments are stored, and passed to the function.
         """
-        if not isinstance(function, collections.Callable):
+        if not isinstance(function, collections.abc.Callable):
             raise ValueError('Callback object must be callable.')
         self.post_observers.append((function, interval, args, kwargs))
 

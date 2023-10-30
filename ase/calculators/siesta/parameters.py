@@ -83,7 +83,7 @@ def format_fdf(key, value):
             new_value + '\n' + \
             '%endblock ' + key + '\n'
     else:
-        string = '%s\t%s\n' % (key, new_value)
+        string = f'{key}\t{new_value}\n'
 
     return string
 

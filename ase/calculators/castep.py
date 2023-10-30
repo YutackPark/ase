@@ -97,7 +97,7 @@ def _parse_tss_block(value, scaled=False):
                      value.get_positions())
         symbols = value.get_chemical_symbols()
         for s, p in zip(symbols, positions):
-            text_block += '    {0} {1:.3f} {2:.3f} {3:.3f}\n'.format(s, *p)
+            text_block += '    {} {:.3f} {:.3f} {:.3f}\n'.format(s, *p)
 
         return text_block
 
@@ -648,7 +648,7 @@ End CASTEP Interface Documentation
             bandfile = os.path.join(self._directory, self._seed) + '.bands'
 
         if not os.path.exists(bandfile):
-            raise ValueError('Cannot find band file "{}".'.format(bandfile))
+            raise ValueError(f'Cannot find band file "{bandfile}".')
 
         kpts, weights, eigenvalues, efermi = read_bands(bandfile)
 
@@ -1573,7 +1573,7 @@ End CASTEP Interface Documentation
                 continue
             if notelems is not None and elem in notelems:
                 continue
-            self.cell.species_pot = (elem, '%s_%s.%s' % (elem, pspot, suffix))
+            self.cell.species_pot = (elem, f'{elem}_{pspot}.{suffix}')
 
     def find_pspots(self, pspot='.+', elems=None,
                     notelems=None, clear=True, suffix='(usp|UPF|recpot)'):
@@ -1649,7 +1649,7 @@ End CASTEP Interface Documentation
                     .format(elem)
                     + 'Found the following files in {}\n'
                     .format(self._castep_pp_path)
-                    + '\n'.join(['    {}'.format(pp) for pp in pps]) +
+                    + '\n'.join([f'    {pp}' for pp in pps]) +
                     '\nConsider a stricter search pattern in `find_pspots()`.')
             else:
                 self.cell.species_pot = (elem, pps[0])
@@ -1948,8 +1948,8 @@ End CASTEP Interface Documentation
         self._calls += 1
 
         # run castep itself
-        stdout, stderr = shell_stdouterr('%s %s' % (self._castep_command,
-                                                    self._seed),
+        stdout, stderr = shell_stdouterr('{} {}'.format(self._castep_command,
+                                                        self._seed),
                                          cwd=self._directory)
         if stdout:
             print('castep call stdout:\n%s' % stdout)
@@ -1999,7 +1999,7 @@ End CASTEP Interface Documentation
         if attr in ['__repr__', '__str__']:
             raise AttributeError
         elif attr not in self.__dict__:
-            raise AttributeError('Attribute {0} not found'.format(attr))
+            raise AttributeError(f'Attribute {attr} not found')
         else:
             return self.__dict__[attr]
 
@@ -2107,7 +2107,7 @@ End CASTEP Interface Documentation
             return
 
         elif isinstance(param, str):
-            param_file = open(param, 'r')
+            param_file = open(param)
             _close = True
 
         else:
@@ -2161,10 +2161,11 @@ End CASTEP Interface Documentation
             return
         write_param(os.path.join(temp_dir, '%s.param' % seed), self.param, )
 
-        stdout, stderr = shell_stdouterr(('%s %s %s' % (self._castep_command,
-                                                        seed,
-                                                        dryrun_flag)),
-                                         cwd=temp_dir)
+        stdout, stderr = shell_stdouterr(('{} {} {}'.format(
+            self._castep_command,
+            seed,
+            dryrun_flag)),
+            cwd=temp_dir)
 
         if stdout:
             print(stdout)
@@ -2367,7 +2368,7 @@ def create_castep_keywords(castep_command, filename='castep_keywords.json',
     processed_options = {sf: {} for sf in suffixes}
 
     for o_i, option in enumerate(raw_options[:fetch_only]):
-        doc, _ = shell_stdouterr('%s -help %s' % (castep_command, option))
+        doc, _ = shell_stdouterr(f'{castep_command} -help {option}')
 
         # Stand Back! I know regular expressions (http://xkcd.com/208/) :-)
         match = re.match(r'(?P<before_type>.*)Type: (?P<type>.+?)\s+'
@@ -2418,7 +2419,7 @@ def create_castep_keywords(castep_command, filename='castep_keywords.json',
             processed_n += 1
 
             frac = (o_i + 1.0) / to_process
-            sys.stdout.write('\rProcessed: [{0}] {1:>3.0f}%'.format(
+            sys.stdout.write('\rProcessed: [{}] {:>3.0f}%'.format(
                              '#' * int(frac * 20) + ' '
                              * (20 - int(frac * 20)),
                              100 * frac))
@@ -2660,7 +2661,7 @@ class CastepInputFile:
         if is_default:
             expr = 'Default\n'
 
-        expr += 'Keyword tolerance: {0}'.format(self._perm)
+        expr += f'Keyword tolerance: {self._perm}'
         return expr
 
     def __setattr__(self, attr, value):

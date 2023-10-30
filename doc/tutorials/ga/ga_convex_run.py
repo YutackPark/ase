@@ -84,7 +84,7 @@ pop.update()
 # Below is the iterative part of the algorithm
 gen_num = db.get_generation_number()
 for i in range(num_gens):
-    print('Creating and evaluating generation {0}'.format(gen_num + i))
+    print(f'Creating and evaluating generation {gen_num + i}')
     new_generation = []
     for _ in range(pop_size):
         # Select parents for a new candidate

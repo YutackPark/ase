@@ -142,11 +142,11 @@ class PortableModel:
             l_unit, e_unit, c_unit, te_unit, ti_unit = check_call(
                 self.kim_model.get_units
             )
-            print("Length unit is: {}".format(l_unit))
-            print("Energy unit is: {}".format(e_unit))
-            print("Charge unit is: {}".format(c_unit))
-            print("Temperature unit is: {}".format(te_unit))
-            print("Time unit is: {}".format(ti_unit))
+            print(f"Length unit is: {l_unit}")
+            print(f"Energy unit is: {e_unit}")
+            print(f"Charge unit is: {c_unit}")
+            print(f"Temperature unit is: {te_unit}")
+            print(f"Time unit is: {ti_unit}")
             print()
 
         self._create_parameters()
@@ -570,7 +570,7 @@ class ComputeArguments:
         kimpy_arg_name = kimpy.compute_argument_name
         num_arguments = kimpy_arg_name.get_number_of_compute_argument_names()
         if self.debug:
-            print("Number of compute_args: {}".format(num_arguments))
+            print(f"Number of compute_args: {num_arguments}")
 
         for i in range(num_arguments):
             name = check_call(kimpy_arg_name.get_compute_argument_name, i)
@@ -596,7 +596,7 @@ class ComputeArguments:
                     and name != kimpy.compute_argument_name.partialForces
                 ):
                     raise KIMModelInitializationError(
-                        "Unsupported required ComputeArgument {}".format(name)
+                        f"Unsupported required ComputeArgument {name}"
                     )
 
         # Check compute callbacks
@@ -604,7 +604,7 @@ class ComputeArguments:
         num_callbacks = callback_name.get_number_of_compute_callback_names()
         if self.debug:
             print()
-            print("Number of callbacks: {}".format(num_callbacks))
+            print(f"Number of callbacks: {num_callbacks}")
 
         for i in range(num_callbacks):
             name = check_call(callback_name.get_compute_callback_name, i)
@@ -621,7 +621,7 @@ class ComputeArguments:
             # Cannot handle any "required" callbacks
             if support_status == kimpy.support_status.required:
                 raise KIMModelInitializationError(
-                    "Unsupported required ComputeCallback: {}".format(name)
+                    f"Unsupported required ComputeCallback: {name}"
                 )
 
     @check_call_wrapper

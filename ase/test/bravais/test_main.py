@@ -19,7 +19,7 @@ def check_single(name, cell, pbc=(True, True, True)):
     latname = name.split('@')[0]
     ok = latname == name1
     print(name, '-->', name1, 'OK' if ok else 'ERR', c.cellpar())
-    assert ok, 'Expected {} but found {}'.format(latname, name1)
+    assert ok, f'Expected {latname} but found {name1}'
 
 
 def check(name, cell, pbc=None):

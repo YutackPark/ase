@@ -31,6 +31,7 @@ class ExcitingProfile:
        * OnlyTypo fix part of the profile used in the base class is the run
          method, which is part of the BinaryRunner class.
     """
+
     def __init__(self, exciting_root, species_path):
         from excitingtools.input.base_class import query_exciting_version
         self.version = query_exciting_version(exciting_root)
@@ -143,6 +144,7 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
 
 class ExcitingGroundStateResults:
     """Exciting Ground State Results."""
+
     def __init__(self, results: dict) -> None:
         self.results = results
         self.final_scl_iteration = list(results["scl"].keys())[-1]
@@ -200,6 +202,7 @@ class ExcitingGroundStateCalculator(GenericFileIOCalculator):
     results: ExcitingGroundStateResults = gs_calculator.calculate(
             atoms: Atoms)
     """
+
     def __init__(self, *,
                  runner: SimpleBinaryRunner,
                  ground_state_input,

@@ -188,12 +188,12 @@ def KIM(model_name, simulator=None, options=None, debug=False):
 
             else:
                 raise KIMCalculatorError(
-                    'Unknown LAMMPS calculator: "{}".'.format(simulator)
+                    f'Unknown LAMMPS calculator: "{simulator}".'
                 )
 
         else:
             raise KIMCalculatorError(
-                'Unsupported simulator: "{}".'.format(sm.simulator_name)
+                f'Unsupported simulator: "{sm.simulator_name}".'
             )
 
 

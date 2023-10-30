@@ -499,7 +499,7 @@ class MHPlot:
         """Reads relevant parts of the log file."""
         data = []  # format: [energy, status, temperature, ediff]
 
-        with open(os.path.join(self._rundirectory, self._logname), 'r') as fd:
+        with open(os.path.join(self._rundirectory, self._logname)) as fd:
             lines = fd.read().splitlines()
 
         step_almost_over = False

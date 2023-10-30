@@ -244,7 +244,7 @@ class TestDOSCollection:
         assert np.allclose(summed.get_energies(), total.get_energies())
         assert np.allclose(summed.get_weights(), total.get_weights())
         assert (set(total.info.items()) - set(summed.info.items())
-                == set([('label', 'Total')]))
+                == {('label', 'Total')})
 
     select_info = [[{'a': '1', 'b': '1'}, {'a': '2'}],
                    [{'a': '1', 'b': '1'}, {'a': '1', 'b': '2'}],

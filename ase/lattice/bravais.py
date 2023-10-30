@@ -111,7 +111,7 @@ class Bravais:
         self.basis = np.dot(self.basis, t)
         transf = np.dot(transf, t)
         if self.debug >= 2:
-            print("Rotating %f degrees around y axis." % (-theta * degree,))
+            print(f"Rotating {-theta * degree:f} degrees around y axis.")
             print(self.basis)
         assert abs(np.linalg.det(transf) - 1) < 1e-6
         # Rotate first basis vector to point along x axis
@@ -122,7 +122,7 @@ class Bravais:
         self.basis = np.dot(self.basis, t)
         transf = np.dot(transf, t)
         if self.debug >= 2:
-            print("Rotating %f degrees around z axis." % (-theta * degree,))
+            print(f"Rotating {-theta * degree:f} degrees around z axis.")
             print(self.basis)
         assert abs(np.linalg.det(transf) - 1) < 1e-6
         # Rotate second basis vector into xy plane
@@ -133,7 +133,7 @@ class Bravais:
         self.basis = np.dot(self.basis, t)
         transf = np.dot(transf, t)
         if self.debug >= 2:
-            print("Rotating %f degrees around x axis." % (-theta * degree,))
+            print(f"Rotating {-theta * degree:f} degrees around x axis.")
             print(self.basis)
         assert abs(np.linalg.det(transf) - 1) < 1e-6
         # Now we better rotate the atoms as well
@@ -422,10 +422,10 @@ class Bravais:
 
     def print_directions_and_miller(self, txt=""):
         "Print direction vectors and Miller indices."
-        print("Direction vectors of unit cell%s:" % (txt,))
+        print(f"Direction vectors of unit cell{txt}:")
         for i in (0, 1, 2):
             print("   ", self.directions[i])
-        print("Miller indices of surfaces%s:" % (txt,))
+        print(f"Miller indices of surfaces{txt}:")
         for i in (0, 1, 2):
             print("   ", self.miller[i])
 

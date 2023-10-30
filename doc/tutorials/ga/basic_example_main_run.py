@@ -42,7 +42,7 @@ mutations = OperationSelector([1., 1., 1.],
 while da.get_number_of_unrelaxed_candidates() > 0:
     a = da.get_an_unrelaxed_candidate()
     a.calc = EMT()
-    print('Relaxing starting candidate {0}'.format(a.info['confid']))
+    print('Relaxing starting candidate {}'.format(a.info['confid']))
     dyn = BFGS(a, trajectory=None, logfile=None)
     dyn.run(fmax=0.05, steps=100)
     a.info['key_value_pairs']['raw_score'] = -a.get_potential_energy()
@@ -55,7 +55,7 @@ population = Population(data_connection=da,
 
 # test n_to_test new candidates
 for i in range(n_to_test):
-    print('Now starting configuration number {0}'.format(i))
+    print(f'Now starting configuration number {i}')
     a1, a2 = population.get_two_candidates()
     a3, desc = pairing.get_new_individual([a1, a2])
     if a3 is None:

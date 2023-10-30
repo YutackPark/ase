@@ -255,8 +255,8 @@ class ImageIterator:
             # Negative indices.  Go through the whole thing to get the length,
             # which allows us to evaluate the slice, and then read it again
             if not hasattr(fd, 'seekable') or not fd.seekable():
-                raise ValueError(('Negative indices only supported for '
-                                  'seekable streams'))
+                raise ValueError('Negative indices only supported for '
+                                 'seekable streams')
 
             startpos = fd.tell()
             nchunks = 0

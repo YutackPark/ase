@@ -115,7 +115,7 @@ def write_freeform(fd, outputobj):
                      kw.upper(),
                      opt.value.strip('\n')))
         else:
-            fd.write('{0}: {1}\n'.format(kw.upper(), opt.value))
+            fd.write(f'{kw.upper()}: {opt.value}\n')
 
 
 def write_cell(filename, atoms, positions_frac=False, castep_cell=None,
@@ -190,7 +190,7 @@ def write_castep_cell(fd, atoms, positions_frac=False, force_write=False,
         cell = Castep(keyword_tolerance=2).cell
 
     # Write lattice
-    fformat = '%{0}.{1}f'.format(precision + 3, precision)
+    fformat = f'%{precision + 3}.{precision}f'
     cell_block_format = ' '.join([fformat] * 3)
     cell.lattice_cart = [cell_block_format % tuple(line)
                          for line in atoms.get_cell()]
@@ -260,25 +260,25 @@ def write_castep_cell(fd, atoms, positions_frac=False, force_write=False,
             if mass_dict:
                 # no custom species need to be created
                 if len(mass_dict) == 1 and not default:
-                    mass_block.append('{0} {1}'.format(
+                    mass_block.append('{} {}'.format(
                         el, list(mass_dict.keys())[0]))
                 # for each custom mass, create new species and change names to
                 # match in 'elems' list
                 else:
                     warnings.warn(
                         'Custom mass specified for '
-                        'standard species {0}, creating custom species'
+                        'standard species {}, creating custom species'
                         .format(el))
 
                     for i, vals in enumerate(mass_dict.items()):
                         mass_val, idxs = vals
-                        custom_species_name = "{0}:{1}".format(el, i)
+                        custom_species_name = f"{el}:{i}"
                         warnings.warn(
-                            'Creating custom species {0} with mass {1}'.format(
+                            'Creating custom species {} with mass {}'.format(
                                 custom_species_name, str(mass_dict)))
                         for idx in idxs:
                             elems[idx] = custom_species_name
-                        mass_block.append('{0} {1}'.format(
+                        mass_block.append('{} {}'.format(
                             custom_species_name, mass_val))
 
         setattr(cell, 'species_mass', mass_block)
@@ -305,9 +305,9 @@ def write_castep_cell(fd, atoms, positions_frac=False, force_write=False,
         line = pos_block_format % tuple([el] + list(xyz))
         # ADD other keywords if necessary
         if magmoms[i] != 0:
-            line += ' SPIN={0} '.format(magmoms[i])
+            line += f' SPIN={magmoms[i]} '
         if labels[i].strip() not in ('NULL', ''):
-            line += ' LABEL={0} '.format(labels[i])
+            line += f' LABEL={labels[i]} '
         pos_block.append(line)
 
     setattr(cell, pos_keyword, pos_block)
@@ -510,7 +510,7 @@ def read_castep_cell(fd, index=None, calculator_args={}, find_spg=False,
             u = cell_units.get(usymb, 1)
             if usymb not in cell_units:
                 warnings.warn('read_cell: Warning - ignoring invalid '
-                              'unit specifier in %BLOCK {0} '
+                              'unit specifier in %BLOCK {} '
                               '(assuming Angstrom instead)'.format(blockname))
             line_tokens = line_tokens[1:]
         return u, line_tokens
@@ -595,7 +595,7 @@ def read_castep_cell(fd, index=None, calculator_args={}, find_spg=False,
         'MAGMOM': (float, 0.0),
         'LABEL': (str, 'NULL')
     }
-    add_info_arrays = dict((k, []) for k in add_info)
+    add_info_arrays = {k: [] for k in add_info}
 
     def parse_info(raw_info):
 
@@ -637,7 +637,7 @@ def read_castep_cell(fd, index=None, calculator_args={}, find_spg=False,
         if len(line_tokens[0]) == 1:
             if line_tokens[0][0].lower() not in ('amu', 'u'):
                 raise ValueError(
-                    "unit specifier '{0}' in %BLOCK SPECIES_MASS "
+                    "unit specifier '{}' in %BLOCK SPECIES_MASS "
                     "not recognised".format(
                         line_tokens[0][0].lower()))
             line_tokens = line_tokens[1:]
@@ -648,7 +648,7 @@ def read_castep_cell(fd, index=None, calculator_args={}, find_spg=False,
             if len(token_pos_list) == 0:
                 warnings.warn(
                     'read_cell: Warning - ignoring unused '
-                    'species mass {0} in %BLOCK SPECIES_MASS'.format(
+                    'species mass {} in %BLOCK SPECIES_MASS'.format(
                         tokens[0]))
             for idx in token_pos_list:
                 aargs['masses'][idx] = tokens[1]
@@ -717,7 +717,7 @@ def read_castep_cell(fd, index=None, calculator_args={}, find_spg=False,
             calc.cell.__setattr__(k, val)
         except Exception as e:
             raise RuntimeError(
-                'Problem setting calc.cell.%s = %s: %s' % (k, val, e))
+                f'Problem setting calc.cell.{k} = {val}: {e}')
 
     # Get the relevant additional info
     aargs['magmoms'] = np.array(add_info_arrays['SPIN'])
@@ -836,7 +836,7 @@ def read_castep_castep(fd, index=None):
         calc = Castep()
     except Exception as e:
         # No CASTEP keywords found?
-        warnings.warn('WARNING: {0} Using fallback .castep reader...'.format(e))
+        warnings.warn(f'WARNING: {e} Using fallback .castep reader...')
         # Fall back on the old method
         return read_castep_castep_old(fd, index)
 
@@ -1249,7 +1249,7 @@ def read_castep_md(fd, index=None, return_scalars=False,
 
         if fields[-1] == 'E':
             E = [float(x) for x in fields[0:3]]
-            Epot, EH, Ekin = [factors['E'] * Ei for Ei in E]
+            Epot, EH, Ekin = (factors['E'] * Ei for Ei in E)
             continue
 
         if fields[-1] == 'T':
@@ -1374,7 +1374,7 @@ def write_param(filename, param, check_checkfile=False,
         out.write('# If stated, this will be automatically processed\n')
         out.write('# by ase.io.castep.read_seed()\n')
         for option, value in sorted(interface_options.items()):
-            out.write('# ASE_INTERFACE %s : %s\n' % (option, value))
+            out.write(f'# ASE_INTERFACE {option} : {value}\n')
     out.write('#######################################################\n\n')
 
     if check_checkfile:
@@ -1486,8 +1486,8 @@ def read_bands(filename='', fd=None, units=units_CODATA2002):
         warnings.warn('Filestream used to read param, file name will be '
                       'ignored')
 
-    nkpts, nspin, _, nbands, efermi = [t(fd.readline().split()[-1]) for t in
-                                       [int, int, float, int, float]]
+    nkpts, nspin, _, nbands, efermi = (t(fd.readline().split()[-1]) for t in
+                                       [int, int, float, int, float])
 
     kpts, weights = np.zeros((nkpts, 3)), np.zeros(nkpts)
     eigenvalues = np.zeros((nspin, nkpts, nbands))

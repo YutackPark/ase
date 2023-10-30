@@ -352,7 +352,7 @@ class GoodOldQuasiNewton(Optimizer):
 
         D = -Gbar / (b - lamdas)
         n = len(D)
-        step = np.zeros((n))
+        step = np.zeros(n)
         for i in range(n):
             step += D[i] * V[i]
 
@@ -379,7 +379,7 @@ class GoodOldQuasiNewton(Optimizer):
         return gbar_est
 
     def get_lambdas(self, b, Gbar):
-        lamdas = np.zeros((len(b)))
+        lamdas = np.zeros(len(b))
 
         D = -Gbar / b
         absD = np.sqrt(np.dot(D, D))
@@ -419,9 +419,8 @@ class GoodOldQuasiNewton(Optimizer):
 
     def get_hessian_inertia(self, eigenvalues):
         # return number of negative modes
-        self.write_log("eigenvalues %2.2f %2.2f %2.2f " % (eigenvalues[0],
-                                                           eigenvalues[1],
-                                                           eigenvalues[2]))
+        self.write_log("eigenvalues {:2.2f} {:2.2f} {:2.2f} ".format(
+            eigenvalues[0], eigenvalues[1], eigenvalues[2]))
         n = 0
         while eigenvalues[n] < 0:
             n += 1

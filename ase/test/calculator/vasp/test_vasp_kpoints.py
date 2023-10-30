@@ -20,7 +20,7 @@ def atoms():
 
 def check_kpoints_line(n, contents):
     """Assert the contents of a line"""
-    with open('KPOINTS', 'r') as fd:
+    with open('KPOINTS') as fd:
         lines = fd.readlines()
     assert lines[n].strip() == contents
 
@@ -77,7 +77,7 @@ def test_kspacing_supress_kpoints_file(factory, write_kpoints):
     Al, calc = write_kpoints(factory, kspacing=0.23)
     calc.write_incar(Al)
     assert not os.path.isfile('KPOINTS')
-    with open('INCAR', 'r') as fd:
+    with open('INCAR') as fd:
         assert ' KSPACING = 0.230000\n' in fd.readlines()
 
 

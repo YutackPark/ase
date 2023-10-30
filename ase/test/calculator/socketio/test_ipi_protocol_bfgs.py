@@ -63,7 +63,7 @@ def run_server(launchclient=True, sockettype='unix'):
     ferr = np.abs(forces - ref_forces).max()
 
     perr = np.abs(refatoms.positions - atoms.positions).max()
-    print('errs e={} f={} pos={}'.format(eerr, ferr, perr))
+    print(f'errs e={eerr} f={ferr} pos={perr}')
     assert eerr < 1e-11, eerr
     assert ferr < 1e-11, ferr
     assert perr < 1e-11, perr

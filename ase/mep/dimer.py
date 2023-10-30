@@ -458,15 +458,15 @@ class DimerControl(MinModeControl):
         """Log the parameters of the eigenmode search."""
         if self.logfile is not None:
             if parameter is not None:
-                l = 'DIM:CONTROL: Updated Parameter: %s = %s\n' % (parameter,
-                                                                   str(self.get_parameter(parameter)))
+                l = 'DIM:CONTROL: Updated Parameter: {} = {}\n'.format(parameter,
+                                                                       str(self.get_parameter(parameter)))
             else:
                 l = 'MINMODE:METHOD: Dimer\n'
                 l += 'DIM:CONTROL: Search Parameters:\n'
                 l += 'DIM:CONTROL: ------------------\n'
                 for key in self.parameters:
-                    l += 'DIM:CONTROL: %s = %s\n' % (key,
-                                                     str(self.get_parameter(key)))
+                    l += 'DIM:CONTROL: {} = {}\n'.format(key,
+                                                         str(self.get_parameter(key)))
                 l += 'DIM:CONTROL: ------------------\n'
                 l += 'DIM:ROT: OPT-STEP ROT-STEP CURVATURE ROT-ANGLE ' + \
                      'ROT-FORCE\n'
@@ -947,8 +947,8 @@ class MinModeAtoms:
             mod_para = False
             for key in parameters:
                 if parameters[key] != self.control.get_parameter(key):
-                    lp += 'MINMODE:DISP: %s = %s\n' % (str(key),
-                                                       str(parameters[key]))
+                    lp += 'MINMODE:DISP: {} = {}\n'.format(str(key),
+                                                           str(parameters[key]))
                     mod_para = True
             if mod_para:
                 l = lp
@@ -1095,7 +1095,7 @@ def read_eigenmode(mlog, index=-1):
     """
     mlog_is_str = isinstance(mlog, str)
     if mlog_is_str:
-        fd = open(mlog, 'r')
+        fd = open(mlog)
     else:
         fd = mlog
 
