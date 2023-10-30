@@ -24,8 +24,7 @@ class DummyProfile(BaseProfile):
 
     def version(self):
         return "0.0.0"
-
-
+    
 class DummyTemplate(CalculatorTemplate):
 
     def __init__(self):
@@ -38,7 +37,7 @@ class DummyTemplate(CalculatorTemplate):
         pass
 
     def load_profile(self, cfg, **kwargs):
-        return DummyProfile(cfg['exc'], **kwargs)
+        return DummyProfile.from_config(cfg, self.name, **kwargs)
 
     def execute(self, directory, profile):
         pass

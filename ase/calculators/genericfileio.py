@@ -9,6 +9,7 @@ from ase.calculators.calculator import BaseCalculator, EnvironmentError
 
 class BaseProfile(ABC):
 
+
     def __init__(self, parallel=True, parallel_info=None):
         """
         Parameters
@@ -144,7 +145,7 @@ class BaseProfile(ABC):
         ...
 
     @classmethod
-    def from_config(cls, cfg, section_name):
+    def from_config(cls, cfg, section_name, parallel_info=None, parallel=True):
         """
         Create a profile from a configuration file.
 
@@ -161,7 +162,12 @@ class BaseProfile(ABC):
         BaseProfile
             The profile object.
         """
-        return cls(**cfg.parser["parallel"], **cfg.parser[section_name])
+        parallel_config = dict(cfg.parser['parallel'])
+        parallel_info = parallel_info if parallel_info is not None else {}
+        parallel_config.update(parallel_info)
+
+        return cls(**cfg.parser[section_name], parallel_info=parallel_config,
+                parallel=parallel)
 
 
 def read_stdout(args, createfile=None):
@@ -279,24 +285,20 @@ class CalculatorTemplate(ABC):
 
 
 class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
-    def __init__(self, *, template, profile, directory, parameters=None, 
+    def __init__(self, *, template, profile, directory, parameters=None,
                 parallel_info=None, parallel=True):
         self.template = template
 
         if profile is None:
             from ase.config import cfg
 
-            parallel_config = dict(cfg.parser['parallel'])
-            parallel_info = parallel_info if parallel_info is not None else {}
-            parallel_config.update(parallel_info)
-
             if template.name not in cfg.parser:
                 raise EnvironmentError(f"No configuration of {template.name}")
-            myconfig = cfg.parser[template.name]
             try:
-                profile = template.load_profile(myconfig, parallel_info=parallel_config, parallel=parallel)
+                profile = template.load_profile(cfg, parallel_info=parallel_info, 
+                                                parallel=parallel)
             except Exception as err:
-                configvars = dict(myconfig)
+                configvars = dict(cfg)
                 raise EnvironmentError(
                     f"Failed to load section [{template.name}] "
                     "from configuration: {configvars}"
