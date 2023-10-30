@@ -8,7 +8,6 @@ from ase.calculators.calculator import (PropertyNotImplementedError,
                                         all_properties,
                                         kptdensity2monkhorstpack)
 from ase.calculators.singlepoint import SinglePointCalculator
-from ase.constraints import dict2constraint
 from ase.data import atomic_masses, chemical_symbols
 from ase.formula import Formula
 from ase.geometry import cell_to_cellpar

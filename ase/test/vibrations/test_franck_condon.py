@@ -2,7 +2,7 @@ import sys
 from math import factorial
 
 import numpy as np
-from pytest import approx, fixture, mark
+import pytest
 
 from ase.build import molecule
 from ase.calculators.emt import EMT
@@ -24,7 +24,7 @@ def equal(x, y, tolerance=0, fail=True, msg=''):
             sys.stderr.write('WARNING: %s\n' % msg)
 
 
-@mark.optimize
+@pytest.mark.optimize
 def test_franck_condon(testdir):
     # FCOverlap
 
@@ -76,20 +76,20 @@ def test_franck_condon(testdir):
         equal(fcr.direct1mm2(m, delta), fcr.ov1mm2(m, delta), 1.e-15)
 
 
-@fixture(scope='module')
+@pytest.fixture(scope='module')
 def unrelaxed():
     atoms = molecule('CH4')
     atoms.calc = EMT()
     return atoms
 
 
-@fixture(scope='module')
+@pytest.fixture(scope='module')
 def forces_a(unrelaxed):
     # evaluate forces in this configuration
     return unrelaxed.get_forces()
 
 
-@fixture(scope='module')
+@pytest.fixture(scope='module')
 def relaxed(unrelaxed):
     atoms = unrelaxed.copy()
     atoms.calc = unrelaxed.calc
@@ -98,7 +98,7 @@ def relaxed(unrelaxed):
     return atoms
 
 
-@fixture()
+@pytest.fixture()
 def vibname(testdir, relaxed):
     atoms = relaxed.copy()
     atoms.calc = relaxed.calc
@@ -120,8 +120,8 @@ def test_ch4_all(forces_a, relaxed, vibname):
     # by symmetry only one frequency has a non-vanishing contribution
     HR_a, f_a = fc.get_Huang_Rhys_factors(forces_a)
     assert len(HR_a) == ndof
-    assert HR_a[:-1] == approx(0, abs=1e-10)
-    assert HR_a[-1] == approx(0.859989171)
+    assert HR_a[:-1] == pytest.approx(0, abs=1e-10)
+    assert HR_a[-1] == pytest.approx(0.859989171)
 
     FC, freq = fc.get_Franck_Condon_factors(293, forces_a)
     assert len(FC[0]) == 2 * ndof + 1
