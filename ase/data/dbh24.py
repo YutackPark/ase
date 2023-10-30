@@ -500,8 +500,7 @@ def get_dbh24_charge(name):
     """
     assert name in dbh24
     d = data[name]
-    charge = d['charge']
-    return charge
+    return d['charge']
 
 
 def get_dbh24_Vf(name):
@@ -509,8 +508,7 @@ def get_dbh24_Vf(name):
     """
     assert name in dbh24
     d = data[name]
-    Vf = d['Vf']
-    return Vf
+    return d['Vf']
 
 
 def get_dbh24_Vb(name):
@@ -518,8 +516,7 @@ def get_dbh24_Vb(name):
     """
     assert name in dbh24
     d = data[name]
-    Vb = d['Vb']
-    return Vb
+    return d['Vb']
 
 
 def get_dbh24_initial_states(name):
@@ -527,8 +524,7 @@ def get_dbh24_initial_states(name):
     """
     assert name in dbh24_reaction_list
     d = dbh24_reaction_list[name]
-    initial = d['initial']
-    return initial
+    return d['initial']
 
 
 def get_dbh24_final_states(name):
@@ -536,8 +532,7 @@ def get_dbh24_final_states(name):
     """
     assert name in dbh24_reaction_list
     d = dbh24_reaction_list[name]
-    final = d['final']
-    return final
+    return d['final']
 
 
 def get_dbh24_tst(name):
@@ -545,5 +540,4 @@ def get_dbh24_tst(name):
     """
     assert name in dbh24_reaction_list
     d = dbh24_reaction_list[name]
-    tst = d['tst']
-    return tst
+    return d['tst']

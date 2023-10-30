@@ -2927,7 +2927,7 @@ def create_s22_system(name, dist=None, **kwargs):
         return Atoms(d['symbols'], d['positions'], **kwargs)
     elif s22x5_ is True:
         d = data[s22_name]
-        pos = 'positions ' + dist
+        pos = f'positions {dist}'
         return Atoms(d['symbols'], d[pos], **kwargs)
     else:
         raise NotImplementedError('s22/s26/s22x5 creation failed')
@@ -2942,17 +2942,17 @@ def identify_s22_sys(name, dist=None):
     elif name in s22x5 and dist is None:
         s22_name, dist = get_s22x5_id(name)
         s22x5_ = True
-    elif name in s22 and dist is not None:
+    elif name in s22:
         dist_ = str(dist)
-        if dist_ not in ['0.9', '1.0', '1.2', '1.5', '2.0']:
+        if dist_ not in {'0.9', '1.0', '1.2', '1.5', '2.0'}:
             raise KeyError(f'Bad s22x5 distance specified: {dist_}')
-        else:
-            s22_name = name
-            dist = dist_
-            s22x5_ = True
-    if s22_ is False and s22x5_ is False:
+        s22_name = name
+        dist = dist_
+        s22x5_ = True
+    if s22_ or s22x5_:
+        return s22_, s22x5_, s22_name, dist
+    else:
         raise KeyError(f's22 combination {name} {str(dist)} not in database')
-    return s22_, s22x5_, s22_name, dist
 
 
 def get_s22x5_id(name):
@@ -2981,8 +2981,7 @@ def get_interaction_energy_s22(name, dist=None):
     """Returns the S22/S26 CCSD(T)/CBS CP interaction energy in eV.
     """
     s22_, s22x5_, s22_name, dist_ = identify_s22_sys(name, dist)
-    e = get_interaction_energy_cc(s22_name)
-    return e
+    return get_interaction_energy_cc(s22_name)
 
 
 def get_interaction_energy_s22x5(name, dist=None, correct_offset=True):
@@ -3031,11 +3030,7 @@ def get_s22x5_distance(name, dist=None):
     s22_, s22x5_, s22_name, dist_ = identify_s22_sys(name, dist)
     if s22_ is True:
         raise KeyError('System must be in s22x5')
-    else:
-        x00 = data[s22_name]['positions 1.0'][0][0]
-        x01 = data[s22_name]['positions 1.0'][-1][0]
-        x10 = data[s22_name]['positions ' + dist_][0][0]
-        x11 = data[s22_name]['positions ' + dist_][-1][0]
-        d0 = x01 - x00
-        d1 = x11 - x10
-        return d1 - d0
+    x00 = data[s22_name]['positions 1.0'][0][0]
+    x01 = data[s22_name]['positions 1.0'][-1][0]
+    x10 = data[s22_name][f'positions {dist_}'][0][0]
+    return data[s22_name][f'positions {dist_}'][-1][0] - x10 - (x01 - x00)
