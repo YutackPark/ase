@@ -72,6 +72,9 @@ def propagate(atoms, asap3, algorithm, algoargs):
     return Tmean, pmean
 
 
+# Not a real optimizer test but uses optimizers.
+# We should probably not mark this (in general)
+@pytest.mark.optimize
 @pytest.mark.slow
 def test_nvtberendsen(asap3, equilibrated, berendsenparams, allraise):
     t, _ = propagate(Atoms(equilibrated), asap3,
@@ -79,6 +82,7 @@ def test_nvtberendsen(asap3, equilibrated, berendsenparams, allraise):
     assert abs(t - berendsenparams['nvt']['temperature_K']) < 0.5
 
 
+@pytest.mark.optimize
 @pytest.mark.slow
 def test_nptberendsen(asap3, equilibrated, berendsenparams, allraise):
     t, p = propagate(Atoms(equilibrated), asap3,
@@ -87,6 +91,7 @@ def test_nptberendsen(asap3, equilibrated, berendsenparams, allraise):
     assert abs(p - berendsenparams['npt']['pressure_au']) < 25.0 * bar
 
 
+@pytest.mark.optimize
 @pytest.mark.slow
 def test_npt(asap3, equilibrated, berendsenparams, allraise):
     params = berendsenparams['npt']

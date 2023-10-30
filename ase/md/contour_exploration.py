@@ -191,9 +191,11 @@ class ContourExploration(Dynamics):
                           append_trajectory=append_trajectory,
                           )
 
+        self._actual_atoms = atoms
+
         # we need velocities or NaNs will be produced,
         # if none are provided we make random ones
-        velocities = self.atoms.get_velocities()
+        velocities = self._actual_atoms.get_velocities()
         if np.linalg.norm(velocities) < 1e-6:
             # we have to pass dimension since atoms are not yet stored
             atoms.set_velocities(self.rand_vect())
@@ -222,9 +224,9 @@ class ContourExploration(Dynamics):
                     "Energy_Deviation_per_atom")
                 msg = "# %4s %15s %15s %12s %12s %15s\n" % args
                 self.logfile.write(msg)
-            e = self.atoms.get_potential_energy(
+            e = self._actual_atoms.get_potential_energy(
                 force_consistent=self.force_consistent)
-            dev_per_atom = (e - self.energy_target) / len(self.atoms)
+            dev_per_atom = (e - self.energy_target) / len(self._actual_atoms)
             args = (
                 self.nsteps,
                 self.energy_target,
@@ -239,7 +241,7 @@ class ContourExploration(Dynamics):
 
     def rand_vect(self):
         '''Returns a random (Natoms,3) vector'''
-        vect = self.rng.random((len(self.atoms), 3)) - 0.5
+        vect = self.rng.random((len(self._actual_atoms), 3)) - 0.5
         return vect
 
     def create_drift_unit_vector(self, N, T):
@@ -249,7 +251,7 @@ class ContourExploration(Dynamics):
         drift = subtract_projection(drift, N)
         drift = subtract_projection(drift, T)
         # removes net translation, so systems don't wander
-        drift = drift - drift.sum(axis=0) / len(self.atoms)
+        drift = drift - drift.sum(axis=0) / len(self._actual_atoms)
         D = normalize(drift)
         return D
 
@@ -380,7 +382,7 @@ class ContourExploration(Dynamics):
         return potentiostat_step_size
 
     def step(self, f=None):
-        atoms = self.atoms
+        atoms = self._actual_atoms
 
         if f is None:
             f = atoms.get_forces()

@@ -1,4 +1,5 @@
 from numpy.linalg import norm
+import pytest
 
 from ase import Atoms
 from ase.calculators.emt import EMT
@@ -13,6 +14,7 @@ def optimize(atoms):
         opt.run(fmax=fmax)
 
 
+@pytest.mark.optimize
 def test_external_force():
     """Tests for class ExternalForce in ase/constraints.py"""
     f_ext = 0.2

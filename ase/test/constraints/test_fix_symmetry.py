@@ -12,6 +12,9 @@ from ase.spacegroup.symmetrize import FixSymmetry, check_symmetry, is_subgroup
 spglib = pytest.importorskip('spglib')
 
 
+pytestmark = pytest.mark.optimize
+
+
 class NoisyLennardJones(LennardJones):
     def __init__(self, *args, rng=None, **kwargs):
         self.rng = rng

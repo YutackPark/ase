@@ -152,9 +152,7 @@ class GoodOldQuasiNewton(Optimizer):
         self.verbosity = verbosity
         self.diagonal = diagonal
 
-        self.atoms = atoms
-
-        n = len(self.atoms) * 3
+        n = len(self.optimizable) * 3
         if radius is None:
             self.radius = 0.05 * np.sqrt(n) / 10.0
         else:
@@ -170,8 +168,7 @@ class GoodOldQuasiNewton(Optimizer):
 
         self.transitionstate = transitionstate
 
-        # check if this is a nudged elastic band calculation
-        if hasattr(atoms, 'springconstant'):
+        if self.optimizable.is_neb():
             self.forcemin = False
 
         self.t0 = time.time()
@@ -194,7 +191,7 @@ class GoodOldQuasiNewton(Optimizer):
 
     def set_default_hessian(self):
         # set unit matrix
-        n = len(self.atoms) * 3
+        n = len(self.optimizable) * 3
         hessian = np.zeros((n, n))
         for i in range(n):
             hessian[i][i] = self.diagonal
@@ -285,11 +282,14 @@ class GoodOldQuasiNewton(Optimizer):
         """
 
         if forces is None:
-            forces = self.atoms.get_forces()
+            forces = self.optimizable.get_forces()
 
-        pos = self.atoms.get_positions().ravel()
-        G = -self.atoms.get_forces().ravel()
-        energy = self.atoms.get_potential_energy()
+        pos = self.optimizable.get_positions().ravel()
+        G = -self.optimizable.get_forces().ravel()
+        # XXX Next line forgets the "force_consistent" boolean!
+        energy = self.optimizable.get_potential_energy(
+            force_consistent=False)
+        # We should probably use self.force_consistent
 
         if hasattr(self, 'oldenergy'):
 
@@ -306,7 +306,7 @@ class GoodOldQuasiNewton(Optimizer):
 
             if (energy - self.oldenergy) > de:
                 self.write_log('reject step')
-                self.atoms.set_positions(self.oldpos.reshape((-1, 3)))
+                self.optimizable.set_positions(self.oldpos.reshape((-1, 3)))
                 G = self.oldG
                 energy = self.oldenergy
                 self.radius *= 0.5
@@ -356,7 +356,7 @@ class GoodOldQuasiNewton(Optimizer):
         for i in range(n):
             step += D[i] * V[i]
 
-        pos = self.atoms.get_positions().ravel()
+        pos = self.optimizable.get_positions().ravel()
         pos += step
 
         energy_estimate = self.get_energy_estimate(D, Gbar, b)
@@ -364,7 +364,7 @@ class GoodOldQuasiNewton(Optimizer):
         self.gbar_estimate = self.get_gbar_estimate(D, Gbar, b)
         self.old_gbar = Gbar
 
-        self.atoms.set_positions(pos.reshape((-1, 3)))
+        self.optimizable.set_positions(pos.reshape((-1, 3)))
 
     def get_energy_estimate(self, D, Gbar, b):
 

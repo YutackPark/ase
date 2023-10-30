@@ -1977,6 +1977,10 @@ class Atoms:
     def iterimages(self):
         yield self
 
+    def __ase_optimizable__(self):
+        from ase.optimize.optimize import OptimizableAtoms
+        return OptimizableAtoms(self)
+
     def edit(self):
         """Modify atoms interactively through ASE's GUI viewer.
 

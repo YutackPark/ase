@@ -10,7 +10,6 @@ from ase import __version__
 from ase.atoms import Atoms
 from ase.calculators.calculator import PropertyNotImplementedError
 from ase.calculators.singlepoint import SinglePointCalculator, all_properties
-from ase.constraints import dict2constraint
 from ase.io.formats import is_compressed
 from ase.io.jsonio import decode, encode
 from ase.io.pickletrajectory import PickleTrajectory
@@ -343,6 +342,7 @@ def read_atoms(backend,
                header: Tuple = None,
                traj: TrajectoryReader = None,
                _try_except: bool = True) -> Atoms:
+    from ase.constraints import dict2constraint
 
     if _try_except:
         try:
