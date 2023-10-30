@@ -28,8 +28,8 @@ Information presented on these pages is considered public information
 and may be distributed or copied http://www.nist.gov/public_affairs/disclaimer.cfm
 """
 
-from ase.data.g2_1 import data as data1
 from ase.atoms import Atoms
+from ase.data.g2_1 import data as data1
 
 atom_names = ['H', 'B', 'C', 'N', 'O', 'F', 'Al', 'Si', 'S', 'Cl']
 

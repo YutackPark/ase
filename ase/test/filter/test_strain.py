@@ -1,5 +1,6 @@
-import pytest
 from math import sqrt
+
+import pytest
 
 from ase.build import bulk
 from ase.filters import StrainFilter

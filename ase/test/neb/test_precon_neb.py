@@ -13,7 +13,6 @@ from ase.optimize import BFGS, ODE12r
 from ase.optimize.precon import Exp
 from ase.utils.forcecurve import fit_images
 
-
 pytestmark = pytest.mark.optimize
 
 

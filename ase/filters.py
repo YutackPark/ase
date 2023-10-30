@@ -9,7 +9,6 @@ from ase.stress import full_3x3_to_voigt_6_stress, voigt_6_to_full_3x3_stress
 from ase.utils import deprecated
 from ase.utils.abc import Optimizable
 
-
 __all__ = [
     'Filter', 'StrainFilter', 'UnitCellFilter', 'FrechetCellFilter',
     'ExpCellFilter'

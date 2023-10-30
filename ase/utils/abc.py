@@ -1,7 +1,7 @@
 import collections
 from abc import abstractmethod
-import numpy as np
 
+import numpy as np
 
 # Due to the high prevalence of cyclic imports surrounding ase.optimize,
 # we define the Optimizable ABC here in utils.

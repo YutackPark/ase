@@ -7,7 +7,6 @@ from ase.cell import Cell
 from ase.dft.kpoints import BandPath, parse_path_string, sc_special_points
 from ase.utils import pbc2pbc
 
-
 _degrees = np.pi / 180
 
 

@@ -19,8 +19,8 @@ from ase.optimize.optimize import Optimizer
 from ase.optimize.precon import Precon, PreconImages
 from ase.optimize.sciopt import OptimizerConvergenceError
 from ase.utils import deprecated, lazyproperty
-from ase.utils.forcecurve import fit_images
 from ase.utils.abc import Optimizable
+from ase.utils.forcecurve import fit_images
 
 
 class Spring:

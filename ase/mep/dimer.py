@@ -13,10 +13,8 @@ import numpy as np
 
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.optimize.optimize import OptimizableAtoms, Optimizer
-
 from ase.parallel import world
 from ase.utils import IOContext
-
 
 # Handy vector methods
 norm = np.linalg.norm

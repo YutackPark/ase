@@ -1,4 +1,5 @@
 import pytest
+
 from ase import Atom, Atoms
 from ase.build import fcc111
 from ase.constraints import FixAtoms
