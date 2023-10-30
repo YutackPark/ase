@@ -1,9 +1,9 @@
 def test_tipnp():
     """Test TIP3P forces."""
-    from math import cos, sin, pi
+    from math import cos, pi, sin
 
     from ase import Atoms
-    from ase.calculators.tip3p import TIP3P, rOH, angleHOH
+    from ase.calculators.tip3p import TIP3P, angleHOH, rOH
     from ase.calculators.tip4p import TIP4P
 
     r = rOH

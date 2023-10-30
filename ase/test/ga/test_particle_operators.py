@@ -1,5 +1,6 @@
 def test_particle_operators(seed):
     import numpy as np
+
     from ase.cluster import Icosahedron
     from ase.ga.particle_crossovers import CutSpliceCrossover
 
@@ -30,6 +31,7 @@ def test_particle_operators(seed):
     assert a3.get_chemical_formula() == 'Cu35Ni20'
 
     from ase.ga.particle_mutations import COM2surfPermutation
+
     # from ase.ga.particle_mutations import RandomPermutation
     # from ase.ga.particle_mutations import Poor2richPermutation
     # from ase.ga.particle_mutations import Rich2poorPermutation

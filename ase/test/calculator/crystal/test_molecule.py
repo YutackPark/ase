@@ -1,6 +1,6 @@
-from ase.optimize import BFGS
 from ase.atoms import Atoms
 from ase.calculators.crystal import CRYSTAL
+from ase.optimize import BFGS
 
 
 def test_molecule(testdir):

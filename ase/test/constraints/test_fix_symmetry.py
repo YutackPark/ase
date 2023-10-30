@@ -5,9 +5,9 @@ from ase.atoms import Atoms
 from ase.build import bulk
 from ase.calculators.calculator import all_changes
 from ase.calculators.lj import LennardJones
-from ase.spacegroup.symmetrize import FixSymmetry, check_symmetry, is_subgroup
+from ase.filters import FrechetCellFilter, UnitCellFilter
 from ase.optimize.precon.lbfgs import PreconLBFGS
-from ase.constraints import UnitCellFilter, ExpCellFilter
+from ase.spacegroup.symmetrize import FixSymmetry, check_symmetry, is_subgroup
 
 spglib = pytest.importorskip('spglib')
 
@@ -70,7 +70,7 @@ def symmetrized_optimisation(at_init, filter):
     return di, df
 
 
-@pytest.fixture(params=[UnitCellFilter, ExpCellFilter])
+@pytest.fixture(params=[UnitCellFilter, FrechetCellFilter])
 def filter(request):
     return request.param
 

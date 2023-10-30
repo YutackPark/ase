@@ -2,27 +2,25 @@
 Implementation of the Precon abstract base class and subclasses
 """
 
+import copy
 import sys
 import time
-import copy
 import warnings
 from abc import ABC, abstractmethod
 
 import numpy as np
 from scipy import sparse
-from scipy.sparse.linalg import spsolve
 from scipy.interpolate import CubicSpline
+from scipy.sparse.linalg import spsolve
 
-
-from ase.constraints import Filter, FixAtoms
-from ase.utils import longsum
-from ase.geometry import find_mic
-import ase.utils.ff as ff
 import ase.units as units
-from ase.optimize.precon.neighbors import (get_neighbours,
-                                           estimate_nearest_neighbour_distance)
+import ase.utils.ff as ff
+from ase.constraints import Filter, FixAtoms
+from ase.geometry import find_mic
 from ase.neighborlist import neighbor_list
-from ase.utils import tokenize_version
+from ase.optimize.precon.neighbors import (estimate_nearest_neighbour_distance,
+                                           get_neighbours)
+from ase.utils import longsum, tokenize_version
 
 try:
     import pyamg
@@ -1268,7 +1266,7 @@ class PreconImages:
         Wrapper for a list of Precon objects and associated images
 
         This is used when preconditioning a NEB object. Equation references
-        refer to Paper IV in the :class:`ase.neb.NEB` documentation, i.e.
+        refer to Paper IV in the :class:`ase.mep.NEB` documentation, i.e.
 
         S. Makri, C. Ortner and J. R. Kermode, J. Chem. Phys.
         150, 094109 (2019)
@@ -1280,6 +1278,8 @@ class PreconImages:
 
         """
         self.images = images
+        self._spline = None
+
         if isinstance(precon, list):
             if len(precon) != len(images):
                 raise ValueError(f'length mismatch: len(precon)={len(precon)} '
@@ -1292,7 +1292,6 @@ class PreconImages:
             P = P0.copy()
             P.make_precon(image)
             self.precon.append(P)
-        self._spline = None
 
     def __len__(self):
         return len(self.precon)

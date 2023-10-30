@@ -1,8 +1,10 @@
+import copy
+
 import numpy as np
+
+from ase import units
 from ase.calculators.calculator import Calculator
 from ase.calculators.qmmm import combine_lj_lorenz_berthelot
-from ase import units
-import copy
 
 k_c = units.Hartree * units.Bohr
 

@@ -1,4 +1,5 @@
 import re
+
 import ase.io.orca as io
 from ase.calculators.genericfileio import (CalculatorTemplate,
                                            GenericFileIOCalculator)
@@ -53,11 +54,11 @@ class OrcaTemplate(CalculatorTemplate):
 
 
 class ORCA(GenericFileIOCalculator):
-    """Class for doing Orca calculations.
+    """Class for doing ORCA calculations.
 
     Example:
 
-      calc = Orca(charge=0, mult=1, orcasimpleinput='B3LYP def2-TZVP',
+      calc = ORCA(charge=0, mult=1, orcasimpleinput='B3LYP def2-TZVP',
         orcablocks='%pal nprocs 16 end')
     """
 
@@ -79,10 +80,15 @@ class ORCA(GenericFileIOCalculator):
         ========
         Use default values:
 
-
-        >>> h = Atoms('H', calculator=Orca(charge=0,mult=1,directory='water',
-        orcasimpleinput='B3LYP def2-TZVP',
-        orcablocks='%pal nprocs 16 end')
+        >>> from ase.calculators.orca import ORCA
+        >>> h = Atoms(
+        ...     'H',
+        ...     calculator=ORCA(
+        ...         charge=0,
+        ...         mult=1,
+        ...         directory='water',
+        ...         orcasimpleinput='B3LYP def2-TZVP',
+        ...         orcablocks='%pal nprocs 16 end'))
 
         """
 

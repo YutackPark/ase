@@ -8,7 +8,6 @@ gui_default_settings['key'] = value
 """
 import runpy
 
-
 gui_default_settings = {
     'gui_graphs_string': 'i, e - E[-1]',  # default for the graph command
     'gui_foreground_color': '#000000',
@@ -27,6 +26,7 @@ gui_default_settings = {
 
 def read_defaults():
     import os
+
     # should look for .config/ase/gui.py
     # if 'XDG_CONFIG_HOME' in os.environ:
     #    name = os.environ['XDG_CONFIG_HOME'] + '/ase/gui.py'

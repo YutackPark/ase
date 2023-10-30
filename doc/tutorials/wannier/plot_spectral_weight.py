@@ -1,7 +1,8 @@
-import numpy as np
 import matplotlib.pyplot as plt
-from ase.dft.wannier import Wannier
+import numpy as np
 from gpaw import restart
+
+from ase.dft.wannier import Wannier
 
 atoms, calc = restart('benzene.gpw', txt=None)
 wan = Wannier(nwannier=18, calc=calc, fixedstates=15, file='wan18.json')

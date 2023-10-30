@@ -1,7 +1,10 @@
 from typing import List
+
 import numpy as np
+
 from ase import Atoms
-from .spacegroup import Spacegroup, _SPACEGROUP
+
+from .spacegroup import _SPACEGROUP, Spacegroup
 
 __all__ = ('get_basis', )
 

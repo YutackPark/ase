@@ -1,10 +1,10 @@
 '''celleditor.py - Window for editing the cell of an atoms object
 '''
-from ase.cell import Cell
-from ase.gui.i18n import _
+import numpy as np
 
 import ase.gui.ui as ui
-import numpy as np
+from ase.cell import Cell
+from ase.gui.i18n import _
 
 
 class CellEditor:

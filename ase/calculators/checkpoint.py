@@ -41,13 +41,13 @@ is performed:
                                      # subsequent runs, reads from checkpoint
 """
 
-from typing import Dict, Any
+from typing import Any, Dict
 
 import numpy as np
 
 import ase
-from ase.db import connect
 from ase.calculators.calculator import Calculator
+from ase.db import connect
 
 
 class NoCheckpoint(Exception):

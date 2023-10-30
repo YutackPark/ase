@@ -1,10 +1,11 @@
-import numpy as np
-import pytest
 import re
 import warnings
 
+import numpy as np
+import pytest
+
 import ase.build
-from ase.io import write, read
+from ase.io import read, write
 
 
 # create mol with custom mass - from a list of positions or using

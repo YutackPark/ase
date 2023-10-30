@@ -4,15 +4,15 @@ Module for povray file format support.
 See http://www.povray.org/ for details on the format.
 """
 from collections.abc import Sequence
-from subprocess import check_call, DEVNULL
 from os import unlink
 from pathlib import Path
+from subprocess import DEVNULL, check_call
 
 import numpy as np
 
-from ase.io.utils import PlottingVariables
-from ase.constraints import FixAtoms
 from ase import Atoms
+from ase.constraints import FixAtoms
+from ase.io.utils import PlottingVariables
 
 
 def pa(array):
@@ -490,24 +490,27 @@ Verbose=False
             colb = self.colors[b]
 
             if bond_order == 1:
-                draw_tuples = (posa, mida, cola, transa, texa),\
-                              (posb, midb, colb, transb, texb)
+                draw_tuples = (
+                    (posa, mida, cola, transa, texa),
+                    (posb, midb, colb, transb, texb))
 
             elif bond_order == 2:
                 bs = [x / 2 for x in bond_offset]
-                draw_tuples = (posa - bs, mida - bs, cola, transa, texa),\
-                              (posb - bs, midb - bs, colb, transb, texb),\
-                              (posa + bs, mida + bs, cola, transa, texa),\
-                              (posb + bs, midb + bs, colb, transb, texb)
+                draw_tuples = (
+                    (posa - bs, mida - bs, cola, transa, texa),
+                    (posb - bs, midb - bs, colb, transb, texb),
+                    (posa + bs, mida + bs, cola, transa, texa),
+                    (posb + bs, midb + bs, colb, transb, texb))
 
             elif bond_order == 3:
                 bs = bond_offset
-                draw_tuples = (posa, mida, cola, transa, texa),\
-                              (posb, midb, colb, transb, texb),\
-                              (posa + bs, mida + bs, cola, transa, texa),\
-                              (posb + bs, midb + bs, colb, transb, texb),\
-                              (posa - bs, mida - bs, cola, transa, texa),\
-                              (posb - bs, midb - bs, colb, transb, texb)
+                draw_tuples = (
+                    (posa, mida, cola, transa, texa),
+                    (posb, midb, colb, transb, texb),
+                    (posa + bs, mida + bs, cola, transa, texa),
+                    (posb + bs, midb + bs, colb, transb, texb),
+                    (posa - bs, mida - bs, cola, transa, texa),
+                    (posb - bs, midb - bs, colb, transb, texb))
 
             bondatoms += ''.join(f'cylinder {{{pa(p)}, '
                                  f'{pa(m)}, Rbond texture{{pigment '
@@ -761,8 +764,8 @@ class POVRAYIsosurface:
             from skimage.measure import marching_cubes
         except ImportError:
             # Old skimage (remove at some point)
-            from skimage.measure import (
-                marching_cubes_lewiner as marching_cubes)
+            from skimage.measure import \
+                marching_cubes_lewiner as marching_cubes
 
         return marching_cubes(
             density_grid,

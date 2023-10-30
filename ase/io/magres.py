@@ -6,14 +6,15 @@ Authors: Simone Sturniolo (ase implementation), Tim Green (original magres
 """
 
 import re
-import numpy as np
 from collections import OrderedDict
+
+import numpy as np
 
 import ase.units
 from ase.atoms import Atoms
+from ase.calculators.singlepoint import SinglePointDFTCalculator
 from ase.spacegroup import Spacegroup
 from ase.spacegroup.spacegroup import SpacegroupNotFoundError
-from ase.calculators.singlepoint import SinglePointDFTCalculator
 
 _mprops = {
     'ms': ('sigma', 1),
@@ -113,7 +114,6 @@ def read_magres(fd, include_unrecognised=False):
                          'isc_orbital_p': '10^19.T^2.J^-1',
                          'isc_orbital_d': '10^19.T^2.J^-1',
                          'isc_spin': '10^19.T^2.J^-1',
-                         'isc': '10^19.T^2.J^-1',
                          'sus': '10^-6.cm^3.mol^-1',
                          'calc_cutoffenergy': 'Hartree', }
 
@@ -239,6 +239,12 @@ def read_magres(fd, include_unrecognised=False):
                      'calculation': parse_generic_block, }
 
     file_contents = fd.read()
+
+    # Solve incompatibility for atomic indices above 100
+    pattern_ms = r'(ms [a-zA-Z]{1,2})(\d+)'
+    file_contents = re.sub(pattern_ms, r'\g<1> \g<2>', file_contents)
+    pattern_efg = r'(efg [a-zA-Z]{1,2})(\d+)'
+    file_contents = re.sub(pattern_efg, r'\g<1> \g<2>', file_contents)
 
     # This works as a validity check
     version = get_version(file_contents)

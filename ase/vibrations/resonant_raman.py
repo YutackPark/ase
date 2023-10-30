@@ -2,10 +2,11 @@
 
 import sys
 from pathlib import Path
+
 import numpy as np
 
 import ase.units as u
-from ase.parallel import world, paropen, parprint
+from ase.parallel import paropen, parprint, world
 from ase.vibrations import Vibrations
 from ase.vibrations.raman import Raman, RamanCalculatorBase
 

@@ -1,8 +1,9 @@
+import time
+
 import numpy as np
 
-from ase.optimize.optimize import Optimizer
 from ase.constraints import UnitCellFilter
-import time
+from ase.optimize.optimize import Optimizer
 
 
 class PreconFIRE(Optimizer):

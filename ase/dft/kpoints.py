@@ -5,8 +5,8 @@ from typing import Dict
 import numpy as np
 
 import ase  # Annotations
-from ase.utils import jsonable
 from ase.cell import Cell
+from ase.utils import jsonable
 
 
 def monkhorst_pack(size):

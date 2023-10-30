@@ -1,6 +1,7 @@
+import numpy as np
+
 import ase.calculators.demon as demon
 from ase import Atoms
-import numpy as np
 
 
 def test_h2o_xas_xes():

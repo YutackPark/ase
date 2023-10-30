@@ -9,7 +9,6 @@ to and from ase internal units.
 
 from math import pi, sqrt
 
-
 # the version we actually use
 __codata_version__ = '2014'
 

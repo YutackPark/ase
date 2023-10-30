@@ -5,8 +5,8 @@ The following lattice creators are defined:
     CenteredTetragonal
 """
 
-from ase.lattice.orthorhombic import (SimpleOrthorhombicFactory,
-                                      BodyCenteredOrthorhombicFactory)
+from ase.lattice.orthorhombic import (BodyCenteredOrthorhombicFactory,
+                                      SimpleOrthorhombicFactory)
 
 
 class _Tetragonalize:

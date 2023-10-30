@@ -1,20 +1,18 @@
-import sys
 import os
-from pathlib import Path
-from subprocess import Popen, PIPE, check_output
+import sys
 import zlib
+from pathlib import Path
+from subprocess import PIPE, Popen, check_output
 
-import pytest
 import numpy as np
+import pytest
 
 import ase
-from ase.utils import workdir, seterr, get_python_package_path_description
-from ase.test.factories import (CalculatorInputs,
-                                factory_classes,
-                                NoSuchCalculator,
-                                get_factories,
-                                make_factory_fixture)
 from ase.dependencies import all_dependencies
+from ase.test.factories import (CalculatorInputs, NoSuchCalculator,
+                                factory_classes, get_factories,
+                                make_factory_fixture)
+from ase.utils import get_python_package_path_description, seterr, workdir
 
 helpful_message = """\
  * Use --calculators option to select calculators.
@@ -258,6 +256,9 @@ def factory(request, factories):
         pytest.skip(f'Not installed: {name}')
     if not factories.enabled(name):
         pytest.skip(f'Not enabled: {name}')
+    if name in factories.builtin_calculators & factories.datafile_calculators:
+        if not factories.datafiles_module:
+            pytest.skip('ase-datafiles package not installed')
     factory = factories[name]
     return CalculatorInputs(factory, kwargs)
 
@@ -313,13 +314,6 @@ def cli(factories):
 def datadir():
     test_basedir = Path(__file__).parent
     return test_basedir / 'testdata'
-
-
-@pytest.fixture
-def pt_eam_potential_file(datadir):
-    # EAM potential for Pt from LAMMPS, also used with eam calculator.
-    # (Where should this fixture really live?)
-    return datadir / 'eam_Pt_u3.dat'
 
 
 @pytest.fixture(scope='session')

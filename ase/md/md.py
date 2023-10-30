@@ -1,15 +1,20 @@
 """Molecular Dynamics."""
-
 import warnings
+from typing import IO, Optional, Union
+
 import numpy as np
 
-from ase.optimize.optimize import Dynamics
-from ase.md.logger import MDLogger
+from ase import Atoms, units
 from ase.io.trajectory import Trajectory
-from ase import units
+from ase.md.logger import MDLogger
+from ase.optimize.optimize import Dynamics
 
 
-def process_temperature(temperature, temperature_K, orig_unit):
+def process_temperature(
+    temperature: Optional[float],
+    temperature_K: Optional[float],
+    orig_unit: str,
+) -> float:
     """Handle that temperature can be specified in multiple units.
 
     For at least a transition period, molecular dynamics in ASE can
@@ -57,8 +62,15 @@ def process_temperature(temperature, temperature_K, orig_unit):
 class MolecularDynamics(Dynamics):
     """Base-class for all MD classes."""
 
-    def __init__(self, atoms, timestep, trajectory, logfile=None,
-                 loginterval=1, append_trajectory=False):
+    def __init__(
+        self,
+        atoms: Atoms,
+        timestep: float,
+        trajectory: Optional[str] = None,
+        logfile: Optional[Union[IO, str]] = None,
+        loginterval: int = 1,
+        append_trajectory: bool = False,
+    ):
         """Molecular Dynamics object.
 
         Parameters:
@@ -94,7 +106,7 @@ class MolecularDynamics(Dynamics):
         Dynamics.__init__(self, atoms, logfile=None, trajectory=None)
 
         self.masses = self.atoms.get_masses()
-        self.max_steps = None
+        self.max_steps = 0  # to be updated in run or irun
 
         if 0 in self.masses:
             warnings.warn('Zero mass encountered in atoms; this will '

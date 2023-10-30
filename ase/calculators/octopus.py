@@ -7,10 +7,11 @@ http://tddft.org/programs/octopus/
 """
 
 import numpy as np
-from ase.io.octopus.input import process_special_kwargs, generate_input
-from ase.io.octopus.output import read_eigenvalues_file, read_static_info
+
 from ase.calculators.genericfileio import (CalculatorTemplate,
                                            GenericFileIOCalculator)
+from ase.io.octopus.input import generate_input, process_special_kwargs
+from ase.io.octopus.output import read_eigenvalues_file, read_static_info
 
 
 class OctopusIOError(IOError):
@@ -22,8 +23,8 @@ class OctopusProfile:
         self.argv = argv
 
     def version(self):
-        from subprocess import check_output
         import re
+        from subprocess import check_output
         txt = check_output(self.argv + ['--version']).decode('ascii')
         match = re.match(r'octopus\s*(.+)', txt)
         # With MPI it prints the line for each rank, but we just match

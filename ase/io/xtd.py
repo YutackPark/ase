@@ -1,9 +1,10 @@
-import numpy as np
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
 
-from ase.io.xsd import SetChild, _write_xsd_html
+import numpy as np
+
 from ase import Atoms
+from ase.io.xsd import SetChild, _write_xsd_html
 
 _image_header = ' ' * 74 + '0.0000\n!DATE     Jan 01 00:00:00 2000\n'
 _image_footer = 'end\nend\n'

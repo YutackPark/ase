@@ -1,4 +1,5 @@
 import numpy as np
+
 import ase.units as un
 from ase.calculators.polarizability import StaticPolarizabilityCalculator
 

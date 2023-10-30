@@ -17,10 +17,11 @@ functional theories.
     You should have received a copy of the GNU Lesser General Public License
     along with ASE.  If not, see <http://www.gnu.org/licenses/>.
 """
-import numpy as np
 import os
 import subprocess
 import warnings
+
+import numpy as np
 
 from ase.calculators.openmx.reader import rn as read_nth_to_last_value
 

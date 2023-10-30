@@ -1,12 +1,12 @@
 '''These tests ensure that the computed PEC curvature matche the actual
 geometries using a somewhat agressive angle_limit for each stepsize.'''
-import pytest
-from ase import Atoms
-from ase.md.contour_exploration import ContourExploration
 import numpy as np
+import pytest
+
+from ase import Atoms
 from ase.calculators.emt import EMT
 from ase.constraints import FixAtoms
-
+from ase.md.contour_exploration import ContourExploration
 
 pair_distance = 2.5
 

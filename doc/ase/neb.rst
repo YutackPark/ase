@@ -2,7 +2,7 @@
 Nudged elastic band
 ===================
 
-.. module:: ase.neb
+.. module:: ase.mep.neb
    :synopsis: Nudged Elastic Band method.
 
 The Nudged Elastic Band method is a technique for finding transition paths
@@ -47,7 +47,7 @@ Example of use, between initial and final state which have been previously
 saved in A.traj and B.traj::
 
   from ase import io
-  from ase.neb import NEB
+  from ase.mep import NEB
   from ase.optimize import MDMin
   # Read initial and final states:
   initial = io.read('A.traj')
@@ -196,7 +196,7 @@ To use the climbing image NEB method, instantiate the NEB object like this::
 Scaled and dynamic optimizations
 ================================
 
-.. autoclass:: ase.dyneb.DyNEB
+.. autoclass:: ase.mep.dyneb.DyNEB
 
 The convergence of images is often non-uniform, and a large fraction of
 computational resources can be spent calculating images that are below
@@ -204,7 +204,7 @@ the convergence criterion. This can be avoided with a dynamic optimization
 method that monitors the convergence of each image. Dynamic optimization
 is implemented as a subclass of the NEB method::
 
-    from ase.dyneb import DyNEB
+    from ase.mep import DyNEB
     neb = DyNEB(images, fmax=0.05, dynamic_relaxation=True)
 
 where ``fmax`` must be identical to the ``fmax`` of the optimizer.
@@ -291,10 +291,4 @@ You can find more help with::
 AutoNEB
 =======
 
-.. warning::
-
-    The module from where the :class:`ase.autoneb.AutoNEB` class is imported
-    may be changed some day in a future version of ASE
-    (most likely to :mod:`ase.neb` or :mod:`ase.mep`).
-
-.. autoclass:: ase.autoneb.AutoNEB
+.. autoclass:: ase.mep.autoneb.AutoNEB

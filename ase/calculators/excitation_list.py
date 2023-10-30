@@ -1,6 +1,6 @@
 import numpy as np
 
-from ase.units import Hartree, Bohr
+from ase.units import Bohr, Hartree
 
 
 class Excitation:

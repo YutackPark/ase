@@ -6,7 +6,6 @@ import subprocess
 import sys
 from pathlib import Path
 
-
 cmds = """\
 . /etc/bashrc
 module load Tkinter

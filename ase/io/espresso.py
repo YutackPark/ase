@@ -12,8 +12,8 @@ Units are converted using CODATA 2006, as used internally by Quantum
 ESPRESSO.
 """
 
-import os
 import operator as op
+import os
 import re
 import warnings
 from collections import OrderedDict
@@ -22,16 +22,15 @@ from os import path
 import numpy as np
 
 from ase.atoms import Atoms
-from ase.cell import Cell
+from ase.calculators.calculator import kpts2ndarray, kpts2sizeandoffsets
 from ase.calculators.singlepoint import (SinglePointDFTCalculator,
                                          SinglePointKPoint)
-from ase.calculators.calculator import kpts2ndarray, kpts2sizeandoffsets
-from ase.dft.kpoints import kpoint_convert
+from ase.cell import Cell
 from ase.constraints import FixAtoms, FixCartesian
-from ase.data import chemical_symbols, atomic_numbers
+from ase.data import atomic_numbers, chemical_symbols
+from ase.dft.kpoints import kpoint_convert
 from ase.units import create_units
 from ase.utils import iofunction
-
 
 # Quantum ESPRESSO uses CODATA 2006 internally
 units = create_units('2006')
@@ -51,6 +50,8 @@ _PW_HIGHEST_OCCUPIED_LOWEST_FREE = 'highest occupied, lowest unoccupied level'
 _PW_KPTS = 'number of k points='
 _PW_BANDS = _PW_END
 _PW_BANDSTRUCTURE = 'End of band structure calculation'
+_PW_DIPOLE = "Debye"
+_PW_DIPOLE_DIRECTION = "Computed dipole along edir"
 
 # ibrav error message
 ibrav_error_message = (
@@ -79,8 +80,8 @@ class Namelist(OrderedDict):
         return super(Namelist, self).get(key.lower(), default)
 
 
-@iofunction('rU')
-def read_espresso_out(fileobj, index=-1, results_required=True):
+@iofunction('r')
+def read_espresso_out(fileobj, index=slice(None), results_required=True):
     """Reads Quantum ESPRESSO output files.
 
     The atomistic configurations as well as results (energy, force, stress,
@@ -130,6 +131,8 @@ def read_espresso_out(fileobj, index=-1, results_required=True):
         _PW_KPTS: [],
         _PW_BANDS: [],
         _PW_BANDSTRUCTURE: [],
+        _PW_DIPOLE: [],
+        _PW_DIPOLE_DIRECTION: [],
     }
 
     for idx, line in enumerate(pwo_lines):
@@ -275,6 +278,22 @@ def read_espresso_out(fileobj, index=-1, results_required=True):
                     in pwo_lines[magmoms_index + 1:
                                  magmoms_index + 1 + len(structure)]]
 
+        # Dipole moment
+        dipole = None
+        if indexes[_PW_DIPOLE]:
+            for dipole_index in indexes[_PW_DIPOLE]:
+                if image_index < dipole_index < next_index:
+                    _dipole = float(pwo_lines[dipole_index].split()[-2])
+
+            for dipole_index in indexes[_PW_DIPOLE_DIRECTION]:
+                if image_index < dipole_index < next_index:
+                    _direction = pwo_lines[dipole_index].strip()
+                    prefix = 'Computed dipole along edir('
+                    _direction = _direction[len(prefix):]
+                    _direction = int(_direction[0])
+
+            dipole = np.eye(3)[_direction - 1] * _dipole * units['Debye']
+
         # Fermi level / highest occupied level
         efermi = None
         for fermi_index in indexes[_PW_FERMI]:
@@ -298,7 +317,7 @@ def read_espresso_out(fileobj, index=-1, results_required=True):
                           "set verbosity='high' to print them."
 
         for kpts_index in indexes[_PW_KPTS]:
-            nkpts = int(pwo_lines[kpts_index].split()[4])
+            nkpts = int(re.findall(r'\b\d+\b', pwo_lines[kpts_index])[0])
             kpts_index += 2
 
             if pwo_lines[kpts_index].strip() == kpoints_warning:
@@ -382,7 +401,7 @@ def read_espresso_out(fileobj, index=-1, results_required=True):
                                         free_energy=energy,
                                         forces=forces, stress=stress,
                                         magmoms=magmoms, efermi=efermi,
-                                        ibzkpts=ibzkpts)
+                                        ibzkpts=ibzkpts, dipole=dipole)
         calc.kpts = kpts
         structure.calc = calc
 
@@ -493,7 +512,7 @@ def parse_position_line(line):
     return sym, float(x), float(y), float(z)
 
 
-@iofunction('rU')
+@iofunction('r')
 def read_espresso_in(fileobj):
     """Parse a Quantum ESPRESSO input files, '.in', '.pwi'.
 

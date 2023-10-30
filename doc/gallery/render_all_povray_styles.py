@@ -1,6 +1,7 @@
-from ase.io.pov import POVRAY
 from ase import io
+from ase.io.pov import POVRAY
 from ase.utils.ptable import ptable
+
 run_povray = True
 
 atoms = ptable(spacing=3)

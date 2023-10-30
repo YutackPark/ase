@@ -1,5 +1,6 @@
 def test_rotate_euler():
     from math import sqrt
+
     from ase import Atoms
 
     d = 1.14

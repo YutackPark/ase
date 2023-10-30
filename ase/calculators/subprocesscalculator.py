@@ -1,8 +1,9 @@
 import os
+import pickle
 import sys
 from abc import ABC, abstractmethod
-import pickle
-from subprocess import Popen, PIPE
+from subprocess import PIPE, Popen
+
 from ase.calculators.calculator import Calculator, all_properties
 
 

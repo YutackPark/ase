@@ -1,6 +1,7 @@
 import numpy as np
-from ase.geometry import cell_to_cellpar as c2p, cellpar_to_cell as p2c
 
+from ase.geometry import cell_to_cellpar as c2p
+from ase.geometry import cellpar_to_cell as p2c
 
 eps = 2 * np.spacing(90., dtype=np.float64)
 

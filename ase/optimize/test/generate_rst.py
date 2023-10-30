@@ -1,7 +1,6 @@
 import os
 import re
 
-
 rst = """\
 .. _optimizer_tests:
 

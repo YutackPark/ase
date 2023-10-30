@@ -1,10 +1,10 @@
-from ase.build import molecule
-from ase.calculators.emt import EMT
-from ase.constraints import FixedLine
-from ase.constraints import FixedPlane
-from ase.optimize import BFGS
 import numpy as np
 import pytest
+
+from ase.build import molecule
+from ase.calculators.emt import EMT
+from ase.constraints import FixedLine, FixedPlane
+from ase.optimize import BFGS
 
 
 @pytest.fixture(params=[FixedLine, FixedPlane])

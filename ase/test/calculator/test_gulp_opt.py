@@ -1,9 +1,10 @@
 def test_gulp_opt():
     import numpy as np
+
+    from ase.build import bulk, molecule
     from ase.calculators.gulp import GULP
+    from ase.filters import FrechetCellFilter
     from ase.optimize import BFGS
-    from ase.build import molecule, bulk
-    from ase.constraints import ExpCellFilter
 
     # GULP optmization test
     atoms = molecule('H2O')
@@ -25,7 +26,7 @@ def test_gulp_opt():
     atoms1 = atoms.copy()
     atoms1.calc = GULP(keywords='conp gradient stress_out',
                        library='reaxff_general.lib')
-    atoms1f = ExpCellFilter(atoms1)
+    atoms1f = FrechetCellFilter(atoms1)
     with BFGS(atoms1f) as opt1:
         opt1.run(fmax=0.005)
 

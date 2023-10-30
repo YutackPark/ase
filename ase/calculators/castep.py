@@ -14,34 +14,33 @@ Contributors:
 """
 
 import difflib
-import numpy as np
+import glob
+import json
 import os
 import re
-import glob
 import shutil
-import sys
-import json
-import time
-import tempfile
-import warnings
 import subprocess
-from copy import deepcopy
+import sys
+import tempfile
+import time
+import warnings
 from collections import namedtuple
+from copy import deepcopy
 from itertools import product
 from pathlib import Path
 from typing import List, Set
 
+import numpy as np
+
 import ase
 import ase.units as units
+from ase.calculators.calculator import (PropertyNotImplementedError,
+                                        compare_atoms, kpts2sizeandoffsets)
 from ase.calculators.general import Calculator
-from ase.calculators.calculator import compare_atoms
-from ase.calculators.calculator import PropertyNotImplementedError
-from ase.calculators.calculator import kpts2sizeandoffsets
-from ase.dft.kpoints import BandPath
-from ase.parallel import paropen
-from ase.io.castep import read_param
-from ase.io.castep import read_bands
 from ase.constraints import FixCartesian
+from ase.dft.kpoints import BandPath
+from ase.io.castep import read_bands, read_param
+from ase.parallel import paropen
 
 __all__ = [
     'Castep',
@@ -127,15 +126,15 @@ attribute access (*i.e*. ``calc.param.keyword = ...`` or
 Getting Started:
 ================
 
-Set the environment variables appropriately for your system.
+Set the environment variables appropriately for your system::
 
->>> export CASTEP_COMMAND=' ... '
->>> export CASTEP_PP_PATH=' ... '
+    export CASTEP_COMMAND=' ... '
+    export CASTEP_PP_PATH=' ... '
 
 Note: alternatively to CASTEP_PP_PATH one can set PSPOT_DIR
-as CASTEP consults this by default, i.e.
+as CASTEP consults this by default, i.e.::
 
->>> export PSPOT_DIR=' ... '
+    export PSPOT_DIR=' ... '
 
 
 Running the Calculator
@@ -2485,7 +2484,7 @@ class CastepOption:
         # The value, not converted to a string
         return self._value
 
-    @value.setter  # type: ignore
+    @value.setter  # type: ignore[attr-defined, no-redef]
     def value(self, val):
 
         if val is None:
@@ -2711,7 +2710,7 @@ class CastepInputFile:
         attrparse = '_parse_%s' % attr.lower()
 
         # Check for any conflicts if the value is not None
-        if not (value is None):
+        if value is not None:
             cset = self._conflict_dict.get(attr.lower(), {})
             for c in cset:
                 if (c in self._options and self._options[c].value):

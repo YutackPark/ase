@@ -7,10 +7,10 @@ import numpy as np
 from numpy.linalg import norm
 
 from ase.calculators.calculator import Calculator
-from ase.data import (atomic_numbers as ase_atomic_numbers,
-                      chemical_symbols as ase_chemical_symbols,
-                      atomic_masses as ase_atomic_masses)
 from ase.calculators.lammps import convert
+from ase.data import atomic_masses as ase_atomic_masses
+from ase.data import atomic_numbers as ase_atomic_numbers
+from ase.data import chemical_symbols as ase_chemical_symbols
 from ase.geometry import wrap_positions
 
 # TODO
@@ -134,7 +134,7 @@ Keyword                                  Description
 
 ``keep_alive``           Boolean
                          whether to keep the lammps routine alive for more
-                         commands
+                         commands. Default is True.
 
 =======================  ======================================================
 
@@ -260,7 +260,7 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
         atom_type_masses=None,
         log_file=None,
         lammps_name='',
-        keep_alive=False,
+        keep_alive=True,
         lammps_header=['units metal',
                        'atom_style atomic',
                        'atom_modify map array sort 0 0'],
@@ -276,10 +276,11 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
         Calculator.__init__(self, *args, **kwargs)
         self.lmp = None
 
-    def __del__(self):
+    def clean(self):
         if self.started:
             self.lmp.close()
             self.started = False
+            self.initialized = False
             self.lmp = None
 
     def set_cell(self, atoms, change=False):
@@ -541,8 +542,8 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
         # otherwise check_state will always trigger a new calculation
         self.atoms = atoms.copy()
 
-        if not self.parameters.keep_alive:
-            self.lmp.close()
+        if not self.parameters["keep_alive"]:
+            self.clean()
 
     def lammpsbc(self, atoms):
         """Determine LAMMPS boundary types based on ASE pbc settings. For
@@ -628,7 +629,7 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
         # Only import lammps when running a calculation
         # so it is not required to use other parts of the
         # module
-        from lammps import lammps, LMP_STYLE_ATOM, LMP_TYPE_VECTOR
+        from lammps import LMP_STYLE_ATOM, LMP_TYPE_VECTOR, lammps
 
         self.LMP_STYLE_ATOM = LMP_STYLE_ATOM
         self.LMP_TYPE_VECTOR = LMP_TYPE_VECTOR

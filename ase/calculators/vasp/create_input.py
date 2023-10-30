@@ -19,9 +19,9 @@ http://cms.mpi.univie.ac.at/vasp/
 """
 
 import os
-import warnings
 import shutil
-from os.path import join, isfile, islink
+import warnings
+from os.path import isfile, islink, join
 from typing import List, Sequence, Tuple
 
 import numpy as np
@@ -224,7 +224,6 @@ float_keys = [
     'dvvvnorm0',  # Undocumented parameter
     'dvvminpotim',  # Undocumented parameter
     'dvvmaxpotim',  # Undocumented parameter
-    'efermi',  # Undocumented parameter
     'enchg',  # Undocumented charge fitting parameter
     'tau0',  # Undocumented charge fitting parameter
     'encut4o',  # Cutoff energy for 4-center integrals (HF)
@@ -291,6 +290,7 @@ string_keys = [
     'radeq',  # Which type of radial equations to use for rel. core calcs.
     'localized_basis',  # Basis to use in CRPA
     'proutine',  # Select profiling routine
+    'efermi',  # Sets the FERMI level in VASP 6.4.0+
 ]
 
 int_keys = [
@@ -299,6 +299,7 @@ int_keys = [
     'icharg',  # charge: 0-WAVECAR 1-CHGCAR 2-atom 10-const
     'idipol',  # monopol/dipol and quadropole corrections
     'images',  # number of images for NEB calculation
+    'imix',  # specifies density mixing
     'iniwav',  # initial electr wf. : 0-lowe 1-rand
     'isif',  # calculate stress and what to relax
     'ismear',  # part. occupancies: -5 Blochl -4-tet -1-fermi 0-gaus >0 MP
@@ -1021,6 +1022,7 @@ class GenerateVaspInput:
         self.list_float_params = {}
         self.special_params = {}
         self.dict_params = {}
+        self.atoms = None
         for key in float_keys:
             self.float_params[key] = None
         for key in exp_keys:
@@ -1218,7 +1220,7 @@ class GenerateVaspInput:
             if m in setups:
                 special_setup_index = m
             elif str(m) in setups:
-                special_setup_index = str(m)  # type: ignore
+                special_setup_index = str(m)  # type: ignore[assignment]
             else:
                 raise Exception("Having trouble with special setup index {0}."
                                 " Please use an int.".format(m))
@@ -1292,6 +1294,9 @@ class GenerateVaspInput:
 
         # String shortcuts are initialised to dict form
         elif isinstance(p['setups'], str):
+            if p['setups'].lower() == 'materialsproject':
+                warnings.warn('`materialsproject` setup will be'
+                              'removed in a future release.', FutureWarning)
             if p['setups'].lower() in setups_defaults.keys():
                 p['setups'] = {'base': p['setups']}
 
@@ -1311,6 +1316,14 @@ class GenerateVaspInput:
             except ValueError:
                 pass
         return setups, special_setups
+
+    def _set_spinpol(self, atoms):
+        if self.int_params['ispin'] is None:
+            self.spinpol = atoms.get_initial_magnetic_moments().any()
+        else:
+            # VASP runs non-spin-polarized calculations when `ispin=1`,
+            # regardless if `magmom` is specified or not.
+            self.spinpol = (self.int_params['ispin'] == 2)
 
     def initialize(self, atoms):
         """Initialize a VASP calculation
@@ -1335,8 +1348,7 @@ class GenerateVaspInput:
         self.all_symbols = atoms.get_chemical_symbols()
         self.natoms = len(atoms)
 
-        self.spinpol = (atoms.get_initial_magnetic_moments().any()
-                        or self.int_params['ispin'] == 2)
+        self._set_spinpol(atoms)
 
         setups, special_setups = self._get_setups()
 

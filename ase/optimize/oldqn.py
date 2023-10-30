@@ -8,10 +8,12 @@ Quasi-Newton algorithm
 __docformat__ = 'reStructuredText'
 
 import time
+from typing import IO, Optional, Union
 
 import numpy as np
 from numpy.linalg import eigh
 
+from ase import Atoms
 from ase.optimize.optimize import Optimizer
 
 
@@ -97,12 +99,24 @@ def find_lamda(upperlimit, Gbar, b, radius):
 
 class GoodOldQuasiNewton(Optimizer):
 
-    def __init__(self, atoms, restart=None, logfile='-', trajectory=None,
-                 fmax=None, converged=None,
-                 hessianupdate='BFGS', hessian=None, forcemin=True,
-                 verbosity=None, maxradius=None,
-                 diagonal=20., radius=None,
-                 transitionstate=False, master=None):
+    def __init__(
+        self,
+        atoms: Atoms,
+        restart: Optional[str] = None,
+        logfile: Union[IO, str] = '-',
+        trajectory: Optional[str] = None,
+        fmax=None,
+        converged=None,
+        hessianupdate: str = 'BFGS',
+        hessian=None,
+        forcemin: bool = True,
+        verbosity: bool = False,
+        maxradius: Optional[float] = None,
+        diagonal: float = 20.0,
+        radius: Optional[float] = None,
+        transitionstate: bool = False,
+        master: Optional[bool] = None,
+    ):
         """Parameters:
 
         atoms: Atoms object

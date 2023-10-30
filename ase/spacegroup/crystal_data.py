@@ -1,6 +1,5 @@
 from ase.lattice import bravais_classes
 
-
 _crystal_family = ('Øaammmmmmmmmmmmmoooooooooooooooooooooooooooooooooooooooooo'
                    'ooooooooooooooooottttttttttttttttttttttttttttttttttttttttt'
                    'ttttttttttttttttttttttttttthhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh'

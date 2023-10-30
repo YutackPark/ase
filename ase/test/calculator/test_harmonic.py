@@ -1,13 +1,14 @@
 import numpy as np
-from numpy.testing import assert_array_almost_equal
-from ase import Atoms
-from ase.calculators.harmonic import HarmonicForceField, HarmonicCalculator
-from ase.calculators.calculator import CalculatorSetupError, CalculationFailed
-from ase.calculators.emt import EMT
-from ase.optimize import BFGS
-from ase.vibrations import Vibrations
-from ase.units import fs
 import pytest
+from numpy.testing import assert_array_almost_equal
+
+from ase import Atoms
+from ase.calculators.calculator import CalculationFailed, CalculatorSetupError
+from ase.calculators.emt import EMT
+from ase.calculators.harmonic import HarmonicCalculator, HarmonicForceField
+from ase.optimize import BFGS
+from ase.units import fs
+from ase.vibrations import Vibrations
 
 ref_pos = np.asarray([[8.7161, 7.96276, 8.48206], [8.60594, 8.04985, 9.44464],
                       [8.0154, 8.52264, 8.10545]])
@@ -232,9 +233,9 @@ def test_compatible_with_ase_vibrations():
 
 def test_thermodynamic_integration():
     from ase.calculators.mixing import MixedCalculator
+    from ase.md.andersen import Andersen
     from ase.md.velocitydistribution import (MaxwellBoltzmannDistribution,
                                              Stationary, ZeroRotation)
-    from ase.md.andersen import Andersen
     parameters = {'ref_atoms': ref_atoms, 'ref_energy': ref_energy,
                   'hessian_x': hessian_x, 'get_q_from_x': water_get_q_from_x,
                   'get_jacobian': water_get_jacobian, 'cartesian': True,

@@ -1,5 +1,6 @@
 """Test phasediagram code."""
 import pytest
+
 from ase.phasediagram import PhaseDiagram
 
 

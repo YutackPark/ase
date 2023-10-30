@@ -1,5 +1,6 @@
 """Check if spin-symmetry is conserved"""
 import pytest
+
 from ase import Atoms
 
 

@@ -4,9 +4,8 @@ import pytest
 import ase
 import ase.lattice.hexagonal
 from ase.build import bulk, molecule
-
-from ase.neighborlist import (mic, neighbor_list, primitive_neighbor_list,
-                              first_neighbors)
+from ase.neighborlist import (first_neighbors, mic, neighbor_list,
+                              primitive_neighbor_list)
 
 
 @pytest.mark.slow

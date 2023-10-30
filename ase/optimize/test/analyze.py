@@ -1,4 +1,5 @@
 from collections import defaultdict
+
 from numpy import inf
 
 import ase.db

@@ -1,15 +1,14 @@
 import numpy as np
 import pytest
 
-from ase.optimize import FIRE, BFGS
-from ase.data import s22
+import ase.units as units
 from ase.calculators.tip3p import TIP3P
 from ase.constraints import FixBondLengths
-from ase.md.verlet import VelocityVerlet
-from ase.md.langevin import Langevin
+from ase.data import s22
 from ase.io import Trajectory
-import ase.units as units
-
+from ase.md.langevin import Langevin
+from ase.md.verlet import VelocityVerlet
+from ase.optimize import BFGS, FIRE
 
 md_cls_and_kwargs = [
     (VelocityVerlet, {}),

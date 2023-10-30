@@ -1,9 +1,11 @@
+import copy
+
+import pytest
+
+from ase.build import molecule
 from ase.calculators.emt import EMT
 from ase.constraints import FixInternals
 from ase.optimize.bfgs import BFGS
-from ase.build import molecule
-import copy
-import pytest
 
 
 def setup_atoms():

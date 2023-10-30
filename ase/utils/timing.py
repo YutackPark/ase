@@ -2,8 +2,8 @@
 # Please see the accompanying LICENSE file for further information.
 
 
-import inspect
 import functools
+import inspect
 import sys
 import time
 

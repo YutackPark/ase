@@ -1,10 +1,11 @@
-import pytest
 import numpy as np
-from ase.md import VelocityVerlet
+import pytest
+
 from ase.build import bulk
-from ase.units import kB
-from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
 from ase.calculators.idealgas import IdealGas
+from ase.md import VelocityVerlet
+from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
+from ase.units import kB
 
 
 def test_idealgas():

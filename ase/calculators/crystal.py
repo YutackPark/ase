@@ -33,11 +33,13 @@ The keywords are given, for instance, as follows:
 
 """
 
-from ase.units import Hartree, Bohr
-from ase.io import write
-import numpy as np
 import os
+
+import numpy as np
+
 from ase.calculators.calculator import FileIOCalculator
+from ase.io import write
+from ase.units import Bohr, Hartree
 
 
 class CRYSTAL(FileIOCalculator):

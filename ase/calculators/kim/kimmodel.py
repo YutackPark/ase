@@ -9,11 +9,9 @@ University of Minnesota
 """
 import numpy as np
 
-from ase.calculators.calculator import Calculator
-from ase.calculators.calculator import compare_atoms
+from ase.calculators.calculator import Calculator, compare_atoms
 
-from . import kimpy_wrappers
-from . import neighborlist
+from . import kimpy_wrappers, neighborlist
 
 
 class KIMModelData:

@@ -1,11 +1,11 @@
 import numpy as np
 import pytest
-from ase.vibrations import Vibrations
-from ase.calculators.h2morse import (H2Morse, H2MorseCalculator,
-                                     Re, De, ome, Etrans)
-from ase.calculators.h2morse import (H2MorseExcitedStatesCalculator,
+
+from ase.calculators.h2morse import (De, Etrans, H2Morse, H2MorseCalculator,
                                      H2MorseExcitedStates,
-                                     H2MorseExcitedStatesAndCalculator)
+                                     H2MorseExcitedStatesAndCalculator,
+                                     H2MorseExcitedStatesCalculator, Re, ome)
+from ase.vibrations import Vibrations
 
 
 def test_gs_minimum(testdir):

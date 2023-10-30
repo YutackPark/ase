@@ -24,8 +24,8 @@ for all the interesting ndarray methods.
 
 
 from functools import update_wrapper
-import numpy as np
 
+import numpy as np
 
 inplace_methods = ['__iadd__', '__imul__', '__ipow__', '__isub__',
                    '__itruediv__', '__imatmul__']

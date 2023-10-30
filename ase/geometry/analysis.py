@@ -6,10 +6,10 @@ from typing import List, Optional
 
 import numpy as np
 
-from ase.neighborlist import build_neighbor_list, get_distance_matrix, get_distance_indices
-from ase.geometry.rdf import get_rdf, get_containing_cell_length
 from ase import Atoms
-
+from ase.geometry.rdf import get_containing_cell_length, get_rdf
+from ase.neighborlist import (build_neighbor_list, get_distance_indices,
+                              get_distance_matrix)
 
 __all__ = ['Analysis']
 
@@ -22,7 +22,7 @@ def get_max_containing_cell_length(images: List[Atoms]):
 
 
 def get_max_volume_estimate(images: List[Atoms]) -> float:
-    return np.product(get_max_containing_cell_length(images))
+    return np.prod(get_max_containing_cell_length(images))
 
 
 class Analysis:
@@ -369,7 +369,7 @@ class Analysis:
 
         Use :func:`get_values` to convert the returned list to values.
         """
-        from itertools import product, combinations
+        from itertools import combinations, product
         r = []
         for imI in range(len(self.all_angles)):
             r.append([])

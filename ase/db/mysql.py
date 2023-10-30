@@ -1,15 +1,14 @@
+import json
 import sys
+from copy import deepcopy
+
 import numpy as np
 from pymysql import connect
 from pymysql.err import ProgrammingError
-from copy import deepcopy
 
-from ase.db.sqlite import SQLite3Database
-from ase.db.sqlite import init_statements
-from ase.db.sqlite import VERSION
-from ase.db.postgresql import remove_nan_and_inf, insert_nan_and_inf
 import ase.io.jsonio
-import json
+from ase.db.postgresql import insert_nan_and_inf, remove_nan_and_inf
+from ase.db.sqlite import VERSION, SQLite3Database, init_statements
 
 
 class Connection:
@@ -64,12 +63,13 @@ class MySQLCursor:
         (' key TEXT', ' attribute_key TEXT'),
         ('(key TEXT', '(attribute_key TEXT'),
         ('SELECT key FROM', 'SELECT attribute_key FROM'),
+        ('SELECT DISTINCT key FROM keys',
+         'SELECT DISTINCT attribute_key FROM attribute_keys'),
         ('?', '%s'),
         (' keys ', ' attribute_keys '),
         (' key=', ' attribute_key='),
         ('table.key', 'table.attribute_key'),
-        (' IF NOT EXISTS', '')
-    ]
+        (' IF NOT EXISTS', '')]
 
     def __init__(self, cur):
         self.cur = cur

@@ -1,8 +1,8 @@
 import warnings
 
+from ase.calculators.calculator import FileIOCalculator
 from ase.io import read, write
 from ase.io.gamess_us import clean_userscr, get_userscr
-from ase.calculators.calculator import FileIOCalculator
 
 
 class GAMESSUS(FileIOCalculator):

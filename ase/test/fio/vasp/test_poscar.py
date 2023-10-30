@@ -1,7 +1,9 @@
 # import inspect
-import pytest
-import numpy as np
 from shutil import copyfile
+
+import numpy as np
+import pytest
+
 # from ase import Atoms
 from ase.io import read  # , iread
 

@@ -2,10 +2,10 @@ import optparse
 
 import numpy as np
 
-from ase.data import covalent_radii
-from ase.io.cube import read_cube_data
-from ase.data.colors import cpk_colors
 from ase.calculators.calculator import get_calculator_class
+from ase.data import covalent_radii
+from ase.data.colors import cpk_colors
+from ase.io.cube import read_cube_data
 
 
 def plot(atoms, data, contours):
@@ -60,6 +60,10 @@ def plot(atoms, data, contours):
     mlab.view(azimuth=155, elevation=70, distance='auto')
     # Show the 3d plot:
     mlab.show()
+
+
+def view_mlab(atoms, *args, **kwargs):
+    return plot(atoms, *args, **kwargs)
 
 
 description = """\

@@ -1,11 +1,11 @@
-import pytest
 import re
+
 import numpy as np
+import pytest
 
 from ase.atoms import Atoms
-from ase.units import Hartree
 from ase.optimize import BFGS
-
+from ase.units import Hartree
 
 calc = pytest.mark.calculator
 

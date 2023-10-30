@@ -4,9 +4,9 @@
 import os
 
 from numpy import array
+
 import ase
 import ase.io
-
 
 # Error tolerance.
 TOL = 1e-6

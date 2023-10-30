@@ -2,10 +2,11 @@
 Tests of the plugin functionality for defining IO formats
 outside of the ase package
 """
-import pytest
 import copy
-import sys
 import io
+import sys
+
+import pytest
 
 if sys.version_info >= (3, 8):
     from importlib.metadata import EntryPoint

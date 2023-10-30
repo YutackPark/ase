@@ -1,15 +1,15 @@
 from random import randint
-from typing import Dict, Any
+from typing import Any, Dict
 
 import numpy as np
 
 from ase import Atoms
-from ase.constraints import dict2constraint
-from ase.calculators.calculator import (all_properties,
-                                        PropertyNotImplementedError,
+from ase.calculators.calculator import (PropertyNotImplementedError,
+                                        all_properties,
                                         kptdensity2monkhorstpack)
 from ase.calculators.singlepoint import SinglePointCalculator
-from ase.data import chemical_symbols, atomic_masses
+from ase.constraints import dict2constraint
+from ase.data import atomic_masses, chemical_symbols
 from ase.formula import Formula
 from ase.geometry import cell_to_cellpar
 from ase.io.jsonio import decode
@@ -218,7 +218,7 @@ class AtomsRow:
     @property
     def charge(self):
         """Total charge."""
-        charges = self.get('inital_charges')
+        charges = self.get('initial_charges')
         if charges is None:
             return 0.0
         return charges.sum()

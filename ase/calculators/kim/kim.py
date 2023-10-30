@@ -13,13 +13,9 @@ on KIM, visit https://openkim.org.
 """
 
 from . import kimpy_wrappers
+from .calculators import (ASAPCalculator, KIMCalculator, LAMMPSLibCalculator,
+                          LAMMPSRunCalculator)
 from .exceptions import KIMCalculatorError
-from .calculators import (
-    KIMCalculator,
-    ASAPCalculator,
-    LAMMPSRunCalculator,
-    LAMMPSLibCalculator,
-)
 
 
 def KIM(model_name, simulator=None, options=None, debug=False):

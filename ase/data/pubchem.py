@@ -1,11 +1,11 @@
-from collections import namedtuple
-import warnings
-import urllib.request
-from urllib.error import URLError, HTTPError
 import json
-from io import StringIO, BytesIO
-from ase.io import read
+import urllib.request
+import warnings
+from collections import namedtuple
+from io import BytesIO, StringIO
+from urllib.error import HTTPError, URLError
 
+from ase.io import read
 
 base_url = 'https://pubchem.ncbi.nlm.nih.gov/rest/pug'
 

@@ -1,6 +1,6 @@
 def test_surface_terminations():
-    from ase.build.surfaces_with_termination import surfaces_with_termination
     from ase.build import surface
+    from ase.build.surfaces_with_termination import surfaces_with_termination
     from ase.spacegroup import crystal
 
     a = 4.6

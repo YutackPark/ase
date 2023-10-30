@@ -4,9 +4,8 @@ Implemented:
 * Input file (xyz.in)
 
 """
-import pytest
-
 import numpy as np
+import pytest
 
 from ase import io
 from ase.build import bulk

@@ -1,8 +1,9 @@
-import pytest
 import numpy as np
-from ase.build import fcc100, add_adsorbate
-from ase.constraints import FixAtoms, FixInternals
+import pytest
+
+from ase.build import add_adsorbate, fcc100
 from ase.calculators.emt import EMT
+from ase.constraints import FixAtoms, FixInternals
 from ase.optimize.climbfixinternals import BFGSClimbFixInternals
 from ase.vibrations import Vibrations
 

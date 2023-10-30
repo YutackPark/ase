@@ -4,10 +4,11 @@ http://www.cp2k.org
 Author: Ole Schuett <ole.schuett@mat.ethz.ch>
 """
 
-import pytest
 import numpy as np
+import pytest
+
 from ase.build import bulk
-from ase.constraints import UnitCellFilter
+from ase.filters import UnitCellFilter
 from ase.optimize import MDMin
 
 

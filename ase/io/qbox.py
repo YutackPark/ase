@@ -1,12 +1,11 @@
 """This module contains functions to read from QBox output files"""
 
-from ase import Atom, Atoms
-from ase.calculators.singlepoint import SinglePointCalculator
-from ase.utils import reader
-
 import re
 import xml.etree.ElementTree as ET
 
+from ase import Atom, Atoms
+from ase.calculators.singlepoint import SinglePointCalculator
+from ase.utils import reader
 
 # Compile regexs for fixing XML
 re_find_bad_xml = re.compile(r'<(/?)([A-z]+) expectation ([a-z]+)')

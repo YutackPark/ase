@@ -1,10 +1,9 @@
 import numpy as np
 from gpaw import GPAW, PW
 
-from ase.calculators.dftd3 import DFTD3
 from ase.build import bulk
+from ase.calculators.dftd3 import DFTD3
 from ase.constraints import UnitCellFilter
-
 from ase.optimize import LBFGS
 
 np.random.seed(0)

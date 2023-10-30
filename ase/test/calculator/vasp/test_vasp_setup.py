@@ -1,4 +1,5 @@
 import pytest
+
 from ase.atoms import Atoms
 
 calc = pytest.mark.calculator
@@ -50,7 +51,6 @@ def do_check():
 @pytest.mark.parametrize('settings, expected', [
     (dict(xc='pbe'), ('Ca_pv', 'Gd', 'Cs_sv')),
     (dict(xc='pbe', setups='recommended'), ('Ca_sv', 'Gd_3', 'Cs_sv')),
-    (dict(xc='pbe', setups='materialsproject'), ('Ca_sv', 'Gd', 'Cs_sv')),
 ])
 def test_vasp_setup_atoms_1(factory, do_check, atoms_1, settings, expected):
     """Run some tests to ensure that VASP calculator constructs correct
@@ -79,7 +79,6 @@ def test_vasp_setup_atoms_2(factory, do_check, atoms_2, settings, expected):
 @pytest.mark.parametrize('settings, expected', [
     (dict(xc='pbe'), ('Ca_sv', 'Gd', 'Cs_sv')),
     (dict(xc='pbe', setups='recommended'), ('Ca_sv', 'Gd_31', 'Cs_sv')),
-    (dict(xc='pbe', setups='materialsproject'), ('Ca_sv', 'Gd', 'Cs')),
 ])
 def test_setup_error(factory, do_check, atoms_1, settings, expected):
     """Do a test, where we purposely make mistakes"""

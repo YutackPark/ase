@@ -4,7 +4,6 @@ import ase
 from ase.data import chemical_symbols
 from ase.utils import reader, writer
 
-
 cfg_default_fields = np.array(['positions', 'momenta', 'numbers', 'magmoms'])
 
 

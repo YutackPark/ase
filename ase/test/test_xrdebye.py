@@ -5,8 +5,8 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from ase.utils.xrdebye import XrDebye, wavelengths
 from ase.cluster.cubic import FaceCenteredCubic
+from ase.utils.xrdebye import XrDebye, wavelengths
 
 tolerance = 1E-5
 

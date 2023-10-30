@@ -1,12 +1,13 @@
-from abc import abstractmethod, ABC
 import functools
 import warnings
-import numpy as np
+from abc import ABC, abstractmethod
 from typing import Dict, List
 
-from ase.cell import Cell
+import numpy as np
+
 from ase.build.bulk import bulk as newbulk
-from ase.dft.kpoints import parse_path_string, sc_special_points, BandPath
+from ase.cell import Cell
+from ase.dft.kpoints import BandPath, parse_path_string, sc_special_points
 from ase.utils import pbc2pbc
 
 
@@ -73,6 +74,8 @@ class BravaisLattice(ABC):
     def variant(self) -> str:
         """Return name of lattice variant.
 
+        >>> from ase.lattice import BCT
+
         >>> BCT(3, 5).variant
         'BCT2'
         """
@@ -117,6 +120,8 @@ class BravaisLattice(ABC):
     @property
     def special_point_names(self) -> List[str]:
         """Return all special point names as a list of strings.
+
+        >>> from ase.lattice import BCT
 
         >>> BCT(3, 5).special_point_names
         ['G', 'N', 'P', 'S', 'S1', 'X', 'Y', 'Y1', 'Z']
@@ -167,6 +172,8 @@ class BravaisLattice(ABC):
         """Return a :class:`~ase.dft.kpoints.BandPath` for this lattice.
 
         See :meth:`ase.cell.Cell.bandpath` for description of parameters.
+
+        >>> from ase.lattice import BCT
 
         >>> BCT(3, 5).bandpath()
         BandPath(path='GXYSGZS1NPY1Z,XP', cell=[3x3], \
@@ -1196,6 +1203,18 @@ def identify_lattice(cell, eps=2e-4, *, pbc=True):
                 best_defect = defect
 
         if best is not None:
+            if npbc == 2:
+                # The 3x3 operation may flip the z axis, but then the x/y
+                # components are necessarily also left-handed which
+                # means a defacto left-handed 2D bandpath.
+                #
+                # We repair this by applying an operation that unflips the
+                # z axis and interchanges x/y:
+                if op[2, 2] < 0:
+                    repair_op = np.array([[0, 1, 0], [1, 0, 0], [0, 0, -1]])
+                    op = repair_op @ op
+                    best = lat, op
+
             return best
 
     raise RuntimeError('Failed to recognize lattice')

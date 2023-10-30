@@ -4,8 +4,8 @@ import runpy
 
 import numpy as np
 
-from ase.io import read, write
 from ase.build import fcc111
+from ase.io import read, write
 
 runpy.run_path('WL.py')
 

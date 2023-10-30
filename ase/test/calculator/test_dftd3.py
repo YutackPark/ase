@@ -1,10 +1,10 @@
-import pytest
 import numpy as np
+import pytest
 
-from ase.data.s22 import create_s22_system
 from ase.build import bulk
 from ase.calculators.emt import EMT
-from ase.calculators.test import numeric_stress, numeric_forces
+from ase.calculators.test import numeric_forces, numeric_stress
+from ase.data.s22 import create_s22_system
 
 releps = 1e-6
 abseps = 1e-8
