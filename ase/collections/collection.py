@@ -47,7 +47,7 @@ class Collection:
         self._names = []
         self._systems = {}
         self._data = {}
-        self.filename = op.join(op.dirname(__file__), name + '.json')
+        self.filename = op.join(op.dirname(__file__), f'{name}.json')
 
     def __getitem__(self, name):
         self._read()
