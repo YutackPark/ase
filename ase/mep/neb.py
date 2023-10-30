@@ -20,6 +20,7 @@ from ase.optimize.precon import Precon, PreconImages
 from ase.optimize.sciopt import OptimizerConvergenceError
 from ase.utils import deprecated, lazyproperty
 from ase.utils.forcecurve import fit_images
+from ase.utils.abc import Optimizable
 
 
 class Spring:
@@ -256,6 +257,33 @@ def get_neb_method(neb, method):
         raise ValueError(f'Bad method: {method}')
 
 
+class NEBOptimizable(Optimizable):
+    def __init__(self, neb):
+        self.neb = neb
+
+    def get_forces(self):
+        return self.neb.get_forces()
+
+    def get_potential_energy(self, force_consistent):
+        return self.neb.get_potential_energy(
+            force_consistent=force_consistent)
+
+    def is_neb(self):
+        return True
+
+    def get_positions(self):
+        return self.neb.get_positions()
+
+    def set_positions(self, positions):
+        self.neb.set_positions(positions)
+
+    def __len__(self):
+        return len(self.neb)
+
+    def iterimages(self):
+        return self.neb.iterimages()
+
+
 class BaseNEB:
     def __init__(self, images, k=0.1, climb=False, parallel=False,
                  remove_rotation_and_translation=False, world=None,
@@ -313,6 +341,9 @@ class BaseNEB:
         self.real_forces = None  # ndarray of shape (nimages, natom, 3)
         self.energies = None  # ndarray of shape (nimages,)
         self.residuals = None  # ndarray of shape (nimages,)
+
+    def __ase_optimizable__(self):
+        return NEBOptimizable(self)
 
     @property
     def natoms(self):
