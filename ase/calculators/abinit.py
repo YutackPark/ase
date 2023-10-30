@@ -9,7 +9,10 @@ from pathlib import Path
 from subprocess import check_call, check_output
 
 import ase.io.abinit as io
-from ase.calculators.genericfileio import CalculatorTemplate, GenericFileIOCalculator
+from ase.calculators.genericfileio import (
+    CalculatorTemplate,
+    GenericFileIOCalculator,
+)
 
 
 def get_abinit_version(command):
@@ -18,7 +21,8 @@ def get_abinit_version(command):
     m = re.match(r"\s*(\d\.\d\.\d)", txt)
     if m is None:
         raise RuntimeError(
-            "Cannot recognize abinit version. " "Start of output: {}".format(txt[:40])
+            "Cannot recognize abinit version. "
+            "Start of output: {}".format(txt[:40])
         )
     return m.group(1)
 

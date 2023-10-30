@@ -12,13 +12,12 @@ class Config:
         def argv_converter(argv):
             return shlex.split(argv)
 
-        parser = configparser.ConfigParser(
-            converters={'argv': argv_converter})
-        envpath = os.environ.get('ASE_CONFIG_PATH')
+        parser = configparser.ConfigParser(converters={"argv": argv_converter})
+        envpath = os.environ.get("ASE_CONFIG_PATH")
         if envpath is not None:
-            paths = [Path(p) for p in envpath.split(':')]
+            paths = [Path(p) for p in envpath.split(":")]
         else:
-            paths = [Path.home() / '.config/ase/config.ini']
+            paths = [Path.home() / ".config/ase/config.ini"]
         loaded_paths = parser.read(paths)
         return loaded_paths, parser
 
@@ -32,22 +31,23 @@ class Config:
 
     def check_calculators(self):
         from ase.calculators.names import names, templates
-        print('Calculators')
-        print('===========')
+
+        print("Calculators")
+        print("===========")
         print()
-        print('Configured in ASE')
-        print('   |  Installed on machine')
-        print('   |   |  Name & version')
-        print('   |   |  |')
+        print("Configured in ASE")
+        print("   |  Installed on machine")
+        print("   |   |  Name & version")
+        print("   |   |  |")
         for name in names:
-            configured = False
-            installed = False
+            # configured = False
+            # installed = False
             template = templates.get(name)
-            #if template is None:
-                # XXX no template for this calculator.
-                # We need templates for all calculators somehow,
-                # but we can probably generate those for old FileIOCalculators
-                # automatically.
+            # if template is None:
+            # XXX no template for this calculator.
+            # We need templates for all calculators somehow,
+            # but we can probably generate those for old FileIOCalculators
+            # automatically.
             #    continue
 
             fullname = name
@@ -64,35 +64,35 @@ class Config:
                     profile = template.load_profile(codeconfig)
                     # XXX should be made robust to failure here:
                     version = profile.version()
-                    fullname = f'{name}-{version}'
+                    fullname = f"{name}-{version}"
 
             def tickmark(thing):
-                return '[ ]' if thing is None else '[x]'
+                return "[ ]" if thing is None else "[x]"
 
-            msg = ('  {configured} {installed} {fullname}'
-                   .format(
-                       configured=tickmark(codeconfig),
-                       installed=tickmark(version),
-                       fullname=fullname))
+            msg = "  {configured} {installed} {fullname}".format(
+                configured=tickmark(codeconfig),
+                installed=tickmark(version),
+                fullname=fullname,
+            )
             print(msg)
 
     def print_everything(self):
-        print('Configuration')
-        print('-------------')
+        print("Configuration")
+        print("-------------")
         print()
         if not cfg.paths:
-            print('No configuration loaded.')
+            print("No configuration loaded.")
 
         for path in cfg.paths:
-            print(f'Loaded: {path}')
+            print(f"Loaded: {path}")
 
         print()
         for name, section in cfg.parser.items():
             print(name)
             if not section:
-                print('  (Nothing configured)')
+                print("  (Nothing configured)")
             for key, val in section.items():
-                print(f'  {key}: {val}')
+                print(f"  {key}: {val}")
             print()
 
 

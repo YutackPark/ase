@@ -6,7 +6,6 @@ from typing import Any, Iterable, Mapping
 from ase.calculators.abc import GetOutputsMixin
 from ase.calculators.calculator import BaseCalculator, EnvironmentError
 
-class BaseProfile(ABC):
 
     def __init__(self, parallel=True, parallel_info=None):
         """
@@ -16,7 +15,7 @@ class BaseProfile(ABC):
 
     def get_command(self, inputfile) -> Iterable[str]:
         """
-        Get the command to run. This should be a list of strings. 
+        Get the command to run. This should be a list of strings.
 
         This is main method that needs to be implemented by subclasses.
         """
@@ -56,33 +55,34 @@ class BaseProfile(ABC):
 
         from subprocess import check_call
         import os
+
         argv_command = self.get_command(inputfile)
-        with open(directory / outputfile, 'wb') as fd:
+        with open(directory / outputfile, "wb") as fd:
             check_call(argv_command, cwd=directory, stdout=fd, env=os.environ)
 
     @abstractmethod
-    def version():
+    def version(self):
         """
         Get the version of the code.
 
         Returns
         -------
         str
-            The version of the code.    
+            The version of the code.
         """
         ...
 
     @classmethod
     def from_config(cls, cfg, section_name):
         """
-        Create a profile from a configuration file. 
+        Create a profile from a configuration file.
 
         Parameters
         ----------
         cfg : ase.config.Config
             The configuration object.
         section_name : str
-            The name of the section in the configuration file. E.g. the name 
+            The name of the section in the configuration file. E.g. the name
             of the template that this profile is for.
 
         Returns
@@ -90,7 +90,8 @@ class BaseProfile(ABC):
         BaseProfile
             The profile object.
         """
-        return cls(**cfg.parser['general'], **cfg.parser[section_name])
+        return cls(**cfg.parser["general"], **cfg.parser[section_name])
+
 
 def read_stdout(args, createfile=None):
     """Run command in tempdir and return standard output.
@@ -107,7 +108,12 @@ def read_stdout(args, createfile=None):
             path = Path(directory) / createfile
             path.touch()
         proc = Popen(
-            args, stdout=PIPE, stderr=PIPE, stdin=PIPE, cwd=directory, encoding="ascii"
+            args,
+            stdout=PIPE,
+            stderr=PIPE,
+            stdin=PIPE,
+            cwd=directory,
+            encoding="ascii",
         )
         stdout, _ = proc.communicate()
         # Exit code will be != 0 because there isn't an input file
@@ -166,7 +172,8 @@ class CalculatorTemplate(ABC):
             )
 
         if not (
-            hasattr(self, "socketio_argv") and hasattr(self, "socketio_parameters")
+            hasattr(self, "socketio_argv")
+            and hasattr(self, "socketio_parameters")
         ):
             raise TypeError(
                 f"Template {self} does not implement mandatory "
@@ -175,7 +182,10 @@ class CalculatorTemplate(ABC):
 
         # XXX need socketio ABC or something
         argv = self.socketio_argv(profile, unixsocket, port)
-        parameters = {**self.socketio_parameters(unixsocket, port), **parameters}
+        parameters = {
+            **self.socketio_parameters(unixsocket, port),
+            **parameters,
+        }
 
         # Not so elegant that socket args are passed to this function
         # via socketiocalculator when we could make a closure right here.
@@ -219,7 +229,7 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
             try:
                 profile = template.load_profile(myconfig, parallel_config, parallel=parallel)
             except Exception as err:
-                configvars = dict(myconfig)
+                # configvars = dict(myconfig)
                 raise EnvironmentError(
                     f"Failed to load section [{template.name}] "
                     "from configuration: {configvars}"
@@ -235,7 +245,8 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
 
     def set(self, *args, **kwargs):
         raise RuntimeError(
-            "No setting parameters for now, please.  " "Just create new calculators."
+            "No setting parameters for now, please.  "
+            "Just create new calculators."
         )
 
     def __repr__(self):

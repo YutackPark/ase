@@ -82,7 +82,9 @@ class EspressoTemplate(CalculatorTemplate):
         return dict(atoms.calc.properties())
 
     def load_profile(self, cfg):
-        return EspressoProfile(argv=cfg.getargv("argv"), pseudo_path=cfg["pseudo_path"])
+        return EspressoProfile(
+            argv=cfg.getargv("argv"), pseudo_path=cfg["pseudo_path"]
+        )
 
     def socketio_parameters(self, unixsocket, port):
         return {}
@@ -185,7 +187,9 @@ class Espresso(GenericFileIOCalculator):
         if label is not self._deprecated:
             import warnings
 
-            warnings.warn("Ignoring label, please use directory instead", FutureWarning)
+            warnings.warn(
+                "Ignoring label, please use directory instead", FutureWarning
+            )
 
         if "ASE_ESPRESSO_COMMAND" in os.environ and profile is None:
             import warnings
@@ -194,5 +198,8 @@ class Espresso(GenericFileIOCalculator):
 
         template = EspressoTemplate()
         super().__init__(
-            profile=profile, template=template, directory=directory, parameters=kwargs
+            profile=profile,
+            template=template,
+            directory=directory,
+            parameters=kwargs,
         )
