@@ -736,7 +736,6 @@ End CASTEP Interface Documentation
         # Case 1: Clear parameters with set_kpts(None)
         if kpts is None:
             clear_mp_keywords()
-            pass
 
         # Case 2: list of explicit k-points with weights
         # e.g. [[ 0,    0,   0,    0.125],
@@ -2942,7 +2941,6 @@ def make_param_dict(data=None):
 
 class CastepVersionError(Exception):
     """No special behaviour, works to signal when Castep can not be found"""
-    pass
 
 
 class ConversionError(Exception):

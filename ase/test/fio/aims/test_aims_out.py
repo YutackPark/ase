@@ -3,7 +3,6 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from numpy.linalg import norm
 
 from ase.io import ParseError, read
 from ase.io.aims import read_aims_results

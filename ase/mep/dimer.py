@@ -332,7 +332,6 @@ class MinModeControl(IOContext):
 
     def log(self, parameter=None):
         """Log the parameters of the eigenmode search."""
-        pass
 
     def set_parameter(self, parameter, value, log=True):
         """Change a parameter's value."""

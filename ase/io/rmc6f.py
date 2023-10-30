@@ -158,7 +158,6 @@ def _read_process_rmc6f_lines_to_pos_and_cell(lines):
             if field is not None and val is not None:
 
                 if field == "Number of atoms:":
-                    pass
                     """
                     NOTE: Can just capture via number of atoms ingested.
                           Maybe use in future for a check.
@@ -166,7 +165,6 @@ def _read_process_rmc6f_lines_to_pos_and_cell(lines):
                     """
 
                 if field.startswith('Supercell'):
-                    pass
                     """
                     NOTE: wrapping back down to unit cell is not
                           necessarily needed for ASE object.
@@ -179,7 +177,6 @@ def _read_process_rmc6f_lines_to_pos_and_cell(lines):
                     cell = Cell.fromcellpar(cellpar)
 
                 if field.startswith('Lattice'):
-                    pass
                     """
                     NOTE: Have questions about RMC fractionalization matrix for
                           conversion in data2config vs. the ASE matrix.

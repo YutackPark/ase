@@ -1,9 +1,7 @@
 # flake8: noqa
 import numpy as np
 import pytest
-from numpy.linalg import norm
 
-from ase.io import read
 from ase.io.aims import (LINE_NOT_FOUND, AimsOutCalcChunk, AimsOutChunk,
                          AimsOutHeaderChunk, AimsParseError)
 from ase.stress import full_3x3_to_voigt_6_stress

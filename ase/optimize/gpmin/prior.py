@@ -13,7 +13,6 @@ class Prior():
     """
     def __init__(self):
         """Basic prior implementation."""
-        pass
 
     def prior(self, x):
         """Actual prior function, common to all Priors"""
