@@ -270,7 +270,7 @@ class GULP(FileIOCalculator):
 
     def library_check(self):
         if self.parameters['library'] is not None:
-            if 'GULP_LIB' not in os.environ:
+            if 'GULP_LIB' not in self.cfg:
                 raise RuntimeError("Be sure to have set correctly $GULP_LIB "
                                    "or to have the force field library.")
 
