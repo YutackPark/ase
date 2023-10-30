@@ -6,8 +6,8 @@ from typing import Any, Iterable, Mapping
 from ase.calculators.abc import GetOutputsMixin
 from ase.calculators.calculator import BaseCalculator, EnvironmentError
 
-class BaseProfile(ABC):
 
+class BaseProfile(ABC):
     def __init__(self, mpi_command=None, mpi_command_ncores=None, ncores=None):
         """
         Parameters
@@ -33,7 +33,7 @@ class BaseProfile(ABC):
         ----------
         argv_command : list of str
             The command to run.
-        
+
         Returns
         -------
         list of str
@@ -41,8 +41,8 @@ class BaseProfile(ABC):
         """
         if self.mpi_command_ncores is not None and self.ncores is not None:
             argv_command = (
-                self.mpi_command_ncores.format(self.ncores).split(' ')
-                + argv_command)
+                self.mpi_command_ncores.format(self.ncores).split(" ") + argv_command
+            )
         elif self.mpi_command is not None:
             argv_command = [self.mpi_command] + argv_command
 
@@ -51,7 +51,7 @@ class BaseProfile(ABC):
     @abstractmethod
     def get_command(self, inputfile) -> Iterable[str]:
         """
-        Get the command to run. This should be a list of strings. 
+        Get the command to run. This should be a list of strings.
 
         This is main method that needs to be implemented by subclasses.
         """
@@ -73,33 +73,34 @@ class BaseProfile(ABC):
 
         from subprocess import check_call
         import os
+
         argv_command = self.get_command(inputfile)
-        with open(directory / outputfile, 'wb') as fd:
+        with open(directory / outputfile, "wb") as fd:
             check_call(argv_command, cwd=directory, stdout=fd, env=os.environ)
 
     @abstractmethod
-    def version():
+    def version(self):
         """
         Get the version of the code.
 
         Returns
         -------
         str
-            The version of the code.    
+            The version of the code.
         """
         ...
 
     @classmethod
     def from_config(cls, cfg, section_name):
         """
-        Create a profile from a configuration file. 
+        Create a profile from a configuration file.
 
         Parameters
         ----------
         cfg : ase.config.Config
             The configuration object.
         section_name : str
-            The name of the section in the configuration file. E.g. the name 
+            The name of the section in the configuration file. E.g. the name
             of the template that this profile is for.
 
         Returns
@@ -107,7 +108,8 @@ class BaseProfile(ABC):
         BaseProfile
             The profile object.
         """
-        return cls(**cfg.parser['general'], **cfg.parser[section_name])
+        return cls(**cfg.parser["general"], **cfg.parser[section_name])
+
 
 def read_stdout(args, createfile=None):
     """Run command in tempdir and return standard output.
