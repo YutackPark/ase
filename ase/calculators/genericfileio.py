@@ -138,7 +138,7 @@ class CalculatorTemplate(ABC):
         ...
 
     @abstractmethod
-    def load_profile(self, cfg, parallel_info={}, parallel=True):
+    def load_profile(self, cfg, parallel_info=None, parallel=True):
         ...
 
     def socketio_calculator(
@@ -215,8 +215,6 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
         if profile is None:
             from ase.config import cfg
 
-            print(cfg)
-
             parallel_config = dict(cfg.parser['parallel'])
             variable_whitelist = ['binary']
             for key in parallel_config:
@@ -229,7 +227,7 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
                 raise EnvironmentError(f"No configuration of {template.name}")
             myconfig = cfg.parser[template.name]
             try:
-                profile = template.load_profile(myconfig, parallel_config, parallel=parallel)
+                profile = template.load_profile(myconfig, parallel_info=parallel_config, parallel=parallel)
             except Exception as err:
                 # configvars = dict(myconfig)
                 raise EnvironmentError(
