@@ -270,6 +270,21 @@ class Prism:
         # rotate back to the ASE cell
         return vec @ self.rot_mat.T
 
+    def tensor2_to_ase(self, tensor: np.ndarray) -> np.ndarray:
+        """Rotate a second order tensor from LAMMPS to ASE coordinates
+
+        Parameters
+        ----------
+        tensor : np.ndarray
+            Tensor in LAMMPS coordinates to be rotated into ASE coordinates
+
+        Returns
+        -------
+        np.ndarray
+            Tensor in ASE coordinates
+        """
+        return self.rot_mat @ tensor @ self.rot_mat.T
+
     def is_skewed(self) -> bool:
         """Test if the lammps cell is skewed, i.e., monoclinic or triclinic.
 
