@@ -91,7 +91,7 @@ def get_trajectory(fname):
     fname = str(fname)
     try:
         t = read(fname)
-    except IOError as e:
+    except OSError as e:
         print('get_trajectory error ' + e)
     return t
 

@@ -63,7 +63,7 @@ Sort an array of strings alphanumerically.
 def get_onetep_keywords(path):
 
     if isinstance(path, str):
-        with open(path, 'r') as fd:
+        with open(path) as fd:
             results = read_onetep_in(fd, only_keywords=True)
     else:
         results = read_onetep_in(path, only_keywords=True)
@@ -171,7 +171,7 @@ def read_onetep_in(fd, **kwargs):
                 for path in include_files:
                     if new_path.samefile(path):
                         raise ValueError('invalid/recursive include_file')
-                new_fd = open(new_path, 'r')
+                new_fd = open(new_path)
                 new_lines = new_fd.readlines()
                 new_lines = clean_lines(new_lines)
                 for include_line in new_lines:
@@ -442,7 +442,7 @@ def write_onetep_in(
 
     lattice_cart = ['ang']
     for axis in atoms.get_cell():
-        line = '{0:>16.8f} {1:>16.8f} {2:>16.8f}'.format(*axis)
+        line = '{:>16.8f} {:>16.8f} {:>16.8f}'.format(*axis)
         lattice_cart.append(line)
 
     # Default keywords if not provided by the user,

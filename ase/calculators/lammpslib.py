@@ -586,7 +586,7 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
                             ("qeq/reax" in cmd)):
                         self.lmp.command(cmd)
 
-            cmd = "create_atoms 1 random {} 1 NULL".format(n_diff)
+            cmd = f"create_atoms 1 random {n_diff} 1 NULL"
             self.lmp.command(cmd)
         elif n_diff < 0:
             cmd = "group delatoms id {}:{}".format(
@@ -598,19 +598,19 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
         self.redo_atom_types(atoms)
 
     def redo_atom_types(self, atoms):
-        current_types = set(
+        current_types = {
             (i + 1, self.parameters.atom_types[sym]) for i, sym
-            in enumerate(atoms.get_chemical_symbols()))
+            in enumerate(atoms.get_chemical_symbols())}
 
         try:
-            previous_types = set(
+            previous_types = {
                 (i + 1, self.parameters.atom_types[ase_chemical_symbols[Z]])
-                for i, Z in enumerate(self.previous_atoms_numbers))
+                for i, Z in enumerate(self.previous_atoms_numbers)}
         except Exception:  # XXX which kind of exception?
             previous_types = set()
 
         for (i, i_type) in current_types - previous_types:
-            cmd = "set atom {} type {}".format(i, i_type)
+            cmd = f"set atom {i} type {i_type}"
             self.lmp.command(cmd)
 
         self.previous_atoms_numbers = atoms.numbers.copy()
@@ -688,7 +688,7 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
         if self.parameters.create_box:
             # count number of known types
             n_types = len(self.parameters.atom_types)
-            create_box_command = 'create_box {} cell'.format(n_types)
+            create_box_command = f'create_box {n_types} cell'
             self.lmp.command(create_box_command)
 
         # Initialize the atoms with their types

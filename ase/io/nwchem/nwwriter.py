@@ -47,24 +47,24 @@ def _render_geom(atoms, params: dict) -> List[str]:
                 outpos[:, i] = scpos[:, i]
         npbc = pbc.sum()
         cellpars = atoms.cell.cellpar()
-        geom.append('  system {} units angstrom'.format(_system_type[npbc]))
+        geom.append(f'  system {_system_type[npbc]} units angstrom')
         if npbc == 3:
             geom.append('    lattice_vectors')
             for row in atoms.cell:
                 geom.append('      {:20.16e} {:20.16e} {:20.16e}'.format(*row))
         else:
             if pbc[0]:
-                geom.append('    lat_a {:20.16e}'.format(cellpars[0]))
+                geom.append(f'    lat_a {cellpars[0]:20.16e}')
             if pbc[1]:
-                geom.append('    lat_b {:20.16e}'.format(cellpars[1]))
+                geom.append(f'    lat_b {cellpars[1]:20.16e}')
             if pbc[2]:
-                geom.append('    lat_c {:20.16e}'.format(cellpars[2]))
+                geom.append(f'    lat_c {cellpars[2]:20.16e}')
             if pbc[1] and pbc[2]:
-                geom.append('    alpha {:20.16e}'.format(cellpars[3]))
+                geom.append(f'    alpha {cellpars[3]:20.16e}')
             if pbc[0] and pbc[2]:
-                geom.append('    beta {:20.16e}'.format(cellpars[4]))
+                geom.append(f'    beta {cellpars[4]:20.16e}')
             if pbc[1] and pbc[0]:
-                geom.append('    gamma {:20.16e}'.format(cellpars[5]))
+                geom.append(f'    gamma {cellpars[5]:20.16e}')
         geom.append('  end')
 
     for i, atom in enumerate(atoms):
@@ -72,7 +72,7 @@ def _render_geom(atoms, params: dict) -> List[str]:
                     ''.format(atom.symbol, *outpos[i]))
     symm = params.get('symmetry')
     if symm is not None:
-        geom.append('  symmetry {}'.format(symm))
+        geom.append(f'  symmetry {symm}')
     geom.append('end')
     return geom
 
@@ -108,10 +108,10 @@ def _render_basis(theory, params: dict) -> List[str]:
     # Write the basis set for each atom type
     basis_in = params.get('basis', '3-21G')
     if isinstance(basis_in, str):
-        basis_out.append('   * library {}'.format(basis_in))
+        basis_out.append(f'   * library {basis_in}')
     else:
         for symbol, ibasis in basis_in.items():
-            basis_out.append('{:>4} library {}'.format(symbol, ibasis))
+            basis_out.append(f'{symbol:>4} library {ibasis}')
     basis_out.append('end')
     return basis_out
 
@@ -126,7 +126,7 @@ _special_keypairs = [('nwpw', 'simulation_cell'),
 def _render_brillouin_zone(array, name=None) -> List[str]:
     out = ['  brillouin_zone']
     if name is not None:
-        out += ['    zone_name {}'.format(name)]
+        out += [f'    zone_name {name}']
     template = '    kvector' + ' {:20.16e}' * array.shape[1]
     for row in array:
         out.append(template.format(*row))
@@ -139,7 +139,7 @@ def _render_bandpath(bp) -> List[str]:
         return []
     out = ['nwpw']
     out += _render_brillouin_zone(bp.kpts, name=bp.path)
-    out += ['  zone_structure_name {}'.format(bp.path),
+    out += [f'  zone_structure_name {bp.path}',
             'end',
             'task band structure']
     return out
@@ -149,7 +149,7 @@ def _format_line(key, val) -> str:
     if val is None:
         return key
     if isinstance(val, bool):
-        return '{} .{}.'.format(key, str(val).lower())
+        return f'{key} .{str(val).lower()}.'
     else:
         return ' '.join([key, str(val)])
 
@@ -565,10 +565,10 @@ def write_nwchem_in(fd, atoms, properties=None, echo=False, **params):
         out = []
 
     # Defines the geometry and global options
-    out.extend(['title "{}"'.format(short_label),
-                'permanent_dir {}'.format(perm),
-                'scratch_dir {}'.format(scratch),
-                '{} {}'.format(restart_kw, short_label),
+    out.extend([f'title "{short_label}"',
+                f'permanent_dir {perm}',
+                f'scratch_dir {scratch}',
+                f'{restart_kw} {short_label}',
                 '\n'.join(_render_geom(atoms, params))])
 
     # Add the charge if provided
@@ -599,7 +599,7 @@ def write_nwchem_in(fd, atoms, properties=None, echo=False, **params):
     out.extend(['\n'.join(_render_basis(theory, params)),
                 '\n'.join(_render_other(params)),
                 '\n'.join(_render_set(params.get('set', dict()))),
-                'task {} {}'.format(theory, task),
+                f'task {theory} {task}',
                 '\n'.join(_render_bandpath(params.get('bandpath', None)))])
 
     fd.write('\n\n'.join(out))

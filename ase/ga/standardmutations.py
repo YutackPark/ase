@@ -571,9 +571,9 @@ class PermuStrainMutation(CombinationMutation):
     """
 
     def __init__(self, permutationmutation, strainmutation, verbose=False):
-        super(PermuStrainMutation, self).__init__(permutationmutation,
-                                                  strainmutation,
-                                                  verbose=verbose)
+        super().__init__(permutationmutation,
+                         strainmutation,
+                         verbose=verbose)
         self.descriptor = 'permustrain'
 
 
@@ -723,7 +723,7 @@ class RattleRotationalMutation(CombinationMutation):
     """
 
     def __init__(self, rattlemutation, rotationalmutation, verbose=False):
-        super(RattleRotationalMutation, self).__init__(rattlemutation,
-                                                       rotationalmutation,
-                                                       verbose=verbose)
+        super().__init__(rattlemutation,
+                         rotationalmutation,
+                         verbose=verbose)
         self.descriptor = 'rattlerotational'

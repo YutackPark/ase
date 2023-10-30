@@ -285,9 +285,9 @@ def write_aims(
     if info_str is not None:
         fd.write("\n# Additional information:\n")
         if isinstance(info_str, list):
-            fd.write("\n".join(["#  {}".format(s) for s in info_str]))
+            fd.write("\n".join([f"#  {s}" for s in info_str]))
         else:
-            fd.write("# {}".format(info_str))
+            fd.write(f"# {info_str}")
         fd.write("\n")
 
     fd.write("#=======================================================\n")
@@ -423,7 +423,7 @@ def get_sym_block(atoms):
         lv_sym_params = np.unique(lv_sym_params)
 
     if np.any(atomic_param_constr == ""):
-        raise IOError(
+        raise OSError(
             "FHI-aims input files require all atoms have defined parametric "
             "constraints"
         )
@@ -452,10 +452,10 @@ def get_sym_block(atoms):
         )
 
         for constr in lv_param_constr:
-            sym_block.append("symmetry_lv {:s}\n".format(constr))
+            sym_block.append(f"symmetry_lv {constr:s}\n")
 
         for constr in atomic_param_constr:
-            sym_block.append("symmetry_frac {:s}\n".format(constr))
+            sym_block.append(f"symmetry_frac {constr:s}\n")
     return sym_block
 
 
@@ -510,7 +510,7 @@ def write_control(fd, atoms, parameters, verbose_header=False):
     if verbose_header:
         fd.write("# \n# List of parameters used to initialize the calculator:")
         for p, v in parameters.items():
-            s = "#     {}:{}\n".format(p, v)
+            s = f"#     {p}:{v}\n"
             fd.write(s)
     fd.write(lim + "\n")
 
@@ -701,7 +701,7 @@ def parse_species_path(species_array, tier_array, species_dir):
     for symbol, tier in zip(species_array, tier_array):
         path = species_dir / f"{atomic_numbers[symbol]:02}_{symbol}_default"
         # Open the species file:
-        with open(path, "r", encoding="utf8") as species_file_handle:
+        with open(path, encoding="utf8") as species_file_handle:
             # Read the species file into a string.
             species_file_str = species_file_handle.read()
             species_basis_dict[symbol] = manipulate_tiers(
@@ -981,7 +981,7 @@ class AimsOutHeaderChunk(AimsOutChunk):
             }
 
         k_points = np.zeros((n_kpts, 3))
-        k_point_weights = np.zeros((n_kpts))
+        k_point_weights = np.zeros(n_kpts)
         for kk, line in enumerate(self.lines[line_start + 1:line_end + 1]):
             k_points[kk] = [float(inp) for inp in line.split()[4:7]]
             k_point_weights[kk] = float(line.split()[-1])
@@ -1192,7 +1192,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         line_start += 3
         stresses = []
         for line in self.lines[line_start:line_start + self.n_atoms]:
-            xx, yy, zz, xy, xz, yz = [float(d) for d in line.split()[2:8]]
+            xx, yy, zz, xy, xz, yz = (float(d) for d in line.split()[2:8])
             stresses.append([xx, yy, zz, yz, xz, xy])
 
         return np.array(stresses)

@@ -662,7 +662,7 @@ class OPLSStructure(Atoms):
 
         if key == 'Masses':
             ntypes = len(self.types)
-            masses = np.empty((ntypes))
+            masses = np.empty(ntypes)
             for i in range(ntypes):
                 w = lines.pop(0).split()
                 assert int(w[0]) == (i + 1)

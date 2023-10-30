@@ -241,7 +241,7 @@ class KIMModelCalculator(Calculator):
         pass
 
     def __repr__(self):
-        return "KIMModelCalculator(model_name={})".format(self.model_name)
+        return f"KIMModelCalculator(model_name={self.model_name})"
 
     def calculate(
         self,

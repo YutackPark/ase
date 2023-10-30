@@ -21,7 +21,7 @@ ase run nwchem O2.traj -o nwchem_cmdline.json""",
         id = d.id
         e1 = d.energy
         e2 = c.get_atoms(id).get_potential_energy()
-        e3 = read('{name}.nwo'.format(name=name)).get_potential_energy()
+        e3 = read(f'{name}.nwo').get_potential_energy()
         e4 = dct[id]['energy']
         assert e1 == e2 == e3 == e4
         print(e1)

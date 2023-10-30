@@ -84,8 +84,8 @@ def test_dynamic_neb():
         run_NEB()
 
     # Check force calculation count for default and dynamic NEB implementations
-    print('\n# Force calls with default NEB: {}'.format(force_calls[0]))
-    print('# Force calls with dynamic NEB: {}'.format(force_calls[1]))
+    print(f'\n# Force calls with default NEB: {force_calls[0]}')
+    print(f'# Force calls with dynamic NEB: {force_calls[1]}')
     print('# Force calls with dynamic and scaled NEB: {}\n'.format(
         force_calls[2]))
     assert force_calls[2] < force_calls[1] < force_calls[0]

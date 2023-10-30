@@ -40,10 +40,10 @@ def test_curvature1(testdir):
             trajectory=name + '.traj',
             logfile=name + '.log',
     ) as dyn:
-        print("Target Radius (1/curvature) {: .6f} Ang".format(radius))
+        print(f"Target Radius (1/curvature) {radius: .6f} Ang")
         for i in range(5):
             dyn.run(30)
-            print('Radius (1/curvature) {: .6f} Ang'.format(1 / dyn.curvature))
+            print(f'Radius (1/curvature) {1 / dyn.curvature: .6f} Ang')
             assert radius == pytest.approx(1.0 / dyn.curvature, abs=2e-3)
 
 
@@ -66,8 +66,8 @@ def test_curvature2(testdir):
             trajectory=name + '.traj',
             logfile=name + '.log',
     ) as dyn:
-        print("Target Radius (1/curvature) {: .6f} Ang".format(radius))
+        print(f"Target Radius (1/curvature) {radius: .6f} Ang")
         for i in range(5):
             dyn.run(30)
-            print('Radius (1/curvature) {: .6f} Ang'.format(1 / dyn.curvature))
+            print(f'Radius (1/curvature) {1 / dyn.curvature: .6f} Ang')
             assert radius == pytest.approx(1.0 / dyn.curvature, abs=2e-3)

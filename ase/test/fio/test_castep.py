@@ -11,8 +11,8 @@ from ase.io import read, write
 # create mol with custom mass - from a list of positions or using
 # ase.build.molecule
 def write_read_atoms(atom, tmp_path):
-    write("{0}/{1}".format(tmp_path, "castep_test.cell"), atom)
-    return read("{0}/{1}".format(tmp_path, "castep_test.cell"))
+    write("{}/{}".format(tmp_path, "castep_test.cell"), atom)
+    return read("{}/{}".format(tmp_path, "castep_test.cell"))
 
 
 # write to .cell and check that .cell has correct species_mass block in it
@@ -53,7 +53,7 @@ def test_custom_mass_write(
     np.testing.assert_allclose(atom_masses, new_atoms.get_masses())
 
     # check that file contains appropriate blocks
-    with open("{0}/{1}".format(tmp_path, "castep_test.cell"), "r") as f:
+    with open("{}/{}".format(tmp_path, "castep_test.cell")) as f:
         data = f.read().replace("\n", "\\n")
 
     position_block = re.search(
@@ -89,4 +89,4 @@ def test_custom_mass_overwrite(tmp_path):
     atoms[3].mass = 3
     with pytest.raises(ValueError,
                        match="Could not write custom mass block for H."):
-        atoms.write("{0}/{1}".format(tmp_path, "castep_test2.cell"))
+        atoms.write("{}/{}".format(tmp_path, "castep_test2.cell"))

@@ -43,7 +43,7 @@ def test(calculators=tuple(), jobs=0, verbose=False,
     if calculators:
         args += ['--calculators={}'.format(','.join(calculators))]
     if jobs:
-        args += '--jobs={}'.format(jobs)
+        args += f'--jobs={jobs}'
 
     main(args=args)
 
@@ -176,7 +176,7 @@ class CLICommand:
 
         jobs = choose_how_many_workers(args.jobs)
         if jobs:
-            add_args('--numprocesses={}'.format(jobs))
+            add_args(f'--numprocesses={jobs}')
 
         if args.fast:
             add_args('-m', 'not slow')

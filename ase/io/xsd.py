@@ -21,7 +21,7 @@ def read_xsd(fd):
 
         coords = list()
         cell = list()
-        formula = str()
+        formula = ''
 
         for atom in system:
             if atom.tag == 'Atom3d':
@@ -51,7 +51,7 @@ def read_xsd(fd):
         system = atomtreeroot.find('Molecule')
 
         coords = list()
-        formula = str()
+        formula = ''
 
         for atom in system:
             if atom.tag == 'Atom3d':

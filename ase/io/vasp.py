@@ -303,7 +303,7 @@ def read_vasp_xdatcar(filename='XDATCAR', index=-1):
     images = []
 
     cell = np.eye(3)
-    atomic_formula = str()
+    atomic_formula = ''
 
     while True:
         comment_line = fd.readline()
@@ -323,7 +323,7 @@ def read_vasp_xdatcar(filename='XDATCAR', index=-1):
             numbers = [int(n) for n in fd.readline().split()]
             total = sum(numbers)
 
-            atomic_formula = ''.join('{:s}{:d}'.format(sym, numbers[n])
+            atomic_formula = ''.join(f'{sym:s}{numbers[n]:d}'
                                      for n, sym in enumerate(symbols))
 
             fd.readline()
@@ -679,7 +679,7 @@ def _write_xdatcar_config(fd, atoms, index):
         index (int): configuration number written to block header
 
     """
-    fd.write("Direct configuration={:6d}\n".format(index))
+    fd.write(f"Direct configuration={index:6d}\n")
     float_string = '{:11.8f}'
     scaled_positions = atoms.get_scaled_positions()
     for row in scaled_positions:
@@ -727,11 +727,11 @@ def _write_symbol_count(fd, sc, vasp5=True):
     """
     if vasp5:
         for sym, _ in sc:
-            fd.write(' {:3s}'.format(sym))
+            fd.write(f' {sym:3s}')
         fd.write('\n')
 
     for _, count in sc:
-        fd.write(' {:3d}'.format(count))
+        fd.write(f' {count:3d}')
     fd.write('\n')
 
 

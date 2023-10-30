@@ -199,7 +199,7 @@ class TrajectoryWriter:
             try:
                 encode(value)
             except TypeError:
-                warnings.warn('Skipping "{0}" info.'.format(key))
+                warnings.warn(f'Skipping "{key}" info.')
             else:
                 info[key] = value
         if info:
@@ -244,7 +244,7 @@ class TrajectoryReader:
     def _read_header(self):
         b = self.backend
         if b.get_tag() != 'ASE-Trajectory':
-            raise IOError('This is not a trajectory file!')
+            raise OSError('This is not a trajectory file!')
 
         if len(b) > 0:
             self.pbc = b.pbc

@@ -10,7 +10,7 @@ from ase.io import read
 from ase.units import Bohr, Hartree
 from ase.utils import reader
 
-special_ase_keywords = set(['kpts'])
+special_ase_keywords = {'kpts'}
 
 
 def process_special_kwargs(atoms, kwargs):
@@ -440,7 +440,7 @@ def generate_input(atoms, kwargs):
         append('')
 
     def setvar(key, var):
-        append('%s = %s' % (key, var))
+        append(f'{key} = {var}')
 
     for kw in ['lsize', 'latticevectors', 'latticeparameters']:
         assert kw not in kwargs

@@ -287,7 +287,7 @@ def test_get_atomic_species():
 
     with open('pw_input.pwi', 'w') as pw_input_f:
         pw_input_f.write(pw_input_text)
-    with open('pw_input.pwi', 'r') as pw_input_f:
+    with open('pw_input.pwi') as pw_input_f:
         data, card_lines = read_fortran_namelist(pw_input_f)
         species_card = get_atomic_species(card_lines,
                                           n_species=data['system']['ntyp'])

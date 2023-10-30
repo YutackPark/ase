@@ -90,7 +90,7 @@ class LoggingCalculator(Calculator):
                        'energy_count': self.energy_count}, fd)
 
     def read_json(self, filename, append=False, label=None):
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             dct = json.load(fd)
 
         labels = dct['fmax'].keys()

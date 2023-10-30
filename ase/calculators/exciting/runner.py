@@ -8,6 +8,7 @@ from typing import List, Optional, Union
 
 class SubprocessRunResults:
     """Results returned from subprocess.run()."""
+
     def __init__(
             self, stdout, stderr, return_code: int,
             process_time: Optional[float] = None):

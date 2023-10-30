@@ -89,7 +89,7 @@ def read_abinit_in(fd):
             unit = 1.0
             index = tokens.index("xangst")
         else:
-            raise IOError(
+            raise OSError(
                 "No xred, xcart, or xangs keyword in abinit input file")
 
         xangs = []
@@ -196,7 +196,7 @@ def write_abinit_in(fd, atoms, param=None, species=None, pseudos=None):
         inp['nsppol'] = 2
         fd.write('spinat\n')
         for n, M in enumerate(magmoms):
-            fd.write('%.14f %.14f %.14f\n' % (0, 0, M))
+            fd.write(f'{0:.14f} {0:.14f} {M:.14f}\n')
     else:
         inp['nsppol'] = 1
 
@@ -219,17 +219,17 @@ def write_abinit_in(fd, atoms, param=None, species=None, pseudos=None):
                 value /= fs
         if isinstance(value, valid_lists):
             if isinstance(value[0], valid_lists):
-                fd.write("{}\n".format(key))
+                fd.write(f"{key}\n")
                 for dim in value:
                     write_list(fd, dim, unit)
             else:
-                fd.write("{}\n".format(key))
+                fd.write(f"{key}\n")
                 write_list(fd, value, unit)
         else:
             if unit is None:
-                fd.write("{} {}\n".format(key, value))
+                fd.write(f"{key} {value}\n")
             else:
-                fd.write("{} {} {}\n".format(key, value, unit))
+                fd.write(f"{key} {value} {unit}\n")
 
     if param.get('raw') is not None:
         if isinstance(param['raw'], str):
@@ -243,7 +243,7 @@ def write_abinit_in(fd, atoms, param=None, species=None, pseudos=None):
 
     fd.write('#Definition of the unit cell\n')
     fd.write('acell\n')
-    fd.write('%.14f %.14f %.14f Angstrom\n' % (1.0, 1.0, 1.0))
+    fd.write(f'{1.0:.14f} {1.0:.14f} {1.0:.14f} Angstrom\n')
     fd.write('rprim\n')
     if atoms.cell.rank != 3:
         raise RuntimeError('Abinit requires a 3D cell, but cell is {}'
@@ -288,9 +288,9 @@ def write_abinit_in(fd, atoms, param=None, species=None, pseudos=None):
 
 def write_list(fd, value, unit):
     for element in value:
-        fd.write("{} ".format(element))
+        fd.write(f"{element} ")
     if unit is not None:
-        fd.write("{}".format(unit))
+        fd.write(f"{unit}")
     fd.write("\n")
 
 
@@ -340,7 +340,7 @@ def read_abinit_out(fd):
         for line in fd:
             if string in line:
                 return line
-        raise RuntimeError('Not found: {}'.format(string))
+        raise RuntimeError(f'Not found: {string}')
 
     line = skipto('Version')
     m = re.match(r'\.*?Version\s+(\S+)\s+of ABINIT', line)
@@ -692,7 +692,7 @@ def get_ppp_list(atoms, species, raise_exception, xc, pps,
                     names.append('%02d-%s.%s.%s' % (number, s, xcn, pps))
                     names.append('%02d[.-_]%s*.%s' % (number, s, pps))
                     names.append('%02d%s*.%s' % (number, s, pps))
-                    names.append('%s[.-_]*.%s' % (s, pps))
+                    names.append(f'{s}[.-_]*.{pps}')
 
         found = False
         for name in names:        # search for file names possibilities

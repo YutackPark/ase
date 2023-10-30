@@ -49,6 +49,7 @@ class BFGSClimbFixInternals(BFGS):
     .. literalinclude:: ../../ase/test/optimize/test_climb_fix_internals.py
        :end-before: # end example for documentation
     """
+
     def __init__(
         self,
         atoms: Atoms,

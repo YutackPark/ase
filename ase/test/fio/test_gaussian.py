@@ -1,4 +1,3 @@
-
 import copy
 from io import StringIO
 
@@ -568,6 +567,6 @@ def test_read_gaussian_regex():
 
     # Test nuclear properties regex:
     nuclear_props = '(iso=0.1134289259, NMagM=-8.89, ZEff=-1)'
-    nuclear_prop_line = '1{}, -0.464,   1.137,   0.0'.format(nuclear_props)
+    nuclear_prop_line = f'1{nuclear_props}, -0.464,   1.137,   0.0'
     assert (_re_nuclear_props.search(nuclear_prop_line).group(0)
             == nuclear_props)

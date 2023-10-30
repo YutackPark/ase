@@ -392,7 +392,7 @@ class SparsePrecon(Precon):
 
             self.c_stab = c_stab
         else:
-            Lx, Ly, Lz = [p[:, i].max() - p[:, i].min() for i in range(3)]
+            Lx, Ly, Lz = (p[:, i].max() - p[:, i].min() for i in range(3))
             logfile.write('estimate_mu(): Lx=%.1f Ly=%.1f Lz=%.1f\n' %
                           (Lx, Ly, Lz))
 

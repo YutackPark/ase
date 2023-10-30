@@ -72,7 +72,7 @@ class Cursor:
             q = 'DEFAULT' + ', ' + ', '.join('?' * N)  # DEFAULT for id
         else:
             q = ', '.join('?' * N)
-        statement = statement.replace('({})'.format(q), '%s')
+        statement = statement.replace(f'({q})', '%s')
         q = '({})'.format(q.replace('?', '%s'))
 
         execute_values(self.cur, statement.replace('?', '%s'),
@@ -171,7 +171,7 @@ class PostgreSQLDatabase(SQLite3Database):
     def get_offset_string(self, offset, limit=None):
         # postgresql allows you to set offset without setting limit;
         # very practical
-        return '\nOFFSET {0}'.format(offset)
+        return f'\nOFFSET {offset}'
 
     def get_last_id(self, cur):
         cur.execute('SELECT last_value FROM systems_id_seq')
@@ -197,14 +197,14 @@ def schema_update(sql):
             dtype = 'INTEGER'
         else:
             dtype = 'DOUBLE PRECISION'
-        sql = sql.replace('{} BLOB,'.format(column),
-                          '{} {}[],'.format(column, dtype))
+        sql = sql.replace(f'{column} BLOB,',
+                          f'{column} {dtype}[],')
     for column in arrays_2D:
-        sql = sql.replace('{} BLOB,'.format(column),
-                          '{} DOUBLE PRECISION[][],'.format(column))
+        sql = sql.replace(f'{column} BLOB,',
+                          f'{column} DOUBLE PRECISION[][],')
     for column in txt2jsonb:
-        sql = sql.replace('{} TEXT,'.format(column),
-                          '{} JSONB,'.format(column))
+        sql = sql.replace(f'{column} TEXT,',
+                          f'{column} JSONB,')
 
     sql = sql.replace('data BLOB,', 'data JSONB,')
 

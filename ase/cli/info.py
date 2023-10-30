@@ -42,7 +42,7 @@ class CLICommand:
                 configs = detect_calculators()
                 print('Calculators:')
                 for message in format_configs(configs):
-                    print('  {}'.format(message))
+                    print(f'  {message}')
                 print()
                 print('Available: {}'.format(','.join(sorted(configs))))
             return
@@ -86,7 +86,7 @@ def print_info():
                 ('python-' + sys.version.split()[0], sys.executable)]
 
     for name, path in versions + all_dependencies():
-        print('{:24} {}'.format(name, path))
+        print(f'{name:24} {path}')
 
 
 def print_formats():

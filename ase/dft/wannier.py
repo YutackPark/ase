@@ -93,7 +93,7 @@ def steepest_descent(func, step=.005, tolerance=1e-6, log=silent, **kwargs):
         func.step(dF * step, **kwargs)
         fvalue = func.get_functional_value()
         count += 1
-        log('SteepestDescent: iter=%s, value=%s' % (count, fvalue))
+        log(f'SteepestDescent: iter={count}, value={fvalue}')
 
 
 def md_min(func, step=.25, tolerance=1e-6, max_iter=10000,

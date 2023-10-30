@@ -104,13 +104,13 @@ class JSONDatabase(Database):
             print('{', end='', file=fd)
             for id in ids:
                 dct = bigdct[id]
-                txt = ',\n '.join('"{0}": {1}'.format(key, encode(dct[key]))
+                txt = ',\n '.join(f'"{key}": {encode(dct[key])}'
                                   for key in sorted(dct.keys()))
-                print('"{0}": {{\n {1}}},'.format(id, txt), file=fd)
+                print(f'"{id}": {{\n {txt}}},', file=fd)
             if self._metadata is not None:
-                print('"metadata": {0},'.format(encode(self.metadata)), file=fd)
-            print('"ids": {0},'.format(ids), file=fd)
-            print('"nextid": {0}}}'.format(nextid), file=fd)
+                print(f'"metadata": {encode(self.metadata)},', file=fd)
+            print(f'"ids": {ids},', file=fd)
+            print(f'"nextid": {nextid}}}', file=fd)
 
     @parallel_function
     @lock
@@ -167,7 +167,7 @@ class JSONDatabase(Database):
 
         try:
             bigdct, ids, nextid = self._read_json()
-        except IOError:
+        except OSError:
             return
 
         if not limit:

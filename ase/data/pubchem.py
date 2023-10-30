@@ -16,6 +16,7 @@ class PubchemData:
     """
     a specialized class for entries from the pubchem database
     """
+
     def __init__(self, atoms, data):
         self.atoms = atoms
         self.data = data

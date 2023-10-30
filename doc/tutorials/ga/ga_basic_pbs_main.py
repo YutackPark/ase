@@ -16,10 +16,10 @@ def jtg(job_name, traj_file):
     s = '#!/bin/sh\n'
     s += '#PBS -l nodes=1:ppn=12\n'
     s += '#PBS -l walltime=48:00:00\n'
-    s += '#PBS -N {0}\n'.format(job_name)
+    s += f'#PBS -N {job_name}\n'
     s += '#PBS -q q12\n'
     s += 'cd $PBS_O_WORKDIR\n'
-    s += 'python calc.py {0}\n'.format(traj_file)
+    s += f'python calc.py {traj_file}\n'
     return s
 
 

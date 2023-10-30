@@ -197,7 +197,7 @@ def resolve_custom_points(pathspec, special_points, eps):
     def name_generator():
         counter = 0
         while True:
-            name = 'Kpt{}'.format(counter)
+            name = f'Kpt{counter}'
             yield name
             counter += 1
     custom_names = name_generator()
@@ -268,6 +268,7 @@ class BandPath:
     BandPath(path='GXMGRX,MR', cell=[3x3], special_points={GMRX}, kpts=[40x3])
 
     """
+
     def __init__(self, cell, kpts=None,
                  special_points=None, path=None):
         if kpts is None:

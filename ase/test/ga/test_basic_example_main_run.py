@@ -110,7 +110,7 @@ def test_basic_example_main_run(seed, testdir):
     while da.get_number_of_unrelaxed_candidates() > 0:
         a = da.get_an_unrelaxed_candidate()
         a.calc = EMT()
-        print('Relaxing starting candidate {0}'.format(a.info['confid']))
+        print('Relaxing starting candidate {}'.format(a.info['confid']))
         with BFGS(a, trajectory=None, logfile=None) as dyn:
             dyn.run(fmax=0.05, steps=100)
         set_raw_score(a, -a.get_potential_energy())
@@ -124,7 +124,7 @@ def test_basic_example_main_run(seed, testdir):
 
     # test n_to_test new candidates
     for i in range(n_to_test):
-        print('Now starting configuration number {0}'.format(i))
+        print(f'Now starting configuration number {i}')
         a1, a2 = population.get_two_candidates()
         a3, desc = pairing.get_new_individual([a1, a2])
         if a3 is None:
