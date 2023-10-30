@@ -8,36 +8,73 @@ from ase.calculators.abc import GetOutputsMixin
 from ase.calculators.calculator import BaseCalculator, EnvironmentError
 
 class BaseProfile(ABC):
+
     def __init__(self, parallel=True, parallel_info=None):
         """
+        Parameters
+        ----------
+        parallel : bool
+            If the calculator should be run in parallel.
+        parallel_info : dict
+            Additional settings for parallel execution, e.g. 
+            arguments for the binary for parallelization (mpiexec, srun, mpirun).
         """
         self.parallel_info = parallel_info
         self.parallel = parallel
 
+    def get_translation_keys(self):
+        """
+        Get the translation keys for the parallel_info dictionary.
+
+        A translation key is specified in a config file with the syntax 
+        `key_kwarg_trans = command, type`, e.g if `nprocs_kwarg_trans = -np, int`
+        is specified in the config file, then the key `nprocs` will be translated
+        to `-np` and value will be checked to be an integer. Then `nprocs`
+        can be specified in parallel_info and will be translated to `-np` when
+        the command is build. 
+
+        Returns
+        -------
+        dict of iterable
+            Dictionary with translation keys where the keys are the keys in 
+            parallel_info that will be translated, the values are a list where
+            the first element is the actual argument and the second element 
+            is the expected type for that argument.
+        """
+        translation_keys = {}
+        for key, value in self.parallel_info.items():
+            if len(key) < 12:
+                continue
+            if key.endswith("_kwarg_trans"):
+                trans_key = key[:-12]
+                if len(value.split(",")) != 2:
+                    raise ValueError("Translation keys must have 2 elements, parameter name and type")
+                translation_keys[trans_key] = [val.strip() for val in value.split(",")]
+                if translation_keys[trans_key][0] in self.parallel_info and trans_key in self.parallel_info:
+                    raise ValueError(f"The keyword {trans_key} is defined twice once as {trans_key} and the second "
+                                        f"as {translation_keys[trans_key][0]}")
+                translation_keys[trans_key][1] = locate(translation_keys[key[:-12]][1])
+        return translation_keys
+    
     def get_command(self, inputfile) -> Iterable[str]:
         """
         Get the command to run. This should be a list of strings.
 
-        This is main method that needs to be implemented by subclasses.
+        Parameters
+        ----------
+        inputfile : str
+
+        Returns
+        -------
+        list of str
+            The command to run.
         """
         command = []
         if self.parallel:
             command.append(self.parallel_info['binary'])
 
-            translation_keys = {}
-            for key, value in self.parallel_info.items():
-                if len(key) < 12:
-                    continue
-                if key.endswith("_kwarg_trans"):
-                    trans_key = key[:-12]
-                    if len(value.split(",")) != 2:
-                        raise ValueError("Translation keys must have 2 elements, parmeter name and type")
-                    translation_keys[trans_key] = [val.strip() for val in value.split(",")]
-                    if translation_keys[trans_key][0] in self.parallel_info and trans_key in self.parallel_info:
-                        raise ValueError(f"The keyword {trans_key} is defined twice once as {trans_key} and the second "
-                                         f"as {translation_keys[trans_key][0]}")
-                    translation_keys[trans_key][1] = locate(translation_keys[key[:-12]][1])
-                
+            translation_keys = self.get_translation_keys()
+            
             for key, value in self.parallel_info.items():
                 if key == 'binary' or "_kwarg_trans" in key:
                     continue
@@ -59,6 +96,18 @@ class BaseProfile(ABC):
 
     @abstractmethod
     def get_calculator_command(self, inputfile):
+        """
+        The calculator specific command as a list of strings.
+
+        Parameters
+        ----------
+        inputfile : str
+
+        Returns
+        -------
+        list of str
+            The command to run.
+        """
         ...
 
     def run(self, directory, inputfile, outputfile):
@@ -112,7 +161,7 @@ class BaseProfile(ABC):
         BaseProfile
             The profile object.
         """
-        return cls(**cfg.parser["general"], **cfg.parser[section_name])
+        return cls(**cfg.parser["parallel"], **cfg.parser[section_name])
 
 
 def read_stdout(args, createfile=None):
@@ -230,16 +279,14 @@ class CalculatorTemplate(ABC):
 
 
 class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
-    def __init__(self, *, template, profile, directory, parameters=None, parallel_info=None, 
-                parallel=True):
+    def __init__(self, *, template, profile, directory, parameters=None, 
+                parallel_info=None, parallel=True):
         self.template = template
 
         if profile is None:
             from ase.config import cfg
 
             parallel_config = dict(cfg.parser['parallel'])
-            variable_whitelist = ['binary']
-
             parallel_info = parallel_info if parallel_info is not None else {}
             parallel_config.update(parallel_info)
 
@@ -249,7 +296,7 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
             try:
                 profile = template.load_profile(myconfig, parallel_info=parallel_config, parallel=parallel)
             except Exception as err:
-                # configvars = dict(myconfig)
+                configvars = dict(myconfig)
                 raise EnvironmentError(
                     f"Failed to load section [{template.name}] "
                     "from configuration: {configvars}"
@@ -260,7 +307,6 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
         # Maybe we should allow directory to be a factory, so
         # calculators e.g. produce new directories on demand.
         self.directory = Path(directory)
-
         super().__init__(parameters)
 
     def set(self, *args, **kwargs):
