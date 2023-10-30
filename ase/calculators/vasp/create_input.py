@@ -30,6 +30,8 @@ import ase
 from ase.calculators.calculator import kpts2ndarray
 from ase.calculators.vasp.setups import get_default_setups
 
+FLOAT_FORMAT = '5.6f'
+EXP_FORMAT = '5.2e'
 
 def format_kpoints(kpts, atoms, reciprocal=False, gamma=False):
     tokens = []
@@ -1495,10 +1497,10 @@ class GenerateVaspInput:
                                          f'(neutral nelect is {default_nelect})')
                     val = nelect_from_charge
             if val is not None:
-                incar.write(f' {key.upper()} = {val:5.6f}\n')
+                incar.write(f' {key.upper()} = {val:{FLOAT_FORMAT}}\n')
         for key, val in self.exp_params.items():
             if val is not None:
-                incar.write(f' {key.upper()} = {val:5.2e}\n')
+                incar.write(f' {key.upper()} = {val:{EXP_FORMAT}}\n')
         for key, val in self.string_params.items():
             if val is not None:
                 incar.write(f' {key.upper()} = {val}\n')
