@@ -12,8 +12,7 @@ import re
 
 import numpy as np
 
-from ase.calculators.genericfileio import (CalculatorTemplate,
-                                           GenericFileIOCalculator)
+from ase.calculators.genericfileio import CalculatorTemplate, GenericFileIOCalculator
 from ase.io.aims import write_aims, write_control
 
 
@@ -153,20 +152,19 @@ class AimsTemplate(CalculatorTemplate):
         return read_aims_results(dst, index=-1)
 
     def load_profile(self, cfg):
-        return AimsProfile(cfg.getargv('argv'))
+        return AimsProfile(cfg.getargv("argv"))
+
     def socketio_argv(self, profile, unixsocket, port):
         return [*profile.argv]
 
     def socketio_parameters(self, unixsocket, port):
         if port:
-            use_pimd_wrapper = ('localhost', port),
+            use_pimd_wrapper = (("localhost", port),)
         else:
             # (INET port number should be unused.)
-            use_pimd_wrapper = (f'UNIX:{unixsocket}', 31415),
+            use_pimd_wrapper = ((f"UNIX:{unixsocket}", 31415),)
 
-        return dict(
-            use_pimd_wrapper=use_pimd_wrapper,
-            compute_forces=True)
+        return dict(use_pimd_wrapper=use_pimd_wrapper, compute_forces=True)
 
 
 class Aims(GenericFileIOCalculator):
@@ -194,7 +192,6 @@ class Aims(GenericFileIOCalculator):
 
         """
 
-<<<<<<< HEAD
         # The aims community likes to have the ASE_AIMS_COMMAND
         # so we'll need to communicate before we can remove/change this:
         #
@@ -205,14 +202,10 @@ class Aims(GenericFileIOCalculator):
         #            os.getenv("ASE_AIMS_COMMAND", "aims.x")
         #        )
         #    )
-=======
         if profile is None:
             profile = AimsProfile(
-                kwargs.pop(
-                    "aims_command", os.getenv("ASE_AIMS_COMMAND", "aims.x")
-                )
+                kwargs.pop("aims_command", os.getenv("ASE_AIMS_COMMAND", "aims.x"))
             )
->>>>>>> c8b12a4ca6c59935f02b52f470b6353d68844ce3
 
         super().__init__(
             template=AimsTemplate(),
