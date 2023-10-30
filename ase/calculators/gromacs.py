@@ -24,8 +24,7 @@ from shutil import which
 import numpy as np
 
 from ase import units
-from ase.calculators.calculator import (EnvironmentError, FileIOCalculator,
-                                        all_changes)
+from ase.calculators.calculator import FileIOCalculator, all_changes
 from ase.io.gromos import read_gromos, write_gromos
 
 

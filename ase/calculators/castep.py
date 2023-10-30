@@ -2162,10 +2162,11 @@ End CASTEP Interface Documentation
             return
         write_param(os.path.join(temp_dir, '%s.param' % seed), self.param, )
 
-        stdout, stderr = shell_stdouterr(('{} {} {}'.format(self._castep_command,
-                                                            seed,
-                                                            dryrun_flag)),
-                                         cwd=temp_dir)
+        stdout, stderr = shell_stdouterr(('{} {} {}'.format(
+            self._castep_command,
+            seed,
+            dryrun_flag)),
+            cwd=temp_dir)
 
         if stdout:
             print(stdout)

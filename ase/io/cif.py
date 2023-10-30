@@ -392,7 +392,8 @@ class CIFBlock(collections.abc.Mapping):
                     setting = 2
                 else:
                     warnings.warn(
-                        'unexpected crystal system {!r} for space group {!r}'.format(
+                        'unexpected crystal system {!r} '
+                        'for space group {!r}'.format(
                             setting_name, spacegroup))
             # FIXME - check for more crystal systems...
             else:
