@@ -4,7 +4,7 @@ import time
 from subprocess import PIPE, Popen
 
 from ase.calculators.calculator import Calculator
-frm ase.config import cfg
+from ase.config import cfg
 from ase.io import read
 
 from .create_input import GenerateVaspInput
