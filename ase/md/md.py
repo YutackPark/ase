@@ -116,7 +116,6 @@ class MolecularDynamics(Dynamics):
         # we do not test /any/ kind of MD with any kind of Filter in ASE.
         self.atoms = atoms
         self.masses = self.atoms.get_masses()
-        self.max_steps = 0  # to be updated in run or irun
 
         if 0 in self.masses:
             warnings.warn('Zero mass encountered in atoms; this will '

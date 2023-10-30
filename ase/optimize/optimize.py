@@ -12,6 +12,9 @@ from ase.utils import IOContext
 from ase.utils.abc import Optimizable
 
 
+MAX_STEPS = 100_000_000  # maximum number of steps placeholder with maxint
+
+
 class RestartError(RuntimeError):
     pass
 
@@ -90,8 +93,7 @@ class Dynamics(IOContext):
         self.logfile = self.openfile(logfile, mode='a', comm=world)
         self.observers: List[Callable] = []
         self.nsteps = 0
-        # maximum number of steps placeholder with maxint
-        self.max_steps = 100000000
+        self.max_steps = 0  # to be updated in run or irun
 
         if trajectory is not None:
             if isinstance(trajectory, str):
@@ -326,15 +328,13 @@ class Optimizer(Dynamics):
     def irun(self, fmax=0.05, steps=None):
         """ call Dynamics.irun and keep track of fmax"""
         self.fmax = fmax
-        if steps is not None:
-            self.max_steps = steps
+        self.max_steps = MAX_STEPS if steps is None else steps + self.nsteps
         return Dynamics.irun(self)
 
     def run(self, fmax=0.05, steps=None):
         """ call Dynamics.run and keep track of fmax"""
         self.fmax = fmax
-        if steps is not None:
-            self.max_steps = steps
+        self.max_steps = MAX_STEPS if steps is None else steps + self.nsteps
         return Dynamics.run(self)
 
     def converged(self, forces=None):
