@@ -1,20 +1,11 @@
-import functools
-import warnings
 from abc import ABC, abstractmethod
 from typing import Dict, List
 
 import numpy as np
 
-from ase.build.bulk import bulk as newbulk
 from ase.cell import Cell
 from ase.dft.kpoints import BandPath, parse_path_string, sc_special_points
 from ase.utils import pbc2pbc
-
-
-@functools.wraps(newbulk)
-def bulk(*args, **kwargs):
-    warnings.warn('Use ase.build.bulk() instead', stacklevel=2)
-    return newbulk(*args, **kwargs)
 
 
 _degrees = np.pi / 180
