@@ -66,6 +66,7 @@ package_data = {'ase': ['spacegroup/spacegroup.dat',
 
 class build_py(_build_py):
     """Custom command to build translations."""
+
     def __init__(self, *args, **kwargs):
         _build_py.__init__(self, *args, **kwargs)
         # Keep list of files to appease bdist_rpm.  We have to keep track of

@@ -56,7 +56,7 @@ class ParallelLocalRun:
         if not os.path.isdir(self.tmp_folder):
             os.mkdir(self.tmp_folder)
         fname = '{}/cand{}.traj'.format(self.tmp_folder,
-                                          a.info['confid'])
+                                        a.info['confid'])
         write(fname, a)
         p = Popen(['python', self.calc_script, fname])
         self.running_pids.append([a.info['confid'], p.pid])
@@ -87,7 +87,7 @@ class ParallelLocalRun:
             try:
                 tf = self.tmp_folder
                 a = read('{}/cand{}_done.traj'.format(tf,
-                                                        confid))
+                                                      confid))
                 self.dc.add_relaxed_step(a)
             except OSError as e:
                 print(e)

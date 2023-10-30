@@ -111,7 +111,7 @@ class Gaussian(FileIOCalculator):
                     break
             else:
                 raise OSError('Missing Gaussian executable {}'
-                                       .format(gaussians))
+                              .format(gaussians))
 
         FileIOCalculator.calculate(self, *args, **kwargs)
 

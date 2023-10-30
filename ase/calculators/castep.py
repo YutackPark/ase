@@ -1950,7 +1950,7 @@ End CASTEP Interface Documentation
 
         # run castep itself
         stdout, stderr = shell_stdouterr('{} {}'.format(self._castep_command,
-                                                    self._seed),
+                                                        self._seed),
                                          cwd=self._directory)
         if stdout:
             print('castep call stdout:\n%s' % stdout)
@@ -2163,8 +2163,8 @@ End CASTEP Interface Documentation
         write_param(os.path.join(temp_dir, '%s.param' % seed), self.param, )
 
         stdout, stderr = shell_stdouterr(('{} {} {}'.format(self._castep_command,
-                                                        seed,
-                                                        dryrun_flag)),
+                                                            seed,
+                                                            dryrun_flag)),
                                          cwd=temp_dir)
 
         if stdout:

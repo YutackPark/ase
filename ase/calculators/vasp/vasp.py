@@ -717,7 +717,7 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
     def _xml_calc(self) -> SinglePointDFTCalculator:
         if self.__xml_calc is None:
             raise RuntimeError('vasprun.xml data has not yet been loaded. '
-                                'Run read_results() first.')
+                               'Run read_results() first.')
         return self.__xml_calc
 
     @_xml_calc.setter
@@ -989,8 +989,8 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
                 magnetic_moments = self._read_magnetic_moments(lines=lines)
             else:
                 warn('Magnetic moment data not written in OUTCAR (LORBIT<10),'
-                      ' setting magnetic_moments to zero.\nSet LORBIT>=10'
-                      ' to get information on magnetic moments')
+                     ' setting magnetic_moments to zero.\nSet LORBIT>=10'
+                     ' to get information on magnetic moments')
                 magnetic_moments = np.zeros(len(self.atoms))
         else:
             magnetic_moment = 0.0
@@ -1080,7 +1080,7 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
         # Then if ibrion in [1,2,3] check whether ionic relaxation
         # condition been fulfilled
         if (self.int_params['ibrion'] in [1, 2, 3]
-             and self.int_params['nsw'] not in [0]):
+                and self.int_params['nsw'] not in [0]):
             if not self.read_relaxed():
                 converged = False
             else:
@@ -1338,4 +1338,4 @@ def check_atoms_type(atoms: ase.Atoms) -> None:
     if not isinstance(atoms, ase.Atoms):
         raise calculator.CalculatorSetupError(
             'Expected an Atoms object, '
-             'instead got object of type {}'.format(type(atoms)))
+            'instead got object of type {}'.format(type(atoms)))

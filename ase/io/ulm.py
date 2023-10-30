@@ -686,7 +686,7 @@ def print_ulm_info(filename, index=None, verbose=False):
     else:
         indices = [index]
     print('{}  (tag: "{}", {})'.format(filename, b.get_tag(),
-                                          plural(len(b), 'item')))
+                                       plural(len(b), 'item')))
     for i in indices:
         print(f'item #{i}:')
         print(b[i].tostr(verbose))

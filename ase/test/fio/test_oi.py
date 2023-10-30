@@ -113,10 +113,10 @@ def test_ioformat(format, atoms, catch_warnings):
 
     io = ioformats[format]
     print('{:20}{}{}{}{}'.format(format,
-                                      ' R'[io.can_read],
-                                      ' W'[io.can_write],
-                                      '+1'[io.single],
-                                      'SF'[io.acceptsfd]))
+                                 ' R'[io.can_read],
+                                 ' W'[io.can_write],
+                                 '+1'[io.single],
+                                 'SF'[io.acceptsfd]))
     fname1 = f'io-test.1.{format}'
     fname2 = f'io-test.2.{format}'
     if io.can_write:

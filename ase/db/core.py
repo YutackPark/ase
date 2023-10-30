@@ -330,6 +330,7 @@ def parse_selection(selection, **kwargs):
 
 class Database:
     """Base class for all databases."""
+
     def __init__(self, filename=None, create_indices=True,
                  use_lock_file=False, serial=False):
         """Database object.

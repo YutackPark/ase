@@ -318,7 +318,7 @@ def readWFSX(fname):
                 msg = 'siesta_get_wfsx: err: ispin_in>nspin\n \
                      siesta_get_wfsx: ikpoint, ispin, ispin_in = \
                      {}  {}  {}\n siesta_get_wfsx'.format(ikpoint,
-                                                             ispin, ispin_in)
+                                                          ispin, ispin_in)
                 raise ValueError(msg)
 
             norbitals_in = fh.readInts('i')[0]
@@ -326,8 +326,8 @@ def readWFSX(fname):
                 msg = 'siesta_get_wfsx: err: norbitals_in>norbitals\n \
                      siesta_get_wfsx: ikpoint, norbitals, norbitals_in = \
                      {}  {}  {}\n siesta_get_wfsx'.format(ikpoint,
-                                                             norbitals,
-                                                             norbitals_in)
+                                                          norbitals,
+                                                          norbitals_in)
                 raise ValueError(msg)
 
             for imolecular_orb in range(norbitals_in):

@@ -21,6 +21,7 @@ def ensemble(energy: float,
 
 class BEEFEnsemble:
     """BEEF type ensemble error estimation."""
+
     def __init__(self,
                  atoms: Union[Atoms, DFTCalculator] = None,
                  e: float = None,

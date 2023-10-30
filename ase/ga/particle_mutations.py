@@ -249,7 +249,7 @@ class COM2surfPermutation(Mutation):
         the min_ratio constraint. The indices are found from the supplied
         atomic configuration."""
         elements = list({atoms[i].symbol
-                             for subl in atomic_conf for i in subl})
+                         for subl in atomic_conf for i in subl})
 
         core = [i for subl in atomic_conf[:1 + recurs] for i in subl]
         while len(core) < 1:
@@ -272,7 +272,7 @@ class COM2surfPermutation(Mutation):
         subject to the min_ratio constraint. The indices are found from
         the supplied atomic configuration."""
         elements = list({atoms[i].symbol
-                             for subl in atomic_conf for i in subl})
+                         for subl in atomic_conf for i in subl})
 
         shell = [i for subl in atomic_conf[-1 - recurs:] for i in subl]
         while len(shell) < 1:

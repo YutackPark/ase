@@ -119,10 +119,10 @@ def write_lammps_in(lammps_in, parameters, atoms, prismobj,
 
     if "package" in parameters:
         fileobj.write(
-                "\n".join(
-                    [f"package {p}" for p in parameters["package"]]
-                )
-                + "\n"
+            "\n".join(
+                [f"package {p}" for p in parameters["package"]]
+            )
+            + "\n"
         )
 
     # setup styles except 'pair_style'
@@ -209,16 +209,16 @@ def write_lammps_in(lammps_in, parameters, atoms, prismobj,
 
     if "group" in parameters:
         fileobj.write(
-                "\n".join([f"group {p}" for p in parameters["group"]])
-                + "\n"
+            "\n".join([f"group {p}" for p in parameters["group"]])
+            + "\n"
         )
 
     fileobj.write("\n### run\n" "fix fix_nve all nve\n")
 
     if "fix" in parameters:
         fileobj.write(
-                "\n".join([f"fix {p}" for p in parameters["fix"]])
-                + "\n"
+            "\n".join([f"fix {p}" for p in parameters["fix"]])
+            + "\n"
         )
 
     fileobj.write(

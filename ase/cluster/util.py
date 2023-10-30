@@ -14,7 +14,7 @@ def get_element_info(symbol, latticeconstant):
         else:
             raise NotImplementedError(
                 "Cannot guess lattice constant of a %s element." %
-                 (reference_states[atomic_number]['symmetry'],))
+                (reference_states[atomic_number]['symmetry'],))
     else:
         if isinstance(latticeconstant, (int, float)):
             lattice_constant = latticeconstant

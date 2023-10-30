@@ -293,6 +293,7 @@ class EspressoFactory:
 @factory('exciting')
 class ExcitingFactory:
     """Factory to run exciting tests."""
+
     def __init__(self, executable):
         self.executable = executable
 

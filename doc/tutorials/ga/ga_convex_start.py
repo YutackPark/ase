@@ -18,7 +18,7 @@ def get_avg_lattice_constant(syms):
 metals = ['Cu', 'Pt']
 # Use experimental lattice constants
 lattice_constants = {m: reference_states[atomic_numbers[m]]['a']
-                         for m in metals}
+                     for m in metals}
 
 # Create the references (pure slabs) manually
 pure_slabs = []

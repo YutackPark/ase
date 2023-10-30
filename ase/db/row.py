@@ -17,6 +17,7 @@ from ase.io.jsonio import decode
 
 class FancyDict(dict):
     """Dictionary with keys available as attributes also."""
+
     def __getattr__(self, key):
         if key not in self:
             return dict.__getattribute__(self, key)

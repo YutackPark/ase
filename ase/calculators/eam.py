@@ -428,9 +428,9 @@ End EAM Interface Documentation
                     data[d:(d + self.nrho)])
                 d += self.nrho
                 self.density_data[elem, :, :] = np.float_(
-                    data[d:(d + self.nr*self.Nelements)]).reshape([
+                    data[d:(d + self.nr * self.Nelements)]).reshape([
                         self.Nelements, self.nr])
-                d += self.nr*self.Nelements
+                d += self.nr * self.Nelements
 
             # reads in the r*phi data for each interaction between elements
             self.rphi_data = np.zeros([self.Nelements, self.Nelements,

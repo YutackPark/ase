@@ -11,6 +11,7 @@ class Prior():
     When used, the prior should be initialized outside the optimizer and the
     Prior object should be passed as a function to the optimizer.
     """
+
     def __init__(self):
         """Basic prior implementation."""
         pass
@@ -26,6 +27,7 @@ class Prior():
 
 class ZeroPrior(Prior):
     """ZeroPrior object, consisting on a constant prior with 0eV energy."""
+
     def __init__(self):
         Prior.__init__(self)
 
@@ -46,6 +48,7 @@ class ConstantPrior(Prior):
     >>> from ase.optimize.gpmin.prior import ConstantPrior
     >>> op = GPMin(atoms, Prior = ConstantPrior(10)
     """
+
     def __init__(self, constant):
         self.constant = constant
         Prior.__init__(self)
@@ -70,6 +73,7 @@ class CalculatorPrior(Prior):
     atoms: the Atoms object
     calculator: one of ASE's calculators
     """
+
     def __init__(self, atoms, calculator):
         Prior.__init__(self)
         self.atoms = atoms.copy()

@@ -148,7 +148,7 @@ class QChem(FileIOCalculator):
             fileobj.write('   %d %d\n' % (self.parameters['charge'], mult))
             for a in atoms:
                 fileobj.write('   {}  {:f}  {:f}  {:f}\n'.format(a.symbol,
-                                                       a.x, a.y, a.z))
+                                                                 a.x, a.y, a.z))
             fileobj.write('$end\n\n')
 
             if self.basisfile is not None:

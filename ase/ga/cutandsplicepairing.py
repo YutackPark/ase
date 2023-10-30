@@ -187,7 +187,7 @@ class CutAndSplicePairing(OffspringCreator):
 
         indi = self.cross(f, m)
         desc = 'pairing: {} {}'.format(f.info['confid'],
-                                         m.info['confid'])
+                                       m.info['confid'])
         # It is ok for an operator to return None
         # It means that it could not make a legal offspring
         # within a reasonable amount of time

@@ -24,6 +24,7 @@ class DOSData(metaclass=ABCMeta):
     """Abstract base class for a single series of DOS-like data
 
     Only the 'info' is a mutable attribute; DOS data is set at init"""
+
     def __init__(self,
                  info: Info = None) -> None:
         if info is None:
@@ -207,6 +208,7 @@ class GeneralDOSData(DOSData):
     "energies" and "weights" sequences of equal length at init.
 
     """
+
     def __init__(self,
                  energies: Floats,
                  weights: Floats,
@@ -348,6 +350,7 @@ class GridDOSData(GeneralDOSData):
       GridDOSData([0.1, 0.2, 0.3], [y1+y4, y2+y5, y3+y6], info={'symbol': 'O'})
 
     """
+
     def __init__(self,
                  energies: Floats,
                  weights: Floats,

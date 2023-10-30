@@ -836,7 +836,7 @@ def iread(
     io = get_ioformat(format)
 
     yield from _iread(filename, index, format, io, parallel=parallel,
-                        **kwargs)
+                      **kwargs)
 
 
 @parallel_generator

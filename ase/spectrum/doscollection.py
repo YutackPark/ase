@@ -15,6 +15,7 @@ if False:
 
 class DOSCollection(collections.abc.Sequence):
     """Base class for a collection of DOSData objects"""
+
     def __init__(self, dos_series: Iterable[DOSData]) -> None:
         self._data = list(dos_series)
 

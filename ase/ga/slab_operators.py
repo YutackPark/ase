@@ -66,7 +66,7 @@ def same_layer_comp(atoms, rng=np.random):
                                   return_counts=True)
     layer = get_layer_comps(atoms)
     sym_dict = {s: int(np.array(c) / len(layer))
-                    for s, c in zip(unique_syms, comp)}
+                for s, c in zip(unique_syms, comp)}
     for la in layer:
         correct_by = sym_dict.copy()
         lcomp = dict(
@@ -250,7 +250,7 @@ class CutSpliceSlabCrossover(SlabOperator):
         indi.info['data']['parents'] = [i.info['confid'] for i in parents]
 
         parent_message = ': Parents {} {}'.format(f.info['confid'],
-                                                    m.info['confid'])
+                                                  m.info['confid'])
         return (self.finalize_individual(indi),
                 self.descriptor + parent_message)
 

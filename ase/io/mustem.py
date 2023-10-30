@@ -199,10 +199,10 @@ class XtlmuSTEMWriter:
     def _get_element_header(self, atom_type, number, atom_type_number,
                             occupancy, RMS):
         return "{}\n{} {} {} {:.3g}\n".format(atom_type,
-                                                   number,
-                                                   atom_type_number,
-                                                   occupancy,
-                                                   RMS)
+                                              number,
+                                              atom_type_number,
+                                              occupancy,
+                                              RMS)
 
     def _get_file_end(self):
         return "Orientation\n   1 0 0\n   0 1 0\n   0 0 1\n"

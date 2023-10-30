@@ -57,7 +57,7 @@ class PBSQueueRun:
         if not os.path.isdir(self.tmp_folder):
             os.mkdir(self.tmp_folder)
         fname = '{}/cand{}.traj'.format(self.tmp_folder,
-                                          a.info['confid'])
+                                        a.info['confid'])
         write(fname, a)
         job_name = '{}_{}'.format(self.job_prefix, a.info['confid'])
         fd = open('tmp_job_file.job', 'w')
@@ -92,7 +92,7 @@ class PBSQueueRun:
         confs = self.dc.get_all_candidates_in_queue()
         for c in confs:
             fdone = '{}/cand{}_done.traj'.format(self.tmp_folder,
-                                                   c)
+                                                 c)
             if os.path.isfile(fdone) and os.path.getsize(fdone) > 0:
                 try:
                     a = []

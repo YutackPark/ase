@@ -165,7 +165,7 @@ class Checkpoint:
 
     def _flush(self, *args, **kwargs):
         data = {f'{self._value_prefix}{i}': v
-                    for i, v in enumerate(args)}
+                for i, v in enumerate(args)}
 
         try:
             atomsi = [isinstance(v, ase.Atoms) for v in args].index(True)

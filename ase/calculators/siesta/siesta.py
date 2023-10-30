@@ -904,8 +904,8 @@ class Siesta(FileIOCalculator):
                 pseudo_head = name[:-4]
                 fractional_command = os.environ['SIESTA_UTIL_FRACTIONAL']
                 cmd = '{} {} {:.7f}'.format(fractional_command,
-                                      pseudo_head,
-                                      fraction)
+                                            pseudo_head,
+                                            fraction)
                 os.system(cmd)
 
                 pseudo_head += '-Fraction-%.5f' % fraction

@@ -214,6 +214,7 @@ class FixAtoms(IndexedConstraint):
 
 class FixCom(FixConstraint):
     """Constraint class for fixing the center of mass."""
+
     def get_removed_dof(self, atoms):
         return 3
 

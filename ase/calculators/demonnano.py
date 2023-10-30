@@ -13,7 +13,7 @@ The file 'deMon.out' contains the results
 """
 import os
 import os.path as op
-#import subprocess
+# import subprocess
 import pathlib as pl
 
 import numpy as np
@@ -150,11 +150,11 @@ class DemonNano(FileIOCalculator):
                 self._write_argument('MDYNAMICS', 'ZERO', fd)
                 self._write_argument('MDSTEP', 'MAX=1', fd)
                 # default timestep is 0.25 fs if not enough - uncomment the line below
-                #self._write_argument('TIMESTEP', '0.1', fd)
+                # self._write_argument('TIMESTEP', '0.1', fd)
 
             # print argument, here other options could change this
             value = self.parameters['print_out']
-            assert(isinstance(value, str))
+            assert (isinstance(value, str))
 
             if not len(value) == 0:
                 self._write_argument('PRINT', value, fd)
@@ -275,7 +275,7 @@ class DemonNano(FileIOCalculator):
 
         for i in range(len(lines)):
             if lines[i].startswith(' DFTB total energy [Hartree]'):
-                self.results['energy'] = float(lines[i+1])*Hartree
+                self.results['energy'] = float(lines[i + 1]) * Hartree
                 break
 
     def read_forces(self, atoms):
@@ -308,7 +308,7 @@ class DemonNano(FileIOCalculator):
                             if len(s) > 0]
                     f = -np.array([float(x) for x in line[1:4]])
                     # output forces in a.u.
-                    #self.results['forces'][i, :] = f
+                    # self.results['forces'][i, :] = f
                     # output forces with real dimension
                     self.results['forces'][i, :] = f * (Hartree / Bohr)
 

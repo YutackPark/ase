@@ -723,13 +723,13 @@ class UlmBundleBackend:
                                 'uint32', 'int32', 'uint64', 'int64']
         # Dict comprehensions not supported in Python 2.6 :-(
         self.int_dtype = {k: getattr(np, k)
-                              for k in self.integral_dtypes}
+                          for k in self.integral_dtypes}
         self.int_minval = {k: np.iinfo(self.int_dtype[k]).min
-                               for k in self.integral_dtypes}
+                           for k in self.integral_dtypes}
         self.int_maxval = {k: np.iinfo(self.int_dtype[k]).max
-                               for k in self.integral_dtypes}
+                           for k in self.integral_dtypes}
         self.int_itemsize = {k: np.dtype(self.int_dtype[k]).itemsize
-                                 for k in self.integral_dtypes}
+                             for k in self.integral_dtypes}
 
     def write_small(self, framedir, smalldata):
         "Write small data to be written jointly."

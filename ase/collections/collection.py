@@ -22,6 +22,7 @@ class Collection:
     >>> sum(len(atoms) for atoms in s22)
     414
     """
+
     def __init__(self, name):
         """Create a collection lazily.
 

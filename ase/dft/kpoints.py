@@ -268,6 +268,7 @@ class BandPath:
     BandPath(path='GXMGRX,MR', cell=[3x3], special_points={GMRX}, kpts=[40x3])
 
     """
+
     def __init__(self, cell, kpts=None,
                  special_points=None, path=None):
         if kpts is None:

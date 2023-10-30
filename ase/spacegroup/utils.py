@@ -82,7 +82,7 @@ def _get_basis_spglib(atoms: Atoms, tol: float = 1e-5) -> np.ndarray:
         # Give a reasonable alternative solution to this function.
         raise ImportError(
             'This function requires spglib. Use "get_basis" and specify '
-             'the spacegroup instead, or install spglib.')
+            'the spacegroup instead, or install spglib.')
 
     scaled_positions = atoms.get_scaled_positions()
     reduced_indices = _get_reduced_indices(atoms, tol=tol)
@@ -155,8 +155,8 @@ def get_basis(atoms: Atoms,
             # or ASE was explicitly required
             raise ValueError(
                 'A space group must be specified for the native ASE '
-                 'implementation. Try using the spglib version instead, '
-                 'or explicitly specifying a space group.')
+                'implementation. Try using the spglib version instead, '
+                'or explicitly specifying a space group.')
         return _get_basis_ase(atoms, spacegroup, tol=tol)
 
 

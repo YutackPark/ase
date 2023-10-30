@@ -37,7 +37,7 @@ class MultiprocessingRun:
         to the pool of cpus."""
         self.dc.mark_as_queued(a)
         fname = '{}/cand{}.traj'.format(self.tmp_folder,
-                                          a.info['confid'])
+                                        a.info['confid'])
         write(fname, a)
         self.results.append(self.pool.apply_async(self.relax_function,
                                                   [fname]))
