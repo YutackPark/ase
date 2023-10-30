@@ -26,6 +26,7 @@ def test_run_command(tmp_path, dummy_template, calculator_kwargs, result_command
             "exc": "dummy.x",
         }
     }
+
     with patch.object(Config,
                       'parser',
                       return_value=mock_config,
@@ -36,5 +37,5 @@ def test_run_command(tmp_path, dummy_template, calculator_kwargs, result_command
                                        directory=tmp_path,
                                        **calculator_kwargs
                                        )
-        assert calc.get_command(input_file="") == result_command
+        assert calc.profile.get_command(inputfile="") == result_command
 
