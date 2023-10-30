@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from os import PathLike
 from pathlib import Path
 from typing import Any, Iterable, Mapping
+from pydoc import locate
 
 from ase.calculators.abc import GetOutputsMixin
 from ase.calculators.calculator import BaseCalculator, EnvironmentError
@@ -23,14 +24,35 @@ class BaseProfile(ABC):
         if self.parallel:
             command.append(self.parallel_info['binary'])
 
+            translation_keys = {}
             for key, value in self.parallel_info.items():
-                if key == 'binary':
+                if len(key) < 12:
                     continue
+                if key.endswith("_kwarg_trans"):
+                    trans_key = key[:-12]
+                    if len(value.split(",")) != 2:
+                        raise ValueError("Translation keys must have 2 elements, parmeter name and type")
+                    translation_keys[trans_key] = [val.strip() for val in value.split(",")]
+                    if translation_keys[trans_key][0] in self.parallel_info and trans_key in self.parallel_info:
+                        raise ValueError(f"The keyword {trans_key} is defined twice once as {trans_key} and the second "
+                                         f"as {translation_keys[trans_key][0]}")
+                    translation_keys[trans_key][1] = locate(translation_keys[key[:-12]][1])
+                
+            for key, value in self.parallel_info.items():
+                if key == 'binary' or "_kwarg_trans" in key:
+                    continue
+                
+                command_key = key
+                if key in translation_keys:
+                    if not isinstance(value, translation_keys[key][1]):
+                        raise IOError(f"The value for {key} must be {translation_keys[key][1]}")
+                    command_key = translation_keys[key][0]
+
                 if type(value) is not bool:
-                    command.append(f'{key}')
+                    command.append(f'{command_key}')
                     command.append(f'{value}')
                 elif value:
-                    command.append(f'{key}')
+                    command.append(f'{command_key}')
 
         command.extend(self.get_calculator_command(inputfile))
         return command
@@ -217,8 +239,6 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
 
             parallel_config = dict(cfg.parser['parallel'])
             variable_whitelist = ['binary']
-            for key in parallel_config:
-                assert key in variable_whitelist, f"Unknown variable {key} in section [parallel]"
 
             parallel_info = parallel_info if parallel_info is not None else {}
             parallel_config.update(parallel_info)
