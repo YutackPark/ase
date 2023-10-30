@@ -18,6 +18,8 @@ class DummyProfile(BaseProfile):
         self.exc = exc
 
     def get_calculator_command(self, inputfile):
+        if not inputfile:
+            return [self.exc]
         return [self.exc, inputfile]
 
     def version(self):
