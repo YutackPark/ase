@@ -108,7 +108,6 @@ class DMol3(FileIOCalculator):
         # tracks if DMol transformed coordinate system
         self.internal_transformation = False
 
-
     def write_input(self, atoms, properties=None, system_changes=None):
 
         if not (np.all(atoms.pbc) or not np.any(atoms.pbc)):
