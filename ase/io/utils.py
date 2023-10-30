@@ -220,7 +220,6 @@ class ImageChunk:
     def build(self, **kwargs):
         """Construct the atoms object from the stored information,
         and return it"""
-        pass
 
 
 class ImageIterator:

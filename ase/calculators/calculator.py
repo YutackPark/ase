@@ -944,4 +944,3 @@ class FileIOCalculator(Calculator):
 
     def read_results(self):
         """Read energy, forces, ... from output file(s)."""
-        pass

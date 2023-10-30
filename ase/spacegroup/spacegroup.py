@@ -17,17 +17,14 @@ __all__ = ['Spacegroup']
 
 class SpacegroupError(Exception):
     """Base exception for the spacegroup module."""
-    pass
 
 
 class SpacegroupNotFoundError(SpacegroupError):
     """Raised when given space group cannot be found in data base."""
-    pass
 
 
 class SpacegroupValueError(SpacegroupError):
     """Raised when arguments have invalid value."""
-    pass
 
 
 # Type alias

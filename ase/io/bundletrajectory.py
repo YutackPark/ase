@@ -861,7 +861,6 @@ class UlmBundleBackend:
 
         The default backend does nothing here.
         """
-        pass
 
 
 def read_bundletrajectory(filename, index=-1):

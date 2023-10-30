@@ -445,7 +445,6 @@ class Lattice(Atoms, MillerInfo):
     also has a method, `miller_to_direction`, used to convert from Miller
     indices to directions in the coordinate system of the lattice.
     """
-    pass
 
 
 # Helper functions

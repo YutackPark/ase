@@ -14,7 +14,6 @@ class KIMCalculatorError(CalculatorError):
     incompatible in some way with this calculator
     """
 
-    pass
 
 
 class KIMModelNotFound(CalculatorError):
@@ -23,7 +22,6 @@ class KIMModelNotFound(CalculatorError):
     collections on the system
     """
 
-    pass
 
 
 class KIMModelInitializationError(CalculatorError):
@@ -32,7 +30,6 @@ class KIMModelInitializationError(CalculatorError):
     successfully created
     """
 
-    pass
 
 
 class KimpyError(CalculatorError):
@@ -40,7 +37,6 @@ class KimpyError(CalculatorError):
     A call to a kimpy function resulted in a RuntimeError being raised
     """
 
-    pass
 
 
 class KIMModelParameterError(CalculatorError):
@@ -49,4 +45,3 @@ class KIMModelParameterError(CalculatorError):
     parameter was unsuccessful
     """
 
-    pass
