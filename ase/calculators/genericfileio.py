@@ -8,53 +8,36 @@ from ase.calculators.calculator import BaseCalculator, EnvironmentError
 
 class BaseProfile(ABC):
 
-    def __init__(self, mpi_command=None, mpi_command_ncores=None, ncores=None):
+    def __init__(self, parallel=True, parallel_info=None):
         """
-        Parameters
-        ----------
-        mpi_command : str, optional
-            The command to run MPI programs. E.g. 'mpirun -np 4'.
-        mpi_command_ncores : str, optional
-            The command to run MPI programs, with a placeholder for the number
-            of cores. E.g. 'mpirun -np {}'.
-        ncores : int, optional
-            The number of cores to run on. If given, this will be used to
-            replace the placeholder in `mpi_command_ncores`.
         """
-        self.mpi_command = mpi_command
-        self.mpi_command_ncores = mpi_command_ncores
-        self.ncores = ncores
+        self.parallel_info = parallel_info
+        self.parallel = parallel
 
-    def add_mpi_command(self, argv_command):
-        """
-        Add the MPI command to the given command.
-
-        Parameters
-        ----------
-        argv_command : list of str
-            The command to run.
-        
-        Returns
-        -------
-        list of str
-            The command to run, with the MPI command prepended.
-        """
-        if self.mpi_command_ncores is not None and self.ncores is not None:
-            argv_command = (
-                self.mpi_command_ncores.format(self.ncores).split(' ')
-                + argv_command)
-        elif self.mpi_command is not None:
-            argv_command = [self.mpi_command] + argv_command
-
-        return argv_command
-
-    @abstractmethod
     def get_command(self, inputfile) -> Iterable[str]:
         """
         Get the command to run. This should be a list of strings. 
 
         This is main method that needs to be implemented by subclasses.
         """
+        command = []
+        if self.parallel:
+            command.append(self.parallel_info['binary'])
+
+            for key, value in self.parallel_info.items():
+                if key == 'binary':
+                    continue
+                if type(value) is not bool:
+                    command.append(f'{key}')
+                    command.append(f'{value}')
+                elif value:
+                    command.append(f'{key}')
+
+        command.extend(self.get_calculator_command(inputfile))
+        return command
+
+    @abstractmethod
+    def get_calculator_command(self, inputfile):
         ...
 
     def run(self, directory, inputfile, outputfile):
@@ -149,7 +132,7 @@ class CalculatorTemplate(ABC):
         ...
 
     @abstractmethod
-    def load_profile(self, cfg):
+    def load_profile(self, cfg, parallel_info={}, parallel=True):
         ...
 
     def socketio_calculator(
@@ -215,17 +198,26 @@ class CalculatorTemplate(ABC):
 
 
 class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
-    def __init__(self, *, template, profile, directory, parameters=None):
+    def __init__(self, *, template, profile, directory, parameters=None, parallel_info=None, 
+                parallel=True):
         self.template = template
 
         if profile is None:
             from ase.config import cfg
 
+            parallel_config = dict(cfg.parser['parallel'])
+            variable_whitelist = ['binary']
+            for key in parallel_config:
+                assert key in variable_whitelist, f"Unknown variable {key} in section [parallel]"
+
+            parallel_info = parallel_info if parallel_info is not None else {}
+            parallel_config.update(parallel_info)
+
             if template.name not in cfg.parser:
                 raise EnvironmentError(f"No configuration of {template.name}")
             myconfig = cfg.parser[template.name]
             try:
-                profile = template.load_profile(myconfig)
+                profile = template.load_profile(myconfig, parallel_config, parallel=parallel)
             except Exception as err:
                 configvars = dict(myconfig)
                 raise EnvironmentError(
