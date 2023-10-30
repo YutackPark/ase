@@ -43,7 +43,7 @@ class DummyTemplate(CalculatorTemplate):
     def execute(self, directory, profile):
         pass
 
-    def read_results(self, directory: PathLike) -> Mapping[str, Any]:
+    def read_results(self, directory: PathLike):
         pass
 
 
