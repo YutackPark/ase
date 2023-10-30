@@ -1521,8 +1521,8 @@ class GenerateVaspInput:
             if val is None:
                 pass
             else:
-                incar.write(' %s = ' % key.upper())
-                [incar.write('%s ' % _to_vasp_bool(x)) for x in val]
+                incar.write(f' {key.upper()} = ')
+                [incar.write(f'{_to_vasp_bool(x)} ') for x in val]
                 incar.write('\n')
 
         for key, val in self.list_int_params.items():
@@ -1531,7 +1531,7 @@ class GenerateVaspInput:
             elif key == 'ldaul' and (self.dict_params['ldau_luj'] is not None):
                 pass
             else:
-                incar.write(' %s = ' % key.upper())
+                incar.write(f' {key.upper()} = ')
                 [incar.write('%d ' % x) for x in val]
                 incar.write('\n')
 
@@ -1554,7 +1554,7 @@ class GenerateVaspInput:
                     self.spinpol = True
                     incar.write(' ispin = 2\n'.upper())
 
-                incar.write(' %s = ' % key.upper())
+                incar.write(f' {key.upper()} = ')
                 magmom_written = True
                 # Work out compact a*x b*y notation and write in this form
                 # Assume 1 magmom per atom, ordered as our atoms object
@@ -1572,20 +1572,20 @@ class GenerateVaspInput:
                     [f'{mom[0]:d}*{mom[1]:.4f}' for mom in lst]))
                 incar.write('\n')
             else:
-                incar.write(' %s = ' % key.upper())
+                incar.write(f' {key.upper()} = ')
                 [incar.write('%.4f ' % x) for x in val]
                 incar.write('\n')
 
         for key, val in self.bool_params.items():
             if val is not None:
-                incar.write(' %s = ' % key.upper())
+                incar.write(f' {key.upper()} = ')
                 if val:
                     incar.write('.TRUE.\n')
                 else:
                     incar.write('.FALSE.\n')
         for key, val in self.special_params.items():
             if val is not None:
-                incar.write(' %s = ' % key.upper())
+                incar.write(f' {key.upper()} = ')
                 if key == 'lreal':
                     if isinstance(val, str):
                         incar.write(val + '\n')
@@ -1610,9 +1610,9 @@ class GenerateVaspInput:
                         llist += ' %i' % luj['L']
                         ulist += ' %.3f' % luj['U']
                         jlist += ' %.3f' % luj['J']
-                    incar.write(' LDAUL =%s\n' % llist)
-                    incar.write(' LDAUU =%s\n' % ulist)
-                    incar.write(' LDAUJ =%s\n' % jlist)
+                    incar.write(f' LDAUL ={llist}\n')
+                    incar.write(f' LDAUU ={ulist}\n')
+                    incar.write(f' LDAUJ ={jlist}\n')
 
         if (self.spinpol and not magmom_written
                 # We don't want to write magmoms if they are all 0.
@@ -1829,7 +1829,7 @@ class GenerateVaspInput:
                 raise OSError('Keyword "%s" in INCAR is'
                               'not known by calculator.' % key)
             except IndexError:
-                raise OSError('Value missing for keyword "%s".' % key)
+                raise OSError(f'Value missing for keyword "{key}".')
 
     def read_kpoints(self, filename):
         """Read kpoints file, typically named KPOINTS."""
@@ -1928,7 +1928,7 @@ def _from_vasp_bool(x):
     elif x.lower() == '.false.' or x.lower() == 'f':
         return False
     else:
-        raise ValueError('Value "%s" not recognized as bool' % x)
+        raise ValueError(f'Value "{x}" not recognized as bool')
 
 
 def _to_vasp_bool(x):
@@ -1961,7 +1961,7 @@ def open_potcar(filename):
     elif filename.endswith('.Z'):
         return gzip.open(filename)
     else:
-        raise ValueError('Invalid POTCAR filename: "%s"' % filename)
+        raise ValueError(f'Invalid POTCAR filename: "{filename}"')
 
 
 def read_potcar_numbers_of_electrons(file_obj):

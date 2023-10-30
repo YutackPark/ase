@@ -38,7 +38,7 @@ def write_xtd(filename, images, connectivity=None, moviespeed=10):
     ATR.attrib['NumChildren'] = '2'
     natoms = len(images[0])
 
-    bonds = list()
+    bonds = []
     if connectivity is not None:
         for i in range(connectivity.shape[0]):
             for j in range(i + 1, connectivity.shape[0]):

@@ -61,7 +61,7 @@ def write_cfg(fd, atoms):
         el = i.symbol
 
         fd.write('%f\n' % ase.data.atomic_masses[chemical_symbols.index(el)])
-        fd.write('%s\n' % el)
+        fd.write(f'{el}\n')
 
         x, y, z = spos[i.index, :]
         s = f'{x:e} {y:e} {z:e} '
@@ -77,7 +77,7 @@ def write_cfg(fd, atoms):
                 else:
                     s += (aux.shape[1] * ' %e') % tuple(aux[i.index].tolist())
 
-        fd.write('%s\n' % s)
+        fd.write(f'{s}\n')
 
 
 default_color = {

@@ -182,8 +182,7 @@ class ACE(FileIOCalculator):
         depth: Nested input depth.
         '''
         for section, section_param in section.items():
-            if isinstance(section_param, str) or isinstance(
-                    section_param, int) or isinstance(section_param, float):
+            if isinstance(section_param, (str, int, float)):
                 fpt.write(
                     '    ' *
                     depth +

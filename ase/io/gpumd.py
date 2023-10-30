@@ -115,8 +115,8 @@ def write_gpumd(fd, atoms, maximum_neighbors=None, cutoff=None,
             if symbol not in symbol_type_map:
                 symbol_type_map[symbol] = len(symbol_type_map)
     else:
-        if any([sym not in species
-               for sym in set(atoms.get_chemical_symbols())]):
+        if any(sym not in species
+               for sym in set(atoms.get_chemical_symbols())):
             raise ValueError('The species list does not contain all chemical '
                              'species that are present in the atoms object.')
         else:

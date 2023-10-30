@@ -171,7 +171,7 @@ def write_castep_cell(fd, atoms, positions_frac=False, force_write=False,
 
     # Header
     fd.write('#######################################################\n')
-    fd.write('#CASTEP cell file: %s\n' % fd.name)
+    fd.write(f'#CASTEP cell file: {fd.name}\n')
     fd.write('#Created using the Atomic Simulation Environment (ASE)#\n')
     fd.write('#######################################################\n\n')
 
@@ -333,7 +333,7 @@ def write_castep_cell(fd, atoms, positions_frac=False, force_write=False,
                         nis = species_indices[i] + 1
                     except KeyError:
                         raise UserWarning('Unrecognized index in'
-                                          + ' constraint %s' % constr)
+                                          + f' constraint {constr}')
                     for j in range(3):
                         L = '%6d %3s %3d   ' % (len(constr_block) + 1,
                                                 symbol,
@@ -784,8 +784,10 @@ def read_castep_cell(fd, index=None, calculator_args={}, find_spg=False,
                 direction=np.array(value[0], dtype=np.float32))
             constraints.append(constraint)
         else:
-            warnings.warn('Error: Found %s statements attached to atoms %s' %
-                          (len(value), absolute_nr))
+            warnings.warn(
+                f'Error: Found {len(value)} statements attached to atoms '
+                f'{absolute_nr}'
+            )
 
     # we need to sort the fixed atoms list in order not to raise an assertion
     # error in FixAtoms
@@ -1365,7 +1367,7 @@ def write_param(filename, param, check_checkfile=False,
 
     out = paropen(filename, 'w')
     out.write('#######################################################\n')
-    out.write('#CASTEP param file: %s\n' % filename)
+    out.write(f'#CASTEP param file: {filename}\n')
     out.write('#Created using the Atomic Simulation Environment (ASE)#\n')
     if interface_options is not None:
         out.write('# Internal settings of the calculator\n')
@@ -1414,10 +1416,10 @@ def read_seed(seed, new_seed=None, ignore_internal_keys=False):
     directory = os.path.abspath(os.path.dirname(seed))
     seed = os.path.basename(seed)
 
-    paramfile = os.path.join(directory, '%s.param' % seed)
-    cellfile = os.path.join(directory, '%s.cell' % seed)
-    castepfile = os.path.join(directory, '%s.castep' % seed)
-    checkfile = os.path.join(directory, '%s.check' % seed)
+    paramfile = os.path.join(directory, f'{seed}.param')
+    cellfile = os.path.join(directory, f'{seed}.cell')
+    castepfile = os.path.join(directory, f'{seed}.castep')
+    checkfile = os.path.join(directory, f'{seed}.check')
 
     atoms = read_cell(cellfile)
     atoms.calc._directory = directory
@@ -1426,7 +1428,7 @@ def read_seed(seed, new_seed=None, ignore_internal_keys=False):
     atoms.calc.merge_param(paramfile,
                            ignore_internal_keys=ignore_internal_keys)
     if new_seed is None:
-        atoms.calc._label = 'copy_of_%s' % seed
+        atoms.calc._label = f'copy_of_{seed}'
     else:
         atoms.calc._label = str(new_seed)
     if os.path.isfile(castepfile):

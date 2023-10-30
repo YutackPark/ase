@@ -26,8 +26,7 @@ class SimpleCubicFactory(ClusterFactory):
         a = self.lattice_constant
         if not isinstance(a, (int, float)):
             raise ValueError(
-                "Improper lattice constant for %s crystal." %
-                (self.xtal_name,))
+                f"Improper lattice constant for {self.xtal_name} crystal.")
 
         self.lattice_basis = np.array([[a, 0., 0.],
                                        [0., a, 0.],

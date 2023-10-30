@@ -271,7 +271,7 @@ class MirrorMutation(OffspringCreator):
         top = atoms[len(atoms) - self.n_top: len(atoms)]
         num = top.numbers
         unique_types = list(set(num))
-        nu = dict()
+        nu = {}
         for u in unique_types:
             nu[u] = sum(num == u)
 
@@ -300,7 +300,7 @@ class MirrorMutation(OffspringCreator):
 
             # Sort the atoms by their signed distance
             D.sort(key=lambda x: x[1])
-            nu_taken = dict()
+            nu_taken = {}
 
             # Select half of the atoms needed for a full cluster
             p_use = []

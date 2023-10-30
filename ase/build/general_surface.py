@@ -26,7 +26,7 @@ def surface(lattice, indices, layers, vacuum=None, tol=1e-10, periodic=False):
     indices = np.asarray(indices)
 
     if indices.shape != (3,) or not indices.any() or indices.dtype != int:
-        raise ValueError('%s is an invalid surface type' % indices)
+        raise ValueError(f'{indices} is an invalid surface type')
 
     if isinstance(lattice, str):
         lattice = bulk(lattice, cubic=True)

@@ -152,7 +152,7 @@ class SiestaParameters(Parameters):
             xc='LDA',
             basis_set='DZP',
             spin='non-polarized',
-            species=tuple(),
+            species=(),
             pseudo_qualifier=None,
             pseudo_path=None,
             symlink_pseudos=None,
@@ -293,7 +293,7 @@ class Siesta(FileIOCalculator):
                     "be a format string" +
                     " with two string arguments.\n" +
                     "Example : 'siesta < %s > %s'.\n" +
-                    "Got '%s'" % commandvar)
+                    f"Got '{commandvar}'")
 
     def __getitem__(self, key):
         """Convenience method to retrieve a parameter as
@@ -413,7 +413,7 @@ class Siesta(FileIOCalculator):
         if isinstance(xc, (tuple, list)) and len(xc) == 2:
             functional, authors = xc
             if functional.lower() not in [k.lower() for k in self.allowed_xc]:
-                mess = "Unrecognized functional keyword: '%s'" % functional
+                mess = f"Unrecognized functional keyword: '{functional}'"
                 raise ValueError(mess)
 
             lsauthorslower = [a.lower() for a in self.allowed_xc[functional]]
@@ -434,7 +434,7 @@ class Siesta(FileIOCalculator):
                     break
 
             if not found:
-                raise ValueError("Unrecognized 'xc' keyword: '%s'" % xc)
+                raise ValueError(f"Unrecognized 'xc' keyword: '{xc}'")
         kwargs['xc'] = (functional, authors)
 
         # Check fdf_arguments.
@@ -607,7 +607,7 @@ class Siesta(FileIOCalculator):
 
         fname = self.getpath(filename)
         if not os.path.exists(fname):
-            raise ReadError("The restart file '%s' does not exist" % fname)
+            raise ReadError(f"The restart file '{fname}' does not exist")
         with open(fname) as fd:
             self.atoms = read_siesta_xv(fd)
         self.read_results()
@@ -868,7 +868,7 @@ class Siesta(FileIOCalculator):
                 pseudopotential = join(pseudo_path, pseudopotential)
 
             if not os.path.exists(pseudopotential):
-                mess = "Pseudopotential '%s' not found" % pseudopotential
+                mess = f"Pseudopotential '{pseudopotential}' not found"
                 raise RuntimeError(mess)
 
             name = os.path.basename(pseudopotential)

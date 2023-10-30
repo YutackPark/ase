@@ -218,7 +218,7 @@ special_points={GNPSS1XYY1Z}, kpts=[51x3])
         tokens = []
         if not spec:
             spec = '.6g'
-        template = '{}={:%s}' % spec
+        template = f'{{}}={{:{spec}}}'
 
         for name in self.parameters:
             value = self._parameters[name]

@@ -75,7 +75,7 @@ def read_jsv(f):
         elif tag == 'origin':
             origin = NotImplemented
         else:
-            raise ValueError('Unknown tag: "%s"' % tag)
+            raise ValueError(f'Unknown tag: "{tag}"')
 
     if headline == 'asymmetric_unit_cell':
         atoms = crystal(symbols=symbols,
@@ -96,7 +96,7 @@ def read_jsv(f):
                           )
         atoms.info['spacegroup'] = Spacegroup(spacegroup)
     else:
-        raise ValueError('Invalid JSV file type: "%s"' % headline)
+        raise ValueError(f'Invalid JSV file type: "{headline}"')
 
     atoms.info['title'] = title
     atoms.info['labels'] = labels

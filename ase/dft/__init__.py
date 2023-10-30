@@ -25,4 +25,4 @@ def get_distribution_moment(x, y, order=0):
     elif hasattr(order, '__iter__'):
         return [get_distribution_moment(x, y, n) for n in order]
     else:
-        raise ValueError('Illegal order: %s' % order)
+        raise ValueError(f'Illegal order: {order}')

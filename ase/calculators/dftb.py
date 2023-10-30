@@ -323,7 +323,7 @@ class Dftb(FileIOCalculator):
         # stress stuff begins
         sstring = 'stress'
         have_stress = False
-        stress = list()
+        stress = []
         for iline, line in enumerate(self.lines):
             if sstring in line:
                 have_stress = True

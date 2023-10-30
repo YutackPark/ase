@@ -591,8 +591,8 @@ def _skip_to_blank(f, spacegroup, setting):
         line = f.readline()
         if not line:
             raise SpacegroupNotFoundError(
-                'invalid spacegroup `%s`, setting `%s` not found in data base'
-                % (spacegroup, setting))
+                f'invalid spacegroup `{spacegroup}`, setting `{setting}` not '
+                'found in data base')
         if not line.strip():
             break
 

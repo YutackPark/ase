@@ -35,8 +35,7 @@ class HexagonalFactory(ClusterFactory):
                 (a, c) = lattice
             else:
                 raise ValueError(
-                    "Improper lattice constants for %s crystal." %
-                    (self.xtal_name,))
+                    f"Improper lattice constants for {self.xtal_name} crystal.")
 
         self.lattice_constant = (a, c)
         self.lattice_basis = np.array([[a, 0., 0.],

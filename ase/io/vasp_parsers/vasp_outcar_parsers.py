@@ -543,7 +543,7 @@ class DefaultParsersContainer:
     def make_parsers(self):
         """Return a copy of the internally stored parsers.
         Parsers are created upon request."""
-        return list(parser() for parser in self.parsers_dct.values())
+        return [parser() for parser in self.parsers_dct.values()]
 
     def remove_parser(self, name: str):
         """Remove a parser based on the name.

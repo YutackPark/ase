@@ -7,7 +7,7 @@ def write_findsym(fileobj, images):
         accuracy = 1.0e-4
 
         # Write Comment
-        fileobj.write('%s\n' % formula)
+        fileobj.write(f'{formula}\n')
         fileobj.write('%f   accuracy\n' % accuracy)
         fileobj.write('1    vectors in cartesian coordinates\n')
 

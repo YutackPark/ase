@@ -83,7 +83,7 @@ class Property(ABC):
 
 class ScalarProperty(Property):
     def __init__(self, name, dtype):
-        super().__init__(name, dtype, tuple())
+        super().__init__(name, dtype, ())
 
     def normalize_type(self, value):
         if not np.isscalar(value):
@@ -104,7 +104,7 @@ ShapeSpec = Union[str, int]
 def _defineprop(
         name: str,
         dtype: type = float,
-        shape: Union[ShapeSpec, Sequence[ShapeSpec]] = tuple()
+        shape: Union[ShapeSpec, Sequence[ShapeSpec]] = ()
 ) -> Property:
     """Create, register, and return a property."""
 

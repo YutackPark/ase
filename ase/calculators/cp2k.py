@@ -567,10 +567,10 @@ class InputSection:
             if s.params:
                 output.append(f'&{s.name} {s.params}')
             else:
-                output.append('&%s' % s.name)
+                output.append(f'&{s.name}')
             for l in s.write():
-                output.append('   %s' % l)
-            output.append('&END %s' % s.name)
+                output.append(f'   {l}')
+            output.append(f'&END {s.name}')
         return output
 
     def add_keyword(self, path, line, unique=True):
@@ -582,14 +582,14 @@ class InputSection:
             self.subsections.append(s)
             candidates = [s]
         elif len(candidates) != 1:
-            raise Exception('Multiple %s sections found ' % parts[0])
+            raise Exception(f'Multiple {parts[0]} sections found ')
 
         key = line.split()[0].upper()
         if len(parts) > 1:
             candidates[0].add_keyword(parts[1], line, unique)
         elif key == '_SECTION_PARAMETERS_':
             if candidates[0].params is not None:
-                msg = 'Section parameter of section %s already set' % parts[0]
+                msg = f'Section parameter of section {parts[0]} already set'
                 raise Exception(msg)
             candidates[0].params = line.split(' ', 1)[1].strip()
         else:
@@ -604,7 +604,7 @@ class InputSection:
         parts = path.upper().split('/', 1)
         candidates = [s for s in self.subsections if s.name == parts[0]]
         if len(candidates) > 1:
-            raise Exception('Multiple %s sections found ' % parts[0])
+            raise Exception(f'Multiple {parts[0]} sections found ')
         if len(candidates) == 0:
             s = InputSection(name=parts[0])
             self.subsections.append(s)

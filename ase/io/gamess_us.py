@@ -66,7 +66,7 @@ def write_gamess_us_in(fd, atoms, properties=None, **params):
         properties = ['energy']
 
     # set RUNTYP from properties iff value not provided by the user
-    contrl = params.pop('contrl', dict())
+    contrl = params.pop('contrl', {})
     if 'runtyp' not in contrl:
         if 'forces' in properties:
             contrl['runtyp'] = 'gradient'

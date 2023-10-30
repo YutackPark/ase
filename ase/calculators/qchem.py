@@ -61,7 +61,7 @@ class QChem(FileIOCalculator):
             self.command += '-nt %d ' % nt
         self.command += 'PREFIX.inp PREFIX.out'
         if scratch is not None:
-            self.command += ' %s' % scratch
+            self.command += f' {scratch}'
 
         self.basisfile = basisfile
         self.ecpfile = ecpfile

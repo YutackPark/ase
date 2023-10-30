@@ -331,7 +331,7 @@ def _update_kpts(atoms, params) -> None:
     if kpts is None:
         return
 
-    nwpw = params.get('nwpw', dict())
+    nwpw = params.get('nwpw', {})
 
     if 'monkhorst-pack' in nwpw or 'brillouin_zone' in nwpw:
         raise ValueError("Redundant k-points specified!")
@@ -457,7 +457,7 @@ def _render_pretask(
 
     # Add this to the input file along with a "task * ignore" command
     out.extend(['\n'.join(_render_other(this_step)),
-                '\n'.join(_render_set(this_step.get('set', dict()))),
+                '\n'.join(_render_set(this_step.get('set', {}))),
                 f'task {this_theory} ignore'])
 
     # Command to read the wavefunctions in the next step
@@ -512,7 +512,7 @@ def write_nwchem_in(fd, atoms, properties=None, echo=False, **params):
 
     if 'stress' in properties:
         if 'set' not in params:
-            params['set'] = dict()
+            params['set'] = {}
         params['set']['includestress'] = True
 
     task = params.get('task')
@@ -537,11 +537,11 @@ def write_nwchem_in(fd, atoms, properties=None, echo=False, **params):
         xc = _xc_conv.get(params['xc'].lower(), params['xc'])
         if theory in ['dft', 'tddft']:
             if 'dft' not in params:
-                params['dft'] = dict()
+                params['dft'] = {}
             params['dft']['xc'] = xc
         elif theory in ['pspw', 'band', 'paw']:
             if 'nwpw' not in params:
-                params['nwpw'] = dict()
+                params['nwpw'] = {}
             params['nwpw']['xc'] = xc
 
     # Update the multiplicity given the charge of the system
@@ -598,7 +598,7 @@ def write_nwchem_in(fd, atoms, properties=None, echo=False, **params):
     # Finish output file with the commands to perform the desired computation
     out.extend(['\n'.join(_render_basis(theory, params)),
                 '\n'.join(_render_other(params)),
-                '\n'.join(_render_set(params.get('set', dict()))),
+                '\n'.join(_render_set(params.get('set', {}))),
                 f'task {theory} {task}',
                 '\n'.join(_render_bandpath(params.get('bandpath', None)))])
 

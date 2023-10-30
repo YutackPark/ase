@@ -472,8 +472,9 @@ class Atoms:
             break
 
         if shape is not None and a.shape[1:] != shape:
-            raise ValueError('Array "%s" has wrong shape %s != %s.' %
-                             (name, a.shape, (a.shape[0:1] + shape)))
+            raise ValueError(
+                f'Array "{name}" has wrong shape {a.shape} != '
+                f'{(a.shape[0:1] + shape)}.')
 
         self.arrays[name] = a
 
@@ -503,8 +504,9 @@ class Atoms:
             else:
                 a = np.asarray(a)
                 if a.shape != b.shape:
-                    raise ValueError('Array "%s" has wrong shape %s != %s.' %
-                                     (name, a.shape, b.shape))
+                    raise ValueError(
+                        f'Array "{name}" has wrong shape '
+                        f'{a.shape} != {b.shape}.')
                 b[:] = a
 
     def has(self, name):

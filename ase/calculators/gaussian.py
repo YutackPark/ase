@@ -12,7 +12,7 @@ class GaussianDynamics:
     calctype = 'optimizer'
     delete = ['force']
     keyword: Optional[str] = None
-    special_keywords: Dict[str, str] = dict()
+    special_keywords: Dict[str, str] = {}
 
     def __init__(self, atoms, calc=None):
         self.atoms = atoms

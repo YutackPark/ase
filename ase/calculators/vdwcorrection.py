@@ -182,7 +182,7 @@ class vdWTkatchenko09prl(Calculator, IOContext):
             except KeyError:
                 raise ValueError(
                     'Tkatchenko-Scheffler dispersion correction not ' +
-                    'implemented for %s functional' % xc_name)
+                    f'implemented for {xc_name} functional')
         else:
             self.sR = sR
         self.d = 20

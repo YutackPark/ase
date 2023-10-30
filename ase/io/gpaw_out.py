@@ -32,7 +32,7 @@ def read_forces(lines: List[str],
             x, y, z = lines[i].split()[-3:]
             f.append((float(x), float(y), float(z)))
         except (ValueError, IndexError) as m:
-            raise OSError('Malformed GPAW log file: %s' % m)
+            raise OSError(f'Malformed GPAW log file: {m}')
     return f, i
 
 

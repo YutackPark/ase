@@ -95,7 +95,7 @@ class Res:
 
     @staticmethod
     def parse_title(line):
-        info = dict()
+        info = {}
 
         tokens = line.split()
         num_tokens = len(tokens)
@@ -144,7 +144,7 @@ class Res:
         ang = []
         sp = []
         coords = []
-        info = dict()
+        info = {}
         coord_patt = re.compile(r"""(\w+)\s+
                                     ([0-9]+)\s+
                                     ([0-9\-\.]+)\s+
@@ -161,7 +161,7 @@ class Res:
                     try:
                         info = Res.parse_title(line)
                     except (ValueError, IndexError):
-                        info = dict()
+                        info = {}
                 elif tokens[0] == 'CELL' and len(tokens) == 8:
                     abc = [float(tok) for tok in tokens[2:5]]
                     ang = [float(tok) for tok in tokens[5:8]]

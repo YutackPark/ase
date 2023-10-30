@@ -479,7 +479,7 @@ def create_dbh24_system(name, **kwargs):
     """Creates a DBH24 system.
     """
     if name not in data:
-        raise NotImplementedError('System %s not in database.' % name)
+        raise NotImplementedError(f'System {name} not in database.')
     d = data[name]
     if 'magmoms' not in kwargs:
         kwargs['magmoms'] = d['magmoms']
@@ -490,7 +490,7 @@ def get_dbh24_magmoms(name):
     """Returns the magnetic moments of DBH24 systems.
     """
     if name not in data:
-        raise KeyError('System %s not in database.' % name)
+        raise KeyError(f'System {name} not in database.')
     else:
         return data[name]['magmoms']
 
