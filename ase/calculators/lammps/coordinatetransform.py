@@ -194,7 +194,7 @@ class Prism:
 
         # try to detect potential flips in lammps
         # (lammps minimizes the cell-vector lengths)
-        new_ase_cell = np.dot(self.lammps_tilt, self.rot_mat.T)
+        new_ase_cell = self.lammps_tilt @ self.rot_mat.T
         # assuming the cell changes are mostly isotropic
         new_vol = np.linalg.det(new_ase_cell)
         old_vol = np.linalg.det(self.ase_cell)
@@ -234,12 +234,12 @@ class Prism:
         # lammps might not like atoms outside the cell
         if wrap or self.is_reduced:
             return wrap_positions(
-                np.dot(vec, self.rot_mat),
+                vec @ self.rot_mat,
                 cell=self.cell,
                 pbc=self.pbc,
                 eps=1e-18,
             )
-        return np.dot(vec, self.rot_mat)
+        return vec @ self.rot_mat
 
     def vector_to_ase(
         self,
@@ -266,9 +266,9 @@ class Prism:
             # wrap into 0 to 1 for periodic directions
             fractional -= np.floor(fractional) * self.pbc
             # Cartesian coordinates wrapped into `lammps_tilt`
-            vec = np.dot(fractional, self.lammps_tilt)
+            vec = fractional @ self.lammps_tilt
         # rotate back to the ASE cell
-        return np.dot(vec, self.rot_mat.T)
+        return vec @ self.rot_mat.T
 
     def is_skewed(self) -> bool:
         """Test if the lammps cell is skewed, i.e., monoclinic or triclinic.
