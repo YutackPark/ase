@@ -7,11 +7,37 @@ import numpy as np
 from ase.calculators.calculator import PropertyNotImplementedError
 from ase.stress import full_3x3_to_voigt_6_stress, voigt_6_to_full_3x3_stress
 from ase.utils import deprecated
+from ase.utils.abc import Optimizable
+
 
 __all__ = [
     'Filter', 'StrainFilter', 'UnitCellFilter', 'FrechetCellFilter',
     'ExpCellFilter'
 ]
+
+
+class OptimizableFilter(Optimizable):
+    def __init__(self, filterobj):
+        self.filterobj = filterobj
+
+    def get_positions(self):
+        return self.filterobj.get_positions()
+
+    def set_positions(self, positions):
+        self.filterobj.set_positions(positions)
+
+    def get_forces(self):
+        return self.filterobj.get_forces()
+
+    def get_potential_energy(self, force_consistent):
+        return self.filterobj.get_potential_energy(
+            force_consistent=force_consistent)
+
+    def __len__(self):
+        return len(self.filterobj)
+
+    def iterimages(self):
+        return self.filterobj.iterimages()
 
 
 class Filter:
@@ -165,6 +191,9 @@ class Filter:
     def __getitem__(self, i):
         'Return an atom.'
         return self.atoms[self.index[i]]
+
+    def __ase_optimizable__(self):
+        return OptimizableFilter(self)
 
 
 class StrainFilter(Filter):
