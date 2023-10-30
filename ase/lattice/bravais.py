@@ -8,8 +8,8 @@ from typing import Optional, Sequence
 
 import numpy as np
 
-from ase.atoms import Atoms
 import ase.data
+from ase.atoms import Atoms
 
 
 class Bravais:

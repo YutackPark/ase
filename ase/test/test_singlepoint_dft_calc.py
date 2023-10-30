@@ -1,7 +1,8 @@
 import numpy as np
+
+from ase.build import bulk
 from ase.calculators.singlepoint import (SinglePointDFTCalculator,
                                          arrays_to_kpoints)
-from ase.build import bulk
 
 
 def test_singlepoint_dft_calc():

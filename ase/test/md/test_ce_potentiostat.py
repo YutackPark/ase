@@ -1,12 +1,12 @@
 '''These tests ensure that the potentiostat can keep a sysytem near the PEC'''
 
-import pytest
-from ase.build import bulk
-from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
-from ase.md.contour_exploration import ContourExploration
 import numpy as np
-from ase.calculators.emt import EMT
+import pytest
 
+from ase.build import bulk
+from ase.calculators.emt import EMT
+from ase.md.contour_exploration import ContourExploration
+from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
 
 from .test_ce_curvature import Al_atom_pair
 

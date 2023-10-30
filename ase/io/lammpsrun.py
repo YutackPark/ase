@@ -88,6 +88,8 @@ def lammps_data_to_ase_atoms(
     :rtype: Atoms
 
     """
+    if len(data.shape) == 1:
+        data = data[np.newaxis, :]
 
     # read IDs if given and order if needed
     if "id" in colnames:
@@ -155,7 +157,7 @@ def lammps_data_to_ase_atoms(
         celldisp = prismobj.vector_to_ase(celldisp)
         cell = prismobj.update_cell(cell)
 
-    if quaternions:
+    if quaternions is not None:
         out_atoms = Quaternions(
             symbols=elements,
             positions=positions,

@@ -1,15 +1,29 @@
 """Berendsen NVT dynamics class."""
+from typing import IO, Optional, Union
 
 import numpy as np
+
+from ase import Atoms
 from ase.md.md import MolecularDynamics
 from ase.parallel import world
 
 
 class NVTBerendsen(MolecularDynamics):
-    def __init__(self, atoms, timestep, temperature=None, taut=None,
-                 fixcm=True, *, temperature_K=None,
-                 trajectory=None, logfile=None, loginterval=1,
-                 communicator=world, append_trajectory=False):
+    def __init__(
+        self,
+        atoms: Atoms,
+        timestep: float,
+        temperature: Optional[float] = None,
+        taut: Optional[float] = None,
+        fixcm: bool = True,
+        *,
+        temperature_K: Optional[float] = None,
+        trajectory: Optional[str] = None,
+        logfile: Optional[Union[IO, str]] = None,
+        loginterval: int = 1,
+        communicator=world,
+        append_trajectory: bool = False,
+    ):
         """Berendsen (constant N, V, T) molecular dynamics.
 
         Parameters:

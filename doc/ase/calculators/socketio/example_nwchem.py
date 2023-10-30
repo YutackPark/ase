@@ -1,9 +1,9 @@
 import sys
 
 from ase.build import molecule
-from ase.optimize import BFGS
 from ase.calculators.nwchem import NWChem
 from ase.calculators.socketio import SocketIOCalculator
+from ase.optimize import BFGS
 
 atoms = molecule('H2O')
 atoms.rattle(stdev=0.1)

@@ -4,17 +4,19 @@ def test_combine_mm():
 
        Also test LJInterationsGeneral with CombineMM """
 
-    from math import cos, sin, pi
+    from math import cos, pi, sin
+
     import numpy as np
-    from ase import Atoms
-    from ase import units
-    from ase.calculators.counterions import AtomicCounterIon as ACI
+
+    from ase import Atoms, units
     from ase.calculators.combine_mm import CombineMM
+    from ase.calculators.counterions import AtomicCounterIon as ACI
     from ase.calculators.qmmm import LJInteractionsGeneral
-    from ase.calculators.tip3p import TIP3P, rOH, angleHOH
-    from ase.calculators.tip4p import TIP4P
+    from ase.calculators.tip3p import TIP3P, angleHOH
     from ase.calculators.tip3p import epsilon0 as eps3
+    from ase.calculators.tip3p import rOH
     from ase.calculators.tip3p import sigma0 as sig3
+    from ase.calculators.tip4p import TIP4P
     from ase.calculators.tip4p import epsilon0 as eps4
     from ase.calculators.tip4p import sigma0 as sig4
 

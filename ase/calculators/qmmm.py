@@ -1,10 +1,12 @@
+from typing import Sequence
+
 import numpy as np
 
 from ase.calculators.calculator import Calculator
-from ase.data import atomic_numbers
-from ase.utils import IOContext
-from ase.geometry import get_distances
 from ase.cell import Cell
+from ase.data import atomic_numbers
+from ase.geometry import get_distances
+from ase.utils import IOContext
 
 
 class SimpleQMMM(Calculator):
@@ -323,7 +325,7 @@ def combine_lj_lorenz_berthelot(sigmaqm, sigmamm,
     sigma = []
     epsilon = []
     # check if input is tuple of vals for more than 1 mm calc, or only for 1.
-    if type(sigmamm) == tuple:
+    if isinstance(sigmamm, Sequence):
         numcalcs = len(sigmamm)
     else:
         numcalcs = 1  # if only 1 mm calc, eps and sig are simply np arrays

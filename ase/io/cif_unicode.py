@@ -6,9 +6,8 @@ Rules for character formatting in CIF files are specified at:
 https://www.iucr.org/resources/cif/spec/version1.1/semantics
 '''
 
-import re
 import html
-
+import re
 
 subs_dict = {
     '\r': '',            # Windows line ending

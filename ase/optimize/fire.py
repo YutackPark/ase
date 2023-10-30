@@ -1,15 +1,34 @@
 import warnings
+from typing import IO, Callable, Optional, Union
+
 import numpy as np
 
+from ase import Atoms
 from ase.optimize.optimize import Optimizer
 
 
 class FIRE(Optimizer):
-    def __init__(self, atoms, restart=None, logfile='-', trajectory=None,
-                 dt=0.1, maxstep=None, maxmove=None, dtmax=1.0, Nmin=5,
-                 finc=1.1, fdec=0.5,
-                 astart=0.1, fa=0.99, a=0.1, master=None, downhill_check=False,
-                 position_reset_callback=None, force_consistent=None):
+    def __init__(
+        self,
+        atoms: Atoms,
+        restart: Optional[str] = None,
+        logfile: Union[IO, str] = '-',
+        trajectory: Optional[str] = None,
+        dt: float = 0.1,
+        maxstep: Optional[float] = None,
+        maxmove: Optional[float] = None,
+        dtmax: float = 1.0,
+        Nmin: int = 5,
+        finc: float = 1.1,
+        fdec: float = 0.5,
+        astart: float = 0.1,
+        fa: float = 0.99,
+        a: float = 0.1,
+        master: Optional[bool] = None,
+        downhill_check: bool = False,
+        position_reset_callback: Optional[Callable] = None,
+        force_consistent: Optional[bool] = None,
+    ):
         """Parameters:
 
         atoms: Atoms object

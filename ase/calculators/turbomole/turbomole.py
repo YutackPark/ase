@@ -11,17 +11,19 @@ Contact: Ivan Kondov <ivan.kondov@kit.edu>
 import os
 import re
 import warnings
-from math import log10, floor
+from math import floor, log10
+
 import numpy as np
-from ase.units import Ha, Bohr
-from ase.io import read, write
-from ase.calculators.calculator import FileIOCalculator
-from ase.calculators.calculator import PropertyNotImplementedError, ReadError
-from ase.calculators.turbomole.executor import execute, get_output_filename
-from ase.calculators.turbomole.writer import add_data_group, delete_data_group
+
+from ase.calculators.calculator import (FileIOCalculator,
+                                        PropertyNotImplementedError, ReadError)
 from ase.calculators.turbomole import reader
-from ase.calculators.turbomole.reader import read_data_group, read_convergence
+from ase.calculators.turbomole.executor import execute, get_output_filename
 from ase.calculators.turbomole.parameters import TurbomoleParameters
+from ase.calculators.turbomole.reader import read_convergence, read_data_group
+from ase.calculators.turbomole.writer import add_data_group, delete_data_group
+from ase.io import read, write
+from ase.units import Bohr, Ha
 
 
 class TurbomoleOptimizer:
@@ -65,7 +67,7 @@ class Turbomole(FileIOCalculator):
     tm_tmp_files = [
         'errvec', 'fock', 'oldfock', 'dens', 'ddens', 'diff_densmat',
         'diff_dft_density', 'diff_dft_oper', 'diff_fockmat', 'diis_errvec',
-        'diis_oldfock'
+        'diis_oldfock', 'dh'
     ]
 
     # initialize attributes
@@ -292,6 +294,8 @@ class Turbomole(FileIOCalculator):
             return
         self.initialize()
         jobex_command = ['jobex']
+        if self.parameters['transition vector']:
+            jobex_command.append('-trans')
         if self.parameters['use resolution of identity']:
             jobex_command.append('-ri')
         if self.parameters['force convergence']:

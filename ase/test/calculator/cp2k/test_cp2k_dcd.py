@@ -9,11 +9,10 @@ import subprocess
 import numpy as np
 import pytest
 
-from ase.build import molecule
 from ase import io
-from ase.io.cp2k import iread_cp2k_dcd
+from ase.build import molecule
 from ase.calculators.calculator import compare_atoms
-
+from ase.io.cp2k import iread_cp2k_dcd
 
 inp = """\
 &MOTION

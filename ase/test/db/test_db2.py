@@ -1,12 +1,12 @@
-import pytest
 import numpy as np
+import pytest
 
 from ase import Atoms
+from ase.build import molecule
 from ase.calculators.emt import EMT
 from ase.constraints import FixAtoms, FixBondLength
 from ase.db import connect
 from ase.io import read
-from ase.build import molecule
 
 dbtypes = ['json', 'db', 'postgresql', 'mysql', 'mariadb']
 
@@ -108,6 +108,8 @@ def test_db2(testdir, dbtype, get_db_name):
     ids = [row.get('id') for row in c.select()]
     offset = 2
     assert next(c.select(offset=offset)).id == ids[offset]
+
+    assert 'grr' in c.get_all_key_names()
 
 
 def test_sqlite_user(testdir):

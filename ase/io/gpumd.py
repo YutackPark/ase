@@ -1,7 +1,8 @@
 import numpy as np
-from ase.neighborlist import NeighborList
-from ase.data import atomic_masses, chemical_symbols
+
 from ase import Atoms
+from ase.data import atomic_masses, chemical_symbols
+from ase.neighborlist import NeighborList
 
 
 def find_nearest_index(array, value):

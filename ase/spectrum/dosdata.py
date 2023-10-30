@@ -1,10 +1,11 @@
 # Refactor of DOS-like data objects
 # towards replacing ase.dft.dos and ase.dft.pdos
-from abc import ABCMeta, abstractmethod
 import warnings
+from abc import ABCMeta, abstractmethod
 from typing import Any, Dict, Sequence, Tuple, TypeVar, Union
 
 import numpy as np
+
 from ase.utils.plotting import SimplePlottingAxes
 
 # This import is for the benefit of type-checking / mypy
@@ -399,7 +400,7 @@ class GridDOSData(GeneralDOSData):
         # Take intersection of metadata (i.e. only common entries are retained)
         new_info = dict(set(self.info.items()) & set(other.info.items()))
 
-        # Concatenate the energy/weight data
+        # Sum the energy/weight data
         new_weights = self._data[1, :] + other.get_weights()
 
         new_object = GridDOSData(self._data[0, :], new_weights,

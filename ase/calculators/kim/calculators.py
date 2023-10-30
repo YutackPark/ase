@@ -1,13 +1,13 @@
-import re
 import os
+import re
 
-from ase.data import atomic_masses, atomic_numbers
-from ase.calculators.lammpsrun import LAMMPS
-from ase.calculators.lammpslib import LAMMPSlib
 from ase.calculators.lammps import convert
+from ase.calculators.lammpslib import LAMMPSlib
+from ase.calculators.lammpsrun import LAMMPS
+from ase.data import atomic_masses, atomic_numbers
 
-from .kimmodel import KIMModelCalculator
 from .exceptions import KIMCalculatorError
+from .kimmodel import KIMModelCalculator
 
 
 def KIMCalculator(model_name, options, debug):

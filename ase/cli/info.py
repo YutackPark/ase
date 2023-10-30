@@ -26,9 +26,9 @@ class CLICommand:
 
     @staticmethod
     def run(args):
-        from ase.io.formats import filetype, ioformats, UnknownFileTypeError
-        from ase.io.ulm import print_ulm_info
         from ase.io.bundletrajectory import print_bundletrajectory_info
+        from ase.io.formats import UnknownFileTypeError, filetype, ioformats
+        from ase.io.ulm import print_ulm_info
 
         if not args.filename:
             print_info()
@@ -79,6 +79,7 @@ class CLICommand:
 def print_info():
     import platform
     import sys
+
     from ase.dependencies import all_dependencies
 
     versions = [('platform', platform.platform()),

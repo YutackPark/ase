@@ -1,6 +1,6 @@
-from ase.calculators.calculator import BaseCalculator, all_changes
-from ase.calculators.calculator import (PropertyNotImplementedError,
-                                        CalculatorSetupError)
+from ase.calculators.calculator import (BaseCalculator, CalculatorSetupError,
+                                        PropertyNotImplementedError,
+                                        all_changes)
 
 
 class Mixer:

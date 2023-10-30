@@ -14,8 +14,8 @@ Usage from command line:
 python -m ase.io.bundlemanipulate inbundle outbundle [start [end [step]]]
 """
 
-import os
 import json
+import os
 from typing import Optional
 
 import numpy as np

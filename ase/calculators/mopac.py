@@ -12,12 +12,12 @@ import re
 from typing import Sequence
 from warnings import warn
 
-from packaging import version
 import numpy as np
+from packaging import version
 
 from ase import Atoms
-from ase.calculators.calculator import FileIOCalculator, ReadError, Parameters
-from ase.units import kcal, mol, Debye
+from ase.calculators.calculator import FileIOCalculator, Parameters, ReadError
+from ase.units import Debye, kcal, mol
 
 
 class MOPAC(FileIOCalculator):
@@ -53,6 +53,7 @@ class MOPAC(FileIOCalculator):
 
         >>> from ase.build import molecule
         >>> from ase.calculators.mopac import MOPAC
+        >>>
         >>> atoms = molecule('O2')
         >>> atoms.calc = MOPAC(label='O2')
         >>> atoms.get_potential_energy()

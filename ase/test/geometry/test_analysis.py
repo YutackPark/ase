@@ -1,7 +1,8 @@
 import numpy as np
 import pytest
-from ase.geometry.analysis import Analysis, get_max_volume_estimate
+
 from ase.build import molecule
+from ase.geometry.analysis import Analysis, get_max_volume_estimate
 
 
 @pytest.fixture

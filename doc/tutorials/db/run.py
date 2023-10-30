@@ -2,9 +2,9 @@
 import os
 import runpy
 
-from ase.io import read, write
 from ase.cli.main import main
 from ase.db import connect
+from ase.io import read, write
 
 for name in ['bulk.db', 'ads.db', 'refs.db']:
     if os.path.isfile(name):

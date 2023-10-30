@@ -1,7 +1,7 @@
 import numpy as np
 
-from ase.units import Bohr
 from ase.data import atomic_numbers
+from ase.units import Bohr
 
 
 def attach_charges(atoms, fileobj='ACF.dat', displacement=1e-4):

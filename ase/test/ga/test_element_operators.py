@@ -1,5 +1,6 @@
 def test_element_operators(seed):
     import numpy as np
+
     from ase import Atoms
     from ase.ga.element_crossovers import OnePointElementCrossover
 
@@ -37,10 +38,8 @@ def test_element_operators(seed):
 
     assert len(set([i for i in syms if i in anions])) == 2
 
-    from ase.ga.element_mutations import MoveDownMutation
-    from ase.ga.element_mutations import MoveUpMutation
-    from ase.ga.element_mutations import MoveRightMutation
-    from ase.ga.element_mutations import MoveLeftMutation
+    from ase.ga.element_mutations import (MoveDownMutation, MoveLeftMutation,
+                                          MoveRightMutation, MoveUpMutation)
 
     a1 = Atoms('SrSrClClClCl')
     a1.info['confid'] = 1
@@ -73,7 +72,7 @@ def test_element_operators(seed):
     a3, desc = op.get_new_individual([a2])
     syms = a3.get_chemical_symbols()
 
-    from ase.ga import set_raw_score, get_raw_score
+    from ase.ga import get_raw_score, set_raw_score
     assert len(set(syms)) == 3
     set_raw_score(a3, 5.0)
     assert get_raw_score(a3) == 5.0

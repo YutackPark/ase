@@ -47,6 +47,7 @@ multiple images of car format separated with $end
 """
 
 from datetime import datetime
+
 import numpy as np
 
 from ase import Atom, Atoms

@@ -1,13 +1,11 @@
-from ase import Atoms
-from ase.constraints import FixLinearTriatomic
-from ase.calculators.acn import (ACN, m_me,
-                                 r_mec, r_cn)
-from ase.md import Langevin
-import ase.units as units
-from ase.io import Trajectory
-
 import numpy as np
 
+import ase.units as units
+from ase import Atoms
+from ase.calculators.acn import ACN, m_me, r_cn, r_mec
+from ase.constraints import FixLinearTriatomic
+from ase.io import Trajectory
+from ase.md import Langevin
 
 pos = [[0, 0, -r_mec],
        [0, 0, 0],

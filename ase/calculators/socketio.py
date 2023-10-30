@@ -1,15 +1,16 @@
 import os
 import socket
-from subprocess import Popen, PIPE
 from contextlib import contextmanager
+from subprocess import PIPE, Popen
 
 import numpy as np
 
-from ase.calculators.calculator import (Calculator, all_changes,
-                                        PropertyNotImplementedError)
 import ase.units as units
-from ase.utils import IOContext
+from ase.calculators.calculator import (Calculator,
+                                        PropertyNotImplementedError,
+                                        all_changes)
 from ase.stress import full_3x3_to_voigt_6_stress
+from ase.utils import IOContext
 
 
 def actualunixsocketname(name):
@@ -102,8 +103,7 @@ class IPIProtocol:
     def recvposdata(self):
         cell = self.recv((3, 3), np.float64).T.copy()
         icell = self.recv((3, 3), np.float64).T.copy()
-        natoms = self.recv(1, np.int32)
-        natoms = int(natoms)
+        natoms = self.recv(1, np.int32)[0]
         positions = self.recv((natoms, 3), np.float64)
         return cell * units.Bohr, icell / units.Bohr, positions * units.Bohr
 
@@ -113,12 +113,11 @@ class IPIProtocol:
         msg = self.recvmsg()
         assert msg == 'FORCEREADY', msg
         e = self.recv(1, np.float64)[0]
-        natoms = self.recv(1, np.int32)
+        natoms = self.recv(1, np.int32)[0]
         assert natoms >= 0
         forces = self.recv((int(natoms), 3), np.float64)
         virial = self.recv((3, 3), np.float64).T.copy()
-        nmorebytes = self.recv(1, np.int32)
-        nmorebytes = int(nmorebytes)
+        nmorebytes = self.recv(1, np.int32)[0]
         morebytes = self.recv(nmorebytes, np.byte)
         return (e * units.Ha, (units.Ha / units.Bohr) * forces,
                 units.Ha * virial, morebytes)
@@ -228,6 +227,7 @@ class FileIOSocketClientLauncher:
         profile = getattr(self.calc, 'profile', None)
         if profile is not None:
             # New GenericFileIOCalculator:
+
             self.calc.write_inputfiles(atoms, properties)
             if unixsocket is not None:
                 argv = profile.socketio_argv_unix(socket=unixsocket)
@@ -365,6 +365,7 @@ class SocketServer(IOContext):
             exitcode = self.proc.wait()
             if exitcode != 0:
                 import warnings
+
                 # Quantum Espresso seems to always exit with status 128,
                 # even if successful.
                 # Should investigate at some point
@@ -596,7 +597,9 @@ class SocketIOCalculator(Calculator, IOContext):
         In order to correctly close the sockets, it is
         recommended to use this class within a with-block:
 
-        >>> with SocketIOCalculator(...) as calc:
+        >>> from ase.calculators.socketio import SocketIOCalculator
+
+        >>> with SocketIOCalculator(...) as calc:  # doctest:+SKIP
         ...    atoms.calc = calc
         ...    atoms.get_forces()
         ...    atoms.rattle()
@@ -684,8 +687,8 @@ class PySocketIOClient:
         self._calculator_factory = calculator_factory
 
     def __call__(self, atoms, properties=None, port=None, unixsocket=None):
-        import sys
         import pickle
+        import sys
 
         # We pickle everything first, so we won't need to bother with the
         # process as long as it succeeds.
@@ -704,8 +707,8 @@ class PySocketIOClient:
 
     @staticmethod
     def main():
-        import sys
         import pickle
+        import sys
 
         socketinfo, atoms, get_calculator = pickle.load(sys.stdin.buffer)
         atoms.calc = get_calculator()

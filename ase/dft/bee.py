@@ -5,7 +5,7 @@ import numpy as np
 
 from ase import Atoms
 from ase.io.jsonio import read_json, write_json
-from ase.parallel import world, parprint
+from ase.parallel import parprint, world
 
 DFTCalculator = Any
 

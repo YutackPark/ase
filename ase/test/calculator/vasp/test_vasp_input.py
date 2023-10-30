@@ -1,12 +1,12 @@
-import pytest
 from unittest import mock
 
 import numpy as np
-from ase.calculators.vasp.create_input import GenerateVaspInput
-from ase.calculators.vasp.create_input import _args_without_comment
-from ase.calculators.vasp.create_input import _to_vasp_bool, _from_vasp_bool
+import pytest
 
 from ase.build import bulk
+from ase.calculators.vasp.create_input import (GenerateVaspInput,
+                                               _args_without_comment,
+                                               _from_vasp_bool, _to_vasp_bool)
 
 
 def dict_is_subset(d1, d2):
@@ -41,7 +41,9 @@ def vaspinput_factory(nacl):
         mocker = mock.Mock()
         inputs = GenerateVaspInput()
         inputs.set(**kwargs)
-        inputs._build_pp_list = mocker(return_value=None)  # type: ignore
+        inputs._build_pp_list = mocker(  # type: ignore[method-assign]
+            return_value=None
+        )
         inputs.initialize(atoms)
         return inputs
 

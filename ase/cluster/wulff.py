@@ -1,6 +1,5 @@
 import numpy as np
 
-
 delta = 1e-10
 
 

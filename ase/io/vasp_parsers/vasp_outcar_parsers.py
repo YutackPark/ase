@@ -1,21 +1,21 @@
 """
 Module for parsing OUTCAR files.
 """
-from abc import ABC, abstractmethod
-from typing import (Dict, Any, Sequence, TextIO, Iterator, Optional, Union,
-                    List)
 import re
-from warnings import warn
+from abc import ABC, abstractmethod
 from pathlib import Path, PurePath
+from typing import Any, Dict, Iterator, List, Optional, Sequence, TextIO, Union
+from warnings import warn
 
 import numpy as np
+
 import ase
 from ase import Atoms
+from ase.calculators.singlepoint import (SinglePointDFTCalculator,
+                                         SinglePointKPoint)
 from ase.data import atomic_numbers
 from ase.io import ParseError, read
 from ase.io.utils import ImageChunk
-from ase.calculators.singlepoint import (SinglePointDFTCalculator,
-                                         SinglePointKPoint)
 
 # Denotes end of Ionic step for OUTCAR reading
 _OUTCAR_SCF_DELIM = 'FREE ENERGIE OF THE ION-ELECTRON SYSTEM'

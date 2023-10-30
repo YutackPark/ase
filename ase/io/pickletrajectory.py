@@ -1,30 +1,17 @@
-import os
-import sys
-import errno
-import pickle
-import warnings
 import collections
-
-# Python 3 stuff:
-try:
-    unicode
-except NameError:
-    unicode = str
-
-# pass for WindowsError on non-Win platforms
-try:
-    WindowsError
-except NameError:
-    class WindowsError(OSError):
-        pass
+import errno
+import os
+import pickle
+import sys
+import warnings
 
 import numpy as np
 
 from ase.atoms import Atoms
-from ase.calculators.singlepoint import SinglePointCalculator
 from ase.calculators.calculator import PropertyNotImplementedError
+from ase.calculators.singlepoint import SinglePointCalculator
 from ase.constraints import FixAtoms
-from ase.parallel import world, barrier
+from ase.parallel import barrier, world
 
 
 class PickleTrajectory:
@@ -130,7 +117,7 @@ class PickleTrajectory:
                     if self.backup and os.path.isfile(filename):
                         try:
                             os.rename(filename, filename + '.bak')
-                        except WindowsError as e:
+                        except OSError as e:
                             # this must run on Win only! Not atomic!
                             if e.errno != errno.EEXIST:
                                 raise

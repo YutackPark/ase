@@ -1,7 +1,7 @@
 """A Module to safely parse/evaluate Mathematical Expressions"""
 import ast
-import operator as op
 import math
+import operator as op
 
 from numpy import int64
 

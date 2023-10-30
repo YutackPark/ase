@@ -1,7 +1,8 @@
-import pytest
 import numpy as np
-from ase.constraints import FixCartesian
+import pytest
+
 from ase.build import molecule
+from ase.constraints import FixCartesian
 
 
 @pytest.fixture
@@ -24,7 +25,6 @@ def test_fixcartesian_misc():
 
 
 def test_fixcartesian_adjust(atoms):
-    np.set_printoptions(suppress=1, precision=2)
     cart_mask = np.array([False, True, True])
     atom_index = [2, 3, 5, 6]  # Arbitrary subset of atoms
 

@@ -7,12 +7,10 @@ Implemented:
 """
 
 import numpy as np
-
-from ase import io
-from ase import build
-from ase.io.espresso import parse_position_line
-
 from pytest import approx
+
+from ase import build, io
+from ase.io.espresso import parse_position_line
 
 # This file is parsed correctly by pw.x, even though things are
 # scattered all over the place with some namelist edge cases

@@ -1,14 +1,14 @@
 """A collection of mutations that can be used."""
+from math import cos, pi, sin
+
 import numpy as np
-from math import cos, sin, pi
-from ase.cell import Cell
-from ase.calculators.lammpslib import convert_cell
-from ase.ga.utilities import (atoms_too_close,
-                              atoms_too_close_two_sets,
-                              gather_atoms_by_tag,
-                              get_rotation_matrix)
-from ase.ga.offspring_creator import OffspringCreator, CombinationMutation
+
 from ase import Atoms
+from ase.calculators.lammpslib import convert_cell
+from ase.cell import Cell
+from ase.ga.offspring_creator import CombinationMutation, OffspringCreator
+from ase.ga.utilities import (atoms_too_close, atoms_too_close_two_sets,
+                              gather_atoms_by_tag, get_rotation_matrix)
 
 
 class RattleMutation(OffspringCreator):

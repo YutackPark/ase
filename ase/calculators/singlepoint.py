@@ -1,9 +1,9 @@
 import numpy as np
 
-from ase.outputs import Properties
-from ase.calculators.calculator import (Calculator, all_properties,
+from ase.calculators.calculator import (Calculator,
                                         PropertyNotImplementedError,
-                                        PropertyNotPresent)
+                                        PropertyNotPresent, all_properties)
+from ase.outputs import Properties
 from ase.utils import lazyproperty
 
 

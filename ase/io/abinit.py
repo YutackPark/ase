@@ -1,14 +1,16 @@
 import os
-from os.path import join
 import re
 from glob import glob
+from os.path import join
 from pathlib import Path
 
 import numpy as np
 
 from ase import Atoms
+from ase.calculators.calculator import all_properties
+from ase.calculators.singlepoint import SinglePointCalculator
 from ase.data import chemical_symbols
-from ase.units import Hartree, Bohr, fs
+from ase.units import Bohr, Hartree, fs
 
 
 def read_abinit_in(fd):
@@ -439,6 +441,12 @@ def read_abinit_out(fd):
                   cell=cell,
                   pbc=True)
 
+    calc_results = {name: results[name] for name in
+                    set(all_properties) & set(results)}
+    atoms.calc = SinglePointCalculator(atoms,
+                                       **calc_results)
+    atoms.calc.name = "abinit"
+
     results['atoms'] = atoms
     return results
 
@@ -586,6 +594,57 @@ def read_abinit_outputs(directory, label):
     return results
 
 
+def read_abinit_gsr(filename):
+    import netCDF4
+    data = netCDF4.Dataset(filename)
+    data.set_auto_mask(False)
+    version = data.abinit_version
+
+    typat = data.variables['atom_species'][:]
+    cell = data.variables['primitive_vectors'][:] * Bohr
+    znucl = data.variables['atomic_numbers'][:]
+    xred = data.variables['reduced_atom_positions'][:]
+
+    znucl_int = znucl.astype(int)
+    znucl_int[znucl_int != znucl] = 0  # (Fractional Z)
+    numbers = znucl_int[typat - 1]
+
+    atoms = Atoms(numbers=numbers,
+                  scaled_positions=xred,
+                  cell=cell,
+                  pbc=True)
+
+    results = dict()
+
+    def addresult(name, abinit_name, unit=1):
+        if abinit_name not in data.variables:
+            return
+        values = data.variables[abinit_name][:]
+        # Within the netCDF4 dataset, the float variables return a array(float)
+        # The tolist() is here to ensure that the result is of type float
+        if not values.shape:
+            values = values.tolist()
+        results[name] = values * unit
+
+    addresult('energy', 'etotal', Hartree)
+    addresult('free_energy', 'etotal', Hartree)
+    addresult('forces', 'cartesian_forces', Hartree / Bohr)
+    addresult('stress', 'cartesian_stress_tensor', Hartree / Bohr**3)
+
+    atoms.calc = SinglePointCalculator(atoms, **results)
+    atoms.calc.name = 'abinit'
+    results['atoms'] = atoms
+
+    addresult('fermilevel', 'fermie', Hartree)
+    addresult('ibz_kpoints', 'reduced_coordinates_of_kpoints')
+    addresult('eigenvalues', 'eigenvalues', Hartree)
+    addresult('occupations', 'occupations')
+    addresult('kpoint_weights', 'kpoint_weights')
+    results['version'] = version
+
+    return results
+
+
 def get_ppp_list(atoms, species, raise_exception, xc, pps,
                  search_paths):
     ppp_list = []
@@ -615,6 +674,9 @@ def get_ppp_list(atoms, species, raise_exception, xc, pps,
                     hghtemplate = '%d%s%s.pspnc'  # E.g. "44ru.pspnc"
                     names.append(hghtemplate % (number, s, '*'))
                     names.append('%s[.-_]*.pspnc' % s)
+                elif pps in ['psp8']:
+                    hghtemplate = '%s.psp8'  # E.g. "Si.psp8"
+                    names.append(hghtemplate % (s))
                 elif pps in ['hgh', 'hgh.sc']:
                     hghtemplate = '%d%s.%s.hgh'  # E.g. "42mo.6.hgh"
                     # There might be multiple files with different valence

@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 from pytest import mark
+
 from ase import Atoms
 
 

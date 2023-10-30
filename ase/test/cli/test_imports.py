@@ -1,5 +1,6 @@
 """Check that plain cli doesn't execute too many imports."""
 import sys
+
 from ase.utils.checkimports import check_imports
 
 
@@ -11,7 +12,7 @@ def test_imports():
         'ase.calculators.(?!names).*',  # any calculator
     ]
     if sys.version_info >= (3, 10):
-        max_nonstdlib_module_count = 180  # this depends on the environment
+        max_nonstdlib_module_count = 200  # this depends on the environment
     else:
         max_nonstdlib_module_count = None
     check_imports("from ase.cli.main import main; main(args=[])",

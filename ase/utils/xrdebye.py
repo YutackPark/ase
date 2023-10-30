@@ -8,9 +8,9 @@ Also contains routine for calculation of atomic form factors and
 X-ray wavelength dict.
 """
 
-from math import exp, pi, sin, sqrt, cos, acos
-import numpy as np
+from math import acos, cos, exp, pi, sin, sqrt
 
+import numpy as np
 
 from ase.data import atomic_numbers
 

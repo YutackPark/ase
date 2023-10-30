@@ -17,11 +17,10 @@ functional theories.
     You should have received a copy of the GNU Lesser General Public License
     along with ASE.  If not, see <http://www.gnu.org/licenses/>.
 """
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 from ase.calculators.calculator import Parameters
 from ase.calculators.openmx.default_settings import default_dictionary
-
 
 # Keys that have length 3
 tuple_integer_keys = [

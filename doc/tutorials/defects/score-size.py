@@ -1,9 +1,10 @@
 # creates: score-size-fcc2sc.svg
 
-import matplotlib.pyplot as plt
+import glob
 import json
 import os
-import glob
+
+import matplotlib.pyplot as plt
 
 for fname in glob.glob('Popt-*.json'):
     tag = os.path.basename(fname).replace('Popt-', '').replace('.json', '')

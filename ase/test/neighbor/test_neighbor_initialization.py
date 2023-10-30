@@ -1,6 +1,7 @@
 import pytest
-from ase.neighborlist import NeighborList
+
 from ase.build import bulk
+from ase.neighborlist import NeighborList
 
 
 def test_neighborlist_initialization():

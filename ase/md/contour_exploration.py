@@ -1,4 +1,8 @@
+from typing import IO, Optional, Union
+
 import numpy as np
+
+from ase import Atoms
 from ase.optimize.optimize import Dynamics
 
 
@@ -16,21 +20,27 @@ def normalize(a):
 
 class ContourExploration(Dynamics):
 
-    def __init__(self, atoms,
-                 maxstep=0.5,
-                 parallel_drift=0.1,
-                 energy_target=None,
-                 angle_limit=20,
-                 potentiostat_step_scale=None,
-                 remove_translation=False,
-                 use_frenet_serret=True,
-                 initialization_step_scale=1e-2,
-                 use_target_shift=True, target_shift_previous_steps=10,
-                 use_tangent_curvature=False,
-                 rng=np.random,
-                 force_consistent=None,
-                 trajectory=None, logfile=None,
-                 append_trajectory=False, loginterval=1):
+    def __init__(
+        self,
+        atoms: Atoms,
+        maxstep: float = 0.5,
+        parallel_drift: float = 0.1,
+        energy_target: Optional[float] = None,
+        angle_limit: Optional[float] = 20.0,
+        potentiostat_step_scale: Optional[float] = None,
+        remove_translation: bool = False,
+        use_frenet_serret: bool = True,
+        initialization_step_scale: float = 1e-2,
+        use_target_shift: bool = True,
+        target_shift_previous_steps: int = 10,
+        use_tangent_curvature: bool = False,
+        rng=np.random,
+        force_consistent: Optional[bool] = None,
+        trajectory: Optional[str] = None,
+        logfile: Optional[Union[IO, str]] = None,
+        append_trajectory: bool = False,
+        loginterval: int = 1,
+    ):
         """Contour Exploration object.
 
         Parameters:

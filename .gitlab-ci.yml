@@ -1,17 +1,18 @@
----  # ASE Gitlab CI configuration
-
+--- # ASE Gitlab CI configuration
 
 variables:
   OMP_NUM_THREADS: "1"
-
 
 stages:
   - test
   - paperwork
   - deploy
 
-# Test a non-standard port (default is 3306) to prevent bugs like 
+# Test a non-standard port (default is 3306) to prevent bugs like
 # https://gitlab.com/ase/ase/-/merge_requests/2789 from reoccuring
+# UPDATE: MYSQL_TCP_PORT does not work at all with gitlab-runner.
+# No matter what the variable is set to, it errors out.
+# Thus (temporarily?) disabled as of April 2023.
 .database-configuration:
   variables:
     POSTGRES_DB: testase
@@ -19,13 +20,12 @@ stages:
     POSTGRES_PASSWORD: "ase"
     MYSQL_DATABASE: testase_mysql
     MYSQL_ROOT_PASSWORD: ase
-    MYSQL_TCP_PORT: 3307
+    # MYSQL_TCP_PORT: 3306
 
   services:
     - postgres:latest
     - mysql:latest
     - mariadb:latest
-
 
 # Check oldest supported Python with oldest supported libraries.
 # Does not install any optional libraries except matplotlib.
@@ -38,7 +38,7 @@ oldlibs:
   script:
     - pip install --no-deps .
     - >
-      ase test --pytest --color=yes
+      ase test -j0 --pytest --color=yes
       -W "ignore:can't resolve package"
       -W ignore::PendingDeprecationWarning
 
@@ -79,25 +79,32 @@ main:
     POSTGRES_PASSWORD: "ase"
     MYSQL_DATABASE: testase_mysql
     MYSQL_ROOT_PASSWORD: ase
-    MYSQL_TCP_PORT: 3307
+    # MYSQL_TCP_PORT: 3306
 
   services:
     - postgres:latest
     - mysql:latest
     - mariadb:latest
+
+  # We ignore a DeprecationWarning about --rsyncdir from pytest-xdist.
+  # This seems to be internal between pytest libs.
   script:
     - python --version
     - pip install --no-deps --editable .
     - ase info --calculators
     - cd $CI_PROJECT_DIR
-    - ase test --calculators asap,eam,ff,lj,morse,tip3p,tip4p --coverage --pytest --color=yes --durations 20
+    - >
+      ase test
+      --calculators asap,ff,lj,morse,tip3p,tip4p
+      --coverage --pytest --color=yes --durations 20 -v -r s
+      -W "ignore:The --rsyncdir command line argument"
+      -W "ignore:NumPy will stop allowing conversion of out-of-bound Python integers"
     - mv ase/test/coverage-html coverage-main
     - mv ase/test/.coverage coverage-main/coverage.dat
   artifacts:
     paths:
       - coverage-main/
     expire_in: 1 week
-
 
 # Calculator integration tests which always run.
 # Encompasses those tests marked as @pytest.mark.calculator_lite.
@@ -106,14 +113,16 @@ calculators-lite:
   image: registry.gitlab.com/ase/ase:ase-full-monty
   script:
     - pip install --no-deps --editable .
-    - ase test calculator --calculators=auto --coverage --pytest -m calculator_lite --color=yes --durations=20
+    - >
+      ase test calculator --calculators=auto --coverage
+      --pytest -m calculator_lite --color=yes --durations=20 -v
+      -W "ignore:The --rsyncdir command line argument"
     - mv ase/test/coverage-html coverage-calculators-lite
     - mv ase/test/.coverage coverage-calculators-lite/coverage.dat
   artifacts:
     paths:
       - coverage-calculators-lite/
     expire_in: 1 week
-
 
 # Plan: Test as many calculators as possible as well as possible.
 # Obviously this is kind of expensive so the job is manually activated.
@@ -126,7 +135,10 @@ calculators:
   script:
     - pip install --no-deps --editable .
     - ase info --calculators
-    - ase test calculator --calculators abinit,asap,cp2k,dftb,espresso,gpaw,kim,lammpslib,lammpsrun,mopac,nwchem,octopus,siesta --coverage --pytest --color=yes --durations 20
+    - >
+      ase test calculator --calculators abinit,asap,cp2k,dftb,espresso,gpaw,kim,lammpslib,lammpsrun,mopac,nwchem,octopus,siesta
+      --coverage --pytest --color=yes --durations 20
+      -W "ignore:The --rsyncdir command line argument"
     - mv ase/test/coverage-html coverage-calculators
     - mv ase/test/.coverage coverage-calculators/coverage.dat
   when: manual
@@ -142,7 +154,7 @@ doc:
     - ase info
     - which sphinx-build
     - cd $CI_PROJECT_DIR/doc
-    - python -m ase.utils.sphinx run  # test scripts
+    - python -m ase.utils.sphinx run # test scripts
     - sphinx-build -W . build
   artifacts:
     paths:
@@ -167,7 +179,6 @@ distribution-package:
     expire_in: 1 week
   when: manual
 
-
 # Publish code coverage data on web.
 #  * The deploy stage is specially recognized by gitlab
 #  * The jobname pages is specially recognized by gitlab
@@ -186,15 +197,14 @@ pages:
   only:
     - master
 
-
 lint:
   image: registry.gitlab.com/ase/ase:ase-paperwork
   script:
     - cd $CI_PROJECT_DIR
+    - mypy --version
     - mypy --color-output -p ase
     - python -We:invalid -m compileall -f -q ase/
     - flake8 .
-
 
 coverage-combine:
   image: registry.gitlab.com/ase/ase:ase-paperwork
@@ -203,7 +213,7 @@ coverage-combine:
     - main
     - calculators-lite
   script:
-    - cd ase/test  # Next to .coveragerc and friends
+    - cd ase/test # Next to .coveragerc and friends
     - coverage combine ../../coverage-main/coverage.dat ../../coverage-calculators-lite/coverage.dat
     - coverage report
     - coverage html
@@ -214,3 +224,33 @@ coverage-combine:
     paths:
       - coverage-html
     expire_in: 1 week
+
+.shared_windows_runners:
+  tags:
+    - shared-windows
+    - windows
+    - windows-1809
+
+windows_test:
+  extends:
+    - .shared_windows_runners
+  stage: test
+  before_script:
+    # https://stackoverflow.com/questions/61791108/gitlab-ci-shared-windows-runner-for-python
+    # https://gitlab.com/gitlab-org/ci-cd/shared-runners/images/gcp/windows-containers/-/issues/13
+    - Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
+    - choco install python --version=3.8 -y -f
+    - refreshenv
+  script:
+    - python --version
+    - python -m pip install --upgrade pip
+    - python -m pip install pytest pytest-mock
+    - python -m pip install .
+    - >
+      ase test
+      --calculators eam,ff,lj,morse,tip3p,tip4p
+      --pytest --color=yes --durations 20
+      -W "ignore:The --rsyncdir command line argument"
+      -W "ignore:NumPy will stop allowing conversion of out-of-bound Python integers"
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "schedule"

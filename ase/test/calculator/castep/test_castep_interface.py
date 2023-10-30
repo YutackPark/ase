@@ -1,13 +1,13 @@
 import os
 
-import pytest
 import numpy as np
+import pytest
+
 import ase
 import ase.lattice.cubic
-from ase.calculators.castep import (Castep, CastepOption,
-                                    CastepParam, CastepCell,
-                                    make_cell_dict, make_param_dict,
-                                    CastepKeywords)
+from ase.calculators.castep import (Castep, CastepCell, CastepKeywords,
+                                    CastepOption, CastepParam, make_cell_dict,
+                                    make_param_dict)
 
 calc = pytest.mark.calculator
 
@@ -272,6 +272,7 @@ def test_castep_param(testing_keywords):
         cparam.basis_precision = 'FINE'
 
 
+@pytest.mark.skipif(os.name == "nt", reason="No symlink on Windows")
 def test_workflow(testing_calculator):
     c = testing_calculator
     c._build_missing_pspots = False

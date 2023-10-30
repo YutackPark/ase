@@ -1,10 +1,9 @@
 '''surfaceslab.py - Window for setting up surfaces
 '''
-from ase.gui.i18n import _, ngettext
-
-import ase.gui.ui as ui
 import ase.build as build
+import ase.gui.ui as ui
 from ase.data import reference_states
+from ase.gui.i18n import _, ngettext
 from ase.gui.widgets import Element, pybutton
 
 introtext = _("""\

@@ -56,7 +56,7 @@ Nudged elastic band calculations
 .. image:: ../tutorials/neb/diffusion-barrier.png
    :width: 10cm
 
-:mod:`ase.neb`
+:mod:`ase.mep.neb`
 :download:`barrier.py <../tutorials/neb/diffusion5.py>`
 
 

@@ -13,8 +13,7 @@ class NGLDisplay:
     def __init__(self, atoms, xsize=500, ysize=500):
         import nglview
         import nglview.color
-
-        from ipywidgets import Dropdown, FloatSlider, IntSlider, HBox, VBox
+        from ipywidgets import Dropdown, FloatSlider, HBox, IntSlider, VBox
         self.atoms = atoms
         if isinstance(atoms[0], Atoms):
             # Assume this is a trajectory or struct list
@@ -102,7 +101,7 @@ class NGLDisplay:
         self._select_atom()
 
 
-def view_ngl(atoms, w=500, h=500):
+def view_ngl(atoms, data=None, repeat=None, w=500, h=500):
     """
     Returns the nglviewer + some control widgets in the VBox ipywidget.
     The viewer supports any Atoms objectand any sequence of Atoms objects.
@@ -113,4 +112,5 @@ def view_ngl(atoms, w=500, h=500):
     .control_box:
         VBox ipywidget containing view control widgets
     """
+    # TODO: make `data` and `repeat` really available
     return NGLDisplay(atoms, w, h).gui

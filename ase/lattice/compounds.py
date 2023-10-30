@@ -13,9 +13,9 @@ own.  The following crystal structures are defined:
 
 """
 from ase.lattice.cubic import DiamondFactory, SimpleCubicFactory
+from ase.lattice.hexagonal import HexagonalFactory
 from ase.lattice.tetragonal import SimpleTetragonalFactory
 from ase.lattice.triclinic import TriclinicFactory
-from ase.lattice.hexagonal import HexagonalFactory
 
 
 # To prevent a layer of element one on one side, and a layer of

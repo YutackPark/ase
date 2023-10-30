@@ -1,16 +1,14 @@
 import time
 import warnings
-
 from math import sqrt
+
 import numpy as np
 
-from ase.optimize.optimize import Optimizer
 from ase.constraints import UnitCellFilter
-
+from ase.optimize.optimize import Optimizer
+from ase.optimize.precon.precon import make_precon
 from ase.utils.linesearch import LineSearch
 from ase.utils.linesearcharmijo import LineSearchArmijo
-
-from ase.optimize.precon.precon import make_precon
 
 
 class PreconLBFGS(Optimizer):

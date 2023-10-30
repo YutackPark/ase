@@ -1,11 +1,12 @@
 from pathlib import Path
-from ase.db import connect
-from ase.constraints import ExpCellFilter
-from ase.optimize import BFGS
-from ase.build import bulk
-from ase.dft.bandgap import bandgap
+
 from gpaw import GPAW, PW
 
+from ase.build import bulk
+from ase.constraints import ExpCellFilter
+from ase.db import connect
+from ase.dft.bandgap import bandgap
+from ase.optimize import BFGS
 
 if Path('database.db').is_file():
     Path('database.db').unlink()

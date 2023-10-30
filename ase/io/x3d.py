@@ -5,12 +5,14 @@ X3DOM outputs to html that display 3-d manipulatable atoms in
 modern web browsers and jupyter notebooks.
 """
 
+import xml.etree.ElementTree as ET
+from xml.dom import minidom
+
+import numpy as np
+
 from ase.data import covalent_radii
 from ase.data.colors import jmol_colors
 from ase.utils import writer
-import xml.etree.ElementTree as ET
-from xml.dom import minidom
-import numpy as np
 
 
 @writer
@@ -224,9 +226,9 @@ X3DOM_template = """\
     <head>
         <title>ASE atomic visualization</title>
         <link rel="stylesheet" type="text/css" \
-            href="https://www.x3dom.org/x3dom/release/x3dom.css"></link>
+            href="https://www.x3dom.org/release/x3dom.css"></link>
         <script type="text/javascript" \
-            src="https://www.x3dom.org/x3dom/release/x3dom.js"></script>
+            src="https://www.x3dom.org/release/x3dom.js"></script>
     </head>
     <body>
         <X3D {style}>

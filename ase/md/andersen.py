@@ -1,18 +1,30 @@
 """Andersen dynamics class."""
+from typing import IO, Optional, Union
 
-from numpy import random, cos, pi, log, ones, repeat
+from numpy import cos, log, ones, pi, random, repeat
 
+from ase import Atoms, units
 from ase.md.md import MolecularDynamics
-from ase.parallel import world, DummyMPI
-from ase import units
+from ase.parallel import DummyMPI, world
 
 
 class Andersen(MolecularDynamics):
     """Andersen (constant N, V, T) molecular dynamics."""
 
-    def __init__(self, atoms, timestep, temperature_K, andersen_prob,
-                 fixcm=True, trajectory=None, logfile=None, loginterval=1,
-                 communicator=world, rng=random, append_trajectory=False):
+    def __init__(
+        self,
+        atoms: Atoms,
+        timestep: float,
+        temperature_K: float,
+        andersen_prob: float,
+        fixcm: bool = True,
+        trajectory: Optional[str] = None,
+        logfile: Optional[Union[IO, str]] = None,
+        loginterval: int = 1,
+        communicator=world,
+        rng=random,
+        append_trajectory: bool = False,
+    ):
         """"
         Parameters:
 

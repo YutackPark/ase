@@ -7,13 +7,15 @@ Author: Ole Schuett <ole.schuett@mat.ethz.ch>
 
 import os
 import os.path
+from subprocess import PIPE, Popen
 from warnings import warn
-from subprocess import Popen, PIPE
+
 import numpy as np
+
 import ase.io
+from ase.calculators.calculator import (Calculator, CalculatorSetupError,
+                                        Parameters, all_changes)
 from ase.units import Rydberg
-from ase.calculators.calculator import (Calculator, all_changes, Parameters,
-                                        CalculatorSetupError)
 
 
 class CP2K(Calculator):
@@ -44,9 +46,9 @@ class CP2K(Calculator):
     mpiexec-process.
 
     The command used by the calculator to launch the CP2K-shell is
-    ``cp2k_shell``. To run a parallelized simulation use something like this:
+    ``cp2k_shell``. To run a parallelized simulation use something like this::
 
-    >>> CP2K.command="env OMP_NUM_THREADS=2 mpiexec -np 4 cp2k_shell.psmp"
+        CP2K.command="env OMP_NUM_THREADS=2 mpiexec -np 4 cp2k_shell.psmp"
 
     Arguments:
 
@@ -95,25 +97,28 @@ class CP2K(Calculator):
         zone integration. The example below illustrates some common
         options::
 
-           >>> inp = '''&FORCE_EVAL
-           >>>    &DFT
-           >>>      &KPOINTS
-           >>>        SCHEME MONKHORST-PACK 12 12 8
-           >>>      &END KPOINTS
-           >>>      &SCF
-           >>>        ADDED_MOS 10
-           >>>        &SMEAR
-           >>>          METHOD FERMI_DIRAC
-           >>>          ELECTRONIC_TEMPERATURE [K] 500.0
-           >>>        &END SMEAR
-           >>>      &END SCF
-           >>>    &END DFT
-           >>>  &END FORCE_EVAL
-           >>>  '''
+            inp = '''&FORCE_EVAL
+               &DFT
+                 &KPOINTS
+                   SCHEME MONKHORST-PACK 12 12 8
+                 &END KPOINTS
+                 &SCF
+                   ADDED_MOS 10
+                   &SMEAR
+                     METHOD FERMI_DIRAC
+                     ELECTRONIC_TEMPERATURE [K] 500.0
+                   &END SMEAR
+                 &END SCF
+               &END DFT
+             &END FORCE_EVAL
+            '''
 
     max_scf: int
         Maximum number of SCF iteration to be performed for
         one optimization. Default is ``50``.
+    multiplicity: int
+        Select the multiplicity of the system
+        (two times the total spin plus one).
     poisson_solver: str
         The poisson solver to be used. Currently, the only supported
         values are ``auto`` and ``None``. Default is ``auto``.
@@ -161,6 +166,7 @@ class CP2K(Calculator):
         force_eval_method="Quickstep",
         inp='',
         max_scf=50,
+        multiplicity=1,
         potential_file='POTENTIAL',
         pseudo_potential='auto',
         stress_tensor=True,
@@ -409,6 +415,10 @@ class CP2K(Calculator):
 
         if p.uks:
             root.add_keyword('FORCE_EVAL/DFT', 'UNRESTRICTED_KOHN_SHAM ON')
+
+        if p.multiplicity:
+            root.add_keyword('FORCE_EVAL/DFT',
+                             'MULTIPLICITY %d' % p.multiplicity)
 
         if p.charge and p.charge != 0:
             root.add_keyword('FORCE_EVAL/DFT', 'CHARGE %d' % p.charge)

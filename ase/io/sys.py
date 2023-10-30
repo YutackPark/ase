@@ -6,10 +6,10 @@ The positions and cell dimensions are in Bohrs.
 Contributed by Rafi Ullah <rraffiu@gmail.com>
 """
 
+from re import compile
+
 from ase.atoms import Atoms
 from ase.units import Bohr
-
-from re import compile
 
 __all__ = ['read_sys', 'write_sys']
 

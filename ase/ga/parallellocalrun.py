@@ -1,10 +1,11 @@
 """ Class for handling several simultaneous jobs.
     The class has been tested on linux and Mac OS X.
 """
-from subprocess import Popen, PIPE
 import os
 import time
-from ase.io import write, read
+from subprocess import PIPE, Popen
+
+from ase.io import read, write
 
 
 class ParallelLocalRun:

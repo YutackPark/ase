@@ -6,7 +6,7 @@ from typing import Dict, List, Sequence, Tuple, Union
 from ase.data import atomic_numbers, chemical_symbols
 
 # For type hints (A, A2, A+B):
-Tree = Union[str, Tuple['Tree', int], List['Tree']]  # type: ignore
+Tree = Union[str, Tuple['Tree', int], List['Tree']]
 
 
 class Formula:
@@ -250,7 +250,7 @@ class Formula:
     def from_list(symbols: Sequence[str]) -> 'Formula':
         """Convert list of chemical symbols to Formula."""
         return Formula(''.join(symbols),
-                       _tree=[(symbols[:], 1)])
+                       _tree=[(symbols[:], 1)])  # type: ignore[list-item]
 
     def __len__(self) -> int:
         """Number of atoms."""
@@ -354,7 +354,10 @@ class Formula:
     def __rfloordiv__(self, other):
         return Formula(other) // self
 
-    def __iter__(self, tree=None):
+    def __iter__(self):
+        return self._tree_iter()
+
+    def _tree_iter(self, tree=None):
         if tree is None:
             tree = self._tree
         if isinstance(tree, str):
@@ -362,10 +365,10 @@ class Formula:
         elif isinstance(tree, tuple):
             tree, N = tree
             for _ in range(N):
-                yield from self.__iter__(tree)
+                yield from self._tree_iter(tree)
         else:
             for tree in tree:
-                yield from self.__iter__(tree)
+                yield from self._tree_iter(tree)
 
     def __str__(self):
         return self._formula
@@ -418,7 +421,7 @@ def parse(f: str) -> Tree:
     for part in parts:
         n, f = strip_number(part)
         result.append((parse2(f), n))
-    return result
+    return result  # type: ignore[return-value]
 
 
 def parse2(f: str) -> Tree:

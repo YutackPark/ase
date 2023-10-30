@@ -122,13 +122,13 @@ Versions
 
 import numbers
 from pathlib import Path
-from typing import Union, Set
+from typing import Set, Union
 
 import numpy as np
 
-from ase.io.jsonio import encode, decode
+from ase.io.formats import is_compressed
+from ase.io.jsonio import decode, encode
 from ase.utils import plural
-
 
 VERSION = 3
 N1 = 42  # block size - max number of items: 1, N1, N1*N1, N1*N1*N1, ...
@@ -472,15 +472,22 @@ class Reader:
 
         self._little_endian = _little_endian
 
+        self.must_close_fd = False
         if not hasattr(fd, 'read'):
+            self.must_close_fd = True
             fd = Path(fd).open('rb')
 
         self._fd = fd
         self._index = index
 
         if data is None:
-            (self._tag, self._version, self._nitems, self._pos0,
-             self._offsets) = read_header(fd)
+            try:
+                (self._tag, self._version, self._nitems, self._pos0,
+                 self._offsets) = read_header(fd)
+            except BaseException:
+                if self.must_close_fd:
+                    fd.close()
+                raise
             if self._nitems > 0:
                 data = self._read_data(index)
             else:
@@ -604,7 +611,8 @@ class Reader:
         return self.tostr(False, '').replace('\n', ' ')
 
     def close(self):
-        self._fd.close()
+        if self.must_close_fd:
+            self._fd.close()
 
 
 class NDArrayReader:
@@ -640,7 +648,7 @@ class NDArrayReader:
         offset = self.offset + start * self.itemsize * stride
         self.fd.seek(offset)
         count = (stop - start) * stride
-        if self.hasfileno:
+        if not is_compressed(self.fd) and self.hasfileno:
             a = np.fromfile(self.fd, self.dtype, count)
         else:
             # Not as fast, but works for reading from tar-files:

@@ -3,7 +3,7 @@ Execution of turbomole binaries and scripts:
 define, dscf, grad, ridft, rdgrad, aoforce, jobex, NumForce
 """
 import os
-from subprocess import Popen, PIPE
+from subprocess import PIPE, Popen
 
 
 def get_output_filename(basename):

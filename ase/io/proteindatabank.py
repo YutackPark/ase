@@ -31,7 +31,7 @@ def read_atom_line(line_full):
         name = line[12:16].strip()
 
         altloc = line[16]
-        resname = line[17:21]
+        resname = line[17:21].strip()
         # chainid = line[21]        # Not used
 
         seq = line[22:26].split()
@@ -190,7 +190,7 @@ def write_proteindatabank(fileobj, images, write_arrays=True):
         images = [images]
 
     #     1234567 123 6789012345678901   89   67   456789012345678901234567 890
-    format = ('ATOM  %5d %4s MOL     1    %8.3f%8.3f%8.3f%6.2f%6.2f'
+    format = ('ATOM  %5d %4s %4s %4d    %8.3f%8.3f%8.3f%6.2f%6.2f'
               '          %2s  \n')
 
     # RasMol complains if the atom index exceeds 100000. There might
@@ -216,15 +216,27 @@ def write_proteindatabank(fileobj, images, write_arrays=True):
             p = p.dot(rot_t.T)
         occupancy = np.ones(len(atoms))
         bfactor = np.zeros(len(atoms))
+        residuenames = ['MOL '] * len(atoms)
+        residuenumbers = np.ones(len(atoms))
+        names = atoms.get_chemical_symbols()
         if write_arrays:
             if 'occupancy' in atoms.arrays:
                 occupancy = atoms.get_array('occupancy')
             if 'bfactor' in atoms.arrays:
                 bfactor = atoms.get_array('bfactor')
+            if 'residuenames' in atoms.arrays:
+                residuenames = atoms.get_array('residuenames')
+            if 'residuenumbers' in atoms.arrays:
+                residuenumbers = atoms.get_array('residuenumbers')
+            if 'atomtypes' in atoms.arrays:
+                names = atoms.get_array('atomtypes')
         for a in range(natoms):
             x, y, z = p[a]
             occ = occupancy[a]
             bf = bfactor[a]
-            fileobj.write(format % ((a + 1) % MAXNUM, symbols[a],
+            resname = residuenames[a].ljust(4)
+            resseq = residuenumbers[a]
+            name = names[a]
+            fileobj.write(format % ((a + 1) % MAXNUM, name, resname, resseq,
                                     x, y, z, occ, bf, symbols[a].upper()))
         fileobj.write('ENDMDL\n')

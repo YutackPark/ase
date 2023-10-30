@@ -1,13 +1,11 @@
 """Dialog for saving one or more configurations."""
 
-from ase.gui.i18n import _
-
 import numpy as np
 
 import ase.gui.ui as ui
-from ase.io.formats import (write, parse_filename, get_ioformat, string2index,
-                            filetype)
-
+from ase.gui.i18n import _
+from ase.io.formats import (filetype, get_ioformat, parse_filename,
+                            string2index, write)
 
 text = _("""\
 Append name with "@n" in order to write image
