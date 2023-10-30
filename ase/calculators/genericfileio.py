@@ -6,6 +6,108 @@ from typing import Any, Iterable, Mapping
 from ase.calculators.abc import GetOutputsMixin
 from ase.calculators.calculator import BaseCalculator, EnvironmentError
 
+class BaseProfile(ABC):
+
+    def __init__(self, mpi_command=None, mpi_command_ncores=None, ncores=None):
+        """
+        Parameters
+        ----------
+        mpi_command : str, optional
+            The command to run MPI programs. E.g. 'mpirun -np 4'.
+        mpi_command_ncores : str, optional
+            The command to run MPI programs, with a placeholder for the number
+            of cores. E.g. 'mpirun -np {}'.
+        ncores : int, optional
+            The number of cores to run on. If given, this will be used to
+            replace the placeholder in `mpi_command_ncores`.
+        """
+        self.mpi_command = mpi_command
+        self.mpi_command_ncores = mpi_command_ncores
+        self.ncores = ncores
+
+    def add_mpi_command(self, argv_command):
+        """
+        Add the MPI command to the given command.
+
+        Parameters
+        ----------
+        argv_command : list of str
+            The command to run.
+        
+        Returns
+        -------
+        list of str
+            The command to run, with the MPI command prepended.
+        """
+        if self.mpi_command_ncores is not None and self.ncores is not None:
+            argv_command = (
+                self.mpi_command_ncores.format(self.ncores).split(' ')
+                + argv_command)
+        elif self.mpi_command is not None:
+            argv_command = [self.mpi_command] + argv_command
+
+        return argv_command
+
+    @abstractmethod
+    def get_command(self, inputfile) -> Iterable[str]:
+        """
+        Get the command to run. This should be a list of strings. 
+
+        This is main method that needs to be implemented by subclasses.
+        """
+        ...
+
+    def run(self, directory, inputfile, outputfile):
+        """
+        Run the command in the given directory.
+
+        Parameters
+        ----------
+        directory : pathlib.Path
+            The directory to run the command in.
+        inputfile : str
+            The name of the input file.
+        outputfile : str
+            The name of the output file.
+        """
+
+        from subprocess import check_call
+        import os
+        argv_command = self.get_command(inputfile)
+        with open(directory / outputfile, 'wb') as fd:
+            check_call(argv_command, cwd=directory, stdout=fd, env=os.environ)
+
+    @abstractmethod
+    def version():
+        """
+        Get the version of the code.
+
+        Returns
+        -------
+        str
+            The version of the code.    
+        """
+        ...
+
+    @classmethod
+    def from_config(cls, cfg, section_name):
+        """
+        Create a profile from a configuration file. 
+
+        Parameters
+        ----------
+        cfg : ase.config.Config
+            The configuration object.
+        section_name : str
+            The name of the section in the configuration file. E.g. the name 
+            of the template that this profile is for.
+
+        Returns
+        -------
+        BaseProfile
+            The profile object.
+        """
+        return cls(**cfg.parser['general'], **cfg.parser[section_name])
 
 def read_stdout(args, createfile=None):
     """Run command in tempdir and return standard output.
