@@ -20,7 +20,7 @@ def closest_distances_generator(atom_numbers, ratio_of_covalent_radii):
     cr = covalent_radii
     ratio = ratio_of_covalent_radii
 
-    blmin = dict()
+    blmin = {}
     for i in atom_numbers:
         blmin[(i, i)] = cr[i] * 2 * ratio
         for j in atom_numbers:
@@ -91,7 +91,7 @@ def get_trajectory(fname):
     fname = str(fname)
     try:
         t = read(fname)
-    except IOError as e:
+    except OSError as e:
         print('get_trajectory error ' + e)
     return t
 

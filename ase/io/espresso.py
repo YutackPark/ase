@@ -65,19 +65,19 @@ class Namelist(OrderedDict):
     """Case insensitive dict that emulates Fortran Namelists."""
 
     def __contains__(self, key):
-        return super(Namelist, self).__contains__(key.lower())
+        return super().__contains__(key.lower())
 
     def __delitem__(self, key):
-        return super(Namelist, self).__delitem__(key.lower())
+        return super().__delitem__(key.lower())
 
     def __getitem__(self, key):
-        return super(Namelist, self).__getitem__(key.lower())
+        return super().__getitem__(key.lower())
 
     def __setitem__(self, key, value):
-        super(Namelist, self).__setitem__(key.lower(), value)
+        super().__setitem__(key.lower(), value)
 
     def get(self, key, default=None):
-        return super(Namelist, self).get(key.lower(), default)
+        return super().get(key.lower(), default)
 
 
 @iofunction('r')
@@ -165,8 +165,8 @@ def read_espresso_out(fileobj, index=slice(None), results_required=True):
         for config_index, config_index_next in zip(
                 all_config_indexes,
                 all_config_indexes[1:] + [len(pwo_lines)]):
-            if any([config_index < results_index < config_index_next
-                    for results_index in results_indexes]):
+            if any(config_index < results_index < config_index_next
+                    for results_index in results_indexes):
                 results_config_indexes.append(config_index)
 
         # slice from the subset
@@ -177,7 +177,7 @@ def read_espresso_out(fileobj, index=slice(None), results_required=True):
     # Extract initialisation information each time PWSCF starts
     # to add to subsequent configurations. Use None so slices know
     # when to fill in the blanks.
-    pwscf_start_info = dict((idx, None) for idx in indexes[_PW_START])
+    pwscf_start_info = {idx: None for idx in indexes[_PW_START]}
 
     for image_index in image_indexes:
         # Find the nearest calculation start to parse info. Needed in,
@@ -566,7 +566,7 @@ def read_espresso_in(fileobj):
         valence = get_valence_electrons(symbol, data, pseudo)
 
         # starting_magnetization is in fractions of valence electrons
-        magnet_key = "starting_magnetization({0})".format(ispec + 1)
+        magnet_key = f"starting_magnetization({ispec + 1})"
         magmom = valence * data["system"].get(magnet_key, 0.0)
         species_info[symbol] = {"weight": weight, "pseudo": pseudo,
                                 "valence": valence, "magmom": magmom}
@@ -719,7 +719,7 @@ def ibrav_to_cell(system):
                          [b_over_a * cosab, b_over_a * sinab, 0.0],
                          v3]) * alat
     else:
-        raise NotImplementedError('ibrav = {0} is not implemented'
+        raise NotImplementedError('ibrav = {} is not implemented'
                                   ''.format(system['ibrav']))
 
     return Cell(cell)
@@ -764,7 +764,7 @@ def get_valence_electrons(symbol, data, pseudo=None):
         http://materialscloud.org/sssp/ is employed.
     """
     if pseudo is None:
-        pseudo = '{}_dummy.UPF'.format(symbol)
+        pseudo = f'{symbol}_dummy.UPF'
     for pseudo_dir in get_pseudo_dirs(data):
         if path.exists(path.join(pseudo_dir, pseudo)):
             valence = grep_valence(path.join(pseudo_dir, pseudo))
@@ -1166,7 +1166,7 @@ def label_to_symbol(label):
     if test_symbol in chemical_symbols:
         return test_symbol
     else:
-        raise KeyError('Could not parse species from label {0}.'
+        raise KeyError('Could not parse species from label {}.'
                        ''.format(label))
 
 
@@ -1219,7 +1219,7 @@ def infix_float(text):
 
     while '(' in text:
         middle = middle_brackets(text)
-        text = text.replace(middle, '{}'.format(eval_no_bracket_expr(middle)))
+        text = text.replace(middle, f'{eval_no_bracket_expr(middle)}')
 
     return float(eval_no_bracket_expr(text))
 
@@ -1425,7 +1425,7 @@ def grep_valence(pseudopotential):
                                        line.split(' ')))[0]
                 return float(line.split('=')[-1].strip().strip('"'))
         else:
-            raise ValueError('Valence missing in {}'.format(pseudopotential))
+            raise ValueError(f'Valence missing in {pseudopotential}')
 
 
 def kspacing_to_grid(atoms, spacing, calculated_spacing=None):
@@ -1602,7 +1602,7 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
         elif isinstance(constraint, FixCartesian):
             constraint_mask[constraint.a] = constraint.mask
         else:
-            warnings.warn('Ignored unknown constraint {}'.format(constraint))
+            warnings.warn(f'Ignored unknown constraint {constraint}')
     masks = []
     for atom in atoms:
         # only inclued mask if something is fixed
@@ -1654,7 +1654,7 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
                 tidx = sum(atom.symbol == x[0] for x in atomic_species) or ' '
                 atomic_species[(atom.symbol, magmom)] = (sidx, tidx)
                 # Add magnetization to the input file
-                mag_str = 'starting_magnetization({0})'.format(sidx)
+                mag_str = f'starting_magnetization({sidx})'
                 input_parameters['system'][mag_str] = fspin
                 atomic_species_str.append(
                     '{species}{tidx} {mass} {pseudo}\n'.format(
@@ -1701,15 +1701,15 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
     # Assume sections are ordered (taken care of in namelist construction)
     # and that repr converts to a QE readable representation (except bools)
     for section in input_parameters:
-        pwi.append('&{0}\n'.format(section.upper()))
+        pwi.append(f'&{section.upper()}\n')
         for key, value in input_parameters[section].items():
             if value is True:
-                pwi.append('   {0:16} = .true.\n'.format(key))
+                pwi.append(f'   {key:16} = .true.\n')
             elif value is False:
-                pwi.append('   {0:16} = .false.\n'.format(key))
+                pwi.append(f'   {key:16} = .false.\n')
             else:
                 # repr format to get quotes around strings
-                pwi.append('   {0:16} = {1!r:}\n'.format(key, value))
+                pwi.append(f'   {key:16} = {value!r}\n')
         pwi.append('/\n')  # terminate section
     pwi.append('\n')
 
@@ -1742,7 +1742,7 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
         pwi.append('K_POINTS crystal_b\n')
         assert hasattr(kgrid, 'path') or 'path' in kgrid
         kgrid = kpts2ndarray(kgrid, atoms=atoms)
-        pwi.append('%s\n' % len(kgrid))
+        pwi.append(f'{len(kgrid)}\n')
         for k in kgrid:
             pwi.append('{k[0]:.14f} {k[1]:.14f} {k[2]:.14f} 0\n'.format(k=k))
         pwi.append('\n')

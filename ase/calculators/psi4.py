@@ -122,7 +122,7 @@ class Psi4(Calculator):
         if charge is None:
             charge = 0
 
-        geom.append('{} {}'.format(charge, mult))
+        geom.append(f'{charge} {mult}')
         geom.append('no_reorient')
 
         if not os.path.isdir(self.directory):
@@ -136,7 +136,7 @@ class Psi4(Calculator):
         if not os.path.isfile(filename):
             raise ReadError('Could not find the psi4 output file: ' + filename)
 
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             txt = fd.read()
         if '!ASE Information\n' not in txt:
             raise Exception('The output file {} could not be read because '
@@ -180,7 +180,7 @@ class Psi4(Calculator):
 
         # Do the calculations
         if 'forces' in properties:
-            grad, wf = self.psi4.driver.gradient('{}/{}'.format(method, basis),
+            grad, wf = self.psi4.driver.gradient(f'{method}/{basis}',
                                                  return_wfn=True)
             # energy comes for free
             energy = wf.energy()
@@ -189,7 +189,7 @@ class Psi4(Calculator):
             # also note that the gradient is -1 * forces
             self.results['forces'] = -1 * np.array(grad) * Hartree / Bohr
         elif 'energy' in properties:
-            energy = self.psi4.energy('{}/{}'.format(method, basis),
+            energy = self.psi4.energy(f'{method}/{basis}',
                                       molecule=self.molecule)
             # convert to eV
             self.results['energy'] = energy * Hartree

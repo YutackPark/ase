@@ -1,9 +1,11 @@
+import pytest
 from ase.build import molecule
 from ase.calculators.emt import EMT
 from ase.filters import Filter
 from ase.optimize import QuasiNewton
 
 
+@pytest.mark.optimize
 def test_filter(testdir):
     """Test that the filter and trajectories are playing well together."""
 

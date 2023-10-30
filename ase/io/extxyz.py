@@ -231,7 +231,7 @@ def key_val_str_to_dict_regex(s):
                 str_to_bool = {'T': True, 'F': False}
 
                 if len(value.split()) > 1:
-                    if all([x in str_to_bool.keys() for x in value.split()]):
+                    if all(x in str_to_bool.keys() for x in value.split()):
                         value = [str_to_bool[x] for x in value.split()]
                 elif value in str_to_bool:
                     value = str_to_bool[value]
@@ -247,7 +247,7 @@ def escape(string):
             '{' in string or '}' in string or
             '[' in string or ']' in string):
         string = string.replace('"', '\\"')
-        string = '"%s"' % string
+        string = f'"{string}"'
     return string
 
 
@@ -274,10 +274,10 @@ def key_val_dict_to_str(dct, sep=' '):
         return val
 
     def known_types_to_str(val):
-        if isinstance(val, bool) or isinstance(val, np.bool_):
+        if isinstance(val, (bool, np.bool_)):
             return 'T' if val else 'F'
         elif isinstance(val, numbers.Real):
-            return '{}'.format(val)
+            return f'{val}'
         elif isinstance(val, Spacegroup):
             return val.symbol
         else:
@@ -305,7 +305,7 @@ def key_val_dict_to_str(dct, sep=' '):
                 # if this fails, let give up
             except TypeError:
                 warnings.warn('Skipping unhashable information '
-                              '{0}'.format(key))
+                              '{}'.format(key))
                 continue
 
         key = escape(key)  # escape and quote key
@@ -317,7 +317,7 @@ def key_val_dict_to_str(dct, sep=' '):
             eq = ""
         val = escape(val)  # escape and quote val
 
-        string += '%s%s%s%s' % (key, eq, val, sep)
+        string += f'{key}{eq}{val}{sep}'
 
     return string.strip()
 
@@ -437,7 +437,7 @@ def _read_xyz_frame(lines, natoms, properties_parser=key_val_str_to_dict,
             entry = line.split()
 
             if not entry[0].startswith('VEC'):
-                raise XYZError('Expected cell vector, got {}'.format(entry[0]))
+                raise XYZError(f'Expected cell vector, got {entry[0]}')
 
             try:
                 n = int(entry[0][3:])
@@ -562,7 +562,7 @@ def ixyzchunks(fd):
         try:
             natoms = int(line)
         except ValueError:
-            raise XYZError('Expected integer, found "{0}"'.format(line))
+            raise XYZError(f'Expected integer, found "{line}"')
         try:
             lines = [next(fd) for _ in range(1 + natoms)]
         except StopIteration:
@@ -800,7 +800,7 @@ def output_column_format(atoms, columns, arrays,
     comment_str = ''
     if atoms.cell.any():
         comment_str += lattice_str + ' '
-    comment_str += 'Properties={}'.format(props_str)
+    comment_str += f'Properties={props_str}'
 
     info = {}
     if write_info:
@@ -962,14 +962,14 @@ def write_xyz(fileobj, images, comment='', columns=None,
             elif column == 'move_mask':
                 arrays[column] = cnstr
             else:
-                raise ValueError('Missing array "%s"' % column)
+                raise ValueError(f'Missing array "{column}"')
 
         if write_results:
             for key in per_atom_results:
                 if key not in fr_cols:
                     fr_cols += [key]
                 else:
-                    warnings.warn('write_xyz() overwriting array "{0}" present '
+                    warnings.warn('write_xyz() overwriting array "{}" present '
                                   'in atoms.arrays with stored results '
                                   'from calculator'.format(key))
             arrays.update(per_atom_results)
@@ -1001,7 +1001,7 @@ def write_xyz(fileobj, images, comment='', columns=None,
             nat -= nPBC
         # Write the output
         fileobj.write('%d\n' % nat)
-        fileobj.write('%s\n' % comm)
+        fileobj.write(f'{comm}\n')
         for i in range(natoms):
             fileobj.write(fmt % tuple(data[i]))
 

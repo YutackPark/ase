@@ -1,7 +1,11 @@
+import pytest
 from ase.build import molecule
 from ase.mep import NEB, idpp_interpolate
 
 
+# I think idpp uses an optimizer;
+# at the very least how an optimizer is called during this test
+@pytest.mark.optimize
 def test_idpp(testdir):
     initial = molecule('C2H6')
     final = initial.copy()

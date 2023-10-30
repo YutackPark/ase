@@ -1,20 +1,11 @@
-import functools
-import warnings
 from abc import ABC, abstractmethod
 from typing import Dict, List
 
 import numpy as np
 
-from ase.build.bulk import bulk as newbulk
 from ase.cell import Cell
 from ase.dft.kpoints import BandPath, parse_path_string, sc_special_points
 from ase.utils import pbc2pbc
-
-
-@functools.wraps(newbulk)
-def bulk(*args, **kwargs):
-    warnings.warn('Use ase.build.bulk() instead', stacklevel=2)
-    return newbulk(*args, **kwargs)
 
 
 _degrees = np.pi / 180
@@ -74,6 +65,8 @@ class BravaisLattice(ABC):
     def variant(self) -> str:
         """Return name of lattice variant.
 
+        >>> from ase.lattice import BCT
+
         >>> BCT(3, 5).variant
         'BCT2'
         """
@@ -118,6 +111,8 @@ class BravaisLattice(ABC):
     @property
     def special_point_names(self) -> List[str]:
         """Return all special point names as a list of strings.
+
+        >>> from ase.lattice import BCT
 
         >>> BCT(3, 5).special_point_names
         ['G', 'N', 'P', 'S', 'S1', 'X', 'Y', 'Y1', 'Z']
@@ -168,6 +163,8 @@ class BravaisLattice(ABC):
         """Return a :class:`~ase.dft.kpoints.BandPath` for this lattice.
 
         See :meth:`ase.cell.Cell.bandpath` for description of parameters.
+
+        >>> from ase.lattice import BCT
 
         >>> BCT(3, 5).bandpath()
         BandPath(path='GXYSGZS1NPY1Z,XP', cell=[3x3], \
@@ -221,7 +218,7 @@ special_points={GNPSS1XYY1Z}, kpts=[51x3])
         tokens = []
         if not spec:
             spec = '.6g'
-        template = '{}={:%s}' % spec
+        template = f'{{}}={{:{spec}}}'
 
         for name in self.parameters:
             value = self._parameters[name]

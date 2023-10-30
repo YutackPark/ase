@@ -98,17 +98,17 @@ class ACE(FileIOCalculator):
         FileIOCalculator.read(self, label)
         filename = self.label + ".log"
 
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             lines = fd.readlines()
         if 'WARNING' in lines:
             raise ReadError(
-                "Not convergy energy in log file {}.".format(filename))
+                f"Not convergy energy in log file {filename}.")
         if '! total energy' not in lines:
-            raise ReadError("Wrong ACE-Molecule log file {}.".format(filename))
+            raise ReadError(f"Wrong ACE-Molecule log file {filename}.")
 
         if not os.path.isfile(filename):
             raise ReadError(
-                "Wrong ACE-Molecule input file {}.".format(filename))
+                f"Wrong ACE-Molecule input file {filename}.")
 
         self.read_results()
 
@@ -126,7 +126,7 @@ class ACE(FileIOCalculator):
         '''
         FileIOCalculator.write_input(self, atoms, properties, system_changes)
         with open(self.label + '.inp', 'w') as inputfile:
-            xyz_name = "{}.xyz".format(self.label)
+            xyz_name = f"{self.label}.xyz"
             atoms.write(xyz_name)
 
             run_parameters = self.prepare_input(xyz_name, properties)
@@ -152,7 +152,7 @@ class ACE(FileIOCalculator):
                 and 'Force' not in copied_parameters['order']):
             copied_parameters['order'].append('Force')
         copied_parameters["BasicInformation"][0]["GeometryFilename"] = \
-            "{}.xyz".format(self.label)
+            f"{self.label}.xyz"
         copied_parameters["BasicInformation"][0]["GeometryFormat"] = "xyz"
         return copied_parameters
 
@@ -182,8 +182,7 @@ class ACE(FileIOCalculator):
         depth: Nested input depth.
         '''
         for section, section_param in section.items():
-            if isinstance(section_param, str) or isinstance(
-                    section_param, int) or isinstance(section_param, float):
+            if isinstance(section_param, (str, int, float)):
                 fpt.write(
                     '    ' *
                     depth +

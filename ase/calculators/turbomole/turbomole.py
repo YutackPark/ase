@@ -67,7 +67,7 @@ class Turbomole(FileIOCalculator):
     tm_tmp_files = [
         'errvec', 'fock', 'oldfock', 'dens', 'ddens', 'diff_densmat',
         'diff_dft_density', 'diff_dft_oper', 'diff_fockmat', 'diis_errvec',
-        'diis_oldfock'
+        'diis_oldfock', 'dh'
     ]
 
     # initialize attributes
@@ -230,7 +230,7 @@ class Turbomole(FileIOCalculator):
         if not self.atoms:
             raise RuntimeError('atoms missing during initialization')
         if not os.path.isfile('coord'):
-            raise IOError('file coord not found')
+            raise OSError('file coord not found')
 
         # run define
         define_str = self.parameters.get_define_str(len(self.atoms))
@@ -294,6 +294,8 @@ class Turbomole(FileIOCalculator):
             return
         self.initialize()
         jobex_command = ['jobex']
+        if self.parameters['transition vector']:
+            jobex_command.append('-trans')
         if self.parameters['use resolution of identity']:
             jobex_command.append('-ri')
         if self.parameters['force convergence']:

@@ -98,6 +98,8 @@ class Cell:
     def get_bravais_lattice(self, eps=2e-4, *, pbc=True):
         """Return :class:`~ase.lattice.BravaisLattice` for this cell:
 
+        >>> from ase.cell import Cell
+
         >>> cell = Cell.fromcellpar([4, 4, 4, 60, 60, 60])
         >>> print(cell.get_bravais_lattice())
         FCC(a=5.65685)
@@ -158,6 +160,9 @@ class Cell:
 
         Example
         -------
+
+        >>> from ase.cell import Cell
+
         >>> cell = Cell.fromcellpar([4, 4, 4, 60, 60, 60])
         >>> cell.bandpath('GXW', npoints=20)
         BandPath(path='GXW', cell=[3x3], special_points={GKLUWX}, kpts=[20x3])
@@ -300,7 +305,7 @@ class Cell:
         else:
             numbers = self.tolist()
 
-        return 'Cell({})'.format(numbers)
+        return f'Cell({numbers})'
 
     def niggli_reduce(self, eps=1e-5):
         """Niggli reduce this cell, returning a new cell and mapping.

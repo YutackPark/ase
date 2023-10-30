@@ -66,6 +66,8 @@ def cellpar_to_cell(cellpar, ab_normal=(0, 0, 1), a_direction=None):
 
     Example:
 
+    >>> from ase.geometry.cell import cellpar_to_cell
+
     >>> cell = cellpar_to_cell([1, 2, 4, 10, 20, 30], (0, 1, 1), (1, 2, 3))
     >>> np.round(cell, 3)
     array([[ 0.816, -0.408,  0.408],

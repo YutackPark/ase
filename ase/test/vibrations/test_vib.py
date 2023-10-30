@@ -168,7 +168,7 @@ def test_vibrations_methods(testdir, random_dimer):
     with open(logfilename, 'w') as fd:
         vib.summary(log=fd)
 
-    with open(logfilename, 'rt') as fd:
+    with open(logfilename) as fd:
         log_txt = fd.read()
         assert log_txt == '\n'.join(
             VibrationsData._tabulate_from_energies(vib_energies)) + '\n'
@@ -181,7 +181,7 @@ def test_vibrations_methods(testdir, random_dimer):
 
     vib.write_mode(n=3, nimages=5)
     for i in range(3):
-        assert not Path('vib.{}.traj'.format(i)).is_file()
+        assert not Path(f'vib.{i}.traj').is_file()
     mode_traj = ase.io.read('vib.3.traj', index=':')
     assert len(mode_traj) == 5
 

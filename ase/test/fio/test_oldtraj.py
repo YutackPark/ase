@@ -25,7 +25,7 @@ def write():
 
     b = Path('old.traj').read_bytes()
     data = b64encode(b)
-    print('data = {!r}  # noqa'.format(data))
+    print(f'data = {data!r}  # noqa')
 
 
 def test_oldtraj():

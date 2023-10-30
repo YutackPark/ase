@@ -11,7 +11,6 @@ class Kernel():
 
     def kernel(self, x1, x2):
         """Kernel function to be fed to the Kernel matrix"""
-        pass
 
     def K(self, X1, X2):
         """Compute the kernel matrix """

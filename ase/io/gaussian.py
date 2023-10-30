@@ -132,7 +132,7 @@ def _format_output_type(output_type):
     if output_type is None or output_type == '' or 't' in output_type.lower():
         output_type = 'P'
 
-    return '#{}'.format(output_type)
+    return f'#{output_type}'
 
 
 def _check_problem_methods(method):
@@ -161,9 +161,9 @@ def _pop_link0_params(params):
             continue
         val = params.pop(key)
         if not val or (isinstance(val, str) and key.lower() == val.lower()):
-            out.append('%{}'.format(key))
+            out.append(f'%{key}')
         else:
-            out.append('%{}={}'.format(key, val))
+            out.append(f'%{key}={val}')
 
     # These link0 keywords have a slightly different syntax
     for key in _link0_special:
@@ -172,7 +172,7 @@ def _pop_link0_params(params):
         val = params.pop(key)
         if not isinstance(val, str) and isinstance(val, Iterable):
             val = ' '.join(val)
-        out.append('%{} L{}'.format(key, val))
+        out.append(f'%{key} L{val}')
 
     return params, out
 
@@ -186,10 +186,10 @@ def _format_method_basis(output_type, method, basis, fitting_basis):
         output_string = '{} {}/{} ! ASE formatted method and basis'.format(
             output_type, method, basis)
     else:
-        output_string = '{}'.format(output_type)
+        output_string = f'{output_type}'
         for value in [method, basis]:
             if value is not None:
-                output_string += ' {}'.format(value)
+                output_string += f' {value}'
     return output_string
 
 
@@ -206,7 +206,7 @@ def _format_route_params(params):
         elif not isinstance(val, str) and isinstance(val, Iterable):
             out.append('{}({})'.format(key, ','.join(val)))
         else:
-            out.append('{}({})'.format(key, val))
+            out.append(f'{key}({val})')
     return out
 
 
@@ -234,7 +234,7 @@ def _format_basis_set(basis, basisfile, basis_set):
         if basisfile[0] == '@':
             out.append(basisfile)
         else:
-            with open(basisfile, 'r') as fd:
+            with open(basisfile) as fd:
                 out.append(fd.read())
     elif basis_set is not None:
         out.append(basis_set)
@@ -399,7 +399,7 @@ def write_gaussian_in(fd, atoms, properties=['energy'],
 
     # header, charge, and mult
     out += ['', 'Gaussian input prepared by ASE', '',
-            '{:.0f} {:.0f}'.format(charge, mult)]
+            f'{charge:.0f} {mult:.0f}']
 
     # make dict of nuclear properties:
     nuclear_props = {'spin': spinlist, 'zeff': zefflist, 'qmom': qmomlist,

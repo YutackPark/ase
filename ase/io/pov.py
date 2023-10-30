@@ -84,7 +84,7 @@ def set_high_bondorder_pairs(bondpairs, high_bondorder_pairs=None):
                           3rd value is bond_offset """
 
     if high_bondorder_pairs is None:
-        high_bondorder_pairs = dict()
+        high_bondorder_pairs = {}
     bondpairs_ = []
     for pair in bondpairs:
         (a, b) = (pair[0], pair[1])
@@ -149,7 +149,7 @@ class POVRAY:
     )
 
     def __init__(self, cell, cell_vertices, positions, diameters, colors,
-                 image_width, image_height, constraints=tuple(), isosurfaces=[],
+                 image_width, image_height, constraints=(), isosurfaces=[],
                  display=False, pause=True, transparent=True, canvas_width=None,
                  canvas_height=None, camera_dist=50., image_plane=None,
                  camera_type='orthographic', point_lights=[],
@@ -381,7 +381,7 @@ Verbose=False
                         continue
 
                     cell_vertices += f'cylinder {{{pa(p1)}, {pa(p2)}, '\
-                                     f'Rcell pigment {{Black}}}}\n'
+                                     'Rcell pigment {Black}}\n'
                     # all strings are f-strings for consistency
             cell_vertices = cell_vertices.strip('\n')
 

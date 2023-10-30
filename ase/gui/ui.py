@@ -420,7 +420,7 @@ class MenuItem:
 
         if key:
             if key[:4] == 'Ctrl':
-                self.keyname = '<Control-{0}>'.format(key[-1].lower())
+                self.keyname = f'<Control-{key[-1].lower()}>'
             else:
                 self.keyname = {
                     'Home': '<Home>',
@@ -587,7 +587,7 @@ class ASEFileChooser(LoadFileDialog):
 
 def show_io_error(filename, err):
     showerror(_('Read error'),
-              _('Could not read {}: {}'.format(filename, err)))
+              _(f'Could not read {filename}: {err}'))
 
 
 class ASEGUIWindow(MainWindow):
@@ -614,13 +614,13 @@ class ASEGUIWindow(MainWindow):
         right = mouse_buttons.get(3, 3)
         self.canvas.bind('<ButtonPress>', bind(press))
         self.canvas.bind('<B1-Motion>', bind(move))
-        self.canvas.bind('<B{right}-Motion>'.format(right=right), bind(move))
+        self.canvas.bind(f'<B{right}-Motion>', bind(move))
         self.canvas.bind('<ButtonRelease>', bind(release))
         self.canvas.bind('<Control-ButtonRelease>', bind(release, 'ctrl'))
         self.canvas.bind('<Shift-ButtonRelease>', bind(release, 'shift'))
         self.canvas.bind('<Configure>', resize)
         if not config['swap_mouse']:
-            self.canvas.bind('<Shift-B{right}-Motion>'.format(right=right),
+            self.canvas.bind(f'<Shift-B{right}-Motion>',
                              bind(scroll))
         else:
             self.canvas.bind('<Shift-B1-Motion>',

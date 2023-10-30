@@ -94,7 +94,7 @@ class View:
         self.colors = {}
 
         for i, rgb in enumerate(jmol_colors):
-            self.colors[i] = ('#{0:02X}{1:02X}{2:02X}'
+            self.colors[i] = ('#{:02X}{:02X}{:02X}'
                               .format(*(int(x * 255) for x in rgb)))
 
         # scaling factors for vectors
@@ -206,7 +206,7 @@ class View:
             self.labels = list(get_magmoms(self.atoms))
         elif index == 4:
             Q = self.atoms.get_initial_charges()
-            self.labels = ['{0:.4g}'.format(q) for q in Q]
+            self.labels = [f'{q:.4g}' for q in Q]
         else:
             self.labels = self.atoms.get_chemical_symbols()
 
@@ -554,8 +554,8 @@ class View:
 
     def draw_frame_number(self):
         x, y = self.window.size
-        self.window.text(x, y, '{0}/{1}'.format(self.frame + 1,
-                                                len(self.images)),
+        self.window.text(x, y, '{}/{}'.format(self.frame + 1,
+                                              len(self.images)),
                          anchor='SE')
 
     def release(self, event):

@@ -9,7 +9,7 @@ def check_potcar(setups, filename='POTCAR'):
     """Return true if labels in setups are found in POTCAR"""
 
     pp = []
-    with open(filename, 'r') as fd:
+    with open(filename) as fd:
         for line in fd:
             if 'TITEL' in line.split():
                 pp.append(line.split()[3])

@@ -54,7 +54,7 @@ def git_role_tmpl(urlroot,
     path = os.path.join('..', text)
     do_exists = os.path.exists(path)
     if not (is_tag or do_exists):
-        msg = 'Broken link: {}: Non-existing path: {}'.format(rawtext, path)
+        msg = f'Broken link: {rawtext}: Non-existing path: {path}'
         msg = inliner.reporter.error(msg, line=lineno)
         prb = inliner.problematic(rawtext, rawtext, msg)
         return [prb], [msg]

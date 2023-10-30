@@ -86,12 +86,14 @@ def fixture_kwargs(optcls):
     kwargs = {}
 
 
+@pytest.mark.optimize
 @pytest.mark.filterwarnings("ignore: estimate_mu")
 def test_optimize(optcls, atoms, ref_atoms, kwargs):
     """Test if forces can be converged using the optimizer."""
     fmax = 0.01
     with optcls(atoms, **kwargs) as opt:
-        opt.run(fmax=fmax)
+        is_converged = opt.run(fmax=fmax)
+    assert is_converged  # check if opt.run() returns True when converged
 
     forces = atoms.get_forces()
     final_fmax = max((forces**2).sum(axis=1) ** 0.5)
@@ -106,6 +108,7 @@ def test_optimize(optcls, atoms, ref_atoms, kwargs):
     assert e_err < 1.75e-5  # (This tolerance is arbitrary)
 
 
+@pytest.mark.optimize
 def test_unconverged(optcls, atoms, kwargs):
     """Test if things work properly when forces are not converged."""
     fmax = 1e-9  # small value to not get converged

@@ -77,18 +77,18 @@ class SciPyOptimizer(Optimizer):
 
         This class is mostly usable for subclasses wanting to redefine the
         parameters (and the objective function)"""
-        return self.atoms.get_positions().reshape(-1)
+        return self.optimizable.get_positions().reshape(-1)
 
     def f(self, x):
         """Objective function for use of the optimizers"""
-        self.atoms.set_positions(x.reshape(-1, 3))
+        self.optimizable.set_positions(x.reshape(-1, 3))
         # Scale the problem as SciPy uses I as initial Hessian.
-        return (self.atoms.get_potential_energy(
+        return (self.optimizable.get_potential_energy(
                 force_consistent=self.force_consistent) / self.H0)
 
     def fprime(self, x):
         """Gradient of the objective function for use of the optimizers"""
-        self.atoms.set_positions(x.reshape(-1, 3))
+        self.optimizable.set_positions(x.reshape(-1, 3))
         self.force_calls += 1
 
         if self.callback_always:
@@ -96,7 +96,7 @@ class SciPyOptimizer(Optimizer):
 
         # Remember that forces are minus the gradient!
         # Scale the problem as SciPy uses I as initial Hessian.
-        return - self.atoms.get_forces().reshape(-1) / self.H0
+        return - self.optimizable.get_forces().reshape(-1) / self.H0
 
     def callback(self, x):
         """Callback function to be run after each iteration by SciPy
@@ -109,7 +109,7 @@ class SciPyOptimizer(Optimizer):
         optimisation is complete. This will be silently ignored by
         :meth:`run`().
         """
-        f = self.atoms.get_forces()
+        f = self.optimizable.get_forces()
         self.log(f)
         self.call_observers()
         if self.converged(f):
@@ -127,6 +127,7 @@ class SciPyOptimizer(Optimizer):
             self.call_fmin(fmax / self.H0, steps)
         except Converged:
             pass
+        return self.converged()
 
     def dump(self, data):
         pass
@@ -244,14 +245,14 @@ class SciPyGradientlessOptimizer(Optimizer):
 
         This class is mostly usable for subclasses wanting to redefine the
         parameters (and the objective function)"""
-        return self.atoms.get_positions().reshape(-1)
+        return self.optimizable.get_positions().reshape(-1)
 
     def f(self, x):
         """Objective function for use of the optimizers"""
-        self.atoms.set_positions(x.reshape(-1, 3))
+        self.optimizable.set_positions(x.reshape(-1, 3))
         self.function_calls += 1
         # Scale the problem as SciPy uses I as initial Hessian.
-        return self.atoms.get_potential_energy(
+        return self.optimizable.get_potential_energy(
             force_consistent=self.force_consistent)
 
     def callback(self, x):
@@ -262,7 +263,7 @@ class SciPyGradientlessOptimizer(Optimizer):
         call something similar before as well.
         """
         # We can't assume that forces are available!
-        # f = self.atoms.get_forces()
+        # f = self.optimizable.get_forces()
         # self.log(f)
         self.call_observers()
         # if self.converged(f):
@@ -281,6 +282,7 @@ class SciPyGradientlessOptimizer(Optimizer):
             self.call_fmin(xtol, ftol, steps)
         except Converged:
             pass
+        return self.converged()
 
     def dump(self, data):
         pass
@@ -288,7 +290,7 @@ class SciPyGradientlessOptimizer(Optimizer):
     def load(self):
         pass
 
-    def call_fmin(self, fmax, steps):
+    def call_fmin(self, xtol, ftol, steps):
         raise NotImplementedError
 
 

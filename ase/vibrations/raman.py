@@ -289,11 +289,11 @@ class RamanData(RamanBase):
         elif te > -2 and te < 3:
             ts = str(10**te)
         else:
-            ts = '10^{0}'.format(te)
+            ts = f'10^{te}'
 
         print('-------------------------------------', file=log)
         print(' Mode    Frequency        Intensity', file=log)
-        print('  #    meV     cm^-1      [{0}A^4/amu]'.format(ts), file=log)
+        print(f'  #    meV     cm^-1      [{ts}A^4/amu]', file=log)
         print('-------------------------------------', file=log)
         for n, e in enumerate(hnu):
             if e.imag != 0:

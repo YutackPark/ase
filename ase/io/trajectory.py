@@ -10,7 +10,6 @@ from ase import __version__
 from ase.atoms import Atoms
 from ase.calculators.calculator import PropertyNotImplementedError
 from ase.calculators.singlepoint import SinglePointCalculator, all_properties
-from ase.constraints import dict2constraint
 from ase.io.formats import is_compressed
 from ase.io.jsonio import decode, encode
 from ase.io.pickletrajectory import PickleTrajectory
@@ -200,7 +199,7 @@ class TrajectoryWriter:
             try:
                 encode(value)
             except TypeError:
-                warnings.warn('Skipping "{0}" info.'.format(key))
+                warnings.warn(f'Skipping "{key}" info.')
             else:
                 info[key] = value
         if info:
@@ -245,7 +244,7 @@ class TrajectoryReader:
     def _read_header(self):
         b = self.backend
         if b.get_tag() != 'ASE-Trajectory':
-            raise IOError('This is not a trajectory file!')
+            raise OSError('This is not a trajectory file!')
 
         if len(b) > 0:
             self.pbc = b.pbc
@@ -343,6 +342,7 @@ def read_atoms(backend,
                header: Tuple = None,
                traj: TrajectoryReader = None,
                _try_except: bool = True) -> Atoms:
+    from ase.constraints import dict2constraint
 
     if _try_except:
         try:

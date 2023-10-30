@@ -702,25 +702,34 @@ def get_connectivity_matrix(nl, sparse=True):
 
     Determine which molecule in a system atom 1 belongs to.
 
-    >>> from ase import neighborlist
-    >>> from ase.build import molecule
     >>> from scipy import sparse
+
+    >>> from ase.build import molecule
+    >>> from ase.neighborlist import get_connectivity_matrix
+    >>> from ase.neighborlist import natural_cutoffs
+    >>> from ase.neighborlist import NeighborList
+
     >>> mol = molecule('CH3CH2OH')
-    >>> cutOff = neighborlist.natural_cutoffs(mol)
-    >>> neighborList = neighborlist.NeighborList(
-    ...     cutOff, self_interaction=False, bothways=True)
-    >>> neighborList.update(mol)
-    >>> matrix = neighborList.get_connectivity_matrix()
-    >>> #or: matrix = neighborlist.get_connectivity_matrix(neighborList.nl)
+    >>> cutoffs = natural_cutoffs(mol)
+    >>> neighbor_list = NeighborList(
+    ...     cutoffs, self_interaction=False, bothways=True)
+    >>> neighbor_list.update(mol)
+    True
+
+    >>> matrix = neighbor_list.get_connectivity_matrix()
+    >>> # or: matrix = get_connectivity_matrix(neighbor_list.nl)
     >>> n_components, component_list = sparse.csgraph.connected_components(
     ...    matrix)
     >>> idx = 1
     >>> molIdx = component_list[idx]
     >>> print("There are {} molecules in the system".format(n_components))
+    There are 1 molecules in the system
     >>> print("Atom {} is part of molecule {}".format(idx, molIdx))
+    Atom 1 is part of molecule 0
     >>> molIdxs = [i for i in range(len(component_list))
     ...            if component_list[i] == molIdx]
     >>> print("Atoms are part of molecule {}: {}".format(molIdx, molIdxs))
+    Atoms are part of molecule 0: [0, 1, 2, 3, 4, 5, 6, 7, 8]
     """
 
     nAtoms = len(nl.cutoffs)
@@ -763,11 +772,16 @@ class NewPrimitiveNeighborList:
         Return all neighbors.  Default is to return only "half" of
         the neighbors.
 
-    Example::
+    Example:
 
-      nl = NeighborList([2.3, 1.7])
-      nl.update(atoms)
-      indices, offsets = nl.get_neighbors(0)
+    >>> from ase.build import bulk
+    >>> from ase.neighborlist import NewPrimitiveNeighborList
+
+    >>> nl = NewPrimitiveNeighborList([2.3, 1.7])
+    >>> atoms = bulk('Cu', 'fcc', a=3.6)
+    >>> nl.update(atoms.pbc, atoms.get_cell(), atoms.positions)
+    True
+    >>> indices, offsets = nl.get_neighbors(0)
     """
 
     def __init__(self, cutoffs, skin=0.3, sorted=False, self_interaction=True,
@@ -846,9 +860,19 @@ class NewPrimitiveNeighborList:
         returned.  The positions of the neighbor atoms can be
         calculated like this:
 
-        >>>  indices, offsets = nl.get_neighbors(42)
-        >>>  for i, offset in zip(indices, offsets):
-        >>>      print(atoms.positions[i] + dot(offset, atoms.get_cell()))
+        >>> from ase.build import bulk
+        >>> from ase.neighborlist import NewPrimitiveNeighborList
+
+        >>> nl = NewPrimitiveNeighborList([2.3, 1.7])
+        >>> atoms = bulk('Cu', 'fcc', a=3.6)
+        >>> nl.update(atoms.pbc, atoms.get_cell(), atoms.positions)
+        True
+        >>> indices, offsets = nl.get_neighbors(0)
+        >>> for i, offset in zip(indices, offsets):
+        ...     print(
+        ...           atoms.positions[i] + offset @ atoms.get_cell()
+        ...     )  # doctest: +ELLIPSIS
+        [3.6 ... 0. ]
 
         Notice that if get_neighbors(a) gives atom b as a neighbor,
         then get_neighbors(b) will not return a as a neighbor - unless
@@ -904,7 +928,7 @@ class PrimitiveNeighborList:
         self.coordinates = coordinates = np.array(coordinates, copy=True)
 
         if len(self.cutoffs) != len(coordinates):
-            raise ValueError('Wrong number of cutoff radii: {0} != {1}'
+            raise ValueError('Wrong number of cutoff radii: {} != {}'
                              .format(len(self.cutoffs), len(coordinates)))
 
         if len(self.cutoffs) > 0:
@@ -1010,11 +1034,21 @@ class PrimitiveNeighborList:
 
         A list of indices and offsets to neighboring atoms is
         returned.  The positions of the neighbor atoms can be
-        calculated like this::
+        calculated like this:
 
-          indices, offsets = nl.get_neighbors(42)
-          for i, offset in zip(indices, offsets):
-              print(atoms.positions[i] + offset @ atoms.get_cell())
+        >>> from ase.build import bulk
+        >>> from ase.neighborlist import NewPrimitiveNeighborList
+
+        >>> nl = NewPrimitiveNeighborList([2.3, 1.7])
+        >>> atoms = bulk('Cu', 'fcc', a=3.6)
+        >>> nl.update(atoms.pbc, atoms.get_cell(), atoms.positions)
+        True
+        >>> indices, offsets = nl.get_neighbors(0)
+        >>> for i, offset in zip(indices, offsets):
+        ...     print(
+        ...           atoms.positions[i] + offset @ atoms.get_cell()
+        ...     )  # doctest: +ELLIPSIS
+        [3.6 ... 0. ]
 
         Notice that if get_neighbors(a) gives atom b as a neighbor,
         then get_neighbors(b) will not return a as a neighbor - unless
@@ -1050,11 +1084,16 @@ class NeighborList:
         :class:`~ase.neighborlist.PrimitiveNeighborList` or newer and
         linearly-scaling :class:`~ase.neighborlist.NewPrimitiveNeighborList`.
 
-    Example::
+    Example:
 
-      nl = NeighborList([2.3, 1.7])
-      nl.update(atoms)
-      indices, offsets = nl.get_neighbors(0)
+    >>> from ase.build import molecule
+    >>> from ase.neighborlist import NeighborList
+
+    >>> atoms = molecule("CO")
+    >>> nl = NeighborList([0.76, 0.66])
+    >>> nl.update(atoms)
+    True
+    >>> indices, offsets = nl.get_neighbors(0)
 
     """
 

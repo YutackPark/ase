@@ -135,7 +135,7 @@ class MySQLDatabase(SQLite3Database):
 
     def __init__(self, url=None, create_indices=True,
                  use_lock_file=False, serial=False):
-        super(MySQLDatabase, self).__init__(
+        super().__init__(
             url, create_indices, use_lock_file, serial)
 
         self.host = None
@@ -209,7 +209,7 @@ class MySQLDatabase(SQLite3Database):
     def blob(self, array):
         if array is None:
             return None
-        return super(MySQLDatabase, self).blob(array).tobytes()
+        return super().blob(array).tobytes()
 
     def get_offset_string(self, offset, limit=None):
         sql = ''
@@ -217,7 +217,7 @@ class MySQLDatabase(SQLite3Database):
             # mysql does not allow for setting limit to -1 so
             # instead we set a large number
             sql += '\nLIMIT 10000000000'
-        sql += '\nOFFSET {0}'.format(offset)
+        sql += f'\nOFFSET {offset}'
         return sql
 
     def get_last_id(self, cur):
@@ -228,7 +228,7 @@ class MySQLDatabase(SQLite3Database):
     def create_select_statement(self, keys, cmps,
                                 sort=None, order=None, sort_table=None,
                                 what='systems.*'):
-        sql, value = super(MySQLDatabase, self).create_select_statement(
+        sql, value = super().create_select_statement(
             keys, cmps, sort, order, sort_table, what)
 
         for subst in MySQLCursor.sql_replace:
@@ -263,8 +263,8 @@ def schema_update(statements):
 
     for column in txt2jsonb:
         statements[0] = statements[0].replace(
-            '{} TEXT,'.format(column),
-            '{} JSON,'.format(column))
+            f'{column} TEXT,',
+            f'{column} JSON,')
 
     statements[0] = statements[0].replace('data BLOB,', 'data JSON,')
 

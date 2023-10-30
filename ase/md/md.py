@@ -105,6 +105,11 @@ class MolecularDynamics(Dynamics):
 
         Dynamics.__init__(self, atoms, logfile=None, trajectory=None)
 
+        # Are the atoms always Atoms, or can they be filter?
+        # We assume here they are always Atoms
+        from ase import Atoms
+        assert isinstance(atoms, Atoms)
+        self.atoms = atoms
         self.masses = self.atoms.get_masses()
         self.max_steps = 0  # to be updated in run or irun
 

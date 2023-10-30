@@ -207,11 +207,11 @@ def find_all_niggli_ops(length_grid, angle_grid, lattices=None):
 
     for latname in lattices:
         latcls = bravais_lattices[latname]
-        print('Working on {}...'.format(latname))
+        print(f'Working on {latname}...')
         niggli_ops = find_niggli_ops(latcls, length_grid, angle_grid)
-        print('Found {} ops for {}'.format(len(niggli_ops), latname))
+        print(f'Found {len(niggli_ops)} ops for {latname}')
         for key, count in niggli_ops.items():
-            print('  {:>40}: {}'.format(str(np.array(key)), count))
+            print(f'  {str(np.array(key)):>40}: {count}')
         print()
         all_niggli_ops[latname] = niggli_ops
     return all_niggli_ops

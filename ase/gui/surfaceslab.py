@@ -68,13 +68,13 @@ class SetupSurfaceSlab:
         win.add([_('Structure:'), self.structure, self.structure_warn])
         win.add([_('Orthogonal cell:'), self.orthogonal])
         win.add([_('Lattice constant:')])
-        win.add([_('\ta'), self.lattice_a, (u'Å'), self.retrieve])
-        win.add([_('\tc'), self.lattice_c, (u'Å')])
+        win.add([_('\ta'), self.lattice_a, ('Å'), self.retrieve])
+        win.add([_('\tc'), self.lattice_c, ('Å')])
         win.add([_('Size:')])
         win.add([_('\tx: '), self.x, _(' unit cells'), self.x_warn])
         win.add([_('\ty: '), self.y, _(' unit cells'), self.y_warn])
         win.add([_('\tz: '), self.z, _(' unit cells')])
-        win.add([_('Vacuum: '), self.vacuum_check, self.vacuum, (u'Å')])
+        win.add([_('Vacuum: '), self.vacuum_check, self.vacuum, ('Å')])
         win.add(self.description)
         # TRANSLATORS: This is a title of a window.
         win.add([pybutton(_('Creating a surface.'), self.make),
@@ -187,7 +187,7 @@ class SetupSurfaceSlab:
                 c_py = ""
                 if surface[1] == _('hcp'):
                     self.atoms = surface[3](symbol, size, a, c, vacuum, ortho)
-                    c_py = "{}, ".format(c)
+                    c_py = f"{c}, "
                 else:
                     self.atoms = surface[3](symbol, size, a, vacuum, ortho)
 

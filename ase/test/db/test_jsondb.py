@@ -4,7 +4,7 @@ def test_jsondb():
 
     from ase.io import read, write
 
-    s = u"""
+    s = """
     {"1":
          {"numbers": [1, 1],
           "positions": [[0.0, 0.0, 0.35],

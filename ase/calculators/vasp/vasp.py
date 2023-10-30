@@ -493,7 +493,7 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
             file = self._indir(f)
             if not file.is_file():
                 raise calculator.ReadError(
-                    'VASP outputfile {} was not found'.format(file))
+                    f'VASP outputfile {file} was not found')
 
         # Build sorting and resorting lists
         self.read_sort()
@@ -521,7 +521,7 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
         if os.path.isfile(sortfile):
             self.sort = []
             self.resort = []
-            with open(sortfile, 'r') as fd:
+            with open(sortfile) as fd:
                 for line in fd:
                     sort, resort = line.split()
                     self.sort.append(int(sort))
@@ -657,7 +657,7 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
         >>> outcar = calc.load_file('OUTCAR')  # doctest: +SKIP
         """
         filename = self._indir(filename)
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             return fd.readlines()
 
     @contextmanager
@@ -665,7 +665,7 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
         """Return a file iterator"""
 
         filename = self._indir(filename)
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             yield fd
 
     def read_outcar(self, lines=None):
@@ -717,8 +717,8 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
     @property
     def _xml_calc(self) -> SinglePointDFTCalculator:
         if self.__xml_calc is None:
-            raise RuntimeError(('vasprun.xml data has not yet been loaded. '
-                                'Run read_results() first.'))
+            raise RuntimeError('vasprun.xml data has not yet been loaded. '
+                               'Run read_results() first.')
         return self.__xml_calc
 
     @_xml_calc.setter
@@ -989,9 +989,9 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
                     or (p['lorbit'] is None and q['rwigs'])):
                 magnetic_moments = self._read_magnetic_moments(lines=lines)
             else:
-                warn(('Magnetic moment data not written in OUTCAR (LORBIT<10),'
-                      ' setting magnetic_moments to zero.\nSet LORBIT>=10'
-                      ' to get information on magnetic moments'))
+                warn('Magnetic moment data not written in OUTCAR (LORBIT<10),'
+                     ' setting magnetic_moments to zero.\nSet LORBIT>=10'
+                     ' to get information on magnetic moments')
                 magnetic_moments = np.zeros(len(self.atoms))
         else:
             magnetic_moment = 0.0
@@ -1080,8 +1080,8 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
                     continue
         # Then if ibrion in [1,2,3] check whether ionic relaxation
         # condition been fulfilled
-        if ((self.int_params['ibrion'] in [1, 2, 3]
-             and self.int_params['nsw'] not in [0])):
+        if (self.int_params['ibrion'] in [1, 2, 3]
+                and self.int_params['nsw'] not in [0]):
             if not self.read_relaxed():
                 converged = False
             else:
@@ -1338,5 +1338,5 @@ def check_atoms_type(atoms: ase.Atoms) -> None:
     """
     if not isinstance(atoms, ase.Atoms):
         raise calculator.CalculatorSetupError(
-            ('Expected an Atoms object, '
-             'instead got object of type {}'.format(type(atoms))))
+            'Expected an Atoms object, '
+            'instead got object of type {}'.format(type(atoms)))

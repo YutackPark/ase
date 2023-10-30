@@ -94,7 +94,7 @@ pairing.update_scaling_volume(current_pop, w_adapt=0.5, n_adapt=4)
 n_to_test = 50
 
 for step in range(n_to_test):
-    print('Now starting configuration number {0}'.format(step))
+    print(f'Now starting configuration number {step}')
 
     # Create a new candidate
     a3 = None

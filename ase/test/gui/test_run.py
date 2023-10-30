@@ -201,10 +201,10 @@ def test_povray(gui, testdir):
     assert ini.is_file()
     assert pov.is_file()
 
-    with open(ini, 'r') as _:
+    with open(ini) as _:
         _ = _.read()
         assert 'H2O' in _
-    with open(pov, 'r') as _:
+    with open(pov) as _:
         _ = _.read()
         assert 'atom' in _
 

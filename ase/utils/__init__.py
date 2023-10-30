@@ -80,6 +80,8 @@ def seterr(**kwargs):
 def plural(n, word):
     """Use plural for n!=1.
 
+    >>> from ase.utils import plural
+
     >>> plural(0, 'egg'), plural(1, 'egg'), plural(2, 'egg')
     ('0 eggs', '1 egg', '2 eggs')
     """
@@ -303,7 +305,7 @@ def search_current_git_hash(arg, world=None):
     HEAD_file = os.path.join(git_dpath, 'HEAD')
     if not os.path.isfile(HEAD_file):
         return None
-    with open(HEAD_file, 'r') as fd:
+    with open(HEAD_file) as fd:
         line = fd.readline().strip()
     if line.startswith('ref: '):
         ref = line[5:]
@@ -313,7 +315,7 @@ def search_current_git_hash(arg, world=None):
         ref_file = HEAD_file
     if not os.path.isfile(ref_file):
         return None
-    with open(ref_file, 'r') as fd:
+    with open(ref_file) as fd:
         line = fd.readline().strip()
     if all(c in string.hexdigits for c in line):
         return line
@@ -663,4 +665,4 @@ def get_python_package_path_description(
         else:
             return default
     except Exception as ex:
-        return "{:} ({:})".format(default, ex)
+        return f"{default} ({ex})"
