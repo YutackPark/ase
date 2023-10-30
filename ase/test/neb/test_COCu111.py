@@ -1,5 +1,6 @@
-import pytest
 from math import sqrt
+
+import pytest
 
 from ase import Atom, Atoms
 from ase.calculators.emt import EMT

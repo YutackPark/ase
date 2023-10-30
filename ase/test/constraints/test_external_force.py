@@ -1,5 +1,5 @@
-from numpy.linalg import norm
 import pytest
+from numpy.linalg import norm
 
 from ase import Atoms
 from ase.calculators.emt import EMT
