@@ -108,10 +108,6 @@ class DMol3(FileIOCalculator):
         # tracks if DMol transformed coordinate system
         self.internal_transformation = False
 
-        if 'DMOL_COMMAND' in self.cfg:
-            command = self.cfg['DMOL_COMMAND'] + ' PREFIX > PREFIX.out'
-        else:
-            command = None
 
     def write_input(self, atoms, properties=None, system_changes=None):
 
