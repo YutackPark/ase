@@ -3,15 +3,15 @@ def test_mixingcalc():
     """This test checks the basic functionality of the MixingCalculators.
     The example system is based on the SinglePointCalculator test case.
     """
-    import pytest
     import numpy as np
+    import pytest
 
     from ase.build import fcc111
-    from ase.calculators.emt import EMT
-    from ase.calculators.mixing import (
-        SumCalculator, LinearCombinationCalculator, AverageCalculator,
-        MixedCalculator)
     from ase.calculators.calculator import CalculatorSetupError
+    from ase.calculators.emt import EMT
+    from ase.calculators.mixing import (AverageCalculator,
+                                        LinearCombinationCalculator,
+                                        MixedCalculator, SumCalculator)
     from ase.constraints import FixAtoms
 
     # Calculate reference values:

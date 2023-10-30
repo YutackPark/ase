@@ -1,5 +1,6 @@
 """Tests for `bulk`"""
 import pytest
+
 from ase.build import bulk
 from ase.data import chemical_symbols, reference_states
 

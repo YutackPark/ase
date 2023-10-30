@@ -9,6 +9,13 @@ Git master branch
 
 :git:`master <>`.
 
+* All saddle-point search and minimum-energy path methods have been moved
+  into a new :mod:`ase.mep` module. You should start importing from this
+  location; e.g., `from ase.mep import NEB, DyNEB` (:mr:`2974`).
+
+* Fix :meth:`ase.constraints.FixCom.adjust_momenta` to have no center-of-mass
+  momentum (:mr:`2947`)
+
 * :func:`ase.build.surface.graphene` now takes a `thickness` argument
   (:mr:`2963`)
 
@@ -92,6 +99,9 @@ Git master branch
 
 * Fix conservation of momentum in :class:`ase.md.langevin.Langevin`
   (:mr:`2632`)
+
+* Fix bug in :class:`ase.vibrations.Vibrations` causing property
+  calculations to always use the default method (:mr:`3012`)
 
 Calculators:
 
@@ -187,6 +197,19 @@ Calculators:
 .. _Plumed: https://www.plumed.org/
 .. _MOPAC: https://doi.org/10.5281/zenodo.6511958
 
+* :class:`ase.calculators.nwchem.NWChem` now supports
+  making initial guesses for wavefunctions using smaller basis
+  sets and faster theories
+
+* :class:`ase.calculators.nwchem.NWChem` added support for
+  direct and RI-MP2 computations.
+
+Algorithms:
+
+* Change :func:`ase.optimize.optimize.Dynamics.irun` so that it yields its
+  convergence status *after* logging and dumping for the corresponding step
+  (:mr:`3072`)
+
 Optimizers:
 
 * Add :class:`ase.optimize.climbfixinternals.ClimbFixInternals` class for
@@ -200,12 +223,21 @@ Optimizers:
 * Fixed a bug when `PreconImages` is initialized with a list of `precon` objects
   in :class:`ase.optimize.precon.precon.PreconImages`
 
+* :class:`ase.optimize.mdmin.MDMin` now takes in a `maxstep` parameter that
+  directly restricts how much atoms can move in a single optimization step.
+
 Thermochemistry:
 
 * All thermochemistry modules now sort the vibrational energies before
   cutting them down to the physically appropriate amount.
 
 I/O:
+
+* Add support for reading POSCAR files with negative and multiple scaling
+  factors in :func:`ase.io.vasp.read_vasp` (:mr:`3029`)
+
+* Fix parsing of dipole moment in :mod:`ase.io.nwchem` from output files
+  with trailing spaces (:mr:`3018`)
 
 * Fix to read and write a compressed trajectory file like `xxx.traj.gz`
   (:mr:`2997`)

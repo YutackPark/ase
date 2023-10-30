@@ -1,9 +1,10 @@
 import pytest
+
 from ase.build import molecule
-from ase.constraints import MirrorForce, FixBondLength, MirrorTorque
-from ase.constraints import ExternalForce
-from ase.optimize import FIRE
 from ase.calculators.emt import EMT
+from ase.constraints import (ExternalForce, FixBondLength, MirrorForce,
+                             MirrorTorque)
+from ase.optimize import FIRE
 
 
 @pytest.mark.optimize

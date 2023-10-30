@@ -1,10 +1,11 @@
 import pytest
 from math import sqrt
-from ase import Atoms, Atom
-from ase.constraints import FixAtoms
+
+from ase import Atom, Atoms
 from ase.calculators.emt import EMT
-from ase.optimize import QuasiNewton
+from ase.constraints import FixAtoms
 from ase.io import read
+from ase.optimize import QuasiNewton
 from ase.visualize import view
 
 

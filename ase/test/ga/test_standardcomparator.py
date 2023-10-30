@@ -1,11 +1,11 @@
 def test_standardcomparator():
-    from ase.ga.standard_comparators import (
-        InteratomicDistanceComparator,
-        EnergyComparator, RawScoreComparator,
-        SequentialComparator)
     from ase import Atoms
     from ase.calculators.singlepoint import SinglePointCalculator
     from ase.ga import set_raw_score
+    from ase.ga.standard_comparators import (EnergyComparator,
+                                             InteratomicDistanceComparator,
+                                             RawScoreComparator,
+                                             SequentialComparator)
 
     a1 = Atoms('AgAgAg', positions=[[0, 0, 0], [1.5, 0, 0], [1.5, 1.5, 0]])
     a2 = Atoms('AgAgAg', positions=[[0, 0, 0], [1.4, 0, 0], [1.5, 1.5, 0]])

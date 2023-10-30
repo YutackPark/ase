@@ -1,6 +1,9 @@
+from typing import IO, Optional, Union
+
 import numpy as np
 
-from ase.optimize.sciopt import SciPyOptimizer, OptimizerConvergenceError
+from ase import Atoms
+from ase.optimize.sciopt import OptimizerConvergenceError, SciPyOptimizer
 
 
 def ode12r(f, X0, h=None, verbose=1, fmax=1e-6, maxtol=1e3, steps=100,
@@ -64,7 +67,6 @@ def ode12r(f, X0, h=None, verbose=1, fmax=1e-6, maxtol=1e3, steps=100,
     if callback is None:
         def callback(X):
             pass
-    callback(X)
 
     if residual is None:
         def residual(F, X):
@@ -172,23 +174,31 @@ def ode12r(f, X0, h=None, verbose=1, fmax=1e-6, maxtol=1e3, steps=100,
             raise OptimizerConvergenceError('ODE12r terminates unsuccessfully'
                                             f' Step size {h} too small')
 
-    raise OptimizerConvergenceError(f'ODE12r terminates unsuccessfully after '
-                                    f'{steps} iterations.')
-
 
 class ODE12r(SciPyOptimizer):
     """
     Optimizer based on adaptive ODE solver :func:`ode12r`
     """
 
-    def __init__(self, atoms, logfile='-', trajectory=None,
-                 callback_always=False, alpha=1.0, master=None,
-                 force_consistent=None, precon=None, verbose=0, rtol=1e-2):
+    def __init__(
+        self,
+        atoms: Atoms,
+        logfile: Union[IO, str] = '-',
+        trajectory: Optional[str] = None,
+        callback_always: bool = False,
+        alpha: float = 1.0,
+        master: Optional[bool] = None,
+        force_consistent: Optional[bool] = None,
+        precon: Optional[str] = None,
+        verbose: int = 0,
+        rtol: float = 1e-2,
+    ):
         SciPyOptimizer.__init__(self, atoms, logfile, trajectory,
                                 callback_always, alpha, master,
                                 force_consistent)
         self._actual_atoms = atoms
-        from ase.optimize.precon.precon import make_precon  # avoid circular dep
+        from ase.optimize.precon.precon import \
+            make_precon  # avoid circular dep
         self.precon = make_precon(precon)
         self.verbose = verbose
         self.rtol = rtol

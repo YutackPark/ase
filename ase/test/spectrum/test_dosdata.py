@@ -1,7 +1,8 @@
 from collections import OrderedDict
+from typing import Any, List, Tuple
+
 import numpy as np
 import pytest
-from typing import List, Tuple, Any
 
 from ase.spectrum.dosdata import DOSData, GridDOSData, RawDOSData
 

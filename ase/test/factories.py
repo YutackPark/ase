@@ -1,13 +1,13 @@
 import configparser
 import os
-from pathlib import Path
 import re
+from pathlib import Path
 from typing import Mapping
 
 import pytest
 
-from ase.calculators.calculator import (names as calculator_names,
-                                        get_calculator_class)
+from ase.calculators.calculator import get_calculator_class
+from ase.calculators.calculator import names as calculator_names
 from ase.calculators.genericfileio import read_stdout
 
 
@@ -136,7 +136,7 @@ class AsapFactory:
     def fromconfig(cls, config):
         # XXXX TODO Clean this up.  Copy of GPAW.
         # How do we design these things?
-        import importlib
+        import importlib.util
         spec = importlib.util.find_spec('asap3')
         if spec is None:
             raise NotInstalled('asap3')
@@ -298,8 +298,8 @@ class ExcitingFactory:
 
     def calc(self, **kwargs):
         """Get instance of Exciting Ground state calculator."""
-        from ase.calculators.exciting.exciting import (
-            ExcitingGroundStateCalculator)
+        from ase.calculators.exciting.exciting import \
+            ExcitingGroundStateCalculator
         return ExcitingGroundStateCalculator(
             ground_state_input=kwargs, species_path=self.species_path)
 
@@ -333,10 +333,11 @@ class MOPACFactory:
         return cls(config.executables['mopac'])
 
     def version(self):
-        from ase import Atoms
+        import tempfile
         from os import chdir
         from pathlib import Path
-        import tempfile
+
+        from ase import Atoms
 
         cwd = Path('.').absolute()
         with tempfile.TemporaryDirectory() as directory:
@@ -363,6 +364,7 @@ class VaspFactory:
 
     def calc(self, **kwargs):
         from ase.calculators.vasp import Vasp
+
         # XXX We assume the user has set VASP_PP_PATH
         if Vasp.VASP_PP_PATH not in os.environ:
             # For now, we skip with a message that we cannot run the test
@@ -391,7 +393,7 @@ class GPAWFactory:
 
     @classmethod
     def fromconfig(cls, config):
-        import importlib
+        import importlib.util
         spec = importlib.util.find_spec('gpaw')
         # XXX should be made non-pytest dependent
         if spec is None:
@@ -445,6 +447,16 @@ class BuiltinCalculatorFactory:
         return cls()
 
 
+@factory('eam')
+class EAMFactory(BuiltinCalculatorFactory):
+    def __init__(self, potentials_path):
+        self.potentials_path = potentials_path
+
+    @classmethod
+    def fromconfig(cls, config):
+        return cls(config.datafiles['lammps'][0])
+
+
 @factory('emt')
 class EMTFactory(BuiltinCalculatorFactory):
     pass
@@ -452,8 +464,10 @@ class EMTFactory(BuiltinCalculatorFactory):
 
 @factory('lammpsrun')
 class LammpsRunFactory:
-    def __init__(self, executable):
+    def __init__(self, executable, potentials_path):
         self.executable = executable
+        os.environ["LAMMPS_POTENTIALS"] = str(potentials_path)
+        self.potentials_path = potentials_path
 
     def version(self):
         stdout = read_stdout([self.executable])
@@ -466,7 +480,8 @@ class LammpsRunFactory:
 
     @classmethod
     def fromconfig(cls, config):
-        return cls(config.executables['lammpsrun'])
+        return cls(config.executables['lammpsrun'],
+                   config.datafiles['lammps'][0])
 
 
 @factory('lammpslib')
@@ -639,7 +654,7 @@ class PlumedFactory:
 
     @classmethod
     def fromconfig(cls, config):
-        import importlib
+        import importlib.util
         spec = importlib.util.find_spec('plumed')
         # XXX should be made non-pytest dependent
         if spec is None:
@@ -676,6 +691,20 @@ class Factories:
         'onetep',
         'qchem',
         'turbomole',
+    }
+
+    # Calculators requiring ase-datafiles.
+    # TODO: So far hard-coded but should be automatically detected.
+    datafile_calculators = {
+        'abinit',
+        'dftb',
+        'elk',
+        'espresso',
+        'eam',
+        'lammpsrun',
+        'lammpslib',
+        'openmx',
+        'siesta',
     }
 
     def __init__(self, requested_calculators):

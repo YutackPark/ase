@@ -1,9 +1,7 @@
----  # ASE Gitlab CI configuration
-
+--- # ASE Gitlab CI configuration
 
 variables:
   OMP_NUM_THREADS: "1"
-
 
 stages:
   - test
@@ -28,7 +26,6 @@ stages:
     - postgres:latest
     - mysql:latest
     - mariadb:latest
-
 
 # Check oldest supported Python with oldest supported libraries.
 # Does not install any optional libraries except matplotlib.
@@ -98,8 +95,8 @@ main:
     - cd $CI_PROJECT_DIR
     - >
       ase test
-      --calculators asap,eam,ff,lj,morse,tip3p,tip4p
-      --coverage --pytest --color=yes --durations 20
+      --calculators asap,ff,lj,morse,tip3p,tip4p
+      --coverage --pytest --color=yes --durations 20 -v -r s
       -W "ignore:The --rsyncdir command line argument"
       -W "ignore:NumPy will stop allowing conversion of out-of-bound Python integers"
     - mv ase/test/coverage-html coverage-main
@@ -108,7 +105,6 @@ main:
     paths:
       - coverage-main/
     expire_in: 1 week
-
 
 # Calculator integration tests which always run.
 # Encompasses those tests marked as @pytest.mark.calculator_lite.
@@ -119,7 +115,7 @@ calculators-lite:
     - pip install --no-deps --editable .
     - >
       ase test calculator --calculators=auto --coverage
-      --pytest -m calculator_lite --color=yes --durations=20
+      --pytest -m calculator_lite --color=yes --durations=20 -v
       -W "ignore:The --rsyncdir command line argument"
     - mv ase/test/coverage-html coverage-calculators-lite
     - mv ase/test/.coverage coverage-calculators-lite/coverage.dat
@@ -127,7 +123,6 @@ calculators-lite:
     paths:
       - coverage-calculators-lite/
     expire_in: 1 week
-
 
 # Plan: Test as many calculators as possible as well as possible.
 # Obviously this is kind of expensive so the job is manually activated.
@@ -159,7 +154,7 @@ doc:
     - ase info
     - which sphinx-build
     - cd $CI_PROJECT_DIR/doc
-    - python -m ase.utils.sphinx run  # test scripts
+    - python -m ase.utils.sphinx run # test scripts
     - sphinx-build -W . build
   artifacts:
     paths:
@@ -184,7 +179,6 @@ distribution-package:
     expire_in: 1 week
   when: manual
 
-
 # Publish code coverage data on web.
 #  * The deploy stage is specially recognized by gitlab
 #  * The jobname pages is specially recognized by gitlab
@@ -203,7 +197,6 @@ pages:
   only:
     - master
 
-
 lint:
   image: registry.gitlab.com/ase/ase:ase-paperwork
   script:
@@ -213,7 +206,6 @@ lint:
     - python -We:invalid -m compileall -f -q ase/
     - flake8 .
 
-
 coverage-combine:
   image: registry.gitlab.com/ase/ase:ase-paperwork
   stage: paperwork
@@ -221,7 +213,7 @@ coverage-combine:
     - main
     - calculators-lite
   script:
-    - cd ase/test  # Next to .coveragerc and friends
+    - cd ase/test # Next to .coveragerc and friends
     - coverage combine ../../coverage-main/coverage.dat ../../coverage-calculators-lite/coverage.dat
     - coverage report
     - coverage html
@@ -235,9 +227,9 @@ coverage-combine:
 
 .shared_windows_runners:
   tags:
-  - shared-windows
-  - windows
-  - windows-1809
+    - shared-windows
+    - windows
+    - windows-1809
 
 windows_test:
   extends:
@@ -249,11 +241,11 @@ windows_test:
     - Import-Module "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
     - choco install python --version=3.8 -y -f
     - refreshenv
-  script: 
+  script:
     - python --version
     - python -m pip install --upgrade pip
     - python -m pip install pytest pytest-mock
-    - python -m pip install . 
+    - python -m pip install .
     - >
       ase test
       --calculators eam,ff,lj,morse,tip3p,tip4p

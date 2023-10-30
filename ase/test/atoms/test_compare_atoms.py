@@ -4,6 +4,7 @@ def test_compare_atoms():
     types of system changes
     """
     import numpy as np
+
     from ase import Atoms
     from ase.calculators.calculator import compare_atoms
 

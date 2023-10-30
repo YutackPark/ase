@@ -1,7 +1,6 @@
-from ase.gui.i18n import _
-
 import ase.gui.ui as ui
-from ase.utils import rotate, irotate
+from ase.gui.i18n import _
+from ase.utils import irotate, rotate
 
 
 class Rotate:

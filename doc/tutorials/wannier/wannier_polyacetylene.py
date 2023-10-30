@@ -1,7 +1,7 @@
 import numpy as np
+from gpaw import restart
 
 from ase.dft.wannier import Wannier
-from gpaw import restart
 
 atoms, calc = restart('poly.gpw', txt=None)
 

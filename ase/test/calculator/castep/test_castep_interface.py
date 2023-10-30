@@ -1,13 +1,13 @@
 import os
 
-import pytest
 import numpy as np
+import pytest
+
 import ase
 import ase.lattice.cubic
-from ase.calculators.castep import (Castep, CastepOption,
-                                    CastepParam, CastepCell,
-                                    make_cell_dict, make_param_dict,
-                                    CastepKeywords)
+from ase.calculators.castep import (Castep, CastepCell, CastepKeywords,
+                                    CastepOption, CastepParam, make_cell_dict,
+                                    make_param_dict)
 
 calc = pytest.mark.calculator
 

@@ -2,7 +2,9 @@
 import io
 import re
 
+import numpy as np
 import pytest
+
 from ase import Atoms
 from ase.build import bulk
 from ase.data import atomic_numbers
@@ -37,7 +39,7 @@ class _Base:
         # alphabetical order. To be consistent, here spiecies are also sorted.
         species = sorted(set(atoms_ref.get_chemical_symbols()))
         Z_of_type = {i + 1: atomic_numbers[s] for i, s in enumerate(species)}
-        atoms = read_lammps_data(buf, Z_of_type=Z_of_type, style="atomic")
+        atoms = read_lammps_data(buf, Z_of_type=Z_of_type, atom_style="atomic")
         compare(atoms, atoms_ref)
 
     def check_masses2numbers(self, atoms_ref: Atoms):
@@ -45,7 +47,7 @@ class _Base:
         buf = io.StringIO()
         write_lammps_data(buf, atoms_ref, masses=True)
         buf.seek(0)
-        atoms = read_lammps_data(buf, style="atomic")
+        atoms = read_lammps_data(buf, atom_style="atomic")
         compare(atoms, atoms_ref)
 
 
@@ -95,12 +97,12 @@ def test_atom_style(atom_style: str):
 
     # test if the `atom_style` can be guessed from the comment
     buf.seek(0)
-    atoms = read_lammps_data(buf, style=None)
+    atoms = read_lammps_data(buf, atom_style=None)
     compare(atoms, atoms_ref)
 
     # test when `atom_style` is explicitly specified
     buf.seek(0)
-    atoms = read_lammps_data(buf, style=atom_style)
+    atoms = read_lammps_data(buf, atom_style=atom_style)
     compare(atoms, atoms_ref)
 
     if atom_style not in ["atomic", "full"]:
@@ -109,5 +111,36 @@ def test_atom_style(atom_style: str):
     # test if `atom_style` can be guessed from the length of fields
     # remove comment in the "Atoms" line
     buf = io.StringIO(re.sub(".*Atoms.*#.*", "Atoms", buf.getvalue()))
-    atoms = read_lammps_data(buf, style=None)
+    atoms = read_lammps_data(buf, atom_style=None)
     compare(atoms, atoms_ref)
+
+
+@pytest.mark.parametrize("atom_style", ["atomic", "charge", "full"])
+@pytest.mark.parametrize("write_image_flags", [False, True])
+def test_image_flags(write_image_flags: bool, atom_style: str):
+    """Test if `wrap` and `write_image_flags` work correctly."""
+    atoms_ref = bulk("Ge")
+
+    # shift atomic positions
+    scaled_positions = atoms_ref.get_scaled_positions(wrap=False)
+    shift = (0.125, 1.125, -0.125)
+    atoms_ref.set_scaled_positions(scaled_positions + shift)
+
+    # note that we should do `masses=True` to later guess atomic numbers
+    buf = io.StringIO()
+    write_lammps_data(
+        buf,
+        atoms_ref,
+        write_image_flags=write_image_flags,
+        masses=True,
+        atom_style=atom_style,
+    )
+
+    buf.seek(0)
+    atoms = read_lammps_data(buf)
+
+    # The atomic positions should be wrapped.
+    np.testing.assert_allclose(
+        atoms.get_scaled_positions(wrap=False),
+        atoms_ref.get_scaled_positions(wrap=False),
+    )

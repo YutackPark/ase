@@ -7,15 +7,14 @@ from typing import Tuple
 import numpy as np
 
 from ase import __version__
-from ase.calculators.singlepoint import SinglePointCalculator, all_properties
-from ase.calculators.calculator import PropertyNotImplementedError
 from ase.atoms import Atoms
+from ase.calculators.calculator import PropertyNotImplementedError
+from ase.calculators.singlepoint import SinglePointCalculator, all_properties
 from ase.io.formats import is_compressed
-from ase.io.jsonio import encode, decode
+from ase.io.jsonio import decode, encode
 from ase.io.pickletrajectory import PickleTrajectory
 from ase.parallel import world
 from ase.utils import tokenize_version
-
 
 __all__ = ['Trajectory', 'PickleTrajectory']
 

@@ -1,8 +1,8 @@
-import pytest
 import numpy as np
+import pytest
+
 from ase.build import bulk, molecule
 from ase.units import Hartree
-
 
 calc = pytest.mark.calculator
 

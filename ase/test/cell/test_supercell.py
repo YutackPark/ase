@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+
 from ase.build import bulk, make_supercell
 from ase.calculators.emt import EMT
 from ase.lattice import BCC, FCC

@@ -1,8 +1,8 @@
 import pytest
-from ase import Atoms, Atom
+from ase import Atom, Atoms
 from ase.build import fcc111
-from ase.optimize.minimahopping import MinimaHopping
 from ase.constraints import FixAtoms
+from ase.optimize.minimahopping import MinimaHopping
 
 
 @pytest.mark.optimize

@@ -3,8 +3,8 @@ def test_counterions():
         PBCs and with cutoff """
 
     import numpy as np
-    from ase import Atoms
-    from ase import units
+
+    from ase import Atoms, units
     from ase.calculators.counterions import AtomicCounterIon as ACI
 
     sigma = 1.868 * (1.0 / 2.0)**(1.0 / 6.0)

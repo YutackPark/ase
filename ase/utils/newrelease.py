@@ -6,14 +6,13 @@ This script does not attempt to import ASE - then it would depend on
 which ASE is installed and how - but assumes that it is run from the
 ASE root directory."""
 
-import os
-import subprocess
-import re
 import argparse
-from time import strftime
+import os
+import re
 import shutil
+import subprocess
 from pathlib import Path
-
+from time import strftime
 
 os.environ['LANGUAGE'] = 'C'
 

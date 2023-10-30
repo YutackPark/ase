@@ -1,8 +1,9 @@
 import ase.parallel as parallel
-from ase.visualize.viewers import VIEWERS
 
 
 def view(atoms, data=None, viewer='ase', repeat=None, block=False, **kwargs):
+    from ase.visualize.viewers import VIEWERS
+
     if parallel.world.size > 1:
         return
 

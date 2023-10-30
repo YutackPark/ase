@@ -1,11 +1,13 @@
 import re
 from collections import OrderedDict
+
 import numpy as np
 
 from ase import Atoms
-from ase.units import Hartree, Bohr
 from ase.calculators.singlepoint import (SinglePointDFTCalculator,
                                          SinglePointKPoint)
+from ase.units import Bohr, Hartree
+
 from .parser import _define_pattern
 
 # Note to the reader of this code: Here and below we use the function
@@ -257,9 +259,12 @@ def parse_gto_chunk(chunk):
 
 
 # Extracts dipole and quadrupole moment for a GTO calculation
+# Note on the regex: Some, but not all, versions of NWChem
+# insert extra spaces in the blank lines. Do not remove the \s*
+# in between \n and \n
 _multipole = _define_pattern(
     r'^[ \t]+Multipole analysis of the density[ \t\S]*\n'
-    r'^[ \t-]+\n\n^[ \t\S]+\n^[ \t-]+\n'
+    r'^[ \t-]+\n\s*\n^[ \t\S]+\n^[ \t-]+\n'
     r'((?:(?:(?:[ \t]+[\S]+){7,8}\n)|[ \t]*\n){12})',
     """\
      Multipole analysis of the density
@@ -289,7 +294,8 @@ def _get_multipole(chunk):
         return None, None
     # This pulls the 5th column out of the multipole moments block;
     # this column contains the actual moments.
-    moments = [float(x.split()[4]) for x in matches[-1].split('\n') if x]
+    moments = [float(x.split()[4]) for x in matches[-1].split('\n')
+               if x and not x.isspace()]
     dipole = np.array(moments[1:4]) * Bohr
     quadrupole = np.zeros(9)
     quadrupole[[0, 1, 2, 4, 5, 8]] = [moments[4:]]

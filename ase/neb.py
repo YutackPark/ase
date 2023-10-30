@@ -1,13 +1,4 @@
-import sys
-import threading
-import warnings
-from abc import ABC, abstractmethod
-import time
-
-import numpy as np
-
-from scipy.interpolate import CubicSpline
-from scipy.integrate import cumtrapz
+"""Temporary file while we deprecate this locaation."""
 
 import ase.parallel
 from ase.build import minimize_rotation_and_translation
@@ -24,28 +15,15 @@ from ase.optimize.precon import Precon, PreconImages
 from ase.optimize.ode import ode12r
 
 
-class Spring:
-    def __init__(self, atoms1, atoms2, energy1, energy2, k):
-        self.atoms1 = atoms1
-        self.atoms2 = atoms2
-        self.energy1 = energy1
-        self.energy2 = energy2
-        self.k = k
+class NEBTools(RealNEBTools):
+    @deprecated('Please import NEBTools from ase.mep, not ase.neb.')
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-    def _find_mic(self):
-        pos1 = self.atoms1.get_positions()
-        pos2 = self.atoms2.get_positions()
-        # XXX If we want variable cells we will need to edit this.
-        mic, _ = find_mic(pos2 - pos1, self.atoms1.cell, self.atoms1.pbc)
-        return mic
 
-    @lazyproperty
-    def t(self):
-        return self._find_mic()
-
-    @lazyproperty
-    def nt(self):
-        return np.linalg.norm(self.t)
+@deprecated('Please import interpolate from ase.mep, not ase.neb.')
+def interpolate(*args, **kwargs):
+    return realinterpolate(*args, **kwargs)
 
 
 class NEBState:

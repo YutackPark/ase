@@ -1,8 +1,9 @@
 def test_traj_bytesio():
-    from ase.io import iread, write
+    import io
+
     from ase.build import bulk
     from ase.collections import g2
-    import io
+    from ase.io import iread, write
 
     images = [bulk('Si') + bulk('Fe')] + list(g2)
 

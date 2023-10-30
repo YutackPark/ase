@@ -9,11 +9,11 @@ import pytest
 import ase
 import ase.build
 import ase.io
-from ase.io.vasp import read_vasp_xdatcar, write_vasp_xdatcar
-from ase.calculators.calculator import compare_atoms
-from ase.constraints import constrained_indices
-from ase.constraints import FixAtoms, FixScaled, FixedPlane, FixedLine
 from ase.build import graphene_nanoribbon
+from ase.calculators.calculator import compare_atoms
+from ase.constraints import (FixAtoms, FixedLine, FixedPlane, FixScaled,
+                             constrained_indices)
+from ase.io.vasp import read_vasp_xdatcar, write_vasp_xdatcar
 
 
 class TestXdatcarRoundtrip(unittest.TestCase):

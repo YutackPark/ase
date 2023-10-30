@@ -1,10 +1,11 @@
 """Structure optimization. """
-
-import collections.abc
 import time
+from collections.abc import Callable
 from math import sqrt
 from os.path import isfile
+from typing import IO, Any, Dict, List, Optional, Union
 
+from ase import Atoms
 from ase.calculators.calculator import PropertyNotImplementedError
 from ase.parallel import barrier, world
 from ase.utils import IOContext
@@ -50,7 +51,12 @@ class Dynamics(IOContext):
     """Base-class for all MD and structure optimization classes."""
 
     def __init__(
-        self, atoms, logfile, trajectory, append_trajectory=False, master=None
+        self,
+        atoms: Atoms,
+        logfile: Optional[Union[IO, str]] = None,
+        trajectory: Optional[str] = None,
+        append_trajectory: bool = False,
+        master: Optional[bool] = None,
     ):
         """Dynamics object.
 
@@ -82,7 +88,7 @@ class Dynamics(IOContext):
         self.atoms = atoms
         self.optimizable = atoms.__ase_optimizable__()
         self.logfile = self.openfile(logfile, mode='a', comm=world)
-        self.observers = []
+        self.observers: List[Callable] = []
         self.nsteps = 0
         # maximum number of steps placeholder with maxint
         self.max_steps = 100000000
@@ -98,14 +104,39 @@ class Dynamics(IOContext):
 
         self.trajectory = trajectory
 
+    def todict(self) -> Dict[str, Any]:
+        raise NotImplementedError
+
     def get_number_of_steps(self):
         return self.nsteps
 
     def insert_observer(
         self, function, position=0, interval=1, *args, **kwargs
     ):
-        """Insert an observer."""
-        if not isinstance(function, collections.abc.Callable):
+        """Insert an observer.
+
+        This can be used for pre-processing before logging and dumping.
+
+        Examples
+        --------
+        >>> from ase.build import bulk
+        >>> from ase.calculators.emt import EMT
+        >>> from ase.optimize import BFGS
+        ...
+        ...
+        >>> def update_info(atoms, opt):
+        ...     atoms.info["nsteps"] = opt.nsteps
+        ...
+        ...
+        >>> atoms = bulk("Cu", cubic=True) * 2
+        >>> atoms.rattle()
+        >>> atoms.calc = EMT()
+        >>> with BFGS(atoms, logfile=None, trajectory="opt.traj") as opt:
+        ...     opt.insert_observer(update_info, atoms=atoms, opt=opt)
+        ...     opt.run(fmax=0.05, steps=10)
+        True
+        """
+        if not isinstance(function, Callable):
             function = function.write
         self.observers.insert(position, (function, interval, args, kwargs))
 
@@ -123,7 +154,7 @@ class Dynamics(IOContext):
             d = self.todict()
             d.update(interval=interval)
             function.set_description(d)
-        if not hasattr(function, "__call__"):
+        if not isinstance(function, Callable):
             function = function.write
         self.observers.append((function, interval, args, kwargs))
 
@@ -151,34 +182,31 @@ class Dynamics(IOContext):
         >>> for _ in opt2:
         >>>     opt1.run()
         """
-
-        # compute initial structure and log the first step
+        # compute the initial step
         self.optimizable.get_forces()
 
-        # yield the first time to inspect before logging
-        yield False
-
+        # log the initial step
         if self.nsteps == 0:
             self.log()
             self.call_observers()
 
-        # run the algorithm until converged or max_steps reached
-        while not self.converged() and self.nsteps < self.max_steps:
+        # check convergence
+        is_converged = self.converged()
+        yield is_converged
 
+        # run the algorithm until converged or max_steps reached
+        while not is_converged and self.nsteps < self.max_steps:
             # compute the next step
             self.step()
             self.nsteps += 1
-
-            # let the user inspect the step and change things before logging
-            # and predicting the next step
-            yield False
 
             # log the step
             self.log()
             self.call_observers()
 
-        # finally check if algorithm was converged
-        yield self.converged()
+            # check convergence
+            is_converged = self.converged()
+            yield is_converged
 
     def run(self):
         """Run dynamics algorithm.
@@ -191,7 +219,7 @@ class Dynamics(IOContext):
             pass
         return converged
 
-    def converged(self, *args):
+    def converged(self):
         """" a dummy function as placeholder for a real criterion, e.g. in
         Optimizer """
         return False
@@ -214,13 +242,13 @@ class Optimizer(Dynamics):
 
     def __init__(
         self,
-        atoms,
-        restart,
-        logfile,
-        trajectory,
-        master=None,
-        append_trajectory=False,
-        force_consistent=False,
+        atoms: Atoms,
+        restart: Optional[str] = None,
+        logfile: Optional[Union[IO, str]] = None,
+        trajectory: Optional[str] = None,
+        master: Optional[bool] = None,
+        append_trajectory: bool = False,
+        force_consistent: Optional[bool] = False,
     ):
         """Structure optimizer object.
 
@@ -278,6 +306,9 @@ class Optimizer(Dynamics):
             self.read()
             barrier()
 
+    def read(self):
+        raise NotImplementedError
+
     def todict(self):
         description = {
             "type": "optimization",
@@ -310,7 +341,6 @@ class Optimizer(Dynamics):
         """Did the optimization converge?"""
         if forces is None:
             forces = self.optimizable.get_forces()
-
         return self.optimizable.converged(forces, self.fmax)
 
     def log(self, forces=None):

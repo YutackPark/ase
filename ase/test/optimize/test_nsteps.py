@@ -1,8 +1,8 @@
 import pytest
 
 from ase.build import bulk
-from ase.optimize import BFGS
 from ase.calculators.emt import EMT
+from ase.optimize import BFGS
 
 
 @pytest.fixture
@@ -14,13 +14,16 @@ def opt():
         yield opt
 
 
-# It is a little bit questionable whether there should be
-# three steps when we set steps=1.
 @pytest.mark.parametrize('steps', [0, 1, 4])
 def test_nsteps(opt, steps):
+    """Test if the number of iterations is as expected.
+
+    For opt.irun(steps=n), the number of iterations should be n + 1,
+    including 0 and n.
+    """
     irun = opt.irun(fmax=0, steps=steps)
 
-    for i in range(steps + 2):
+    for i in range(steps + 1):
         next(irun)
 
     with pytest.raises(StopIteration):

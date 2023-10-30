@@ -6,17 +6,11 @@ attribute.
 import os
 import re
 import warnings
-import numpy as np
 from copy import deepcopy
 
+import numpy as np
+
 import ase
-
-from ase.parallel import paropen
-from ase.spacegroup import Spacegroup
-from ase.geometry.cell import cellpar_to_cell
-from ase.constraints import FixAtoms, FixedPlane, FixedLine, FixCartesian
-from ase.utils import atoms_to_spglib_cell
-
 # independent unit management included here:
 # When high accuracy is required, this allows to easily pin down
 # unit conversion factors from different "unit definition systems"
@@ -24,6 +18,12 @@ from ase.utils import atoms_to_spglib_cell
 #
 # ase.units in in ase-3.6.0.2515 is based on CODATA1986
 import ase.units
+from ase.constraints import FixAtoms, FixCartesian, FixedLine, FixedPlane
+from ase.geometry.cell import cellpar_to_cell
+from ase.parallel import paropen
+from ase.spacegroup import Spacegroup
+from ase.utils import atoms_to_spglib_cell
+
 units_ase = {
     'hbar': ase.units._hbar * ase.units.J,
     'Eh': ase.units.Hartree,

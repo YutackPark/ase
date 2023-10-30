@@ -1,12 +1,12 @@
-import pytest
 import numpy as np
+import pytest
 
 from ase import Atoms
+from ase.build import molecule
 from ase.calculators.emt import EMT
 from ase.constraints import FixAtoms, FixBondLength
 from ase.db import connect
 from ase.io import read
-from ase.build import molecule
 
 dbtypes = ['json', 'db', 'postgresql', 'mysql', 'mariadb']
 

@@ -1,10 +1,11 @@
 """Langevin dynamics class."""
+from typing import IO, Optional, Union
 
 import numpy as np
 
+from ase import Atoms, units
 from ase.md.md import MolecularDynamics
-from ase.parallel import world, DummyMPI
-from ase import units
+from ase.parallel import DummyMPI, world
 
 
 class Langevin(MolecularDynamics):
@@ -13,10 +14,22 @@ class Langevin(MolecularDynamics):
     # Helps Asap doing the right thing.  Increment when changing stuff:
     _lgv_version = 5
 
-    def __init__(self, atoms, timestep, temperature=None, friction=None,
-                 fixcm=True, *, temperature_K=None, trajectory=None,
-                 logfile=None, loginterval=1, communicator=world,
-                 rng=None, append_trajectory=False):
+    def __init__(
+        self,
+        atoms: Atoms,
+        timestep: float,
+        temperature: Optional[float] = None,
+        friction: Optional[float] = None,
+        fixcm: bool = True,
+        *,
+        temperature_K: Optional[float] = None,
+        trajectory: Optional[str] = None,
+        logfile: Optional[Union[IO, str]] = None,
+        loginterval: int = 1,
+        communicator=world,
+        rng=None,
+        append_trajectory: bool = False,
+    ):
         """
         Parameters:
 
@@ -33,7 +46,9 @@ class Langevin(MolecularDynamics):
             The desired temperature, in Kelvin.
 
         friction: float
-            A friction coefficient, typically 1e-4 to 1e-2.
+            A friction coefficient in inverse ASE time units.
+            For example, set ``0.01 / ase.units.fs`` to provide
+            0.01 fs\\ :sup:`−1` (10 ps\\ :sup:`−1`).
 
         fixcm: bool (optional)
             If True, the position and momentum of the center of mass is

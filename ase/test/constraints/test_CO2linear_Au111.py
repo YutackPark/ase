@@ -1,10 +1,12 @@
+from math import cos, pi, sin
+
 import pytest
-from math import pi, cos, sin
+
 from ase import Atoms
+from ase.build import add_adsorbate, fcc111
 from ase.calculators.emt import EMT
 from ase.constraints import FixLinearTriatomic
 from ase.optimize import BFGS
-from ase.build import fcc111, add_adsorbate
 
 
 @pytest.mark.optimize

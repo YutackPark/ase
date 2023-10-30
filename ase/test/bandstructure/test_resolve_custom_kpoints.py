@@ -1,5 +1,6 @@
-import pytest
 import numpy as np
+import pytest
+
 from ase.dft.kpoints import resolve_custom_points
 
 

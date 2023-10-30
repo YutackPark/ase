@@ -1,12 +1,12 @@
 """Testing lammpsdata reader."""
 
 import re
-import pytest
-import numpy as np
-
 from io import StringIO
-from ase.io import read
 
+import numpy as np
+import pytest
+
+from ase.io import read
 
 CONTENTS = """
 3 atoms

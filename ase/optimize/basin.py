@@ -1,10 +1,12 @@
+from typing import IO, Type, Union
+
 import numpy as np
 
-from ase.optimize.optimize import Dynamics
-from ase.optimize.fire import FIRE
-from ase.units import kB
-from ase.parallel import world
+from ase import Atoms, units
 from ase.io.trajectory import Trajectory
+from ase.optimize.fire import FIRE
+from ase.optimize.optimize import Dynamics, Optimizer
+from ase.parallel import world
 
 
 class BasinHopping(Dynamics):
@@ -17,16 +19,19 @@ class BasinHopping(Dynamics):
     David J. Wales and Harold A. Scheraga, Science, Vol. 285, 1368 (1999)
     """
 
-    def __init__(self, atoms,
-                 temperature=100 * kB,
-                 optimizer=FIRE,
-                 fmax=0.1,
-                 dr=0.1,
-                 logfile='-',
-                 trajectory='lowest.traj',
-                 optimizer_logfile='-',
-                 local_minima_trajectory='local_minima.traj',
-                 adjust_cm=True):
+    def __init__(
+        self,
+        atoms: Atoms,
+        temperature: float = 100 * units.kB,
+        optimizer: Type[Optimizer] = FIRE,
+        fmax: float = 0.1,
+        dr: float = 0.1,
+        logfile: Union[IO, str] = '-',
+        trajectory: str = 'lowest.traj',
+        optimizer_logfile: str = '-',
+        local_minima_trajectory: str = 'local_minima.traj',
+        adjust_cm: bool = True,
+    ):
         """Parameters:
 
         atoms: Atoms object

@@ -1,5 +1,6 @@
 """Check that plain cli doesn't execute too many imports."""
 import sys
+
 from ase.utils.checkimports import check_imports
 
 

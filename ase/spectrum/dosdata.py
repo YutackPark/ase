@@ -1,10 +1,11 @@
 # Refactor of DOS-like data objects
 # towards replacing ase.dft.dos and ase.dft.pdos
-from abc import ABCMeta, abstractmethod
 import warnings
+from abc import ABCMeta, abstractmethod
 from typing import Any, Dict, Sequence, Tuple, TypeVar, Union
 
 import numpy as np
+
 from ase.utils.plotting import SimplePlottingAxes
 
 # This import is for the benefit of type-checking / mypy

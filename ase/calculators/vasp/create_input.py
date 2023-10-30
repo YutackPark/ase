@@ -19,9 +19,9 @@ http://cms.mpi.univie.ac.at/vasp/
 """
 
 import os
-import warnings
 import shutil
-from os.path import join, isfile, islink
+import warnings
+from os.path import isfile, islink, join
 from typing import List, Sequence, Tuple
 
 import numpy as np
@@ -299,6 +299,7 @@ int_keys = [
     'icharg',  # charge: 0-WAVECAR 1-CHGCAR 2-atom 10-const
     'idipol',  # monopol/dipol and quadropole corrections
     'images',  # number of images for NEB calculation
+    'imix',  # specifies density mixing
     'iniwav',  # initial electr wf. : 0-lowe 1-rand
     'isif',  # calculate stress and what to relax
     'ismear',  # part. occupancies: -5 Blochl -4-tet -1-fermi 0-gaus >0 MP
@@ -1021,6 +1022,7 @@ class GenerateVaspInput:
         self.list_float_params = {}
         self.special_params = {}
         self.dict_params = {}
+        self.atoms = None
         for key in float_keys:
             self.float_params[key] = None
         for key in exp_keys:
@@ -1292,6 +1294,9 @@ class GenerateVaspInput:
 
         # String shortcuts are initialised to dict form
         elif isinstance(p['setups'], str):
+            if p['setups'].lower() == 'materialsproject':
+                warnings.warn('`materialsproject` setup will be'
+                              'removed in a future release.', FutureWarning)
             if p['setups'].lower() in setups_defaults.keys():
                 p['setups'] = {'base': p['setups']}
 

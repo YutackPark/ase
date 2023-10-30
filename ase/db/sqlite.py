@@ -24,11 +24,11 @@ from contextlib import contextmanager
 import numpy as np
 
 import ase.io.jsonio
-from ase.data import atomic_numbers
 from ase.calculators.calculator import all_properties
+from ase.data import atomic_numbers
+from ase.db.core import (Database, bytes_to_object, invop, lock, now,
+                         object_to_bytes, ops, parse_selection)
 from ase.db.row import AtomsRow
-from ase.db.core import (Database, ops, now, lock, invop, parse_selection,
-                         object_to_bytes, bytes_to_object)
 from ase.parallel import parallel_function
 
 VERSION = 9

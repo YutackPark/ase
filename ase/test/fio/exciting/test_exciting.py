@@ -1,10 +1,10 @@
 """Test file for exciting file input and output methods."""
 
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
-import pytest
 import numpy as np
-import xml.etree.ElementTree as ET
+import pytest
 
 import ase
 import ase.io.exciting

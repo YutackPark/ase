@@ -1,7 +1,8 @@
-import pytest
 import numpy as np
-from ase.constraints import FixCartesian
+import pytest
+
 from ase.build import molecule
+from ase.constraints import FixCartesian
 
 
 @pytest.fixture

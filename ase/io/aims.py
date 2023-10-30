@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Union
 
 import numpy as np
+
 from ase import Atom, Atoms
 from ase.calculators.calculator import kpts2mp
 from ase.calculators.singlepoint import SinglePointDFTCalculator
@@ -48,12 +49,9 @@ def read_aims(fd, apply_constraints=True):
 def parse_geometry_lines(lines, apply_constraints=True):
 
     from ase import Atoms
-    from ase.constraints import (
-        FixAtoms,
-        FixCartesian,
-        FixScaledParametricRelations,
-        FixCartesianParametricRelations,
-    )
+    from ase.constraints import (FixAtoms, FixCartesian,
+                                 FixCartesianParametricRelations,
+                                 FixScaledParametricRelations)
 
     atoms = Atoms()
 
@@ -370,10 +368,8 @@ def write_aims(
 
 def get_sym_block(atoms):
     """Get symmetry block for Parametric constraints in atoms.constraints"""
-    from ase.constraints import (
-        FixScaledParametricRelations,
-        FixCartesianParametricRelations,
-    )
+    from ase.constraints import (FixCartesianParametricRelations,
+                                 FixScaledParametricRelations)
 
     # Initialize param/expressions lists
     atomic_sym_params = []

@@ -5,14 +5,16 @@ Atoms object in VASP POSCAR format.
 """
 import re
 from pathlib import Path
+from typing import List
 
 import numpy as np
 
 from ase import Atoms
-from ase.utils import reader, writer
 from ase.io import ParseError
 from ase.io.formats import string2index
 from ase.io.utils import ImageIterator
+from ase.utils import reader, writer
+
 from .vasp_parsers import vasp_outcar_parsers as vop
 
 __all__ = [
@@ -122,7 +124,6 @@ def read_vasp(filename='CONTCAR'):
     the atom types are read from OUTCAR or POTCAR file.
     """
 
-    from ase.constraints import FixAtoms, FixScaled
     from ase.data import chemical_symbols
 
     fd = filename
@@ -135,16 +136,21 @@ def read_vasp(filename='CONTCAR'):
     # file.
     line1 = fd.readline()
 
-    lattice_constant = float(fd.readline().split()[0])
+    # Scaling factor
+    # This can also be one negative number or three positive numbers.
+    # https://www.vasp.at/wiki/index.php/POSCAR#Full_format_specification
+    scale = np.array(fd.readline().split()[:3], dtype=float)
+    if len(scale) not in [1, 3]:
+        raise RuntimeError('The number of scaling factors must be 1 or 3.')
+    if len(scale) == 3 and np.any(scale < 0.0):
+        raise RuntimeError('All three scaling factors must be positive.')
 
     # Now the lattice vectors
-    a = []
-    for _ in range(3):
-        s = fd.readline().split()
-        floatvect = float(s[0]), float(s[1]), float(s[2])
-        a.append(floatvect)
-
-    basis_vectors = np.array(a) * lattice_constant
+    cell = np.array([fd.readline().split()[:3] for _ in range(3)], dtype=float)
+    # Negative scaling factor corresponds to the cell volume.
+    if scale[0] < 0.0:
+        scale = np.cbrt(-1.0 * scale / np.linalg.det(cell))
+    cell *= scale
 
     # Number of atoms. Again this must be in the same order as
     # in the first line
@@ -205,7 +211,7 @@ def read_vasp(filename='CONTCAR'):
 
     for i, num in enumerate(numofatoms):
         numofatoms[i] = int(num)
-        [atom_symbols.append(atomtypes[i]) for na in range(numofatoms[i])]
+        atom_symbols.extend(numofatoms[i] * [atomtypes[i]])
 
     # Check if Selective dynamics is switched on
     sdyn = fd.readline()
@@ -216,39 +222,42 @@ def read_vasp(filename='CONTCAR'):
         ac_type = fd.readline()
     else:
         ac_type = sdyn
-    cartesian = ac_type[0].lower() == 'c' or ac_type[0].lower() == 'k'
+    cartesian = ac_type[0].lower() in ['c', 'k']
     tot_natoms = sum(numofatoms)
     atoms_pos = np.empty((tot_natoms, 3))
     if selective_dynamics:
         selective_flags = np.empty((tot_natoms, 3), dtype=bool)
     for atom in range(tot_natoms):
         ac = fd.readline().split()
-        atoms_pos[atom] = (float(ac[0]), float(ac[1]), float(ac[2]))
+        atoms_pos[atom] = [float(_) for _ in ac[0:3]]
         if selective_dynamics:
-            curflag = []
-            for flag in ac[3:6]:
-                curflag.append(flag == 'F')
-            selective_flags[atom] = curflag
+            selective_flags[atom] = [_ == 'F' for _ in ac[3:6]]
+    atoms = Atoms(symbols=atom_symbols, cell=cell, pbc=True)
     if cartesian:
-        atoms_pos *= lattice_constant
-    atoms = Atoms(symbols=atom_symbols, cell=basis_vectors, pbc=True)
-    if cartesian:
+        atoms_pos *= scale
         atoms.set_positions(atoms_pos)
     else:
         atoms.set_scaled_positions(atoms_pos)
     if selective_dynamics:
-        constraints = []
-        indices = []
-        for ind, sflags in enumerate(selective_flags):
-            if sflags.any() and not sflags.all():
-                constraints.append(FixScaled(ind, sflags, atoms.get_cell()))
-            elif sflags.all():
-                indices.append(ind)
-        if indices:
-            constraints.append(FixAtoms(indices))
-        if constraints:
-            atoms.set_constraint(constraints)
+        set_constraints(atoms, selective_flags)
     return atoms
+
+
+def set_constraints(atoms: Atoms, selective_flags: np.ndarray):
+    """Set constraints based on selective_flags"""
+    from ase.constraints import FixAtoms, FixConstraint, FixScaled
+
+    constraints: List[FixConstraint] = []
+    indices = []
+    for ind, sflags in enumerate(selective_flags):
+        if sflags.any() and not sflags.all():
+            constraints.append(FixScaled(ind, sflags, atoms.get_cell()))
+        elif sflags.all():
+            indices.append(ind)
+    if indices:
+        constraints.append(FixAtoms(indices))
+    if constraints:
+        atoms.set_constraint(constraints)
 
 
 def iread_vasp_out(filename, index=-1):
@@ -379,11 +388,12 @@ def read_vasp_xml(filename='vasprun.xml', index=-1):
     """
 
     import xml.etree.ElementTree as ET
-    from ase.constraints import FixAtoms, FixScaled
+    from collections import OrderedDict
+
     from ase.calculators.singlepoint import (SinglePointDFTCalculator,
                                              SinglePointKPoint)
+    from ase.constraints import FixAtoms, FixScaled
     from ase.units import GPa
-    from collections import OrderedDict
 
     tree = ET.iterparse(filename, events=['start', 'end'])
 
@@ -744,7 +754,7 @@ def write_vasp(filename,
     atomic species, e.g. 'C N H Cu'.
     """
 
-    from ase.constraints import FixAtoms, FixScaled, FixedPlane, FixedLine
+    from ase.constraints import FixAtoms, FixedLine, FixedPlane, FixScaled
 
     fd = filename  # @writer decorator ensures this arg is a file descriptor
 

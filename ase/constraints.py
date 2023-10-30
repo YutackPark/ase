@@ -1,11 +1,17 @@
+"""Constraints"""
 from typing import Sequence
 from warnings import warn
 
 import numpy as np
-from ase.calculators.calculator import PropertyNotImplementedError
-from ase.geometry import (find_mic, wrap_positions, get_distances_derivatives,
-                          get_angles_derivatives, get_dihedrals_derivatives,
-                          conditional_find_mic, get_angles, get_dihedrals)
+
+# `Filter` classes are imported for backward compatibility.
+from ase.filters import (  # noqa: F401 # pylint: disable=unused-import
+    ExpCellFilter, Filter, StrainFilter, UnitCellFilter)
+from ase.geometry import (conditional_find_mic, find_mic, get_angles,
+                          get_angles_derivatives, get_dihedrals,
+                          get_dihedrals_derivatives, get_distances_derivatives,
+                          wrap_positions)
+from ase.stress import full_3x3_to_voigt_6_stress, voigt_6_to_full_3x3_stress
 from ase.utils.parsemath import eval_expression
 from ase.stress import (full_3x3_to_voigt_6_stress,
                         voigt_6_to_full_3x3_stress)
@@ -14,8 +20,7 @@ from ase.utils.abc import Optimizable
 
 __all__ = [
     'FixCartesian', 'FixBondLength', 'FixedMode',
-    'FixAtoms', 'UnitCellFilter', 'ExpCellFilter',
-    'FixScaled', 'StrainFilter', 'FixCom', 'FixedPlane', 'Filter',
+    'FixAtoms', 'FixScaled', 'FixCom', 'FixedPlane',
     'FixConstraint', 'FixedLine', 'FixBondLengths', 'FixLinearTriatomic',
     'FixInternals', 'Hookean', 'ExternalForce', 'MirrorForce', 'MirrorTorque',
     "FixScaledParametricRelations", "FixCartesianParametricRelations"]
@@ -179,6 +184,9 @@ class FixAtoms(IndexedConstraint):
     --------
     Fix all Copper atoms:
 
+    >>> from ase.build import bulk
+
+    >>> atoms = bulk('Cu', 'fcc', a=3.6)
     >>> mask = (atoms.symbols == 'Cu')
     >>> c = FixAtoms(mask=mask)
     >>> atoms.set_constraint(c)
@@ -209,14 +217,7 @@ class FixAtoms(IndexedConstraint):
 
 
 class FixCom(FixConstraint):
-    """Constraint class for fixing the center of mass.
-
-    References
-
-    https://pubs.acs.org/doi/abs/10.1021/jp9722824
-
-    """
-
+    """Constraint class for fixing the center of mass."""
     def get_removed_dof(self, atoms):
         return 3
 
@@ -224,14 +225,19 @@ class FixCom(FixConstraint):
         masses = atoms.get_masses()
         old_cm = atoms.get_center_of_mass()
         new_cm = np.dot(masses, new) / masses.sum()
-        d = old_cm - new_cm
-        new += d
+        diff = old_cm - new_cm
+        new += diff
+
+    def adjust_momenta(self, atoms, momenta):
+        """Adjust momenta so that the center-of-mass velocity is zero."""
+        masses = atoms.get_masses()
+        velocity_com = momenta.sum(axis=0) / masses.sum()
+        momenta -= masses[:, None] * velocity_com
 
     def adjust_forces(self, atoms, forces):
-        m = atoms.get_masses()
-        mm = np.tile(m, (3, 1)).T
-        lb = np.sum(mm * forces, axis=0) / sum(m**2)
-        forces -= mm * lb
+        # Eqs. (3) and (7) in https://doi.org/10.1021/jp9722824
+        masses = atoms.get_masses()
+        forces -= masses[:, None] * (masses @ forces) / sum(masses**2)
 
     def todict(self):
         return {'name': 'FixCom',
@@ -680,11 +686,14 @@ class FixedPlane(IndexedConstraint):
         --------
         Fix all Copper atoms to only move in the yz-plane:
 
+        >>> from ase.build import bulk
         >>> from ase.constraints import FixedPlane
+
+        >>> atoms = bulk('Cu', 'fcc', a=3.6)
         >>> c = FixedPlane(
-        >>>     indices=[atom.index for atom in atoms if atom.symbol == 'Cu'],
-        >>>     direction=[1, 0, 0],
-        >>> )
+        ...     indices=[atom.index for atom in atoms if atom.symbol == 'Cu'],
+        ...     direction=[1, 0, 0],
+        ... )
         >>> atoms.set_constraint(c)
 
         or constrain a single atom with the index 0 to move in the xy-plane:
@@ -745,9 +754,9 @@ class FixedLine(IndexedConstraint):
 
         >>> from ase.constraints import FixedLine
         >>> c = FixedLine(
-        >>>     indices=[atom.index for atom in atoms if atom.symbol == 'Cu'],
-        >>>     direction=[1, 0, 0],
-        >>> )
+        ...     indices=[atom.index for atom in atoms if atom.symbol == 'Cu'],
+        ...     direction=[1, 0, 0],
+        ... )
         >>> atoms.set_constraint(c)
 
         or constrain a single atom with the index 0 to move in the z-direction:
@@ -1928,6 +1937,11 @@ class ExternalForce(FixConstraint):
     sure that *ExternalForce* comes first in the list if there are overlaps
     between atom1-2 and atom3-4:
 
+    >>> from ase.build import bulk
+
+    >>> atoms = bulk('Cu', 'fcc', a=3.6)
+    >>> atom1, atom2, atom3, atom4 = atoms[:4]
+    >>> fext = 1.0
     >>> con1 = ExternalForce(atom1, atom2, f_ext)
     >>> con2 = FixBondLength(atom3, atom4)
     >>> atoms.set_constraint([con1, con2])
@@ -2009,6 +2023,10 @@ class MirrorForce(FixConstraint):
     sure that *MirrorForce* comes first in the list if there are overlaps
     between atom1-2 and atom3-4:
 
+    >>> from ase.build import bulk
+
+    >>> atoms = bulk('Cu', 'fcc', a=3.6)
+    >>> atom1, atom2, atom3, atom4 = atoms[:4]
     >>> con1 = MirrorForce(atom1, atom2)
     >>> con2 = FixBondLength(atom3, atom4)
     >>> atoms.set_constraint([con1, con2])
@@ -2124,6 +2142,10 @@ class MirrorTorque(FixConstraint):
     sure that *MirrorTorque* comes first in the list if there are overlaps
     between atom1-4 and atom5-6:
 
+    >>> from ase.build import bulk
+
+    >>> atoms = bulk('Cu', 'fcc', a=3.6)
+    >>> atom1, atom2, atom3, atom4, atom5, atom6 = atoms[:6]
     >>> con1 = MirrorTorque(atom1, atom2, atom3, atom4)
     >>> con2 = FixBondLength(atom5, atom6)
     >>> atoms.set_constraint([con1, con2])

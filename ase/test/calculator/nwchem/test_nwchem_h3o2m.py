@@ -1,11 +1,11 @@
-from math import radians, sin, cos
+from math import cos, radians, sin
 
 import pytest
 
 from ase import Atoms
-from ase.neb import NEB
 from ase.constraints import FixAtoms
-from ase.optimize import QuasiNewton, BFGS
+from ase.mep import NEB
+from ase.optimize import BFGS, QuasiNewton
 from ase.visualize import view
 
 

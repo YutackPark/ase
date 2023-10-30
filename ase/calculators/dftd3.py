@@ -1,11 +1,12 @@
 import os
 import subprocess
-from warnings import warn
 from pathlib import Path
+from warnings import warn
 
 import numpy as np
-from ase.calculators.calculator import (BaseCalculator, FileIOCalculator,
-                                        Calculator)
+
+from ase.calculators.calculator import (BaseCalculator, Calculator,
+                                        FileIOCalculator)
 from ase.io import write
 from ase.io.vasp import write_vasp
 from ase.parallel import world

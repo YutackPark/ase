@@ -1,5 +1,8 @@
+from typing import IO, Optional, Union
+
 import numpy as np
 
+from ase import Atoms
 from ase.optimize.optimize import Optimizer
 from ase.utils.linesearch import LineSearch
 
@@ -13,10 +16,20 @@ class LBFGS(Optimizer):
 
     """
 
-    def __init__(self, atoms, restart=None, logfile='-', trajectory=None,
-                 maxstep=None, memory=100, damping=1.0, alpha=70.0,
-                 use_line_search=False, master=None,
-                 force_consistent=None):
+    def __init__(
+        self,
+        atoms: Atoms,
+        restart: Optional[str] = None,
+        logfile: Union[IO, str] = '-',
+        trajectory: Optional[str] = None,
+        maxstep: Optional[float] = None,
+        memory: int = 100,
+        damping: float = 1.0,
+        alpha: float = 70.0,
+        use_line_search: bool = False,
+        master: Optional[bool] = None,
+        force_consistent: Optional[bool] = None,
+    ):
         """Parameters:
 
         atoms: Atoms object
@@ -74,7 +87,7 @@ class LBFGS(Optimizer):
         if self.maxstep > 1.0:
             raise ValueError('You are using a much too large value for ' +
                              'the maximum step size: %.1f Angstrom' %
-                             maxstep)
+                             self.maxstep)
 
         self.memory = memory
         # Initial approximation of inverse Hessian 1./70. is to emulate the

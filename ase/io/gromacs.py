@@ -2,11 +2,11 @@
 read and write gromacs geometry files
 """
 
-from ase.atoms import Atoms
 import numpy as np
 
-from ase.data import atomic_numbers
 from ase import units
+from ase.atoms import Atoms
+from ase.data import atomic_numbers
 from ase.utils import reader, writer
 
 

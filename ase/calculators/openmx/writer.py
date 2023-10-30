@@ -18,12 +18,14 @@ functional theories.
     along with ASE.  If not, see <http://www.gnu.org/licenses/>.
 """
 import os
+
 import numpy as np
-from ase.units import Bohr, Ha, Ry, fs, m, s
+
 from ase.calculators.calculator import kpts2sizeandoffsets
-from ase.calculators.openmx.reader import (
-    read_electron_valency, get_file_name, get_standard_key)
 from ase.calculators.openmx import parameters as param
+from ase.calculators.openmx.reader import (get_file_name, get_standard_key,
+                                           read_electron_valency)
+from ase.units import Bohr, Ha, Ry, fs, m, s
 
 keys = [param.tuple_integer_keys, param.tuple_float_keys,
         param.tuple_bool_keys, param.integer_keys, param.float_keys,
@@ -76,9 +78,10 @@ def parameters_to_keywords(label=None, atoms=None, parameters=None,
 
     For aesthetical purpose, sequnece of writing input file is specified.
     """
-    from ase.calculators.openmx.parameters import matrix_keys
-    from ase.calculators.openmx.parameters import unit_dat_keywords
     from collections import OrderedDict
+
+    from ase.calculators.openmx.parameters import (matrix_keys,
+                                                   unit_dat_keywords)
     keywords = OrderedDict()
     sequence = [
         'system_currentdirectory', 'system_name', 'data_path',

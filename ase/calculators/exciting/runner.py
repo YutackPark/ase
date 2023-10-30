@@ -1,9 +1,9 @@
 """Binary runner and results class."""
 import os
-from typing import List, Optional, Union
-from pathlib import Path
 import subprocess
 import time
+from pathlib import Path
+from typing import List, Optional, Union
 
 
 class SubprocessRunResults:

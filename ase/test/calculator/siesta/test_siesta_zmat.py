@@ -1,6 +1,7 @@
 import os
-from ase.constraints import FixAtoms, FixedLine, FixedPlane, FixCartesian
+
 from ase import Atoms
+from ase.constraints import FixAtoms, FixCartesian, FixedLine, FixedPlane
 
 
 def test_siesta_zmat(siesta_factory):

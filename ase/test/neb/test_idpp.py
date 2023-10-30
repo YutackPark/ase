@@ -1,6 +1,6 @@
 import pytest
 from ase.build import molecule
-from ase.neb import NEB, idpp_interpolate
+from ase.mep import NEB, idpp_interpolate
 
 
 # I think idpp uses an optimizer;

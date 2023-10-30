@@ -1,6 +1,6 @@
-from ase.calculators.dftb import Dftb
-from ase.io import write, read
 from ase.build import molecule
+from ase.calculators.dftb import Dftb
+from ase.io import read, write
 
 atoms = molecule('H2O')
 calc = Dftb(atoms=atoms,

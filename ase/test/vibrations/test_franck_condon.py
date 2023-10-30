@@ -1,16 +1,15 @@
 import sys
-import numpy as np
 from math import factorial
-import pytest
-from pytest import approx, fixture
+
+import numpy as np
+from pytest import approx, fixture, mark
 
 from ase.build import molecule
 from ase.calculators.emt import EMT
 from ase.optimize import BFGS
 from ase.vibrations import Vibrations
-from ase.vibrations.franck_condon import (FranckCondonOverlap,
-                                          FranckCondonRecursive,
-                                          FranckCondon)
+from ase.vibrations.franck_condon import (FranckCondon, FranckCondonOverlap,
+                                          FranckCondonRecursive)
 
 
 def equal(x, y, tolerance=0, fail=True, msg=''):
@@ -25,7 +24,7 @@ def equal(x, y, tolerance=0, fail=True, msg=''):
             sys.stderr.write('WARNING: %s\n' % msg)
 
 
-@pytest.mark.optimize
+@mark.optimize
 def test_franck_condon(testdir):
     # FCOverlap
 

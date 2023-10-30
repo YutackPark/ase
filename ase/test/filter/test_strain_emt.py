@@ -1,8 +1,8 @@
 import pytest
-from ase.constraints import StrainFilter
-from ase.optimize.mdmin import MDMin
-from ase.calculators.emt import EMT
 from ase.build import bulk
+from ase.calculators.emt import EMT
+from ase.filters import StrainFilter
+from ase.optimize.mdmin import MDMin
 
 
 @pytest.mark.optimize

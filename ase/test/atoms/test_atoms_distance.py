@@ -1,4 +1,5 @@
 import itertools
+
 from ase import Atoms
 from ase.geometry import get_distances
 from ase.lattice.cubic import FaceCenteredCubic

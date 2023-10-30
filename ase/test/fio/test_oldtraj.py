@@ -1,6 +1,7 @@
 """Test that we can read old trajectory files."""
-from base64 import b64encode, b64decode
+from base64 import b64decode, b64encode
 from pathlib import Path
+
 from ase import Atoms
 from ase.constraints import FixAtoms
 from ase.io import read

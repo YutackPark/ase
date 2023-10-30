@@ -7,22 +7,22 @@ comment line, and additional per-atom properties as extra columns.
 
 Contributed by James Kermode <james.kermode@gmail.com>
 """
-import re
-import warnings
 import json
 import numbers
+import re
+import warnings
 from io import StringIO, UnsupportedOperation
 
 import numpy as np
 
 from ase.atoms import Atoms
-from ase.calculators.calculator import all_properties, BaseCalculator
+from ase.calculators.calculator import BaseCalculator, all_properties
 from ase.calculators.singlepoint import SinglePointCalculator
-from ase.spacegroup.spacegroup import Spacegroup
-from ase.parallel import paropen
 from ase.constraints import FixAtoms, FixCartesian
 from ase.io.formats import index2range
 from ase.io.utils import ImageIterator
+from ase.parallel import paropen
+from ase.spacegroup.spacegroup import Spacegroup
 from ase.utils import reader
 
 __all__ = ['read_xyz', 'write_xyz', 'iread_xyz']

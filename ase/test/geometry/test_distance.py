@@ -1,8 +1,9 @@
 def test_distance():
     import itertools
+
     import numpy as np
 
-    from ase import Atoms, Atom
+    from ase import Atom, Atoms
     from ase.geometry import distance
 
     # artificial structure

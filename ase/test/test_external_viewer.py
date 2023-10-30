@@ -2,10 +2,10 @@ import sys
 
 import pytest
 
+from ase.build import bulk
 from ase.io import read
 from ase.visualize import view
-from ase.visualize.viewers import CLIViewer, CLI_VIEWERS, PyViewer
-from ase.build import bulk
+from ase.visualize.viewers import CLI_VIEWERS, CLIViewer, PyViewer
 
 
 @pytest.fixture
@@ -29,6 +29,34 @@ def test_view_ase_via_cli(atoms):
     viewer.terminate()
     status = viewer.wait()
     assert status != 0
+
+
+viewers = [
+    # `ase`  # tested above
+    'ngl',
+    # 'mlab',  # TODO: make it available
+    # 'sage',  # TODO: make it available
+    'x3d',
+    # 'avogadro',  # TODO: no CLI?
+    # `ase_gui_cli`  # tested above
+    # 'gopenmol',  # TODO: no CLI?
+    # 'rasmol',  # TODO: no CLI?
+    # `vmd`,  # TODO: no CLI?
+    # 'xmakemol',  # TODO: no CLI?
+]
+
+
+# At the moment nglview raises a DeprecationWarning.
+# https://github.com/nglviewer/nglview/issues/1074
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
+@pytest.mark.parametrize('viewer', viewers)
+def test_good_viewer(atoms, viewer):
+    """Test if `viewer` can at least be called without errors."""
+    if viewer == 'ngl':
+        pytest.importorskip('nglview')
+    elif viewer == 'x3d':
+        pytest.importorskip('IPython')
+    view(atoms, viewer=viewer)
 
 
 def test_bad_viewer(atoms):

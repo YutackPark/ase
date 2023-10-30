@@ -6,13 +6,14 @@ Currently, only a few functions are defined, such as
 MaxwellBoltzmannDistribution, which sets the momenta of a list of
 atoms according to a Maxwell-Boltzmann distribution at a given
 temperature.
-
 """
+from typing import Optional
 
 import numpy as np
-from ase.parallel import world
-from ase import units
+
+from ase import Atoms, units
 from ase.md.md import process_temperature
+from ase.parallel import world
 
 # define a ``zero'' temperature to avoid divisions by zero
 eps_temp = 1e-12
@@ -22,7 +23,7 @@ class UnitError(Exception):
     """Exception raised when wrong units are specified"""
 
 
-def force_temperature(atoms, temperature, unit="K"):
+def force_temperature(atoms: Atoms, temperature: float, unit: str = "K"):
     """ force (nucl.) temperature to have a precise value
 
     Parameters:
@@ -84,9 +85,13 @@ def _maxwellboltzmanndistribution(masses, temp, communicator=None, rng=None):
 
 
 def MaxwellBoltzmannDistribution(
-    atoms, temp=None, *, temperature_K=None,
-    communicator=None, force_temp=False,
-    rng=None
+    atoms: Atoms,
+    temp: Optional[float] = None,
+    *,
+    temperature_K: Optional[float] = None,
+    communicator=None,
+    force_temp: bool = False,
+    rng=None,
 ):
     """Sets the momenta to a Maxwell-Boltzmann distribution.
 
@@ -122,7 +127,7 @@ def MaxwellBoltzmannDistribution(
         force_temperature(atoms, temperature=temp, unit="eV")
 
 
-def Stationary(atoms, preserve_temperature=True):
+def Stationary(atoms: Atoms, preserve_temperature: bool = True):
     "Sets the center-of-mass momentum to zero."
 
     # Save initial temperature
@@ -141,7 +146,7 @@ def Stationary(atoms, preserve_temperature=True):
         force_temperature(atoms, temp0)
 
 
-def ZeroRotation(atoms, preserve_temperature=True):
+def ZeroRotation(atoms: Atoms, preserve_temperature: float = True):
     "Sets the total angular momentum to zero by counteracting rigid rotations."
 
     # Save initial temperature

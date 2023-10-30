@@ -1,12 +1,13 @@
 from collections import defaultdict
 
-import numpy as np
 import kimpy
+import numpy as np
 from kimpy import neighlist
-from ase.neighborlist import neighbor_list
-from ase import Atom
 
-from .kimpy_wrappers import check_call_wrapper, c_int, c_double
+from ase import Atom
+from ase.neighborlist import neighbor_list
+
+from .kimpy_wrappers import c_double, c_int, check_call_wrapper
 
 
 class NeighborList:
@@ -123,8 +124,17 @@ class NeighborList:
                 if a.shape == b.shape:
                     delta = np.linalg.norm(a - b, axis=1)
                     # Indices of the two largest elements
-                    ind = np.argpartition(delta, -2)[-2:]
-                    if sum(delta[ind]) <= self.skin:
+                    try:
+                        ind = np.argpartition(delta, -2)[-2:]
+
+                        if sum(delta[ind]) <= self.skin:
+                            need_neigh_update = False
+                    except ValueError as error:
+                        # if there is only a single atom that gets displaced
+                        # np.argpartition(delta, -2) will fail with a
+                        # ValueError, a single atom has no neighbors to update
+                        if atoms.positions.shape[0] != 1:
+                            raise error
                         need_neigh_update = False
 
         return need_neigh_update

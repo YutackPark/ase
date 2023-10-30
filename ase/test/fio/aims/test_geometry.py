@@ -1,18 +1,16 @@
 import warnings
 
 import numpy as np
-from ase.build import bulk
-from ase.atoms import Atoms
-from ase.io.aims import read_aims as read
-from ase.io.aims import parse_geometry_lines
 import pytest
 from pytest import approx
-from ase.constraints import (
-    FixAtoms,
-    FixCartesian,
-    FixScaledParametricRelations,
-    FixCartesianParametricRelations,
-)
+
+from ase.atoms import Atoms
+from ase.build import bulk
+from ase.constraints import (FixAtoms, FixCartesian,
+                             FixCartesianParametricRelations,
+                             FixScaledParametricRelations)
+from ase.io.aims import parse_geometry_lines
+from ase.io.aims import read_aims as read
 
 format = "aims"
 

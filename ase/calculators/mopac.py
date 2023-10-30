@@ -12,12 +12,12 @@ import re
 from typing import Sequence
 from warnings import warn
 
-from packaging import version
 import numpy as np
+from packaging import version
 
 from ase import Atoms
-from ase.calculators.calculator import FileIOCalculator, ReadError, Parameters
-from ase.units import kcal, mol, Debye
+from ase.calculators.calculator import FileIOCalculator, Parameters, ReadError
+from ase.units import Debye, kcal, mol
 
 
 class MOPAC(FileIOCalculator):

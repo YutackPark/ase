@@ -1,17 +1,21 @@
+import logging
 import re
 import warnings
 from collections.abc import Iterable
 from copy import deepcopy
 
 import numpy as np
+
 from ase import Atoms
-from ase.calculators.calculator import InputError, Calculator
+from ase.calculators.calculator import Calculator, InputError
 from ase.calculators.gaussian import Gaussian
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.data import atomic_masses_iupac2016, chemical_symbols
 from ase.io import ParseError
 from ase.io.zmatrix import parse_zmatrix
 from ase.units import Bohr, Hartree
+
+logger = logging.getLogger(__name__)
 
 _link0_keys = [
     'mem',
@@ -1230,6 +1234,7 @@ def read_gaussian_out(fd, index=-1):
     energy = None
     dipole = None
     forces = None
+    orientation = None  # Orientation of the coordinates stored in atoms
     for line in fd:
         line = line.strip()
         if line.startswith(r'1\1\GINC'):
@@ -1240,11 +1245,25 @@ def read_gaussian_out(fd, index=-1):
                 or line == 'Z-Matrix orientation:'
                 or line == "Standard orientation:"):
             if atoms is not None:
+                # Add configuration to the currently-parsed list
+                #  only after an energy or force has been parsed
+                #  (we assume these are in the output file)
+                if energy is None:
+                    continue
+                # "atoms" should store the first geometry encountered
+                #  in the input file which is often the input orientation,
+                #  which is the orientation for forces.
+                #  If there are forces and the orientation of atoms is not
+                #  the input coordinate system, warn the user
+                if orientation != "Input" and forces is not None:
+                    logger.warning('Configuration geometry is not in the input'
+                                   f'orientation. It is {orientation}')
                 atoms.calc = SinglePointCalculator(
                     atoms, energy=energy, dipole=dipole, forces=forces,
                 )
                 _compare_merge_configs(configs, atoms)
             atoms = None
+            orientation = line.split()[0]  # Store the orientation
             energy = None
             dipole = None
             forces = None

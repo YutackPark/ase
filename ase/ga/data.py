@@ -2,10 +2,10 @@
     Objects which handle all communication with the SQLite database.
 """
 import os
-from ase import Atoms
-from ase.ga import get_raw_score
-from ase.ga import set_parametrization, set_neighbor_list
+
 import ase.db
+from ase import Atoms
+from ase.ga import get_raw_score, set_neighbor_list, set_parametrization
 
 
 def split_description(desc):

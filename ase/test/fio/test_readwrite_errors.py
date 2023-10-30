@@ -1,8 +1,10 @@
 def test_readwrite_errors():
-    import pytest
     from io import StringIO
-    from ase.io import read, write
+
+    import pytest
+
     from ase.build import bulk
+    from ase.io import read, write
     from ase.io.formats import UnknownFileTypeError
 
     atoms = bulk('Au')
@@ -62,8 +64,9 @@ def test_parse_filename_with_at_no_ext():
 
 def test_parse_filename_bad_slice():
     # parse filename with malformed @-slice
-    from ase.io.formats import parse_filename
     import warnings
+
+    from ase.io.formats import parse_filename
     with warnings.catch_warnings(record=True) as w:
         warnings.simplefilter('always')
         filename, index = parse_filename('path.to/filename@s:4')

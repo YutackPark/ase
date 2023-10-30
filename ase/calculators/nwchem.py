@@ -3,12 +3,13 @@
 https://nwchemgit.github.io
 """
 import os
+
 import numpy as np
 
 from ase import io
-from ase.units import Hartree
 from ase.calculators.calculator import FileIOCalculator
 from ase.spectrum.band_structure import BandStructure
+from ase.units import Hartree
 
 
 class NWChem(FileIOCalculator):
@@ -115,6 +116,52 @@ class NWChem(FileIOCalculator):
         bandpath: BandPath object
             The band path to use for a band structure calculation.
             Implies ``theory='band'``.
+        pretasks: list of dict
+            Tasks used to produce a better initial guess
+            for the wavefunction.
+            These task typically use a cheaper level of theory
+            or smaller basis set (but not both).
+            The output energy and forces should remain unchanged
+            regardless of the number of tasks or their parameters,
+            but the runtime may be significantly improved.
+
+            For example, a MP2 calculation preceded by guesses at the
+            DFT and HF levels would be
+
+            >>> calc = NWChem(theory='mp2', basis='aug-cc-pvdz',
+            >>>               pretasks=[
+            >>>                   {'dft': {'xc': 'hfexch'},
+            >>>                    'set': {'lindep:n_dep': 0}},
+            >>>                   {'theory': 'scf', 'set': {'lindep:n_dep': 0}},
+            >>>               ])
+
+            Each dictionary could contain any of the other parameters,
+            except those which pertain to global configurations
+            (e.g., geometry details, scratch dir).
+
+            The default basis set is that of the final step in the calculation,
+            or that of the previous step that which defines a basis set.
+            For example, all steps in the example will use aug-cc-pvdz
+            because the last step is the only one which defines a basis.
+
+            Steps which change basis set must use the same theory.
+            The following specification would perform SCF using the 3-21G
+            basis set first, then B3LYP//3-21g, and then B3LYP//6-31G(2df,p)
+
+            >>> calc = NWChem(theory='dft', xc='b3lyp', basis='6-31g(2df,p)',
+            >>>               pretasks=[
+            >>>                   {'theory': 'scf', 'basis': '3-21g',
+            >>>                    'set': {'lindep:n_dep': 0}},
+            >>>                   {'dft': {'xc': 'b3lyp'}},
+            >>>               ])
+
+            The :code:`'set': {'lindep:n_dep': 0}` option is highly suggested
+            as a way to avoid errors relating to symmetry changes between tasks.
+
+            The calculator will configure appropriate options for saving
+            and loading intermediate wavefunctions, and
+            place an "ignore" task directive between each step so that
+            convergence errors in intermediate steps do not halt execution.
         """
         FileIOCalculator.__init__(self, restart, ignore_bad_restart_file,
                                   label, atoms, command, **kwargs)

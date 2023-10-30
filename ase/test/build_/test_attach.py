@@ -1,10 +1,10 @@
-import pytest
 import numpy as np
+import pytest
 
-from ase.parallel import world
-from ase.build import molecule, fcc111
+from ase.build import fcc111, molecule
 from ase.build.attach import (attach, attach_randomly,
                               attach_randomly_and_broadcast)
+from ase.parallel import world
 
 
 def test_attach_molecules():

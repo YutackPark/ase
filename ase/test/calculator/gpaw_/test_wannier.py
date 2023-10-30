@@ -1,19 +1,21 @@
-import pytest
-import numpy as np
 from functools import partial
-from ase import Atoms
-from ase.transport.tools import dagger, normalize
-from ase.dft.kpoints import monkhorst_pack
-from ase.build import molecule, bulk
-from ase.io.cube import read_cube
-from ase.lattice import CUB, FCC, BCC, TET, BCT, ORC, ORCF, ORCI, ORCC, HEX, \
-    RHL, MCL, MCLC, TRI, OBL, HEX2D, RECT, CRECT, SQR, LINE
-from ase.dft.wannier import gram_schmidt, lowdin, \
-    neighbor_k_search, calculate_weights, steepest_descent, md_min, \
-    rotation_from_projection, init_orbitals, scdm, Wannier, \
-    search_for_gamma_point, arbitrary_s_orbitals
-from ase.dft.wannierstate import random_orthogonal_matrix
 
+import numpy as np
+import pytest
+
+from ase import Atoms
+from ase.build import bulk, molecule
+from ase.dft.kpoints import monkhorst_pack
+from ase.dft.wannier import (Wannier, arbitrary_s_orbitals, calculate_weights,
+                             gram_schmidt, init_orbitals, lowdin, md_min,
+                             neighbor_k_search, rotation_from_projection, scdm,
+                             search_for_gamma_point, steepest_descent)
+from ase.dft.wannierstate import random_orthogonal_matrix
+from ase.io.cube import read_cube
+from ase.lattice import (BCC, BCT, CRECT, CUB, FCC, HEX, HEX2D, LINE, MCL,
+                         MCLC, OBL, ORC, ORCC, ORCF, ORCI, RECT, RHL, SQR, TET,
+                         TRI)
+from ase.transport.tools import dagger, normalize
 
 calc = pytest.mark.calculator
 Nk = 2

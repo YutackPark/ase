@@ -1,25 +1,10 @@
-# flake8: noqa
-"""Minimum mode follower for finding saddle points in an unbiased way.
+"""Temporary file while we deprecate this locaation."""
 
-There is, currently, only one implemented method: The Dimer method.
-
-"""
-
-import sys
-import time
-import warnings
-from math import cos, sin, atan, tan, degrees, pi, sqrt
-from typing import Dict, Any
-
-import numpy as np
 
 from ase.optimize.optimize import Optimizer, OptimizableAtoms
 from ase.parallel import world
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.utils import IOContext
-
-# Handy vector methods
-norm = np.linalg.norm
 
 
 class DimerOptimizable(OptimizableAtoms):

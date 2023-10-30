@@ -5,7 +5,6 @@ from ase.calculators.emt import EMT
 from ase.optimize import BFGS
 from ase.vibrations import Vibrations
 
-
 expected_summary = """---------------------
   #    meV     cm^-1
 ---------------------

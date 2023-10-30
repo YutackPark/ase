@@ -1,18 +1,17 @@
 import os
+import re
+import runpy
 import traceback
 import warnings
 from os.path import join
+from pathlib import Path
 from stat import ST_MTIME
-import re
-import runpy
+from subprocess import DEVNULL, CalledProcessError, check_call
 
+import matplotlib
 from docutils import nodes
 from docutils.parsers.rst.roles import set_classes
 
-from subprocess import check_call, DEVNULL, CalledProcessError
-from pathlib import Path
-
-import matplotlib
 matplotlib.use('Agg')
 
 
@@ -73,7 +72,7 @@ def creates():
             # Skip files in the build/ folder
             continue
 
-        for filename in filenames:
+        for filename in sorted(filenames):
             if filename.endswith('.py'):
                 path = join(dirpath, filename)
                 with open(path) as fd:

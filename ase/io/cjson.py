@@ -3,6 +3,7 @@
 https://wiki.openchemistry.org/Chemical_JSON
 """
 import json
+
 import numpy as np
 
 from ase import Atoms

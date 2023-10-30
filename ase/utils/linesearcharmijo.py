@@ -1,6 +1,7 @@
 # flake8: noqa
 import logging
 import math
+
 import numpy as np
 
 ###CO <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -199,7 +200,7 @@ class LineSearchArmijo:
 
 
         ###CO : added rigid_units and rotation_factors
-    def run(self, x_start, dirn, a_max=None, a_min=None, a1=None, 
+    def run(self, x_start, dirn, a_max=None, a_min=None, a1=None,
             func_start=None, func_old=None, func_prime_start=None,
             rigid_units=None, rotation_factors=None, maxstep=None):
 
@@ -224,7 +225,7 @@ class LineSearchArmijo:
                 function will return a value scaled with respect to dirn.
             a_max: an upper bound on the maximum step length allowed. Default is 2.0.
             a_min: a lower bound on the minimum step length allowed. Default is 1e-10.
-                A RuntimeError is raised if this bound is violated 
+                A RuntimeError is raised if this bound is violated
                 during the line search.
             a1: the initial guess for an acceptable step length. If no value is
                 given, this will be set automatically, using quadratic
@@ -256,11 +257,11 @@ class LineSearchArmijo:
             RuntimeError for problems encountered during iteration
         """
 
-        a1 = self.handle_args(x_start, dirn, a_max, a_min, a1, func_start, 
+        a1 = self.handle_args(x_start, dirn, a_max, a_min, a1, func_start,
                               func_old, func_prime_start, maxstep)
 
         # DEBUG
-        logger.debug("a1(auto) = ", a1)
+        logger.debug("a1(auto) = %e", a1)
 
         if abs(a1 - 1.0) <= 0.5:
             a1 = 1.0
@@ -383,7 +384,10 @@ class LineSearchArmijo:
 
         self.phi_prime_start = longsum(self.func_prime_start * self.dirn)
         if self.phi_prime_start >= 0:
-            logger.error("Passed direction which is not downhill. Aborting...")
+            logger.error(
+                "Passed direction which is not downhill. Aborting...: %e",
+                self.phi_prime_start
+            )
             raise ValueError("Direction is not downhill.")
         elif math.isinf(self.phi_prime_start):
             logger.error("Passed func_prime_start and dirn which are too big. "
@@ -412,7 +416,7 @@ class LineSearchArmijo:
         if maxstep is None:
             maxstep = 0.2
         logger.debug("maxstep = %e", maxstep)
-        
+
         r = np.reshape(dirn, (-1, 3))
         steplengths = ((a1*r)**2).sum(1)**0.5
         maxsteplength = np.max(steplengths)

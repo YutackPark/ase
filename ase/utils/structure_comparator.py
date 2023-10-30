@@ -1,7 +1,7 @@
 """Determine symmetry equivalence of two structures.
 Based on the recipe from Comput. Phys. Commun. 183, 690-697 (2012)."""
 from collections import Counter
-from itertools import combinations, product, filterfalse
+from itertools import combinations, filterfalse, product
 
 import numpy as np
 from scipy.spatial import cKDTree as KDTree

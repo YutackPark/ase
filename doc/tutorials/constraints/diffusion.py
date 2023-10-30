@@ -3,7 +3,6 @@ import runpy
 
 from ase.io import read, write
 
-
 runpy.run_path('diffusion4.py')
 images = [read('mep%d.traj' % i) for i in range(5)]
 a = images[0] + images[1] + images[2] + images[3] + images[4]

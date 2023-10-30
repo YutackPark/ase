@@ -1,18 +1,17 @@
 import errno
 import functools
-import os
 import io
+import os
 import pickle
+import re
+import string
 import sys
 import time
-import string
 import warnings
+from contextlib import ExitStack, contextmanager
 from importlib import import_module
-from math import sin, cos, radians, atan2, degrees
-from contextlib import contextmanager, ExitStack
-from math import gcd
-from pathlib import PurePath, Path
-import re
+from math import atan2, cos, degrees, gcd, radians, sin
+from pathlib import Path, PurePath
 
 import numpy as np
 
@@ -80,6 +79,8 @@ def seterr(**kwargs):
 
 def plural(n, word):
     """Use plural for n!=1.
+
+    >>> from ase.utils import plural
 
     >>> plural(0, 'egg'), plural(1, 'egg'), plural(2, 'egg')
     ('0 eggs', '1 egg', '2 eggs')
@@ -176,8 +177,9 @@ def opencew(filename, world=None):
 
 
 def _opencew(filename, world=None):
+    import ase.parallel as parallel
     if world is None:
-        from ase.parallel import world
+        world = parallel.world
 
     closelater = []
 
@@ -198,7 +200,7 @@ def _opencew(filename, world=None):
             closelater.append(fd)
 
         # Synchronize:
-        error = world.sum(error)
+        error = parallel.broadcast(error, 0, world)
         if error == errno.EEXIST:
             return None
         if error:

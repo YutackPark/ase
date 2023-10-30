@@ -1,7 +1,7 @@
+from abc import ABC, abstractmethod
 from os import PathLike
 from pathlib import Path
-from typing import Iterable, Mapping, Any
-from abc import ABC, abstractmethod
+from typing import Any, Iterable, Mapping
 
 from ase.calculators.abc import GetOutputsMixin
 from ase.calculators.calculator import BaseCalculator
@@ -15,7 +15,7 @@ def read_stdout(args, createfile=None):
     determine the code version, we just run the code until it prints
     a version number."""
     import tempfile
-    from subprocess import Popen, PIPE
+    from subprocess import PIPE, Popen
     with tempfile.TemporaryDirectory() as directory:
         if createfile is not None:
             path = Path(directory) / createfile
@@ -56,6 +56,7 @@ class CalculatorTemplate(ABC):
             unixsocket=None, port=None):
         import os
         from subprocess import Popen
+
         from ase.calculators.socketio import SocketIOCalculator
 
         if port and unixsocket:

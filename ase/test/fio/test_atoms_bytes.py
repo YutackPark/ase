@@ -1,6 +1,6 @@
 from ase.build import bulk
-from ase.io.bytes import to_bytes, parse_images, parse_atoms
 from ase.calculators.calculator import compare_atoms
+from ase.io.bytes import parse_atoms, parse_images, to_bytes
 
 atoms = bulk('Ti')
 images = [bulk('Au'), bulk('Ti'), bulk('NaCl', 'rocksalt', 17)]

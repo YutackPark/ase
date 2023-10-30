@@ -17,8 +17,8 @@ def plot_reciprocal_cell(path, output=None):
 
 def read_object(filename):
     from ase.io import read
-    from ase.io.jsonio import read_json
     from ase.io.formats import UnknownFileTypeError
+    from ase.io.jsonio import read_json
 
     try:
         return read(filename)

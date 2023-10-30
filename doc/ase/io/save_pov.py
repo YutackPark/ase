@@ -3,8 +3,8 @@
 import numpy as np
 
 from ase import Atoms
-from ase.io import write
 from ase.build import molecule
+from ase.io import write
 
 a = 5.64  # Lattice constant for NaCl
 cell = [a / np.sqrt(2), a / np.sqrt(2), a]

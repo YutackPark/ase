@@ -1,10 +1,9 @@
 from functools import partial
 
-from ase.gui.i18n import _
-
 import ase.gui.ui as ui
-from ase.gui.widgets import Element
+from ase.gui.i18n import _
 from ase.gui.utils import get_magmoms
+from ase.gui.widgets import Element
 
 
 class ModifyAtoms:

@@ -1,9 +1,9 @@
 import pytest
 from ase import Atoms
+from ase.calculators.morse import MorsePotential
 from ase.constraints import FixAtoms
 from ase.io import Trajectory
 from ase.optimize import QuasiNewton
-from ase.calculators.morse import MorsePotential
 
 
 @pytest.mark.optimize

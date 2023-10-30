@@ -4,10 +4,10 @@ from contextlib import ExitStack
 
 import numpy as np
 
-from ase.db.core import Database, ops, lock, now
+from ase.db.core import Database, lock, now, ops
 from ase.db.row import AtomsRow
-from ase.io.jsonio import encode, decode
-from ase.parallel import world, parallel_function
+from ase.io.jsonio import decode, encode
+from ase.parallel import parallel_function, world
 
 
 class JSONDatabase(Database):

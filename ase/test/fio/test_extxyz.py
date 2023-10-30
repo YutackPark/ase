@@ -4,20 +4,20 @@
 # maintained by James Kermode <james.kermode@gmail.com>
 
 from pathlib import Path
+
 import numpy as np
 import pytest
 
 import ase.io
-from ase.calculators.singlepoint import SinglePointCalculator
-from ase.io import extxyz
 from ase.atoms import Atoms
-from ase.build import bulk
-from ase.io.extxyz import escape
+from ase.build import bulk, molecule
 from ase.calculators.calculator import compare_atoms
 from ase.calculators.emt import EMT
+from ase.calculators.singlepoint import SinglePointCalculator
 from ase.constraints import FixAtoms, FixCartesian
+from ase.io import extxyz
+from ase.io.extxyz import escape
 from ase.stress import full_3x3_to_voigt_6_stress
-from ase.build import molecule
 
 # array data of shape (N, 1) squeezed down to shape (N, ) -- bug fixed
 # in commit r4541

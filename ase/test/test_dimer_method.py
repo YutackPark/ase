@@ -1,8 +1,8 @@
 import pytest
-from ase.build import fcc100, add_adsorbate
-from ase.constraints import FixAtoms
+from ase.build import add_adsorbate, fcc100
 from ase.calculators.emt import EMT
-from ase.dimer import DimerControl, MinModeAtoms, MinModeTranslate
+from ase.constraints import FixAtoms
+from ase.mep import DimerControl, MinModeAtoms, MinModeTranslate
 
 
 @pytest.mark.optimize

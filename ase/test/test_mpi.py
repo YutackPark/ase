@@ -1,6 +1,7 @@
-import pytest
 import sys
 from subprocess import run
+
+import pytest
 
 
 @pytest.mark.skip(reason='Does not work and no time to investigate.')

@@ -1,12 +1,13 @@
 # flake8: noqa
+from pathlib import Path
+
 import numpy as np
 import pytest
+from numpy.linalg import norm
 
-from ase.io import read, ParseError
+from ase.io import ParseError, read
 from ase.io.aims import read_aims_results
 from ase.stress import full_3x3_to_voigt_6_stress
-from numpy.linalg import norm
-from pathlib import Path
 
 parent = Path(__file__).parents[2]
 

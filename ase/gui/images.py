@@ -1,3 +1,4 @@
+import warnings
 from math import sqrt
 
 import numpy as np
@@ -6,12 +7,10 @@ from ase import Atoms
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.constraints import FixAtoms
 from ase.data import covalent_radii
-from ase.gui.defaults import read_defaults
-from ase.io import read, write, string2index
-from ase.gui.i18n import _
 from ase.geometry import find_mic
-
-import warnings
+from ase.gui.defaults import read_defaults
+from ase.gui.i18n import _
+from ase.io import read, string2index, write
 
 
 class Images:
@@ -253,7 +252,8 @@ class Images:
             images.append(atoms)
 
         if constraints_removed:
-            from ase.gui.ui import tk, showwarning
+            from ase.gui.ui import showwarning, tk
+
             # We must be able to show warning before the main GUI
             # has been created.  So we create a new window,
             # then show the warning, then destroy the window.

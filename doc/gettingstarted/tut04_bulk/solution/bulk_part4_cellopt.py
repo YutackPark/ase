@@ -1,8 +1,9 @@
+from gpaw import GPAW, PW
+
 from ase.constraints import ExpCellFilter
 from ase.io import write
 from ase.optimize import BFGS
 from ase.spacegroup import crystal
-from gpaw import GPAW, PW
 
 a = 4.6
 c = 2.95

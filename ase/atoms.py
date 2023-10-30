@@ -8,15 +8,15 @@ object.
 """
 import copy
 import numbers
-from math import cos, sin, pi
+from math import cos, pi, sin
 
 import numpy as np
 
 import ase.units as units
 from ase.atom import Atom
 from ase.cell import Cell
-from ase.stress import voigt_6_to_full_3x3_stress, full_3x3_to_voigt_6_stress
 from ase.data import atomic_masses, atomic_masses_common
+from ase.stress import full_3x3_to_voigt_6_stress, voigt_6_to_full_3x3_stress
 from ase.symbols import Symbols, symbols2numbers
 from ase.utils import deprecated
 
@@ -102,6 +102,8 @@ class Atoms:
     Examples:
 
     These three are equivalent:
+
+    >>> from ase import Atom
 
     >>> d = 1.104  # N2 bondlength
     >>> a = Atoms('N2', [(0, 0, 0), (0, 0, d)])
@@ -1989,8 +1991,8 @@ class Atoms:
         please set matplotlib.use('gtk') before calling this
         method.
         """
-        from ase.gui.images import Images
         from ase.gui.gui import GUI
+        from ase.gui.images import Images
         images = Images([self])
         gui = GUI(images)
         gui.run()

@@ -1,8 +1,8 @@
 import pytest
 
 from ase.build import bulk
-from ase.calculators.emt import EMT
 from ase.calculators.calculator import compare_atoms
+from ase.calculators.emt import EMT
 from ase.io.trajectory import Trajectory
 from ase.optimize import BFGS
 
@@ -46,15 +46,14 @@ def test_attach_trajectory(tmp_path, atoms0, atoms):
         opt = BFGS(atoms, trajectory=traj)
         irun = opt.irun(fmax=0.0)
 
-        for i in range(n_yields):
+        for _ in range(n_yields):
             next(irun)
 
     with Trajectory(tmp_path / 'tmp.traj') as traj:
         images = list(traj)
 
-    # We always yield right before logging/trajectorywriting.
-    # Therefore, the most recent structure is not included in the file.
-    # Is that a bug?  Maybe it is, but now we test this behaviour:
-    assert len(images) == n_yields - 1
+    # The number of images must be equal to the number of yielding.
+    assert len(images) == n_yields
+
     assert not compare_atoms(atoms0, images[0])
     assert compare_atoms(atoms0, images[-1]) == ['positions']

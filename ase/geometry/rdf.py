@@ -2,6 +2,7 @@ import math
 from typing import List, Optional, Tuple, Union
 
 import numpy as np
+
 from ase import Atoms
 from ase.cell import Cell
 

@@ -1,10 +1,11 @@
 import collections
 from functools import reduce, singledispatch
-from typing import (Any, Dict, Iterable, List, Optional,
-                    overload, Sequence, TypeVar, Union)
+from typing import (Any, Dict, Iterable, List, Optional, Sequence, TypeVar,
+                    Union, overload)
 
 import numpy as np
-from ase.spectrum.dosdata import DOSData, RawDOSData, GridDOSData, Info, Floats
+
+from ase.spectrum.dosdata import DOSData, Floats, GridDOSData, Info, RawDOSData
 from ase.utils.plotting import SimplePlottingAxes
 
 # This import is for the benefit of type-checking / mypy

@@ -1,7 +1,7 @@
 import numpy as np
 
-from ase.calculators.siesta.parameters import Species, PAOBasisBlock
 from ase import Atoms
+from ase.calculators.siesta.parameters import PAOBasisBlock, Species
 
 
 def test_siesta(siesta_factory):

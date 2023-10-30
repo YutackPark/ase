@@ -1,9 +1,9 @@
-from ase.vibrations.resonant_raman import ResonantRamanCalculator
-
-from gpaw.cluster import Cluster
 from gpaw import GPAW, FermiDirac
-from gpaw.lrtddft import LrTDDFT
 from gpaw.analyse.overlap import Overlap
+from gpaw.cluster import Cluster
+from gpaw.lrtddft import LrTDDFT
+
+from ase.vibrations.resonant_raman import ResonantRamanCalculator
 
 h = 0.25
 atoms = Cluster('relaxed.traj')

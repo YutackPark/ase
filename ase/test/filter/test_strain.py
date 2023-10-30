@@ -1,9 +1,9 @@
 import pytest
 from math import sqrt
-from ase.constraints import StrainFilter
-from ase.optimize.mdmin import MDMin
-from ase.build import bulk
 
+from ase.build import bulk
+from ase.filters import StrainFilter
+from ase.optimize.mdmin import MDMin
 
 a = 3.6
 

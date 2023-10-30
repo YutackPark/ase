@@ -1,8 +1,5 @@
+"""ASE calculator for the LAMMPS classical MD code"""
 # lammps.py (2011/03/29)
-# An ASE calculator for the LAMMPS classical MD code available from
-#       http://lammps.sandia.gov/
-# The environment variable ASE_LAMMPSRUN_COMMAND must be defined to point to the
-# LAMMPS binary.
 #
 # Copyright (C) 2009 - 2011 Joerg Meyer, joerg.meyer@ch.tum.de
 #
@@ -23,92 +20,109 @@
 
 
 import os
-import shutil
 import shlex
-from subprocess import Popen, PIPE, TimeoutExpired
-from threading import Thread
-from re import compile as re_compile, IGNORECASE
-from tempfile import mkdtemp, NamedTemporaryFile, mktemp as uns_mktemp
+import shutil
 import warnings
-from typing import Dict, Any
+from re import IGNORECASE
+from re import compile as re_compile
+from subprocess import PIPE, Popen, TimeoutExpired
+from tempfile import NamedTemporaryFile, mkdtemp
+from tempfile import mktemp as uns_mktemp
+from threading import Thread
+from typing import Any, Dict
+
 import numpy as np
 
-from ase.calculators.calculator import Calculator
-from ase.calculators.calculator import all_changes
-from ase.data import chemical_symbols
-from ase.data import atomic_masses
+from ase.calculators.calculator import Calculator, all_changes
+from ase.calculators.lammps import (CALCULATION_END_MARK, Prism, convert,
+                                    write_lammps_in)
+from ase.data import atomic_masses, chemical_symbols
 from ase.io.lammpsdata import write_lammps_data
 from ase.io.lammpsrun import read_lammps_dump
-from ase.calculators.lammps import Prism
-from ase.calculators.lammps import write_lammps_in
-from ase.calculators.lammps import CALCULATION_END_MARK
-from ase.calculators.lammps import convert
 
 __all__ = ["LAMMPS"]
 
 
 class LAMMPS(Calculator):
-    """The LAMMPS calculators object
+    """LAMMPS (https://lammps.sandia.gov/) calculator
 
-    files: list
-        List of files typically containing relevant potentials for the
-        calculation
-    parameters: dict
+    The environment variable :envvar:`ASE_LAMMPSRUN_COMMAND` must be defined to
+    tell ASE how to call a LAMMPS binary. This should contain the path to the
+    lammps binary, or more generally, a command line possibly also including an
+    MPI-launcher command.
+
+    For example (in a Bourne-shell compatible environment):
+
+    .. code-block:: bash
+
+        export ASE_LAMMPSRUN_COMMAND=/path/to/lmp_binary
+
+    or possibly something similar to
+
+    .. code-block:: bash
+
+        export ASE_LAMMPSRUN_COMMAND="/path/to/mpirun --np 4 lmp_binary"
+
+    Parameters
+    ----------
+    files : list[str]
+        List of files needed by LAMMPS. Typically a list of potential files.
+    parameters : dict[str, Any]
         Dictionary of settings to be passed into the input file for calculation.
-    specorder: list
+    specorder : list[str]
         Within LAAMPS, atoms are identified by an integer value starting from 1.
         This variable allows the user to define the order of the indices
         assigned to the atoms in the calculation, with the default
         if not given being alphabetical
-    keep_tmp_files: bool
+    keep_tmp_files : bool, default: False
         Retain any temporary files created. Mostly useful for debugging.
-    tmp_dir: str
+    tmp_dir : str, default: None
         path/dirname (default None -> create automatically).
         Explicitly control where the calculator object should create
-        its files. Using this option implies 'keep_tmp_files'
-    no_data_file: bool
+        its files. Using this option implies 'keep_tmp_files=True'.
+    no_data_file : bool, default: False
         Controls whether an explicit data file will be used for feeding
         atom coordinates into lammps. Enable it to lessen the pressure on
         the (tmp) file system. THIS OPTION MIGHT BE UNRELIABLE FOR CERTAIN
         CORNER CASES (however, if it fails, you will notice...).
-    keep_alive: bool
+    keep_alive : bool, default: True
         When using LAMMPS as a spawned subprocess, keep the subprocess
         alive (but idling when unused) along with the calculator object.
-    always_triclinic: bool
-        Force use of a triclinic cell in LAMMPS, even if the cell is
-        a perfect parallelepiped.
-    reduce_cell: bool
-        Reduce cell to have shorter lattice vectors. By default False.
+    always_triclinic : bool, default: False
+        Force LAMMPS to treat the cell as tilted, even if the cell is not
+        tilted, by printing ``xy``, ``xz``, ``yz`` in the data file.
+    reduce_cell : bool, default: False
+        If True, reduce cell to have shorter lattice vectors.
+    write_velocities : bool, default: False
+        If True, forward ASE velocities to LAMMPS.
+    verbose: bool, default: False
+        If True, print additional debugging output to STDOUT.
 
-        **Example**
+    Examples
+    --------
+    Provided that the respective potential file is in the working directory,
+    one can simply run (note that LAMMPS needs to be compiled to work with EAM
+    potentials)
 
-Provided that the respective potential file is in the working directory, one
-can simply run (note that LAMMPS needs to be compiled to work with EAM
-potentials)
+    ::
 
-::
+        from ase import Atom, Atoms
+        from ase.build import bulk
+        from ase.calculators.lammpsrun import LAMMPS
 
-    from ase import Atom, Atoms
-    from ase.build import bulk
-    from ase.calculators.lammpsrun import LAMMPS
+        parameters = {'pair_style': 'eam/alloy',
+                    'pair_coeff': ['* * NiAlH_jea.eam.alloy H Ni']}
 
-    parameters = {'pair_style': 'eam/alloy',
-                  'pair_coeff': ['* * NiAlH_jea.eam.alloy H Ni']}
+        files = ['NiAlH_jea.eam.alloy']
 
-    files = ['NiAlH_jea.eam.alloy']
+        Ni = bulk('Ni', cubic=True)
+        H = Atom('H', position=Ni.cell.diagonal()/2)
+        NiH = Ni + H
 
-    Ni = bulk('Ni', cubic=True)
-    H = Atom('H', position=Ni.cell.diagonal()/2)
-    NiH = Ni + H
+        lammps = LAMMPS(parameters=parameters, files=files)
 
-    lammps = LAMMPS(parameters=parameters, files=files)
-
-    NiH.calc = lammps
-    print("Energy ", NiH.get_potential_energy())
-
-(Remember you also need to set the environment variable
-``$ASE_LAMMPSRUN_COMMAND``)
-
+        NiH.calc = lammps
+        print("Energy ", NiH.get_potential_energy())
     """
 
     name = "lammpsrun"
@@ -492,21 +506,25 @@ potentials)
 
             # get thermo output
             if _custom_thermo_mark.match(line):
-                bool_match = True
-                while bool_match:
+                while True:
                     line = fileobj.readline()
+                    if 'WARNING:' in line:
+                        continue
+
                     bool_match = _custom_thermo_re.match(line)
-                    if bool_match:
-                        # create a dictionary between each of the
-                        # thermo_style args and it's corresponding value
-                        thermo_content.append(
-                            dict(
-                                zip(
-                                    self.parameters['thermo_args'],
-                                    map(float, bool_match.groups()),
-                                )
+                    if not bool_match:
+                        break
+
+                    # create a dictionary between each of the
+                    # thermo_style args and it's corresponding value
+                    thermo_content.append(
+                        dict(
+                            zip(
+                                self.parameters['thermo_args'],
+                                map(float, bool_match.groups()),
                             )
                         )
+                    )
             else:
                 line = fileobj.readline()
 

@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 from typing import Tuple
+
 from ase.eos import EquationOfState as EOS
 from ase.io import read
 

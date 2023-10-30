@@ -1,5 +1,9 @@
+from typing import IO, Optional, Union
+
 import numpy as np
 import scipy.optimize as opt
+
+from ase import Atoms
 from ase.optimize.optimize import Optimizer
 
 
@@ -17,9 +21,16 @@ class SciPyOptimizer(Optimizer):
     Only the call to the optimizer is still needed
     """
 
-    def __init__(self, atoms, logfile='-', trajectory=None,
-                 callback_always=False, alpha=70.0, master=None,
-                 force_consistent=None):
+    def __init__(
+        self,
+        atoms: Atoms,
+        logfile: Union[IO, str] = '-',
+        trajectory: Optional[str] = None,
+        callback_always: bool = False,
+        alpha: float = 70.0,
+        master: Optional[bool] = None,
+        force_consistent: Optional[bool] = None,
+    ):
         """Initialize object
 
         Parameters:
@@ -116,6 +127,7 @@ class SciPyOptimizer(Optimizer):
             self.call_fmin(fmax / self.H0, steps)
         except Converged:
             pass
+        return self.converged()
 
     def dump(self, data):
         pass
@@ -270,6 +282,7 @@ class SciPyGradientlessOptimizer(Optimizer):
             self.call_fmin(xtol, ftol, steps)
         except Converged:
             pass
+        return self.converged()
 
     def dump(self, data):
         pass
@@ -277,7 +290,7 @@ class SciPyGradientlessOptimizer(Optimizer):
     def load(self):
         pass
 
-    def call_fmin(self, fmax, steps):
+    def call_fmin(self, xtol, ftol, steps):
         raise NotImplementedError
 
 

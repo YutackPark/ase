@@ -2,9 +2,9 @@ import warnings
 
 import numpy as np
 
-from ase.io import read, write
-from ase.calculators.emt import EMT
 from ase.build import bulk
+from ase.calculators.emt import EMT
+from ase.io import read, write
 
 
 def test_issue276(testdir):

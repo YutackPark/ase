@@ -1,5 +1,5 @@
-from ase.calculators.octopus import Octopus
 from ase.build import bulk
+from ase.calculators.octopus import Octopus
 
 system = bulk('Si')
 

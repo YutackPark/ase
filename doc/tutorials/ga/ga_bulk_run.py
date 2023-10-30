@@ -1,15 +1,15 @@
-from ase.io import write
-from ase.ga import get_raw_score
-from ase.ga.data import DataConnection
-from ase.ga.population import Population
-from ase.ga.utilities import closest_distances_generator, CellBounds
-from ase.ga.ofp_comparator import OFPComparator
-from ase.ga.offspring_creator import OperationSelector
-from ase.ga.standardmutations import StrainMutation
-from ase.ga.soft_mutation import SoftMutation
-from ase.ga.cutandsplicepairing import CutAndSplicePairing
 from ga_bulk_relax import relax
 
+from ase.ga import get_raw_score
+from ase.ga.cutandsplicepairing import CutAndSplicePairing
+from ase.ga.data import DataConnection
+from ase.ga.offspring_creator import OperationSelector
+from ase.ga.ofp_comparator import OFPComparator
+from ase.ga.population import Population
+from ase.ga.soft_mutation import SoftMutation
+from ase.ga.standardmutations import StrainMutation
+from ase.ga.utilities import CellBounds, closest_distances_generator
+from ase.io import write
 
 # Connect to the database and retrieve some information
 da = DataConnection('gadb.db')

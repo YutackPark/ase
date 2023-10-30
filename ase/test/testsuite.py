@@ -1,8 +1,8 @@
+import argparse
 import os
 import sys
-from pathlib import Path
 import warnings
-import argparse
+from pathlib import Path
 
 from ase.cli.main import CLIError
 
@@ -49,8 +49,7 @@ def test(calculators=tuple(), jobs=0, verbose=False,
 
 
 def have_module(module):
-    import importlib
-
+    import importlib.util
     return importlib.util.find_spec(module) is not None
 
 
@@ -152,6 +151,7 @@ class CLICommand:
     @staticmethod
     def run(args):
         from subprocess import Popen
+
         from ase.calculators.names import names as calc_names
 
         if args.help_calculators:

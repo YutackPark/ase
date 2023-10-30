@@ -1,13 +1,14 @@
-import numpy as np
 import warnings
 
+import numpy as np
 from scipy.optimize import minimize
-from ase.parallel import world
+
 from ase.io.jsonio import write_json
-from ase.optimize.optimize import Optimizer
 from ase.optimize.gpmin.gp import GaussianProcess
 from ase.optimize.gpmin.kernel import SquaredExponential
 from ase.optimize.gpmin.prior import ConstantPrior
+from ase.optimize.optimize import Optimizer
+from ase.parallel import world
 
 
 class GPMin(Optimizer, GaussianProcess):

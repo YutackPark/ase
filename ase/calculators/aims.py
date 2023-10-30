@@ -12,11 +12,9 @@ import re
 
 import numpy as np
 
+from ase.calculators.genericfileio import (CalculatorTemplate,
+                                           GenericFileIOCalculator)
 from ase.io.aims import write_aims, write_control
-from ase.calculators.genericfileio import (
-    GenericFileIOCalculator,
-    CalculatorTemplate
-)
 
 
 def get_aims_version(string):

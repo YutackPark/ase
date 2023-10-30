@@ -9,9 +9,8 @@ import numpy as np
 import pytest
 
 from ase import io
-from ase.io import formats
 from ase.build import bulk
-
+from ase.io import formats
 
 single = bulk('Au')
 multiple = [bulk('Fe'), bulk('Zn'), bulk('Li')]
