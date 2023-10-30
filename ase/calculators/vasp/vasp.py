@@ -35,6 +35,7 @@ from ase.calculators import calculator
 from ase.calculators.calculator import Calculator
 from ase.calculators.singlepoint import SinglePointDFTCalculator
 from ase.calculators.vasp.create_input import GenerateVaspInput
+from ase.config import cfg
 from ase.io import jsonio, read
 from ase.utils import PurePath
 from ase.vibrations.data import VibrationsData
@@ -178,8 +179,8 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
         else:
             # Search for the environment commands
             for env in self.env_commands:
-                if env in os.environ:
-                    cmd = os.environ[env].replace('PREFIX', self.prefix)
+                if env in cfg:
+                    cmd = cfg[env].replace('PREFIX', self.prefix)
                     if env == 'VASP_SCRIPT':
                         # Make the system python exe run $VASP_SCRIPT
                         exe = sys.executable

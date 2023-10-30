@@ -29,6 +29,7 @@ import numpy as np
 import ase
 from ase.calculators.calculator import kpts2ndarray
 from ase.calculators.vasp.setups import get_default_setups
+from ase.config import cfg
 
 
 def format_kpoints(kpts, atoms, reciprocal=False, gamma=False):
@@ -1209,8 +1210,8 @@ class GenerateVaspInput:
         else:
             pp_folder = p['pp']
 
-        if self.VASP_PP_PATH in os.environ:
-            pppaths = os.environ[self.VASP_PP_PATH].split(':')
+        if self.VASP_PP_PATH in cfg:
+            pppaths = cfg[self.VASP_PP_PATH].split(':')
         else:
             pppaths = []
         ppp_list = []
@@ -1423,8 +1424,8 @@ class GenerateVaspInput:
 
         if self.bool_params['luse_vdw']:
             src = None
-            if vdw_env in os.environ:
-                src = os.path.join(os.environ[vdw_env], kernel)
+            if vdw_env in cfg:
+                src = os.path.join(cfg[vdw_env], kernel)
 
             if not src or not isfile(src):
                 warnings.warn(
