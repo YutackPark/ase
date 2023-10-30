@@ -194,7 +194,7 @@ class DOSData(metaclass=ABCMeta):
         if 'label' in info:
             return info['label']
         else:
-            return '; '.join(map(lambda x: '{}: {}'.format(x[0], x[1]),
+            return '; '.join(map(lambda x: f'{x[0]}: {x[1]}',
                                  info.items()))
 
 

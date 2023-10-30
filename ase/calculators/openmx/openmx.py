@@ -119,8 +119,8 @@ class OpenMX(FileIOCalculator):
             for key in pbs:
                 if key not in self.default_pbs:
                     allowed = ', '.join(list(self.default_pbs.keys()))
-                    raise TypeError('Unexpected keyword "{0}" in "pbs" '
-                                    'dictionary.  Must be one of: {1}'
+                    raise TypeError('Unexpected keyword "{}" in "pbs" '
+                                    'dictionary.  Must be one of: {}'
                                     .format(key, allowed))
             # Put dictionary into python variable
             self.pbs.update(pbs)
@@ -134,8 +134,8 @@ class OpenMX(FileIOCalculator):
             for key in mpi:
                 if key not in self.default_mpi:
                     allowed = ', '.join(list(self.default_mpi.keys()))
-                    raise TypeError('Unexpected keyword "{0}" in "mpi" '
-                                    'dictionary.  Must be one of: {1}'
+                    raise TypeError('Unexpected keyword "{}" in "mpi" '
+                                    'dictionary.  Must be one of: {}'
                                     .format(key, allowed))
             # Put dictionary into python variable
             self.mpi.update(mpi)
@@ -247,7 +247,7 @@ class OpenMX(FileIOCalculator):
         bashArgs = "#!/bin/bash \n cd $PBS_O_WORKDIR\n"
         jobName = prefix
         cmd = bashArgs + \
-            'mpirun -hostfile $PBS_NODEFILE openmx %s > %s' % (
+            'mpirun -hostfile $PBS_NODEFILE openmx {} > {}'.format(
                 inputfile, outfile)
         echoArgs = ["echo", "$' %s'" % cmd]
         qsubArgs = ["qsub", "-N", jobName, "-l", "nodes=%d:ppn=%d" %
@@ -334,7 +334,7 @@ class OpenMX(FileIOCalculator):
             # self.clean()
         except RuntimeError as e:
             try:
-                with open(get_file_name('.log'), 'r') as fd:
+                with open(get_file_name('.log')) as fd:
                     lines = fd.readlines()
                 debug_lines = 10
                 print('##### %d last lines of the OpenMX output' % debug_lines)
@@ -373,7 +373,7 @@ class OpenMX(FileIOCalculator):
         self.prind('Reading input file' + self.label)
         filename = get_file_name('.dat', self.label)
         if not nohup:
-            with open(filename, 'r') as fd:
+            with open(filename) as fd:
                 while True:
                     line = fd.readline()
                     print(line.strip())
@@ -425,8 +425,8 @@ class OpenMX(FileIOCalculator):
                 for subkey in kwargs[key]:
                     if subkey not in default_dict:
                         allowed = ', '.join(list(default_dict.keys()))
-                        raise TypeError('Unknown subkeyword "{0}" of keyword '
-                                        '"{1}".  Must be one of: {2}'
+                        raise TypeError('Unknown subkeyword "{}" of keyword '
+                                        '"{}".  Must be one of: {}'
                                         .format(subkey, key, allowed))
 
         # Find out what parameter has been changed
@@ -450,8 +450,8 @@ class OpenMX(FileIOCalculator):
         value = kwargs.get('energy_cutoff')
         if value is not None and not (isinstance(value, (float, int))
                                       and value > 0):
-            mess = "'%s' must be a positive number(in eV), \
-                got '%s'" % ('energy_cutoff', value)
+            mess = "'{}' must be a positive number(in eV), \
+                got '{}'".format('energy_cutoff', value)
             raise ValueError(mess)
 
         atoms = kwargs.get('atoms')
@@ -701,7 +701,7 @@ class OpenMX(FileIOCalculator):
         while not os.path.isfile(file):
             self.prind('Waiting for %s to come out' % file)
             time.sleep(5)
-        with open(file, 'r') as fd:
+        with open(file) as fd:
             while running(**args):
                 fd.seek(last_position)
                 new_data = fd.read()

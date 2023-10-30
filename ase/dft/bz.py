@@ -153,7 +153,7 @@ def normalize_name(name):
         import re
         m = re.match(r'^(\D+?)(\d*)$', name)
         if m is None:
-            raise ValueError('Bad label: {}'.format(name))
+            raise ValueError(f'Bad label: {name}')
         name, num = m.group(1, 2)
         if num:
             name = f'{name}_{{{num}}}'

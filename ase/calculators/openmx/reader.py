@@ -103,7 +103,7 @@ def read_file(filename, debug=False):
     line = '\n'
     if(debug):
         print('Read results from %s' % filename)
-    with open(filename, 'r') as fd:
+    with open(filename) as fd:
         '''
          Read output file line by line. When the `line` matches the pattern
         of certain keywords in `param.[dtype]_keys`, for example,
@@ -357,7 +357,7 @@ def read_band_file(filename=None):
         return {}
     band_kpath = []
     eigen_bands = []
-    with open(filename, 'r') as fd:
+    with open(filename) as fd:
         line = fd.readline().split()
         nkpts = 0
         nband = int(line[0])
@@ -389,7 +389,7 @@ def read_band_file(filename=None):
 
 def read_electron_valency(filename='H_CA13'):
     array = []
-    with open(filename, 'r') as fd:
+    with open(filename) as fd:
         array = fd.readlines()
         fd.close()
     required_line = ''

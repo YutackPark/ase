@@ -195,7 +195,7 @@ class EIQMMM(Calculator, IOContext):
         mmenergy = self.mmatoms.get_potential_energy()
         energy = ienergy + qmenergy + mmenergy
 
-        print('Energies: {0:12.3f} {1:+12.3f} {2:+12.3f} = {3:12.3f}'
+        print('Energies: {:12.3f} {:+12.3f} {:+12.3f} = {:12.3f}'
               .format(ienergy, qmenergy, mmenergy, energy), file=self.output)
 
         qmforces = self.qmatoms.get_forces()
@@ -230,7 +230,7 @@ class Embedding:
         self.parameters = parameters
 
     def __repr__(self):
-        return 'Embedding(molecule_size={0})'.format(self.molecule_size)
+        return f'Embedding(molecule_size={self.molecule_size})'
 
     def initialize(self, qmatoms, mmatoms):
         """Hook up embedding object to QM and MM atoms objects."""

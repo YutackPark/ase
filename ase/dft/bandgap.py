@@ -83,22 +83,22 @@ def bandgap(calc=None, direct=False, spin=None, output='-',
         def skn(s, k, n):
             """Convert k or (s, k) to string."""
             if kpts is None:
-                return '(s={}, k={}, n={})'.format(s, k, n)
+                return f'(s={s}, k={k}, n={n})'
             return '(s={}, k={}, n={}, [{:.2f}, {:.2f}, {:.2f}])'.format(
                 s, k, n, *kpts[k])
 
         if spin is not None:
-            p('spin={}: '.format(spin), end='')
+            p(f'spin={spin}: ', end='')
         if gap == 0.0:
             p('No gap')
         elif direct:
-            p('Direct gap: {:.3f} eV'.format(gap))
+            p(f'Direct gap: {gap:.3f} eV')
             if s1 == s2:
                 p('Transition at:', skn(s1, k1, n1))
             else:
-                p('Transition at:', skn('{}->{}'.format(s1, s2), k1, n1))
+                p('Transition at:', skn(f'{s1}->{s2}', k1, n1))
         else:
-            p('Gap: {:.3f} eV'.format(gap))
+            p(f'Gap: {gap:.3f} eV')
             p('Transition (v -> c):')
             p(' ', skn(s1, k1, n1), '->', skn(s2, k2, n2))
 

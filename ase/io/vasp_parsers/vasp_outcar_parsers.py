@@ -85,7 +85,7 @@ def convert_vasp_outcar_stress(stress: Sequence):
     shape = stress_arr.shape
     if shape != (6, ):
         raise ValueError(
-            'Stress has the wrong shape. Expected (6,), got {}'.format(shape))
+            f'Stress has the wrong shape. Expected (6,), got {shape}')
     stress_arr = stress_arr[[0, 1, 2, 4, 5, 3]] * 1e-1 * ase.units.GPa
     return stress_arr
 

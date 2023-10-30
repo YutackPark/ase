@@ -277,7 +277,7 @@ def key_val_dict_to_str(dct, sep=' '):
         if isinstance(val, bool) or isinstance(val, np.bool_):
             return 'T' if val else 'F'
         elif isinstance(val, numbers.Real):
-            return '{}'.format(val)
+            return f'{val}'
         elif isinstance(val, Spacegroup):
             return val.symbol
         else:
@@ -305,7 +305,7 @@ def key_val_dict_to_str(dct, sep=' '):
                 # if this fails, let give up
             except TypeError:
                 warnings.warn('Skipping unhashable information '
-                              '{0}'.format(key))
+                              '{}'.format(key))
                 continue
 
         key = escape(key)  # escape and quote key
@@ -317,7 +317,7 @@ def key_val_dict_to_str(dct, sep=' '):
             eq = ""
         val = escape(val)  # escape and quote val
 
-        string += '%s%s%s%s' % (key, eq, val, sep)
+        string += f'{key}{eq}{val}{sep}'
 
     return string.strip()
 
@@ -437,7 +437,7 @@ def _read_xyz_frame(lines, natoms, properties_parser=key_val_str_to_dict,
             entry = line.split()
 
             if not entry[0].startswith('VEC'):
-                raise XYZError('Expected cell vector, got {}'.format(entry[0]))
+                raise XYZError(f'Expected cell vector, got {entry[0]}')
 
             try:
                 n = int(entry[0][3:])
@@ -562,7 +562,7 @@ def ixyzchunks(fd):
         try:
             natoms = int(line)
         except ValueError:
-            raise XYZError('Expected integer, found "{0}"'.format(line))
+            raise XYZError(f'Expected integer, found "{line}"')
         try:
             lines = [next(fd) for _ in range(1 + natoms)]
         except StopIteration:
@@ -800,7 +800,7 @@ def output_column_format(atoms, columns, arrays,
     comment_str = ''
     if atoms.cell.any():
         comment_str += lattice_str + ' '
-    comment_str += 'Properties={}'.format(props_str)
+    comment_str += f'Properties={props_str}'
 
     info = {}
     if write_info:
@@ -969,7 +969,7 @@ def write_xyz(fileobj, images, comment='', columns=None,
                 if key not in fr_cols:
                     fr_cols += [key]
                 else:
-                    warnings.warn('write_xyz() overwriting array "{0}" present '
+                    warnings.warn('write_xyz() overwriting array "{}" present '
                                   'in atoms.arrays with stored results '
                                   'from calculator'.format(key))
             arrays.update(per_atom_results)

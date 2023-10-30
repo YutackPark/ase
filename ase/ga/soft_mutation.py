@@ -259,7 +259,7 @@ class SoftMutation(OffspringCreator):
         if self.used_modes_file is not None:
             try:
                 self.read_used_modes(self.used_modes_file)
-            except IOError:
+            except OSError:
                 # file doesn't exist (yet)
                 pass
 
@@ -316,7 +316,7 @@ class SoftMutation(OffspringCreator):
 
     def read_used_modes(self, filename):
         """Read used modes from json file."""
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             modes = json.load(fd)
             self.used_modes = {int(k): modes[k] for k in modes}
         return

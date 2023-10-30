@@ -27,7 +27,7 @@ def test_xsd_bond():
     # Read and see if the atom information and bond information matches.
     AtomIdsToBondIds = OrderedDict()
     BondIdsToConnectedAtomIds = OrderedDict()
-    with open('xsd_test_CH4.xsd', 'r') as fd:
+    with open('xsd_test_CH4.xsd') as fd:
         for i, line in enumerate(fd):
             if '<Atom3d ' in line:
                 AtomId = int(re.search(r'ID="(.*?)"', line).group(1))

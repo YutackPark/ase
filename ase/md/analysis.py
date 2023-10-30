@@ -280,7 +280,7 @@ class DiffusionCoefficient:
             for sym_index in range(self.no_of_types_of_atoms):
                 for xyz in range(3):
                     if segment_no == 0:
-                        label = 'Species: %s (%s)' % (
+                        label = 'Species: {} ({})'.format(
                             self.types_of_atoms[sym_index], xyz_labels[xyz])
                     # Add scatter graph  for the mean square displacement data
                     # in this segment

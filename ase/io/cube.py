@@ -54,19 +54,19 @@ def write_cube(file_obj, atoms, data=None, origin=None, comment=None):
         origin = np.asarray(origin) / Bohr
 
     file_obj.write(
-        "{0:5}{1:12.6f}{2:12.6f}{3:12.6f}\n".format(
+        "{:5}{:12.6f}{:12.6f}{:12.6f}\n".format(
             len(atoms), *origin))
 
     for i in range(3):
         n = data.shape[i]
         d = atoms.cell[i] / n / Bohr
-        file_obj.write("{0:5}{1:12.6f}{2:12.6f}{3:12.6f}\n".format(n, *d))
+        file_obj.write("{:5}{:12.6f}{:12.6f}{:12.6f}\n".format(n, *d))
 
     positions = atoms.positions / Bohr
     numbers = atoms.numbers
     for Z, (x, y, z) in zip(numbers, positions):
         file_obj.write(
-            "{0:5}{1:12.6f}{2:12.6f}{3:12.6f}{4:12.6f}\n".format(
+            "{:5}{:12.6f}{:12.6f}{:12.6f}{:12.6f}\n".format(
                 Z, 0.0, x, y, z)
         )
 
@@ -142,7 +142,7 @@ def read_cube(file_obj, read_data=True, program=None, verbose=False):
 
     # The upcoming three lines contain the cell information
     for i in range(3):
-        n, x, y, z = [float(s) for s in readline().split()]
+        n, x, y, z = (float(s) for s in readline().split())
         shape.append(int(n))
 
         # different PBC treatment in castep, basically the last voxel row is

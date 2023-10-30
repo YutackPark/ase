@@ -846,7 +846,7 @@ class FixScaled(IndexedConstraint):
                            'mask': self.mask.tolist()}}
 
     def __repr__(self):
-        return 'FixScaled({}, {})'.format(self.index.tolist(), self.mask)
+        return f'FixScaled({self.index.tolist()}, {self.mask})'
 
 
 # TODO: Better interface might be to use dictionaries in place of very
@@ -1547,7 +1547,7 @@ class FixParametricRelations(FixConstraint):
                     param_exp += "-"
 
                 if np.abs(abs_jacob_val - 1.0) <= self.eps:
-                    param_exp += "{:s}".format(param)
+                    param_exp += f"{param:s}"
                 else:
                     param_exp += (fmt_str +
                                   "*{:s}").format(abs_jacob_val, param)
@@ -1577,13 +1577,13 @@ class FixParametricRelations(FixConstraint):
             indices_str = "[{:d}, ..., {:d}]".format(
                 self.indices[0], self.indices[-1])
         else:
-            indices_str = "[{:d}]".format(self.indices[0])
+            indices_str = f"[{self.indices[0]:d}]"
 
         if len(self.params) > 1:
             params_str = "[{:s}, ..., {:s}]".format(
                 self.params[0], self.params[-1])
         elif len(self.params) == 1:
-            params_str = "[{:s}]".format(self.params[0])
+            params_str = f"[{self.params[0]:s}]"
         else:
             params_str = "[]"
 
@@ -1609,7 +1609,7 @@ class FixScaledParametricRelations(FixParametricRelations):
 
         All arguments are the same, but since this is for fractional
         coordinates use_cell is false"""
-        super(FixScaledParametricRelations, self).__init__(
+        super().__init__(
             indices,
             Jacobian,
             const_shift,
@@ -1670,7 +1670,7 @@ class FixScaledParametricRelations(FixParametricRelations):
 
     def todict(self):
         """Create a dictionary representation of the constraint"""
-        dct = super(FixScaledParametricRelations, self).todict()
+        dct = super().todict()
         del dct["kwargs"]["use_cell"]
         return dct
 
@@ -1687,7 +1687,7 @@ class FixCartesianParametricRelations(FixParametricRelations):
         use_cell=False,
     ):
         """The Cartesian coordinate version of FixParametricRelations"""
-        super(FixCartesianParametricRelations, self).__init__(
+        super().__init__(
             indices,
             Jacobian,
             const_shift,

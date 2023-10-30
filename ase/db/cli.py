@@ -83,7 +83,7 @@ def main(args):
             else:
                 print('{:{}} {}'
                       .format(key + ':', n,
-                              ', '.join('{}({})'.format(v, n)
+                              ', '.join(f'{v}({n})'
                                         for v, n in vals.items())))
         return
 

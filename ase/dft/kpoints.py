@@ -197,7 +197,7 @@ def resolve_custom_points(pathspec, special_points, eps):
     def name_generator():
         counter = 0
         while True:
-            name = 'Kpt{}'.format(counter)
+            name = f'Kpt{counter}'
             yield name
             counter += 1
     custom_names = name_generator()

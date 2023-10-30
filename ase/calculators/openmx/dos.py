@@ -71,7 +71,7 @@ class DOS:
                 period = '.'
             filename += '.atom' + str(atom_index) + period + orbital
 
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             line = '\n'
             number_of_lines = -1
             while line != '':
@@ -99,7 +99,7 @@ class DOS:
             self.dos_dict[key + atom_and_orbital] = np.ndarray(number_of_lines)
             self.dos_dict[key + '_cum_' + atom_and_orbital] = \
                 np.ndarray(number_of_lines)
-        fd = open(filename, 'r')
+        fd = open(filename)
         if spin_polarization:
             for i in range(number_of_lines):
                 line = fd.readline()

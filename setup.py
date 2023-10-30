@@ -84,7 +84,7 @@ class build_py(_build_py):
                     os.makedirs(dirname)
                 mofile = join(dirname, 'ag.mo')
                 print()
-                print('Compile {}'.format(pofile))
+                print(f'Compile {pofile}')
                 status = os.system('%s -cv %s --output-file=%s 2>&1' %
                                    (msgfmt, pofile, mofile))
                 assert status == 0, 'msgfmt failed!'

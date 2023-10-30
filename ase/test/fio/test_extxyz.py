@@ -1,4 +1,3 @@
-
 # additional tests of the extended XYZ file I/O
 # (which is also included in oi.py test case)
 # maintained by James Kermode <james.kermode@gmail.com>
@@ -194,7 +193,7 @@ def test_complex_key_val():
     expected_dict = {
         'str': 'astring',
         'quot': "quoted value",
-        'quote_special': u"a_to_Z_$%%^&*",
+        'quote_special': "a_to_Z_$%%^&*",
         'escaped_quote': 'esc"aped',
         'true_value': True,
         'false_value': False,
@@ -245,7 +244,7 @@ def test_complex_key_val():
     # Round trip through a file with complex line.
     # Create file with the complex line and re-read it afterwards.
     with open('complex.xyz', 'w', encoding='utf-8') as f_out:
-        f_out.write('1\n{}\nH 1.0 1.0 1.0'.format(complex_xyz_string))
+        f_out.write(f'1\n{complex_xyz_string}\nH 1.0 1.0 1.0')
     complex_atoms = ase.io.read('complex.xyz')
 
     # test all keys end up in info, as expected
@@ -318,7 +317,7 @@ def test_json_scalars():
     a.info['val_2'] = 42.0  # was np.float but that's the same.  Can remove
     a.info['val_3'] = np.int64(42)
     a.write('tmp.xyz')
-    with open('tmp.xyz', 'r') as fd:
+    with open('tmp.xyz') as fd:
         comment_line = fd.readlines()[1]
     assert ("val_1=42.0" in comment_line
             and "val_2=42.0" in comment_line

@@ -76,7 +76,7 @@ def test_cube_writing():
         assert atom1 == ["7", "0.000000", "0.000000", "0.000000", "0.000000"]
         atom2 = outfil.readline().split()
         assert atom2 == ["7", "0.000000", "0.000000",
-                         "0.000000", "{:.6f}".format(d)]
+                         "0.000000", f"{d:.6f}"]
 
         # Check data
         data_lines = list(

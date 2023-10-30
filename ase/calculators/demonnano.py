@@ -181,7 +181,7 @@ class DemonNano(FileIOCalculator):
         rpath = pl.Path(restart_path)
 
         if not (rpath / 'deMon.inp').exists():
-            raise ReadError('The restart_path file {0} does not exist'
+            raise ReadError('The restart_path file {} does not exist'
                             .format(rpath))
 
         self.atoms = self.deMon_inp_to_atoms(rpath / 'deMon.inp')
@@ -264,13 +264,13 @@ class DemonNano(FileIOCalculator):
         epath = pl.Path(self.label)
 
         if not (epath / 'deMon.ase').exists():
-            raise ReadError('The deMonNano output file for ASE {0} does not exist'
+            raise ReadError('The deMonNano output file for ASE {} does not exist'
                             .format(epath))
 
         filename = self.label + '/deMon.ase'
 
         if op.isfile(filename):
-            with open(filename, 'r') as fd:
+            with open(filename) as fd:
                 lines = fd.readlines()
 
         for i in range(len(lines)):
@@ -285,12 +285,12 @@ class DemonNano(FileIOCalculator):
         epath = pl.Path(self.label)
 
         if not (epath / 'deMon.ase').exists():
-            raise ReadError('The deMonNano output file for ASE {0} does not exist'
+            raise ReadError('The deMonNano output file for ASE {} does not exist'
                             .format(epath))
 
         filename = self.label + '/deMon.ase'
 
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             lines = fd.readlines()
 
             # find line where the forces start
@@ -319,7 +319,7 @@ class DemonNano(FileIOCalculator):
         chem_symbols = []
         xyz = []
 
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             for line in fd:
                 if 'GEOMETRY' in line:
                     read_flag = True

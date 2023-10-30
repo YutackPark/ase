@@ -114,7 +114,7 @@ class Quaternion:
         elif mode == 'zxz':
             a, b, c, d = self.q[0], self.q[3], self.q[1], self.q[2]
         else:
-            raise ValueError('Invalid Euler angles mode {0}'.format(mode))
+            raise ValueError(f'Invalid Euler angles mode {mode}')
 
         beta = 2 * np.arccos(
             np.sqrt((a**2 + b**2) / (a**2 + b**2 + c**2 + d**2))
@@ -228,6 +228,6 @@ class Quaternion:
         elif mode == 'zxz':
             q_b = Quaternion.from_axis_angle([1, 0, 0], b)
         else:
-            raise ValueError('Invalid Euler angles mode {0}'.format(mode))
+            raise ValueError(f'Invalid Euler angles mode {mode}')
 
         return q_c * q_b * q_a

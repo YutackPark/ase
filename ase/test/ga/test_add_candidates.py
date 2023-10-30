@@ -24,12 +24,12 @@ def test_add_candidates(tmp_path):
     slab3 = db.get_an_unrelaxed_candidate()
     old_confid = slab3.info['confid']
     slab3[0].symbol = 'Au'
-    db.add_unrelaxed_candidate(slab3, 'mutated: Parent {0}'.format(old_confid))
+    db.add_unrelaxed_candidate(slab3, f'mutated: Parent {old_confid}')
     new_confid = slab3.info['confid']
     # confid should update when using add_unrelaxed_candidate
     assert old_confid != new_confid
     slab3[1].symbol = 'Au'
-    db.add_unrelaxed_step(slab3, 'mutated: Parent {0}'.format(new_confid))
+    db.add_unrelaxed_step(slab3, f'mutated: Parent {new_confid}')
     # confid should not change when using add_unrelaxed_step
     assert slab3.info['confid'] == new_confid
 

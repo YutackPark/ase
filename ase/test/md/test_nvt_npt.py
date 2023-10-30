@@ -41,7 +41,7 @@ def equilibrated(asap3, berendsenparams):
     T = atoms.get_temperature()
     pres = -atoms.get_stress(
         include_ideal_gas=True)[:3].sum() / 3 / GPa * 10000
-    print("Temperature: {:.2f} K    Pressure: {:.2f} bar".format(T, pres))
+    print(f"Temperature: {T:.2f} K    Pressure: {pres:.2f} bar")
     return atoms
 
 

@@ -17,9 +17,9 @@ class SimpleCubicFactory(ClusterFactory):
         "Get the lattice constant of an element with cubic crystal structure."
         symmetry = _refstate[self.atomic_numbers[0]]['symmetry']
         if symmetry != self.xtal_name:
-            raise ValueError("Cannot guess the %s " % (self.xtal_name,) +
+            raise ValueError(f"Cannot guess the {self.xtal_name} " +
                              "lattice constant of an element with crystal " +
-                             "structure %s." % (symmetry,))
+                             f"structure {symmetry}.")
         return _refstate[self.atomic_numbers[0]]['a']
 
     def set_basis(self):

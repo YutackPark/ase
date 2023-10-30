@@ -321,7 +321,7 @@ class BundleTrajectory:
     def _read(self, n):
         """Read an atoms object from the BundleTrajectory."""
         if self.state != 'read':
-            raise IOError('Cannot read in %s mode' % (self.state,))
+            raise OSError(f'Cannot read in {self.state} mode')
         if n < 0:
             n += self.nframes
         if n < 0 or n >= self.nframes:
@@ -374,7 +374,7 @@ class BundleTrajectory:
         The data is not associated with individual atoms.
         """
         if self.state != 'read':
-            raise IOError('Cannot read extra data in %s mode' % (self.state,))
+            raise OSError(f'Cannot read extra data in {self.state} mode')
         # Handle negative n.
         if n < 0:
             n += self.nframes
@@ -432,13 +432,13 @@ class BundleTrajectory:
             # The output directory already exists.
             barrier()  # all must have time to see it exists
             if not self.is_bundle(self.filename, allowempty=True):
-                raise IOError(
+                raise OSError(
                     'Filename "' + self.filename +
                     '" already exists, but is not a BundleTrajectory.' +
                     ' Cowardly refusing to remove it.')
             if self.is_empty_bundle(self.filename):
                 barrier()
-                self.log('Deleting old "%s" as it is empty' % (self.filename,))
+                self.log(f'Deleting old "{self.filename}" as it is empty')
                 self.delete_bundle(self.filename)
             elif not backup:
                 barrier()
@@ -451,13 +451,13 @@ class BundleTrajectory:
                 bakname = self.filename + '.bak'
                 if os.path.exists(bakname):
                     barrier()  # All must see it exists
-                    self.log('Deleting old backup file "%s"' % (bakname,))
+                    self.log(f'Deleting old backup file "{bakname}"')
                     self.delete_bundle(bakname)
-                self.log('Renaming "%s" to "%s"' % (self.filename, bakname))
+                self.log(f'Renaming "{self.filename}" to "{bakname}"')
                 self._rename_bundle(self.filename, bakname)
         # Ready to create a new bundle.
         barrier()
-        self.log('Creating new "%s"' % (self.filename,))
+        self.log(f'Creating new "{self.filename}"')
         self._make_bundledir(self.filename)
         self.state = 'prewrite'
         self._write_metadata({})
@@ -468,9 +468,9 @@ class BundleTrajectory:
     def _open_read(self):
         "Open a bundle trajectory for reading."
         if not os.path.exists(self.filename):
-            raise IOError('File not found: ' + self.filename)
+            raise OSError('File not found: ' + self.filename)
         if not self.is_bundle(self.filename):
-            raise IOError('Not a BundleTrajectory: ' + self.filename)
+            raise OSError('Not a BundleTrajectory: ' + self.filename)
         self.state = 'read'
         # Read the metadata
         metadata = self._read_metadata()
@@ -489,7 +489,7 @@ class BundleTrajectory:
         self._set_backend(metadata['backend'])
         self.nframes = self._read_nframes()
         if self.nframes == 0:
-            raise IOError('Empty BundleTrajectory')
+            raise OSError('Empty BundleTrajectory')
         self.datatypes = metadata['datatypes']
         try:
             self.pythonmajor = metadata['python_ver'][0]
@@ -507,7 +507,7 @@ class BundleTrajectory:
             self._open_write(atoms, False)
             return
         if not self.is_bundle(self.filename):
-            raise IOError('Not a BundleTrajectory: ' + self.filename)
+            raise OSError('Not a BundleTrajectory: ' + self.filename)
         self.state = 'read'
         metadata = self._read_metadata()
         self.metadata = metadata
@@ -615,7 +615,7 @@ class BundleTrajectory:
         if world.rank == 0:
             # Only the master deletes
             if not cls.is_bundle(filename, allowempty=True):
-                raise IOError(
+                raise OSError(
                     'Cannot remove "%s" as it is not a bundle trajectory.'
                     % (filename,))
             if os.path.islink(filename):
@@ -722,14 +722,14 @@ class UlmBundleBackend:
         self.integral_dtypes = ['uint8', 'int8', 'uint16', 'int16',
                                 'uint32', 'int32', 'uint64', 'int64']
         # Dict comprehensions not supported in Python 2.6 :-(
-        self.int_dtype = dict((k, getattr(np, k))
-                              for k in self.integral_dtypes)
-        self.int_minval = dict((k, np.iinfo(self.int_dtype[k]).min)
-                               for k in self.integral_dtypes)
-        self.int_maxval = dict((k, np.iinfo(self.int_dtype[k]).max)
-                               for k in self.integral_dtypes)
-        self.int_itemsize = dict((k, np.dtype(self.int_dtype[k]).itemsize)
-                                 for k in self.integral_dtypes)
+        self.int_dtype = {k: getattr(np, k)
+                              for k in self.integral_dtypes}
+        self.int_minval = {k: np.iinfo(self.int_dtype[k]).min
+                               for k in self.integral_dtypes}
+        self.int_maxval = {k: np.iinfo(self.int_dtype[k]).max
+                               for k in self.integral_dtypes}
+        self.int_itemsize = {k: np.dtype(self.int_dtype[k]).itemsize
+                                 for k in self.integral_dtypes}
 
     def write_small(self, framedir, smalldata):
         "Write small data to be written jointly."
@@ -921,22 +921,22 @@ def print_bundletrajectory_info(filename):
         return
     # Read the metadata
     fn = os.path.join(filename, 'metadata.json')
-    with open(fn, 'r') as fd:
+    with open(fn) as fd:
         metadata = jsonio.decode(fd.read())
 
-    print('Metadata information of BundleTrajectory "%s":' % (filename,))
+    print(f'Metadata information of BundleTrajectory "{filename}":')
     for k, v in metadata.items():
         if k != 'datatypes':
-            print("  %s: %s" % (k, v))
+            print(f"  {k}: {v}")
     with open(os.path.join(filename, 'frames'), 'rb') as fd:
         nframes = int(fd.read())
     print('Number of frames: %i' % (nframes,))
     print('Data types:')
     for k, v in metadata['datatypes'].items():
         if v == 'once':
-            print('  %s: First frame only.' % (k,))
+            print(f'  {k}: First frame only.')
         elif v:
-            print('  %s: All frames.' % (k,))
+            print(f'  {k}: All frames.')
     # Look at first frame
     if metadata['backend'] == 'ulm':
         backend = UlmBundleBackend(True, False)
@@ -949,11 +949,11 @@ def print_bundletrajectory_info(filename):
     for k, v in small.items():
         if k == 'constraints':
             if v:
-                print('  {} constraints are present'.format(len(v)))
+                print(f'  {len(v)} constraints are present')
             else:
                 print('  Constraints are absent.')
         elif k == 'pbc':
-            print('  Periodic boundary conditions: %s' % (str(v),))
+            print(f'  Periodic boundary conditions: {str(v)}')
         elif k == 'natoms':
             print('  Number of atoms: %i' % (v,))
         elif hasattr(v, 'shape'):
@@ -964,7 +964,7 @@ def print_bundletrajectory_info(filename):
                 print('         [%12.6f, %12.6f, %12.6f],' % tuple(v[1]))
                 print('         [%12.6f, %12.6f, %12.6f]]' % tuple(v[2]))
         else:
-            print('  %s: %s' % (k, str(v)))
+            print(f'  {k}: {str(v)}')
     # Read info from separate files.
     if metadata['subtype'] == 'split':
         nsplit = small['fragments']
@@ -973,9 +973,9 @@ def print_bundletrajectory_info(filename):
     for k, v in metadata['datatypes'].items():
         if v and k not in small:
             info = backend.read_info(frame, k, nsplit)
-            infoline = '  %s: ' % (k,)
+            infoline = f'  {k}: '
             for k, v in info.items():
-                infoline += '%s = %s, ' % (k, str(v))
+                infoline += f'{k} = {str(v)}, '
             infoline = infoline[:-2] + '.'  # Fix punctuation.
             print(infoline)
 

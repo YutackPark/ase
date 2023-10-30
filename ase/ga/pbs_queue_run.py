@@ -56,14 +56,14 @@ class PBSQueueRun:
         self.dc.mark_as_queued(a)
         if not os.path.isdir(self.tmp_folder):
             os.mkdir(self.tmp_folder)
-        fname = '{0}/cand{1}.traj'.format(self.tmp_folder,
+        fname = '{}/cand{}.traj'.format(self.tmp_folder,
                                           a.info['confid'])
         write(fname, a)
-        job_name = '{0}_{1}'.format(self.job_prefix, a.info['confid'])
+        job_name = '{}_{}'.format(self.job_prefix, a.info['confid'])
         fd = open('tmp_job_file.job', 'w')
         fd.write(self.job_template_generator(job_name, fname))
         fd.close()
-        os.system('{0} tmp_job_file.job'.format(self.qsub_command))
+        os.system(f'{self.qsub_command} tmp_job_file.job')
 
     def enough_jobs_running(self):
         """ Determines if sufficient jobs are running. """
@@ -75,7 +75,7 @@ class PBSQueueRun:
             to verify that a job needs to be started before
             calling the relax method."""
         self.__cleanup__()
-        p = Popen(['`which {0}` -u `whoami`'.format(self.qstat_command)],
+        p = Popen([f'`which {self.qstat_command}` -u `whoami`'],
                   shell=True, stdin=PIPE, stdout=PIPE, stderr=PIPE,
                   close_fds=True, universal_newlines=True)
         fout = p.stdout
@@ -91,7 +91,7 @@ class PBSQueueRun:
             submitted to the queing system. """
         confs = self.dc.get_all_candidates_in_queue()
         for c in confs:
-            fdone = '{0}/cand{1}_done.traj'.format(self.tmp_folder,
+            fdone = '{}/cand{}_done.traj'.format(self.tmp_folder,
                                                    c)
             if os.path.isfile(fdone) and os.path.getsize(fdone) > 0:
                 try:
@@ -105,13 +105,13 @@ class PBSQueueRun:
                         niter += 1
                     if len(a) == 0:
                         txt = 'Could not read candidate ' + \
-                            '{0} from the filesystem'.format(c)
-                        raise IOError(txt)
+                            f'{c} from the filesystem'
+                        raise OSError(txt)
                     a = a[-1]
                     a.info['confid'] = c
                     self.dc.add_relaxed_step(
                         a,
                         find_neighbors=self.find_neighbors,
                         perform_parametrization=self.perform_parametrization)
-                except IOError as e:
+                except OSError as e:
                     print(e)

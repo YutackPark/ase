@@ -32,7 +32,7 @@ def test_siesta_zmat(siesta_factory):
     atoms.calc = siesta
     siesta.write_input(atoms, properties=['energy'])
 
-    with open(os.path.join(custom_dir, 'test_label.fdf'), 'r') as fd:
+    with open(os.path.join(custom_dir, 'test_label.fdf')) as fd:
         lines = fd.readlines()
     lsl = [line.split() for line in lines]
     assert ['cartesian'] in lsl

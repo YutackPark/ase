@@ -29,7 +29,7 @@ def test_get_neb_method():
         _ = neb.get_neb_method(neb_dummy, "some_random_string")
 
 
-class TestNEB(object):
+class TestNEB:
     @classmethod
     def setup_class(cls):
         cls.h_atom = Atoms("H", positions=[[0., 0., 0.]], cell=[10., 10., 10.])

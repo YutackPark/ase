@@ -131,7 +131,7 @@ class Spacegroup:
             return
         if not datafile:
             datafile = get_datafile()
-        with open(datafile, 'r') as fd:
+        with open(datafile) as fd:
             _read_datafile(self, spacegroup, setting, fd)
 
     def __repr__(self):
@@ -621,8 +621,8 @@ def _read_datafile_entry(spg, no, symbol, setting, f):
 
     floats = {'0.0': 0.0, '1.0': 1.0, '0': 0.0, '1': 1.0, '-1': -1.0}
     for n, d in [(1, 2), (1, 3), (2, 3), (1, 4), (3, 4), (1, 6), (5, 6)]:
-        floats['{0}/{1}'.format(n, d)] = n / d
-        floats['-{0}/{1}'.format(n, d)] = -n / d
+        floats[f'{n}/{d}'] = n / d
+        floats[f'-{n}/{d}'] = -n / d
 
     spg._no = no
     spg._symbol = symbol.strip()

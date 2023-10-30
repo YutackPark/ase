@@ -107,7 +107,7 @@ class AtomsRow:
     @property
     def key_value_pairs(self):
         """Return dict of key-value pairs."""
-        return dict((key, self.get(key)) for key in self._keys)
+        return {key: self.get(key) for key in self._keys}
 
     def count_atoms(self):
         """Count atoms.
@@ -126,7 +126,7 @@ class AtomsRow:
         setattr(self, key, value)
 
     def __str__(self):
-        return '<AtomsRow: formula={0}, keys={1}>'.format(
+        return '<AtomsRow: formula={}, keys={}>'.format(
             self.formula, ','.join(self._keys))
 
     @property
@@ -269,20 +269,20 @@ def row2dct(row, key_descriptions) -> Dict[str, Any]:
                                            kptdensity=1.8,
                                            even=False)
 
-    dct['cell'] = [['{:.3f}'.format(a) for a in axis] for axis in row.cell]
-    par = ['{:.3f}'.format(x) for x in cell_to_cellpar(row.cell)]
+    dct['cell'] = [[f'{a:.3f}' for a in axis] for axis in row.cell]
+    par = [f'{x:.3f}' for x in cell_to_cellpar(row.cell)]
     dct['lengths'] = par[:3]
     dct['angles'] = par[3:]
 
     stress = row.get('stress')
     if stress is not None:
-        dct['stress'] = ', '.join('{0:.3f}'.format(s) for s in stress)
+        dct['stress'] = ', '.join(f'{s:.3f}' for s in stress)
 
     dct['formula'] = Formula(row.formula).format('abc')
 
     dipole = row.get('dipole')
     if dipole is not None:
-        dct['dipole'] = ', '.join('{0:.3f}'.format(d) for d in dipole)
+        dct['dipole'] = ', '.join(f'{d:.3f}' for d in dipole)
 
     data = row.get('data')
     if data:
@@ -307,7 +307,7 @@ def row2dct(row, key_descriptions) -> Dict[str, Any]:
         value = row.get(key)
         if value is not None:
             if isinstance(value, float):
-                value = '{:.3f}'.format(value)
+                value = f'{value:.3f}'
             elif not isinstance(value, str):
                 value = str(value)
 

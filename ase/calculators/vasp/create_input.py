@@ -1077,8 +1077,8 @@ class GenerateVaspInput:
             pass
         elif xc not in self.xc_defaults:
             xc_allowed = ', '.join(self.xc_defaults.keys())
-            raise ValueError('{0} is not supported for xc! Supported xc values'
-                             'are: {1}'.format(xc, xc_allowed))
+            raise ValueError('{} is not supported for xc! Supported xc values'
+                             'are: {}'.format(xc, xc_allowed))
         else:
             # XC defaults to PBE pseudopotentials
             if 'pp' not in self.xc_defaults[xc]:
@@ -1222,7 +1222,7 @@ class GenerateVaspInput:
             elif str(m) in setups:
                 special_setup_index = str(m)  # type: ignore[assignment]
             else:
-                raise Exception("Having trouble with special setup index {0}."
+                raise Exception("Having trouble with special setup index {}."
                                 " Please use an int.".format(m))
             potcar = join(pp_folder, setups[special_setup_index], 'POTCAR')
             for path in pppaths:
@@ -1496,13 +1496,13 @@ class GenerateVaspInput:
                                          (val, charge, default_nelect))
                     val = nelect_from_charge
             if val is not None:
-                incar.write(' %s = %5.6f\n' % (key.upper(), val))
+                incar.write(f' {key.upper()} = {val:5.6f}\n')
         for key, val in self.exp_params.items():
             if val is not None:
-                incar.write(' %s = %5.2e\n' % (key.upper(), val))
+                incar.write(f' {key.upper()} = {val:5.2e}\n')
         for key, val in self.string_params.items():
             if val is not None:
-                incar.write(' %s = %s\n' % (key.upper(), val))
+                incar.write(f' {key.upper()} = {val}\n')
         for key, val in self.int_params.items():
             if val is not None:
                 incar.write(' %s = %d\n' % (key.upper(), val))
@@ -1569,7 +1569,7 @@ class GenerateVaspInput:
                     else:
                         lst.append([1, val[n]])
                 incar.write(' '.join(
-                    ['{:d}*{:.4f}'.format(mom[0], mom[1]) for mom in lst]))
+                    [f'{mom[0]:d}*{mom[1]:.4f}' for mom in lst]))
                 incar.write('\n')
             else:
                 incar.write(' %s = ' % key.upper())
@@ -1656,7 +1656,7 @@ class GenerateVaspInput:
             if self.float_params['kspacing'] > 0:
                 return
             else:
-                raise ValueError("KSPACING value {0} is not allowable. "
+                raise ValueError("KSPACING value {} is not allowable. "
                                  "Please use None or a positive number."
                                  "".format(self.float_params['kspacing']))
 
@@ -1697,7 +1697,7 @@ class GenerateVaspInput:
         Typically named INCAR."""
 
         self.spinpol = False
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             lines = fd.readlines()
 
         for line in lines:
@@ -1826,10 +1826,10 @@ class GenerateVaspInput:
                         else:
                             self.special_params[key] = data[2]
             except KeyError:
-                raise IOError('Keyword "%s" in INCAR is'
+                raise OSError('Keyword "%s" in INCAR is'
                               'not known by calculator.' % key)
             except IndexError:
-                raise IOError('Value missing for keyword "%s".' % key)
+                raise OSError('Value missing for keyword "%s".' % key)
 
     def read_kpoints(self, filename):
         """Read kpoints file, typically named KPOINTS."""
@@ -1838,7 +1838,7 @@ class GenerateVaspInput:
             # Don't update kpts array
             return
 
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             lines = fd.readlines()
 
         ktype = lines[2].split()[0].lower()[0]
@@ -1865,7 +1865,7 @@ class GenerateVaspInput:
 
         # Search for key 'LEXCH' in POTCAR
         xc_flag = None
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             for line in fd:
                 key = line.split()[0].upper()
                 if key == 'LEXCH':
@@ -1957,7 +1957,7 @@ def open_potcar(filename):
     """
     import gzip
     if filename.endswith('R'):
-        return open(filename, 'r')
+        return open(filename)
     elif filename.endswith('.Z'):
         return gzip.open(filename)
     else:

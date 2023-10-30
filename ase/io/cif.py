@@ -50,7 +50,7 @@ def convert_value(value: str) -> CIFDataValue:
         return float(value[:value.index('(')])  # strip off uncertainties
     elif re.match(r'[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?\(\d+$',
                   value):
-        warnings.warn('Badly formed number: "{0}"'.format(value))
+        warnings.warn(f'Badly formed number: "{value}"')
         return float(value[:value.index('(')])  # strip off uncertainties
     else:
         return handle_subscripts(value)
@@ -157,7 +157,7 @@ def parse_loop(lines: List[str]) -> Dict[str, List[CIFDataValue]]:
     columns_dict = {}
     for i, header in enumerate(headers):
         if header in columns_dict:
-            warnings.warn('Duplicated loop tags: {0}'.format(header))
+            warnings.warn(f'Duplicated loop tags: {header}')
         else:
             columns_dict[header] = columns[i]
     return columns_dict
@@ -188,7 +188,7 @@ def parse_items(lines: List[str], line: str) -> Dict[str, CIFData]:
         elif line.startswith(';'):
             parse_multiline_string(lines, line)
         else:
-            raise ValueError('Unexpected CIF file entry: "{0}"'.format(line))
+            raise ValueError(f'Unexpected CIF file entry: "{line}"')
     return tags
 
 
@@ -392,7 +392,7 @@ class CIFBlock(collections.abc.Mapping):
                     setting = 2
                 else:
                     warnings.warn(
-                        'unexpected crystal system %r for space group %r' % (
+                        'unexpected crystal system {!r} for space group {!r}'.format(
                             setting_name, spacegroup))
             # FIXME - check for more crystal systems...
             else:
@@ -657,7 +657,7 @@ def format_cell(cell: Cell) -> str:
     assert cell.rank == 3
     lines = []
     for name, value in zip(CIFBlock.cell_tags, cell.cellpar()):
-        line = '{:20} {}\n'.format(name, value)
+        line = f'{name:20} {value}\n'
         lines.append(line)
     assert len(lines) == 6
     return ''.join(lines)

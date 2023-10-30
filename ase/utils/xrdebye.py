@@ -212,7 +212,7 @@ class XrDebye:
                 s = 2 * sin(twotheta * pi / 180 / 2.0) / self.wavelength
                 result.append(self.get(s))
                 if verbose:
-                    print('%.3f\t%f' % (twotheta, result[-1]))
+                    print(f'{twotheta:.3f}\t{result[-1]:f}')
         elif mode == 'SAXS':
             if x is None:
                 self.twotheta_list = np.logspace(-3, -0.3, 100)
@@ -225,7 +225,7 @@ class XrDebye:
                 s = q / (2 * pi)
                 result.append(self.get(s))
                 if verbose:
-                    print('%.4f\t%f' % (q, result[-1]))
+                    print(f'{q:.4f}\t{result[-1]:f}')
         self.intensity_list = np.array(result)
         return self.intensity_list
 
@@ -246,7 +246,7 @@ class XrDebye:
             raise Exception('No data available, call calc_pattern() first.')
 
         for i in range(len(x)):
-            fd.write('  %f\t%f\n' % (x[i], y[i]))
+            fd.write(f'  {x[i]:f}\t{y[i]:f}\n')
 
     def plot_pattern(self, filename=None, show=False, ax=None):
         """ Plot XRD or SAXS depending on filled data

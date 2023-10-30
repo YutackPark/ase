@@ -131,7 +131,7 @@ class IOFormat:
         return self.can_write and 'append' in writefunc.__code__.co_varnames
 
     def __repr__(self) -> str:
-        tokens = ['{}={}'.format(name, repr(value))
+        tokens = [f'{name}={repr(value)}'
                   for name, value in vars(self).items()]
         return 'IOFormat({})'.format(', '.join(tokens))
 
@@ -289,7 +289,7 @@ def define_io_format(name, desc, code, *, module=None, ext=None,
 
     for ext in fmt.extensions:
         if ext in extension2format:
-            raise ValueError('extension "{}" already registered'.format(ext))
+            raise ValueError(f'extension "{ext}" already registered')
         extension2format[ext] = fmt
 
     ioformats[name] = fmt
@@ -625,8 +625,7 @@ def wrap_read_function(read, filename, index=None, **kwargs):
     if index is None:
         yield read(filename, **kwargs)
     else:
-        for atoms in read(filename, index, **kwargs):
-            yield atoms
+        yield from read(filename, index, **kwargs)
 
 
 NameOrFile = Union[str, PurePath, IO]
@@ -711,7 +710,7 @@ def _write(filename, fd, format, io, images, parallel=None, append=False,
         images = images[0]
 
     if not io.can_write:
-        raise ValueError("Can't write to {}-format".format(format))
+        raise ValueError(f"Can't write to {format}-format")
 
     # Special case for json-format:
     if format == 'json' and (len(images) > 1 or append):
@@ -836,9 +835,8 @@ def iread(
     format = format or filetype(filename, read=isinstance(filename, str))
     io = get_ioformat(format)
 
-    for atoms in _iread(filename, index, format, io, parallel=parallel,
-                        **kwargs):
-        yield atoms
+    yield from _iread(filename, index, format, io, parallel=parallel,
+                        **kwargs)
 
 
 @parallel_generator
@@ -846,7 +844,7 @@ def _iread(filename, index, format, io, parallel=None, full_output=False,
            **kwargs):
 
     if not io.can_read:
-        raise ValueError("Can't read from {}-format".format(format))
+        raise ValueError(f"Can't read from {format}-format")
 
     if io.single:
         start = index.start

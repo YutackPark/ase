@@ -182,7 +182,7 @@ class XtlmuSTEMWriter:
     def _get_file_header(self):
         # 1st line: comment line
         if self.comment is None:
-            s = "{0} atoms with chemical formula: {1}\n".format(
+            s = "{} atoms with chemical formula: {}\n".format(
                 len(self.atoms),
                 self.atoms.get_chemical_formula())
         else:
@@ -191,14 +191,14 @@ class XtlmuSTEMWriter:
         s += "{} {} {} {} {} {}\n".format(
             *self.atoms.cell.cellpar().tolist())
         # 3td line: acceleration voltage
-        s += "{}\n".format(self.keV)
+        s += f"{self.keV}\n"
         # 4th line: number of different atom
-        s += "{}\n".format(len(self.atom_types))
+        s += f"{len(self.atom_types)}\n"
         return s
 
     def _get_element_header(self, atom_type, number, atom_type_number,
                             occupancy, RMS):
-        return "{0}\n{1} {2} {3} {4:.3g}\n".format(atom_type,
+        return "{}\n{} {} {} {:.3g}\n".format(atom_type,
                                                    number,
                                                    atom_type_number,
                                                    occupancy,

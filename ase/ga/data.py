@@ -44,7 +44,7 @@ class DataConnection:
     def __init__(self, db_file_name):
         self.db_file_name = db_file_name
         if not os.path.isfile(self.db_file_name):
-            raise IOError('DB file {0} not found'.format(self.db_file_name))
+            raise OSError(f'DB file {self.db_file_name} not found')
         self.c = ase.db.connect(self.db_file_name)
         self.already_returned = set()
 
@@ -82,9 +82,9 @@ class DataConnection:
     def __get_ids_of_all_unrelaxed_candidates__(self):
         """ Helper method used by the two above methods. """
 
-        all_unrelaxed_ids = set([t.gaid for t in self.c.select(relaxed=0)])
-        all_relaxed_ids = set([t.gaid for t in self.c.select(relaxed=1)])
-        all_queued_ids = set([t.gaid for t in self.c.select(queued=1)])
+        all_unrelaxed_ids = {t.gaid for t in self.c.select(relaxed=0)}
+        all_relaxed_ids = {t.gaid for t in self.c.select(relaxed=1)}
+        all_queued_ids = {t.gaid for t in self.c.select(queued=1)}
 
         actually_unrelaxed = [gaid for gaid in all_unrelaxed_ids
                               if (gaid not in all_relaxed_ids and
@@ -215,7 +215,7 @@ class DataConnection:
         return last_id + 1
 
     def get_largest_in_db(self, var):
-        return next(self.c.select(sort='-{0}'.format(var))).get(var)
+        return next(self.c.select(sort=f'-{var}')).get(var)
 
     def add_unrelaxed_candidate(self, candidate, description):
         """ Adds a new candidate which needs to be relaxed. """
@@ -421,7 +421,7 @@ class PrepareDB:
 
     def __init__(self, db_file_name, simulation_cell=None, **kwargs):
         if os.path.exists(db_file_name):
-            raise IOError('DB file {0} already exists'
+            raise OSError('DB file {} already exists'
                           .format(os.path.abspath(db_file_name)))
         self.db_file_name = db_file_name
         if simulation_cell is None:

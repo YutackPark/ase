@@ -20,8 +20,8 @@ def test_element_operators(seed):
     a3, desc = op.get_new_individual([a1, a2])
 
     syms = a3.get_chemical_symbols()
-    assert len(set([i for i in syms if i in cations])) < 4
-    assert len(set([i for i in syms if i in anions])) < 3
+    assert len({i for i in syms if i in cations}) < 4
+    assert len({i for i in syms if i in anions}) < 3
 
     from ase.ga.element_mutations import RandomElementMutation
 
@@ -29,14 +29,14 @@ def test_element_operators(seed):
     a4, desc = op.get_new_individual([a1])
     syms = a4.get_chemical_symbols()
 
-    assert len(set([i for i in syms if i in cations])) < 4
-    assert len(set([i for i in syms if i in anions])) < 3
+    assert len({i for i in syms if i in cations}) < 4
+    assert len({i for i in syms if i in anions}) < 3
 
     op = RandomElementMutation(anions, 2, .5, rng=rng)
     a4, desc = op.get_new_individual([a2])
     syms = a4.get_chemical_symbols()
 
-    assert len(set([i for i in syms if i in anions])) == 2
+    assert len({i for i in syms if i in anions}) == 2
 
     from ase.ga.element_mutations import (MoveDownMutation, MoveLeftMutation,
                                           MoveRightMutation, MoveUpMutation)

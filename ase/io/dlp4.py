@@ -145,7 +145,7 @@ def read_single_image(fd: IO, levcfg: int, imcon: int,
     for i, line in enumerate(itertools.islice(fd, natoms), 1):
         match = re.match(r"\s*([A-Za-z][a-z]?)(\S*)", line)
         if not match:
-            raise IOError(f"Line {line} does not match valid format.")
+            raise OSError(f"Line {line} does not match valid format.")
 
         symbol, label = match.group(1, 2)
         symbol = symbol.capitalize()

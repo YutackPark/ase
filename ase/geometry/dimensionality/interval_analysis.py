@@ -61,7 +61,7 @@ def merge_intervals(intervals):
     calculated from its k-interval.  This is necessary to maintain the property
     that the scores sum to 1.
     """
-    dimtypes = set([e.dimtype for e in intervals])
+    dimtypes = {e.dimtype for e in intervals}
 
     merged_intervals = []
     for dimtype in dimtypes:

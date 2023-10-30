@@ -573,7 +573,7 @@ End EAM Interface Documentation
         for line in self.header:
             fd.write(line)
 
-        fd.write('{0} '.format(self.Nelements).encode())
+        fd.write(f'{self.Nelements} '.encode())
         fd.write(' '.join(self.elements).encode() + b'\n')
 
         fd.write(('%d %f %d %f %f \n' %

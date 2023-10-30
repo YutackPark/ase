@@ -47,7 +47,7 @@ def make_factory_fixture(name):
         factories.require(name)
         return factories[name]
 
-    _factory.__name__ = '{}_factory'.format(name)
+    _factory.__name__ = f'{name}_factory'
     return _factory
 
 
@@ -594,7 +594,7 @@ class SiestaFactory:
 
     def calc(self, **kwargs):
         from ase.calculators.siesta import Siesta
-        command = '{} < PREFIX.fdf > PREFIX.out'.format(self.executable)
+        command = f'{self.executable} < PREFIX.fdf > PREFIX.out'
         return Siesta(command=command,
                       pseudo_path=str(self.pseudo_path),
                       **kwargs)
@@ -844,7 +844,7 @@ class CalculatorInputs:
 
     def __repr__(self):
         cls = type(self)
-        return '{}({}, {})'.format(cls.__name__, self.name, self.parameters)
+        return f'{cls.__name__}({self.name}, {self.parameters})'
 
     def new(self, **kwargs):
         kw = dict(self.parameters)

@@ -90,7 +90,7 @@ class Res:
         Returns:
             Res object.
         """
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             return Res.from_string(fd.read())
 
     @staticmethod
@@ -210,14 +210,14 @@ class Res:
                               'spacegroup', 'times_found']:
                 if getattr(self, attribute) and attribute not in info:
                     info[attribute] = getattr(self, attribute)
-            lines = ['TITL ' + ' '.join(['{0}={1}'.format(k, v)
+            lines = ['TITL ' + ' '.join([f'{k}={v}'
                                          for (k, v) in info.items()])]
         else:
             lines = ['TITL ' + self.print_title()]
 
         # Cell
         abc_ang = cell_to_cellpar(self.atoms.get_cell())
-        fmt = '{{0:.{0}f}}'.format(significant_figures)
+        fmt = f'{{0:.{significant_figures}f}}'
         cell = ' '.join([fmt.format(a) for a in abc_ang])
         lines.append('CELL 1.0 ' + cell)
 

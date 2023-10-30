@@ -426,7 +426,7 @@ class Parameters(dict):
     def tostring(self):
         keys = sorted(self)
         return 'dict(' + ',\n     '.join(
-            '{}={!r}'.format(key, self[key]) for key in keys) + ')\n'
+            f'{key}={self[key]!r}' for key in keys) + ')\n'
 
     def write(self, filename):
         Path(filename).write_text(self.tostring())
@@ -672,7 +672,7 @@ class Calculator(BaseCalculator):
         if self.prefix is None:
             return self.directory + '/'
 
-        return '{}/{}'.format(self.directory, self.prefix)
+        return f'{self.directory}/{self.prefix}'
 
     @label.setter
     def label(self, label):
@@ -920,8 +920,8 @@ class FileIOCalculator(Calculator):
             # probably the shell launches successfully.  But we soon want
             # to allow calling the subprocess directly, and then this
             # distinction (failed to launch vs failed to run) is useful.
-            msg = 'Failed to execute "{}"'.format(command)
-            raise EnvironmentError(msg) from err
+            msg = f'Failed to execute "{command}"'
+            raise OSError(msg) from err
 
         errorcode = proc.wait()
 

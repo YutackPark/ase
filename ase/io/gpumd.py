@@ -132,7 +132,7 @@ def write_gpumd(fd, atoms, maximum_neighbors=None, cutoff=None,
             for grouping in groupings:
                 for i, group in enumerate(grouping):
                     if a in group:
-                        line += ' {}'.format(i)
+                        line += f' {i}'
                         break
         lines.append(line)
 

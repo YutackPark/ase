@@ -72,7 +72,7 @@ def test_turbomole_2h2o():
         measurement = val if isinstance(val, float) else norm(val)
         reference = ref[key] if isinstance(ref[key], float) else norm(ref[key])
         dev[key] = (measurement - reference) / reference
-        print('Deviation of {0} is {1:10f}'.format(key, dev[key]))
+        print(f'Deviation of {key} is {dev[key]:10f}')
 
     # allow deviations of up to 5%
     assert all([dev[key] < 5e-2 for key in dev]), 'deviation too large'

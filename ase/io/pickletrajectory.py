@@ -146,7 +146,7 @@ class PickleTrajectory:
         self.fd.seek(0)
         try:
             if self.fd.read(len('PickleTrajectory')) != b'PickleTrajectory':
-                raise IOError('This is not a trajectory file!')
+                raise OSError('This is not a trajectory file!')
             d = pickle.load(self.fd)
         except EOFError:
             raise EOFError('Bad trajectory file.')
@@ -343,7 +343,7 @@ class PickleTrajectory:
 
         All other arguments are stored, and passed to the function.
         """
-        if not isinstance(function, collections.Callable):
+        if not isinstance(function, collections.abc.Callable):
             raise ValueError('Callback object must be callable.')
         self.pre_observers.append((function, interval, args, kwargs))
 
@@ -356,7 +356,7 @@ class PickleTrajectory:
 
         All other arguments are stored, and passed to the function.
         """
-        if not isinstance(function, collections.Callable):
+        if not isinstance(function, collections.abc.Callable):
             raise ValueError('Callback object must be callable.')
         self.post_observers.append((function, interval, args, kwargs))
 
@@ -391,7 +391,7 @@ def stringnify_info(info):
             s = pickle.dumps(v, protocol=0)
         except pickle.PicklingError:
             warnings.warn('Skipping not picklable info-dict item: ' +
-                          '"%s" (%s)' % (k, sys.exc_info()[1]), UserWarning)
+                          f'"{k}" ({sys.exc_info()[1]})', UserWarning)
         else:
             stringnified[k] = s
     return stringnified
@@ -407,7 +407,7 @@ def unstringnify_info(stringnified):
             v = pickle.loads(s)
         except pickle.UnpicklingError:
             warnings.warn('Skipping not unpicklable info-dict item: ' +
-                          '"%s" (%s)' % (k, sys.exc_info()[1]), UserWarning)
+                          f'"{k}" ({sys.exc_info()[1]})', UserWarning)
         else:
             info[k] = v
     return info

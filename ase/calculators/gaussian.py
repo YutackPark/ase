@@ -110,7 +110,7 @@ class Gaussian(FileIOCalculator):
                     self.command = self.command.replace('GAUSSIAN', gau)
                     break
             else:
-                raise EnvironmentError('Missing Gaussian executable {}'
+                raise OSError('Missing Gaussian executable {}'
                                        .format(gaussians))
 
         FileIOCalculator.calculate(self, *args, **kwargs)

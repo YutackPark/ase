@@ -108,8 +108,8 @@ def write_eon(fileobj, images):
     out.append('0.0000 TIME')  # ??
 
     a, b, c, alpha, beta, gamma = cell_to_cellpar(atoms.cell)
-    out.append('%-10.6f  %-10.6f  %-10.6f' % (a, b, c))
-    out.append('%-10.6f  %-10.6f  %-10.6f' % (gamma, beta, alpha))
+    out.append(f'{a:<10.6f}  {b:<10.6f}  {c:<10.6f}')
+    out.append(f'{gamma:<10.6f}  {beta:<10.6f}  {alpha:<10.6f}')
 
     out.append('0 0')    # ??
     out.append('0 0 0')  # ??

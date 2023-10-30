@@ -142,7 +142,7 @@ class Population:
         """ Returns a copy of the population as it where
         after generation gen"""
         if self.logfile is not None:
-            fd = open(self.logfile, 'r')
+            fd = open(self.logfile)
             gens = {}
             for line in fd:
                 _, no, popul = line.split(':')
