@@ -41,7 +41,8 @@ class BaseProfile(ABC):
         """
         if self.mpi_command_ncores is not None and self.ncores is not None:
             argv_command = (
-                self.mpi_command_ncores.format(self.ncores).split(" ") + argv_command
+                self.mpi_command_ncores.format(self.ncores).split(" ")
+                + argv_command
             )
         elif self.mpi_command is not None:
             argv_command = [self.mpi_command] + argv_command
@@ -126,7 +127,12 @@ def read_stdout(args, createfile=None):
             path = Path(directory) / createfile
             path.touch()
         proc = Popen(
-            args, stdout=PIPE, stderr=PIPE, stdin=PIPE, cwd=directory, encoding="ascii"
+            args,
+            stdout=PIPE,
+            stderr=PIPE,
+            stdin=PIPE,
+            cwd=directory,
+            encoding="ascii",
         )
         stdout, _ = proc.communicate()
         # Exit code will be != 0 because there isn't an input file
@@ -185,7 +191,8 @@ class CalculatorTemplate(ABC):
             )
 
         if not (
-            hasattr(self, "socketio_argv") and hasattr(self, "socketio_parameters")
+            hasattr(self, "socketio_argv")
+            and hasattr(self, "socketio_parameters")
         ):
             raise TypeError(
                 f"Template {self} does not implement mandatory "
@@ -194,7 +201,10 @@ class CalculatorTemplate(ABC):
 
         # XXX need socketio ABC or something
         argv = self.socketio_argv(profile, unixsocket, port)
-        parameters = {**self.socketio_parameters(unixsocket, port), **parameters}
+        parameters = {
+            **self.socketio_parameters(unixsocket, port),
+            **parameters,
+        }
 
         # Not so elegant that socket args are passed to this function
         # via socketiocalculator when we could make a closure right here.
@@ -229,7 +239,7 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
             try:
                 profile = template.load_profile(myconfig)
             except Exception as err:
-                configvars = dict(myconfig)
+                # configvars = dict(myconfig)
                 raise EnvironmentError(
                     f"Failed to load section [{template.name}] "
                     "from configuration: {configvars}"
@@ -245,7 +255,8 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
 
     def set(self, *args, **kwargs):
         raise RuntimeError(
-            "No setting parameters for now, please.  " "Just create new calculators."
+            "No setting parameters for now, please.  "
+            "Just create new calculators."
         )
 
     def __repr__(self):

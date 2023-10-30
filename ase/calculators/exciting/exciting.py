@@ -17,8 +17,14 @@ from typing import Any, Mapping
 
 import ase.io.exciting
 from ase.calculators.calculator import PropertyNotImplementedError
-from ase.calculators.exciting.runner import SimpleBinaryRunner, SubprocessRunResults
-from ase.calculators.genericfileio import CalculatorTemplate, GenericFileIOCalculator
+from ase.calculators.exciting.runner import (
+    SimpleBinaryRunner,
+    SubprocessRunResults,
+)
+from ase.calculators.genericfileio import (
+    CalculatorTemplate,
+    GenericFileIOCalculator,
+)
 
 
 class ExcitingProfile:
@@ -77,7 +83,11 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
         return input_parameters
 
     def write_input(
-        self, directory: PathLike, atoms: ase.Atoms, parameters: dict, properties=None
+        self,
+        directory: PathLike,
+        atoms: ase.Atoms,
+        parameters: dict,
+        properties=None,
     ):
         """Write an exciting input.xml file based on the input args.
 
@@ -104,7 +114,11 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
         title = parameters_dict.pop("title")
 
         ase.io.exciting.write_input_xml_file(
-            file_name, atoms, parameters_dict["ground_state_input"], species_path, title
+            file_name,
+            atoms,
+            parameters_dict["ground_state_input"],
+            species_path,
+            title,
         )
 
     def execute(self, directory: PathLike, profile) -> SubprocessRunResults:
@@ -154,12 +168,16 @@ class ExcitingGroundStateResults:
         """Return total energy of system."""
         # TODO(Alex) We should a common list of keys somewhere
         # such that parser -> results -> getters are consistent
-        return float(self.results["scl"][self.final_scl_iteration]["Total energy"])
+        return float(
+            self.results["scl"][self.final_scl_iteration]["Total energy"]
+        )
 
     def band_gap(self) -> float:
         """Return the estimated fundamental gap from the exciting sim."""
         return float(
-            self.results["scl"][self.final_scl_iteration]["Estimated fundamental gap"]
+            self.results["scl"][self.final_scl_iteration][
+                "Estimated fundamental gap"
+            ]
         )
 
     def forces(self):
