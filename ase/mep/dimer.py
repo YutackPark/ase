@@ -327,7 +327,7 @@ class MinModeControl(IOContext):
     def __init__(self, logfile='-', eigenmode_logfile=None, **kwargs):
         # Overwrite the defaults with the input parameters given
         for key in kwargs:
-            if not key in self.parameters:
+            if key not in self.parameters:
                 e = 'Invalid parameter >>%s<< with value >>%s<< in %s' % \
                     (key, str(kwargs[key]), self.__class__.__name__)
                 raise ValueError(e)
@@ -348,7 +348,7 @@ class MinModeControl(IOContext):
 
     def set_parameter(self, parameter, value, log=True):
         """Change a parameter's value."""
-        if not parameter in self.parameters:
+        if parameter not in self.parameters:
             e = 'Invalid parameter >>%s<< with value >>%s<<' % \
                 (parameter, str(value))
             raise ValueError(e)
@@ -358,7 +358,7 @@ class MinModeControl(IOContext):
 
     def get_parameter(self, parameter):
         """Returns the value of a parameter."""
-        if not parameter in self.parameters:
+        if parameter not in self.parameters:
             e = 'Invalid parameter >>%s<<' % \
                 (parameter)
             raise ValueError(e)
@@ -471,15 +471,15 @@ class DimerControl(MinModeControl):
         """Log the parameters of the eigenmode search."""
         if self.logfile is not None:
             if parameter is not None:
-                l = 'DIM:CONTROL: Updated Parameter: %s = %s\n' % (parameter,
-                                                                   str(self.get_parameter(parameter)))
+                l = 'DIM:CONTROL: Updated Parameter: %s = %s\n' % (
+                    parameter, str(self.get_parameter(parameter)))
             else:
                 l = 'MINMODE:METHOD: Dimer\n'
                 l += 'DIM:CONTROL: Search Parameters:\n'
                 l += 'DIM:CONTROL: ------------------\n'
                 for key in self.parameters:
-                    l += 'DIM:CONTROL: %s = %s\n' % (key,
-                                                     str(self.get_parameter(key)))
+                    l += 'DIM:CONTROL: %s = %s\n' % (
+                        key, str(self.get_parameter(key)))
                 l += 'DIM:CONTROL: ------------------\n'
                 l += 'DIM:ROT: OPT-STEP ROT-STEP CURVATURE ROT-ANGLE ' + \
                      'ROT-FORCE\n'
@@ -697,8 +697,9 @@ class MinModeAtoms:
         for k in range(order):
             if k > 0:
                 self.ensure_eigenmode_orthogonality(k + 1)
-            search = DimerEigenmodeSearch(self, self.control,
-                                          eigenmode=self.eigenmodes[k], basis=self.eigenmodes[:k])
+            search = DimerEigenmodeSearch(
+                self, self.control,
+                eigenmode=self.eigenmodes[k], basis=self.eigenmodes[:k])
             search.converge_to_eigenmode()
             search.set_up_for_optimization_step()
             self.eigenmodes[k] = search.get_eigenmode()
@@ -951,8 +952,8 @@ class MinModeAtoms:
             for m_num, mode in enumerate(self.eigenmodes):
                 l += 'MINMODE:MODE: Order: %i\n' % m_num
                 for k in range(len(mode)):
-                    l += 'MINMODE:MODE: %7i %15.8f %15.8f %15.8f\n' % (k,
-                                                                       mode[k][0], mode[k][1], mode[k][2])
+                    l += 'MINMODE:MODE: %7i %15.8f %15.8f %15.8f\n' % (
+                        k, mode[k][0], mode[k][1], mode[k][2])
             self.mlogfile.write(l)
             self.mlogfile.flush()
 
@@ -971,9 +972,10 @@ class MinModeAtoms:
             else:
                 l = ''
             for k in range(len(displacement_vector)):
-                l += 'MINMODE:DISP: %7i %15.8f %15.8f %15.8f\n' % (k,
-                                                                   displacement_vector[k][0], displacement_vector[k][1],
-                                                                   displacement_vector[k][2])
+                l += 'MINMODE:DISP: %7i %15.8f %15.8f %15.8f\n' % (
+                    k,
+                    displacement_vector[k][0], displacement_vector[k][1],
+                    displacement_vector[k][2])
             self.logfile.write(l)
             self.logfile.flush()
 
@@ -1092,15 +1094,17 @@ class MinModeTranslate(Optimizer):
             if stepsize:
                 if isinstance(self.control, DimerControl):
                     l = '%s: %4d  %02d:%02d:%02d %15.6f %12.4f %12.6f ' \
-                        '%12.6f %10d\n' % ('MinModeTranslate', self.nsteps,
-                                           T[3], T[4], T[5], e, fmax, stepsize, curvature,
-                                           rotsteps)
+                        '%12.6f %10d\n' % (
+                            'MinModeTranslate', self.nsteps,
+                            T[3], T[4], T[5], e, fmax, stepsize, curvature,
+                            rotsteps)
             else:
                 if isinstance(self.control, DimerControl):
                     l = '%s: %4d  %02d:%02d:%02d %15.6f %12.4f %s ' \
-                        '%12.6f %10d\n' % ('MinModeTranslate', self.nsteps,
-                                           T[3], T[4], T[5], e, fmax, '    --------',
-                                           curvature, rotsteps)
+                        '%12.6f %10d\n' % (
+                            'MinModeTranslate', self.nsteps,
+                            T[3], T[4], T[5], e, fmax, '    --------',
+                            curvature, rotsteps)
             self.logfile.write(l)
             self.logfile.flush()
 
