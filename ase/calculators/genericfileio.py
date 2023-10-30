@@ -6,7 +6,7 @@ from typing import Any, Iterable, Mapping
 from ase.calculators.abc import GetOutputsMixin
 from ase.calculators.calculator import BaseCalculator, EnvironmentError
 
-
+class BaseProfile(ABC):
     def __init__(self, parallel=True, parallel_info=None):
         """
         """
@@ -214,6 +214,8 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
 
         if profile is None:
             from ase.config import cfg
+
+            print(cfg)
 
             parallel_config = dict(cfg.parser['parallel'])
             variable_whitelist = ['binary']
