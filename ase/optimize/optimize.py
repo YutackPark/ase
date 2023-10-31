@@ -8,7 +8,7 @@ from typing import IO, Any, Dict, List, Optional, Union
 from ase import Atoms
 from ase.calculators.calculator import PropertyNotImplementedError
 from ase.parallel import barrier, world
-from ase.utils import IOContext
+from ase.utils import IOContext, lazyproperty
 from ase.utils.abc import Optimizable
 
 
@@ -29,7 +29,28 @@ class OptimizableAtoms(Optimizable):
     def get_forces(self):
         return self.atoms.get_forces()
 
+    @lazyproperty
+    def _use_force_consistent_energy(self):
+        # This boolean is in principle invalidated if the
+        # calculator changes.  This can lead to weird things
+        # in multi-step optimizations.
+        try:
+            self.atoms.get_potential_energy(force_consistent=True)
+        except PropertyNotImplementedError:
+            import warnings
+            warnings.warn(
+                'Could not get force consistent energy (\'free_energy\').  '
+                'Please make sure calculator provides \'free_energy\', even '
+                'if equal to the ordinary energy.  '
+                'This will raise an error in future versions of ASE.',
+                FutureWarning)
+            return False
+        else:
+            return True
+
     def get_potential_energy(self, force_consistent):
+        if force_consistent is None:
+            force_consistent = self._use_force_consistent_energy
         return self.atoms.get_potential_energy(
             force_consistent=force_consistent)
 
