@@ -11,6 +11,7 @@ import numpy as np
 
 from ase.calculators.abc import GetPropertiesMixin
 from ase.cell import Cell
+from ase.config import cfg as _cfg
 from ase.outputs import Properties, all_outputs
 from ase.utils import jsonable
 
@@ -878,6 +879,8 @@ class FileIOCalculator(Calculator):
     command: Optional[str] = None
     'Command used to start calculation'
 
+    cfg = _cfg  # Ensure easy access to config for subclasses
+
     def __init__(self, restart=None,
                  ignore_bad_restart_file=Calculator._deprecated,
                  label=None, atoms=None, command=None, **kwargs):
@@ -894,7 +897,7 @@ class FileIOCalculator(Calculator):
             self.command = command
         else:
             name = 'ASE_' + self.name.upper() + '_COMMAND'
-            self.command = os.environ.get(name, self.command)
+            self.command = self.cfg.get(name, self.command)
 
     def calculate(self, atoms=None, properties=['energy'],
                   system_changes=all_changes):

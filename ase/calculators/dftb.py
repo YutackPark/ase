@@ -16,8 +16,8 @@ from ase.units import Bohr, Hartree
 
 
 class Dftb(FileIOCalculator):
-    if 'DFTB_COMMAND' in os.environ:
-        command = os.environ['DFTB_COMMAND'] + ' > PREFIX.out'
+    if 'DFTB_COMMAND' in FileIOCalculator.cfg:
+        command = FileIOCalculator.cfg['DFTB_COMMAND'] + ' > PREFIX.out'
     else:
         command = 'dftb+ > PREFIX.out'
 
@@ -90,7 +90,7 @@ class Dftb(FileIOCalculator):
         """
 
         if slako_dir is None:
-            slako_dir = os.environ.get('DFTB_PREFIX', './')
+            slako_dir = self.cfg.get('DFTB_PREFIX', './')
             if not slako_dir.endswith('/'):
                 slako_dir += '/'
 

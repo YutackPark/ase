@@ -15,6 +15,7 @@ import numpy as np
 import ase.io
 from ase.calculators.calculator import (Calculator, CalculatorSetupError,
                                         Parameters, all_changes)
+from ase.config import cfg
 from ase.units import Rydberg
 
 
@@ -194,14 +195,12 @@ class CP2K(Calculator):
             self.command = command
         elif CP2K.command is not None:
             self.command = CP2K.command
-        elif 'ASE_CP2K_COMMAND' in os.environ:
-            self.command = os.environ['ASE_CP2K_COMMAND']
         else:
-            self.command = 'cp2k_shell'  # default
+            self.command = cfg.get('ASE_CP2K_COMMAND', 'cp2k_shell')
 
-        Calculator.__init__(self, restart=restart,
-                            ignore_bad_restart_file=ignore_bad_restart_file,
-                            label=label, atoms=atoms, **kwargs)
+        super().__init__(restart=restart,
+                         ignore_bad_restart_file=ignore_bad_restart_file,
+                         label=label, atoms=atoms, **kwargs)
 
         self._shell = Cp2kShell(self.command, self._debug)
 
