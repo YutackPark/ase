@@ -538,7 +538,7 @@ class FrechetCellFilter(UnitCellFilter):
             The virial tensor is replaced by np.diag([np.trace(virial)]*3).
 
         constant_volume: bool (default False)
-            Projec tout the diagonal elements of the virial tensor to allow
+            Project out the diagonal elements of the virial tensor to allow
             relaxations at constant volume, e.g. for mapping out an
             energy-volume curve.
 

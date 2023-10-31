@@ -6,8 +6,7 @@ from ase.filters import FrechetCellFilter, UnitCellFilter
 from ase.build import bulk, fcc110
 from ase.calculators.emt import EMT
 from ase.stress import get_elasticity_tensor
-
-
+from ase.units import GPa
 
 
 def test_rattle_supercell_old():
@@ -49,7 +48,11 @@ def test_cellaware_bfgs_2d(filt):
     orig_cell = atoms.cell.copy()
     atoms.cell = atoms.cell @ np.array([[1.0, 0.05, 0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]])
     atoms.calc = EMT()
-    relax = CellAwareBFGS(filt(atoms, mask=[1,1,0,0,0,1]), alpha=70, long_output=True)
+    if filt == FrechetCellFilter:
+        dct = dict(exp_cell_factor=1.0)
+    else:
+        dct = dict(cell_factor=1.0)
+    relax = CellAwareBFGS(filt(atoms, mask=[1,1,0,0,0,1], **dct), alpha=70, long_output=True)
     relax.run(fmax=0.0005)
     assert np.allclose(atoms.cell[2,:], orig_cell[2,:])
     assert np.allclose(atoms.cell[:, 2], orig_cell[:, 2])
@@ -97,7 +100,7 @@ def test_elasticity_tensor():
 
     # Make sure we can approximate the elasticity tensor within 10%
     # using the CellAwareBFGS
-    tmp = CellAwareBFGS(FrechetCellFilter(atoms, exp_cell_factor=1.0), bulk_modulus=175, poisson_ratio=0.46)
+    tmp = CellAwareBFGS(FrechetCellFilter(atoms, exp_cell_factor=1.0), bulk_modulus=175 * GPa, poisson_ratio=0.46)
     for a, b in zip(rlx.H0[-9:, -9:].ravel(), tmp.H0[-9:, -9:].ravel()):
         if abs(a) > 0.001:
             print(a, b)
