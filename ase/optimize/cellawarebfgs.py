@@ -61,7 +61,6 @@ class CellAwareBFGS(BFGS):
         logfile: Union[IO, str] = '-',
         trajectory: Optional[str] = None,
         maxstep: Optional[float] = None,
-        maxcellstep: Optional[float] = None,
         master: Optional[bool] = None,
         bulk_modulus: Optional[float] = 145 * GPa,
         poisson_ratio: Optional[float] = 0.3,
