@@ -1,8 +1,8 @@
-# import configparser
+import configparser
 import os
 import re
 
-# from pathlib import Path
+from pathlib import Path
 from typing import Mapping
 
 import pytest
