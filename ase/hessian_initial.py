@@ -1,26 +1,25 @@
-from ase.stress import get_elasticity_tensor
-import numpy as np
-
-from ase.calculators.emt import EMT
-from ase.build import bulk
 from ase.filters import ExpCellFilter
 from ase.optimize import BFGS
+import numpy as np
 
-atoms = bulk('Au')
-atoms.calc = EMT()
+def ExactHessianBFGS(atoms, C_ijkl, alpha=70):
+    atoms_and_cell = ExpCellFilter(atoms)
+    relax = BFGS(atoms_and_cell, alpha=alpha)
+    C_ijkl = C_ijkl.copy()
+    # Supplement the tensor with suppression of pure rotations (which are right now 0 eigenvalues)
+    # Loop over all basis vectors of skew symmetric real matrix
+    for i,j in ((0,1),(0,2),(1,2)):
+        Q = np.zeros((3,3))
+        Q[i,j], Q[j,i] = 1, -1
+        C_ijkl += np.einsum('ij,kl->ijkl', Q, Q) * alpha / 2
+    relax.H0[-9:, -9:] = C_ijkl.reshape((9,9)) * atoms.cell.volume
+    relax.masks = [ np.zeros(len(relax.H0)),
+                    np.zeros(len(relax.H0)) ]
+    relax.masks[0][:-9] = 1.0
+    relax.masks[1][-9:] = 1.0
+    return relax
 
-C_ijkl = get_elasticity_tensor(atoms)
-for i in range(3):
-    for j in range(3):
-        print(f'C_ijkl[{i}, {j}] =')
-        for k in range(3):
-            for l in range(3):
-                print(round(C_ijkl[i,j,k,l], 2), end=' ')
-            print()
-        print()
-    print()
-
-def CellBFGS(atoms, alpha=70, bulk_modulus=148, poisson_ratio=0.3):
+def CellBFGS(atoms, alpha=70, bulk_modulus=140, poisson_ratio=0.3):
     """
         Create advanced BFGS optimizer for bulk systems, with 
 
@@ -45,7 +44,7 @@ def CellBFGS(atoms, alpha=70, bulk_modulus=148, poisson_ratio=0.3):
  
     bulk_modulus = 0.00624150907 * bulk_modulus # GPa to eV / Å^3
     atoms_and_cell = ExpCellFilter(atoms)
-    relax = BFGS(atoms_and_cell, alpha=alpha)
+    relax = BFGS(atoms_and_cell, alpha=alpha, logfile='/dev/null')
     g = np.eye(3)
 
     # https://scienceworld.wolfram.com/physics/LameConstants.html
@@ -62,17 +61,21 @@ def CellBFGS(atoms, alpha=70, bulk_modulus=148, poisson_ratio=0.3):
 
     # Supplement the tensor with suppression of pure rotations (which are right now 0 eigenvalues)
     # Loop over all basis vectors of skew symmetric real matrix
-    #for i,j in ((0,1),(0,2),(1,2)):
-    #    Q = np.zeros((3,3))
-    #    Q[i,j], Q[j,i] = 1, -1
-    #    C_ijkl += np.einsum('ij,kl->ijkl', Q, Q) * alpha / 2
+    for i,j in ((0,1),(0,2),(1,2)):
+        Q = np.zeros((3,3))
+        Q[i,j], Q[j,i] = 1, -1
+        C_ijkl += np.einsum('ij,kl->ijkl', Q, Q) * alpha / 2
 
     # Update the Hessian initial guess
-    relax.H0[-9:, -9:] = C_ijkl.reshape((9,9)) #* atoms.cell.volume
-
+    #relax.H0[-9:, -9:] = np.eye(9) * np.trace(C_ijkl.reshape((9,9)))/9 * atoms.cell.volume
+    relax.H0[-9:, -9:] = C_ijkl.reshape((9,9)) * atoms.cell.volume
+    print(relax.H0[-9:,-9:])
+    relax.masks = [ np.zeros(len(relax.H0)),
+                    np.zeros(len(relax.H0)) ]
+    relax.masks[0][:-9] = 1.0
+    relax.masks[1][-9:] = 1.0
+    relax.masks = [ np.zeros(len(relax.H0)) ]
+    relax.masks[0][:] = 1.0
+             
     return relax
-np.set_printoptions(precision=3)
-relax = CellBFGS(atoms)
-print(np.round(relax.H0[-9:, -9:],3))
-print(np.round(C_ijkl.reshape((9,9)),3))
 
