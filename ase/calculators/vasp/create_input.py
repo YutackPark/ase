@@ -29,6 +29,7 @@ import numpy as np
 import ase
 from ase.calculators.calculator import kpts2ndarray
 from ase.calculators.vasp.setups import get_default_setups
+from ase.utils import deprecated
 
 
 def format_kpoints(kpts, atoms, reciprocal=False, gamma=False):
@@ -1140,6 +1141,17 @@ class GenerateVaspInput:
                 p.update({'pp': 'lda'})
             elif self.string_params['gga'] == '91':
                 p.update({'pp': 'pw91'})
+                raise FutureWarning(
+                    "The PW91 (potpaw_GGA) pseudopotential set is "
+                    "from 2006 and not recommended for use. We will "
+                    "remove support for it in a future release, "
+                    "and use the current PBE (potpaw_PBE) set instead.\n"
+                    "Note that this still allows for PW91 calculations, "
+                    "since VASP recalculates the exchange-correlation "
+                    "energy inside the PAW sphere and corrects the atomic "
+                    "energies given by the POTCAR file."
+                )
+
             elif self.string_params['gga'] == 'PE':
                 p.update({'pp': 'pbe'})
             else:
