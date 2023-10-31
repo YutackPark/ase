@@ -36,10 +36,12 @@ class ExcitingProfile:
          method, which is part of the BinaryRunner class.
     """
 
-    def __init__(self, exciting_root, species_path):
+    def __init__(self, exciting_root=None, species_path=None):
         from excitingtools.input.base_class import query_exciting_version
-
-        self.version = query_exciting_version(exciting_root)
+        if exciting_root is not None:
+            self.version = query_exciting_version(exciting_root)
+        else:
+            self.version = None
         self.species_path = species_path
 
 
@@ -84,6 +86,8 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
 
     def write_input(
         self,
+        profile: ExcitingProfile,  # ase test linter enforces method signatures be consistent with the
+                                   # abstract method that it implements
         directory: PathLike,
         atoms: ase.Atoms,
         parameters: dict,
@@ -91,6 +95,7 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
     ):
         """Write an exciting input.xml file based on the input args.
 
+        :param profile: an Exciting code profile
         :param directory: Directory in which to run calculator.
         :param atoms: ASE atoms object.
         :param parameters: exciting ground state input parameters, in a
