@@ -231,7 +231,7 @@ def key_val_str_to_dict_regex(s):
                 str_to_bool = {'T': True, 'F': False}
 
                 if len(value.split()) > 1:
-                    if all(x in str_to_bool.keys() for x in value.split()):
+                    if all(x in str_to_bool for x in value.split()):
                         value = [str_to_bool[x] for x in value.split()]
                 elif value in str_to_bool:
                     value = str_to_bool[value]

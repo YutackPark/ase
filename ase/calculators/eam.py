@@ -773,7 +773,7 @@ End EAM Interface Documentation
         self.cell = atoms.get_cell().copy()
 
         energy = 0.0
-        for i in components.keys():
+        for i in components:
             energy += components[i]
 
         self.energy_free = energy

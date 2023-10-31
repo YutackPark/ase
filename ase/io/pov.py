@@ -298,7 +298,7 @@ class POVRAY:
     def from_PlottingVariables(cls, pvars, **kwargs):
         cell = pvars.cell
         cell_vertices = pvars.cell_vertices
-        if 'colors' in kwargs.keys():
+        if 'colors' in kwargs:
             colors = kwargs.pop('colors')
         else:
             colors = pvars.colors

@@ -82,7 +82,7 @@ class ACE(FileIOCalculator):
 
         # Update parameters
         for section in new_parameters['order']:
-            if section in kwargs.keys():
+            if section in kwargs:
                 if isinstance(kwargs[section], dict):
                     kwargs[section] = [kwargs[section]]
 

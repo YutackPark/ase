@@ -26,7 +26,7 @@ def closest_distances_generator(atom_numbers, ratio_of_covalent_radii):
         for j in atom_numbers:
             if i == j:
                 continue
-            if (i, j) in blmin.keys():
+            if (i, j) in blmin:
                 continue
             blmin[(i, j)] = blmin[(j, i)] = ratio * (cr[i] + cr[j])
     return blmin
