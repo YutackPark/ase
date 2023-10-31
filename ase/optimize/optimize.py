@@ -48,8 +48,7 @@ class OptimizableAtoms(Optimizable):
         else:
             return True
 
-    def get_potential_energy(self, force_consistent=None):
-        # ignore force_consistent
+    def get_potential_energy(self):
         force_consistent = self._use_force_consistent_energy
         return self.atoms.get_potential_energy(
             force_consistent=force_consistent)
