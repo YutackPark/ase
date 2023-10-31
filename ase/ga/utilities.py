@@ -63,15 +63,13 @@ def db_call_with_error_tol(db_cursor, expression, args=[]):
     employed.
     """
     import sqlite3
-    i = 0
-    while i < 10:
+    for i in range(10):
         try:
             db_cursor.execute(expression, args)
             return
         except sqlite3.OperationalError as e:
             print(e)
             time.sleep(2.)
-        i += 1
     raise sqlite3.OperationalError(
         'Database still locked after 10 attempts (20 s)')
 
