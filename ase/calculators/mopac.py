@@ -38,7 +38,7 @@ class MOPAC(FileIOCalculator):
 
     def __init__(self, restart=None,
                  ignore_bad_restart_file=FileIOCalculator._deprecated,
-                 label='mopac', atoms=None, self.command, **kwargs):
+                 label='mopac', atoms=None, **kwargs):
         """Construct MOPAC-calculator object.
 
         Parameters:
@@ -74,7 +74,7 @@ class MOPAC(FileIOCalculator):
 
         """
         FileIOCalculator.__init__(self, restart, ignore_bad_restart_file,
-                                  label, atoms, **kwargs)
+                                  label, atoms, self.command, **kwargs)
 
     def write_input(self, atoms, properties=None, system_changes=None):
         FileIOCalculator.write_input(self, atoms, properties, system_changes)
