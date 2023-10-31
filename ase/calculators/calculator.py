@@ -936,6 +936,8 @@ class FileIOCalculator(Calculator):
     command: Optional[str] = None
     'Command used to start calculation'
 
+    cfg = _cfg  # Ensure easy access to config for subclasses
+
     def __init__(self, restart=None,
                  ignore_bad_restart_file=Calculator._deprecated,
                  label=None, atoms=None, command=None,
