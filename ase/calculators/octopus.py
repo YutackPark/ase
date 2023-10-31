@@ -9,7 +9,8 @@ http://tddft.org/programs/octopus/
 import numpy as np
 
 from ase.calculators.genericfileio import (CalculatorTemplate,
-                                           GenericFileIOCalculator)
+                                           GenericFileIOCalculator,
+                                           BaseProfile)
 from ase.io.octopus.input import generate_input, process_special_kwargs
 from ase.io.octopus.output import read_eigenvalues_file, read_static_info
 
@@ -18,9 +19,13 @@ class OctopusIOError(IOError):
     pass
 
 
-class OctopusProfile:
-    def __init__(self, argv):
-        self.argv = argv
+class OctopusProfile(BaseProfile):
+    def __init__(self, exc, **kwargs):
+        super().__init__(**kwargs)        
+        self.exc = exc
+
+    def get_calculator_command(self, inputfile):
+        return [self.exc]
 
     def version(self):
         import re
@@ -31,10 +36,6 @@ class OctopusProfile:
         # the first line.
         return match.group(1)
 
-    def run(self, directory, outputfile):
-        from subprocess import check_call
-        with open(directory / outputfile, 'w') as fd:
-            check_call(self.argv, stdout=fd, cwd=directory)
 
 
 class OctopusTemplate(CalculatorTemplate):
@@ -66,15 +67,15 @@ class OctopusTemplate(CalculatorTemplate):
         return results
 
     def execute(self, directory, profile):
-        profile.run(directory, 'octopus.out')
+        profile.run(directory, inputfile=None, outputfile='octopus.out')
 
     def write_input(self, profile, directory, atoms, parameters, properties):
         txt = generate_input(atoms, process_special_kwargs(atoms, parameters))
         inp = directory / 'inp'
         inp.write_text(txt)
 
-    def load_profile(self, cfg):
-        return OctopusProfile(cfg.getargv('argv'))
+    def load_profile(self, cfg, **kwargs):
+        return OctopusProfile.from_config(cfg, self.name, **kwargs)
 
 
 class Octopus(GenericFileIOCalculator):
@@ -85,15 +86,20 @@ class Octopus(GenericFileIOCalculator):
     def __init__(self,
                  profile=None,
                  directory='.',
+                 parallel_info=None,
+                 parallel=True,
                  **kwargs):
         """Create Octopus calculator.
 
         Label is always taken as a subdirectory.
         Restart is taken to be a label."""
 
-        super().__init__(profile=profile, template=OctopusTemplate(),
+        super().__init__(profile=profile, 
+                         template=OctopusTemplate(),
                          directory=directory,
-                         parameters=kwargs)
+                         parameters=kwargs,
+                         parallel_info=parallel_info,
+                         parallel=parallel)
 
     @classmethod
     def recipe(cls, **kwargs):
@@ -108,3 +114,4 @@ class Octopus(GenericFileIOCalculator):
         else:
             raise OctopusIOError('Expected recipe, but found '
                                  'useful physical output!')
+
