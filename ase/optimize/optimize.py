@@ -7,14 +7,44 @@ from typing import IO, Any, Dict, List, Optional, Union
 
 from ase import Atoms
 from ase.calculators.calculator import PropertyNotImplementedError
-from ase.io.jsonio import read_json, write_json
-from ase.io.trajectory import Trajectory
 from ase.parallel import barrier, world
 from ase.utils import IOContext
+from ase.utils.abc import Optimizable
 
 
 class RestartError(RuntimeError):
     pass
+
+
+class OptimizableAtoms(Optimizable):
+    def __init__(self, atoms):
+        self.atoms = atoms
+
+    def get_positions(self):
+        return self.atoms.get_positions()
+
+    def set_positions(self, positions):
+        self.atoms.set_positions(positions)
+
+    def get_forces(self):
+        return self.atoms.get_forces()
+
+    def get_potential_energy(self, force_consistent):
+        return self.atoms.get_potential_energy(
+            force_consistent=force_consistent)
+
+    def iterimages(self):
+        # XXX document purpose of iterimages
+        return self.atoms.iterimages()
+
+    def __len__(self):
+        # TODO: return 3 * len(self.atoms), because we want the length
+        # of this to be the number of DOFs
+        return len(self.atoms)
+
+    def get_chemical_symbols(self):
+        # XXX For Pyberny
+        return self.atoms.get_chemical_symbols()
 
 
 class Dynamics(IOContext):
@@ -56,6 +86,7 @@ class Dynamics(IOContext):
         """
 
         self.atoms = atoms
+        self.optimizable = atoms.__ase_optimizable__()
         self.logfile = self.openfile(logfile, mode='a', comm=world)
         self.observers: List[Callable] = []
         self.nsteps = 0
@@ -64,11 +95,12 @@ class Dynamics(IOContext):
 
         if trajectory is not None:
             if isinstance(trajectory, str):
+                from ase.io.trajectory import Trajectory
                 mode = "a" if append_trajectory else "w"
                 trajectory = self.closelater(Trajectory(
                     trajectory, mode=mode, master=master
                 ))
-            self.attach(trajectory, atoms=atoms)
+            self.attach(trajectory, atoms=self.optimizable)
 
         self.trajectory = trajectory
 
@@ -151,7 +183,7 @@ class Dynamics(IOContext):
         >>>     opt1.run()
         """
         # compute the initial step
-        self.atoms.get_forces()
+        self.optimizable.get_forces()
 
         # log the initial step
         if self.nsteps == 0:
@@ -308,17 +340,14 @@ class Optimizer(Dynamics):
     def converged(self, forces=None):
         """Did the optimization converge?"""
         if forces is None:
-            forces = self.atoms.get_forces()
-        is_converged = (forces**2).sum(axis=1).max() < self.fmax**2
-        if hasattr(self.atoms, "get_curvature"):
-            return is_converged and self.atoms.get_curvature() < 0.0
-        return is_converged
+            forces = self.optimizable.get_forces()
+        return self.optimizable.converged(forces, self.fmax)
 
     def log(self, forces=None):
         if forces is None:
-            forces = self.atoms.get_forces()
+            forces = self.optimizable.get_forces()
         fmax = sqrt((forces ** 2).sum(axis=1).max())
-        e = self.atoms.get_potential_energy(
+        e = self.optimizable.get_potential_energy(
             force_consistent=self.force_consistent
         )
         T = time.localtime()
@@ -345,11 +374,13 @@ class Optimizer(Dynamics):
             self.logfile.flush()
 
     def dump(self, data):
+        from ase.io.jsonio import write_json
         if world.rank == 0 and self.restart is not None:
             with open(self.restart, 'w') as fd:
                 write_json(fd, data)
 
     def load(self):
+        from ase.io.jsonio import read_json
         with open(self.restart) as fd:
             try:
                 return read_json(fd, always_array=False)
@@ -363,7 +394,7 @@ class Optimizer(Dynamics):
         """Automatically sets force_consistent to True if force_consistent
         energies are supported by calculator; else False."""
         try:
-            self.atoms.get_potential_energy(force_consistent=True)
+            self.optimizable.get_potential_energy(force_consistent=True)
         except PropertyNotImplementedError:
             self.force_consistent = False
         else:

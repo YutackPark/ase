@@ -447,7 +447,7 @@ class Albrecht(ResonantRaman):
         parprint('  #    meV     cm^-1      [e^4A^4/eV^2]', file=log)
         parprint('-------------------------------------', file=log)
         for v, e in enumerate(om_v):
-            parprint(self.ind_v[v], '{0:6.1f}   {1:7.1f} {2:9.1f}'.format(
+            parprint(self.ind_v[v], '{:6.1f}   {:7.1f} {:9.1f}'.format(
                 1000 * e, e / u.invcm, 1e9 * intens_v[v]),
                 file=log)
         parprint('-------------------------------------', file=log)

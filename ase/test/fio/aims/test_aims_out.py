@@ -3,7 +3,6 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from numpy.linalg import norm
 
 from ase.io import ParseError, read
 from ase.io.aims import read_aims_results
@@ -157,6 +156,7 @@ def test_parse_dfpt_dielectric(testdir):
 
     assert np.allclose(diel, diel_0)
 
+
 def test_parse_polarization(testdir):
     outfile = parent / "testdata/aims/polarization.out"
     atoms = read(outfile, format="aims-output")
@@ -167,10 +167,12 @@ def test_parse_polarization(testdir):
 
     assert np.allclose(polar, polar_0)
 
+
 def test_preamble_failed(testdir):
     outfile = parent / "testdata/aims/preamble_fail.out"
     with pytest.raises(ParseError, match='No SCF steps'):
         read(outfile, format="aims-output")
+
 
 def test_numerical_stress(testdir):
     outfile = parent / "testdata/aims/numerical_stress.out"

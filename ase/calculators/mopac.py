@@ -88,7 +88,7 @@ class MOPAC(FileIOCalculator):
         s = f'{p.method} {p.task} '
 
         if p.relscf:
-            s += 'RELSCF={0} '.format(p.relscf)
+            s += f'RELSCF={p.relscf} '
 
         # Write charge:
         if p.charge is None:
@@ -97,7 +97,7 @@ class MOPAC(FileIOCalculator):
             charge = p.charge
 
         if charge != 0:
-            s += 'CHARGE={0} '.format(int(round(charge)))
+            s += f'CHARGE={int(round(charge))} '
 
         magmom = int(round(abs(atoms.get_initial_magnetic_moments().sum())))
         if magmom:
@@ -108,11 +108,11 @@ class MOPAC(FileIOCalculator):
 
         # Write coordinates:
         for xyz, symbol in zip(atoms.positions, atoms.get_chemical_symbols()):
-            s += ' {0:2} {1} 1 {2} 1 {3} 1\n'.format(symbol, *xyz)
+            s += ' {:2} {} 1 {} 1 {} 1\n'.format(symbol, *xyz)
 
         for v, pbc in zip(atoms.cell, atoms.pbc):
             if pbc:
-                s += 'Tv {0} {1} {2}\n'.format(*v)
+                s += 'Tv {} {} {}\n'.format(*v)
 
         with open(self.label + '.mop', 'w') as fd:
             fd.write(s)

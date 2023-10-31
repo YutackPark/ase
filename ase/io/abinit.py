@@ -89,7 +89,7 @@ def read_abinit_in(fd):
             unit = 1.0
             index = tokens.index("xangst")
         else:
-            raise IOError(
+            raise OSError(
                 "No xred, xcart, or xangs keyword in abinit input file")
 
         xangs = []
@@ -196,7 +196,7 @@ def write_abinit_in(fd, atoms, param=None, species=None, pseudos=None):
         inp['nsppol'] = 2
         fd.write('spinat\n')
         for n, M in enumerate(magmoms):
-            fd.write('%.14f %.14f %.14f\n' % (0, 0, M))
+            fd.write(f'{0:.14f} {0:.14f} {M:.14f}\n')
     else:
         inp['nsppol'] = 1
 
@@ -219,17 +219,17 @@ def write_abinit_in(fd, atoms, param=None, species=None, pseudos=None):
                 value /= fs
         if isinstance(value, valid_lists):
             if isinstance(value[0], valid_lists):
-                fd.write("{}\n".format(key))
+                fd.write(f"{key}\n")
                 for dim in value:
                     write_list(fd, dim, unit)
             else:
-                fd.write("{}\n".format(key))
+                fd.write(f"{key}\n")
                 write_list(fd, value, unit)
         else:
             if unit is None:
-                fd.write("{} {}\n".format(key, value))
+                fd.write(f"{key} {value}\n")
             else:
-                fd.write("{} {} {}\n".format(key, value, unit))
+                fd.write(f"{key} {value} {unit}\n")
 
     if param.get('raw') is not None:
         if isinstance(param['raw'], str):
@@ -237,13 +237,13 @@ def write_abinit_in(fd, atoms, param=None, species=None, pseudos=None):
                             'a sequence of lines')
         for line in param['raw']:
             if isinstance(line, tuple):
-                fd.write(' '.join(['%s' % x for x in line]) + '\n')
+                fd.write(' '.join([f'{x}' for x in line]) + '\n')
             else:
-                fd.write('%s\n' % line)
+                fd.write(f'{line}\n')
 
     fd.write('#Definition of the unit cell\n')
     fd.write('acell\n')
-    fd.write('%.14f %.14f %.14f Angstrom\n' % (1.0, 1.0, 1.0))
+    fd.write(f'{1.0:.14f} {1.0:.14f} {1.0:.14f} Angstrom\n')
     fd.write('rprim\n')
     if atoms.cell.rank != 3:
         raise RuntimeError('Abinit requires a 3D cell, but cell is {}'
@@ -288,9 +288,9 @@ def write_abinit_in(fd, atoms, param=None, species=None, pseudos=None):
 
 def write_list(fd, value, unit):
     for element in value:
-        fd.write("{} ".format(element))
+        fd.write(f"{element} ")
     if unit is not None:
-        fd.write("{}".format(unit))
+        fd.write(f"{unit}")
     fd.write("\n")
 
 
@@ -340,7 +340,7 @@ def read_abinit_out(fd):
         for line in fd:
             if string in line:
                 return line
-        raise RuntimeError('Not found: {}'.format(string))
+        raise RuntimeError(f'Not found: {string}')
 
     line = skipto('Version')
     m = re.match(r'\.*?Version\s+(\S+)\s+of ABINIT', line)
@@ -614,7 +614,7 @@ def read_abinit_gsr(filename):
                   cell=cell,
                   pbc=True)
 
-    results = dict()
+    results = {}
 
     def addresult(name, abinit_name, unit=1):
         if abinit_name not in data.variables:
@@ -660,20 +660,20 @@ def get_ppp_list(atoms, species, raise_exception, xc, pps,
                 if pps in ['paw']:
                     hghtemplate = '%s-%s-%s.paw'  # E.g. "H-GGA-hard-uspp.paw"
                     names.append(hghtemplate % (s, xcn, '*'))
-                    names.append('%s[.-_]*.paw' % s)
+                    names.append(f'{s}[.-_]*.paw')
                 elif pps in ['pawxml']:
                     hghtemplate = '%s.%s%s.xml'  # E.g. "H.GGA_PBE-JTH.xml"
                     names.append(hghtemplate % (s, xcn, '*'))
-                    names.append('%s[.-_]*.xml' % s)
+                    names.append(f'{s}[.-_]*.xml')
                 elif pps in ['hgh.k']:
                     hghtemplate = '%s-q%s.hgh.k'  # E.g. "Co-q17.hgh.k"
                     names.append(hghtemplate % (s, '*'))
-                    names.append('%s[.-_]*.hgh.k' % s)
-                    names.append('%s[.-_]*.hgh' % s)
+                    names.append(f'{s}[.-_]*.hgh.k')
+                    names.append(f'{s}[.-_]*.hgh')
                 elif pps in ['tm']:
                     hghtemplate = '%d%s%s.pspnc'  # E.g. "44ru.pspnc"
                     names.append(hghtemplate % (number, s, '*'))
-                    names.append('%s[.-_]*.pspnc' % s)
+                    names.append(f'{s}[.-_]*.pspnc')
                 elif pps in ['psp8']:
                     hghtemplate = '%s.psp8'  # E.g. "Si.psp8"
                     names.append(hghtemplate % (s))
@@ -687,12 +687,12 @@ def get_ppp_list(atoms, species, raise_exception, xc, pps,
                     # then pick the correct one afterwards.
                     names.append(hghtemplate % (number, s, '*'))
                     names.append('%d%s%s.hgh' % (number, s, '*'))
-                    names.append('%s[.-_]*.hgh' % s)
+                    names.append(f'{s}[.-_]*.hgh')
                 else:  # default extension
                     names.append('%02d-%s.%s.%s' % (number, s, xcn, pps))
                     names.append('%02d[.-_]%s*.%s' % (number, s, pps))
                     names.append('%02d%s*.%s' % (number, s, pps))
-                    names.append('%s[.-_]*.%s' % (s, pps))
+                    names.append(f'{s}[.-_]*.{pps}')
 
         found = False
         for name in names:        # search for file names possibilities

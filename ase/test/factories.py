@@ -1,8 +1,8 @@
-# import configparser
+import configparser
 import os
 import re
 
-# from pathlib import Path
+from pathlib import Path
 from typing import Mapping
 
 import pytest
@@ -19,17 +19,15 @@ class NotInstalled(Exception):
 def get_testing_executables():
     # TODO: better cross-platform support (namely Windows),
     # and a cross-platform global config file like /etc/ase/ase.conf
-    from ase.config import cfg
-
-    parser = cfg.parser
-
-    executables = {}
-
-    for name, section in parser.items():
-        if "argv" in section:
-            executables[name] = section["argv"]
-
-    return cfg.paths, executables
+    paths = [Path.home() / '.config' / 'ase' / 'ase.conf']
+    try:
+        paths += [Path(x) for x in os.environ['ASE_CONFIG'].split(':')]
+    except KeyError:
+        pass
+    conf = configparser.ConfigParser()
+    conf['executables'] = {}
+    effective_paths = conf.read(paths)
+    return effective_paths, conf['executables']
 
 
 factory_classes = {}
@@ -50,7 +48,7 @@ def make_factory_fixture(name):
         factories.require(name)
         return factories[name]
 
-    _factory.__name__ = "{}_factory".format(name)
+    _factory.__name__ = f'{name}_factory'
     return _factory
 
 
@@ -66,9 +64,10 @@ class AbinitFactory:
         return get_abinit_version(self.executable)
 
     def _base_kw(self):
-        return dict(
-            pp_paths=self.pp_paths, ecut=150, chksymbreak=0, toldfe=1e-3
-        )
+        return dict(pp_paths=self.pp_paths,
+                    ecut=150,
+                    chksymbreak=0,
+                    toldfe=1e-3)
 
     def calc(self, **kwargs):
         from ase.calculators.abinit import Abinit, AbinitProfile
@@ -83,9 +82,8 @@ class AbinitFactory:
 
     @classmethod
     def fromconfig(cls, config):
-        return AbinitFactory(
-            config.executables["abinit"], config.datafiles["abinit"]
-        )
+        return AbinitFactory(config.executables['abinit'],
+                             config.datafiles['abinit'])
 
     def socketio(self, unixsocket, **kwargs):
         kwargs = {
@@ -915,7 +913,7 @@ class CalculatorInputs:
 
     def __repr__(self):
         cls = type(self)
-        return "{}({}, {})".format(cls.__name__, self.name, self.parameters)
+        return f'{cls.__name__}({self.name}, {self.parameters})'
 
     def new(self, **kwargs):
         kw = dict(self.parameters)
@@ -927,12 +925,9 @@ class CalculatorInputs:
             kwargs = {**self.parameters, **kwargs}
             return self.factory.socketio(unixsocket, **kwargs)
         from ase.calculators.socketio import SocketIOCalculator
-
-        kwargs = {
-            **self.factory.socketio_kwargs(unixsocket),
-            **self.parameters,
-            **kwargs,
-        }
+        kwargs = {**self.factory.socketio_kwargs(unixsocket),
+                  **self.parameters,
+                  **kwargs}
         calc = self.factory.calc(**kwargs)
         return SocketIOCalculator(calc, unixsocket=unixsocket)
 

@@ -101,9 +101,9 @@ def read_file(filename, debug=False):
     }
     out_data = {}
     line = '\n'
-    if(debug):
-        print('Read results from %s' % filename)
-    with open(filename, 'r') as fd:
+    if (debug):
+        print(f'Read results from {filename}')
+    with open(filename) as fd:
         '''
          Read output file line by line. When the `line` matches the pattern
         of certain keywords in `param.[dtype]_keys`, for example,
@@ -139,13 +139,13 @@ def read_file(filename, debug=False):
                     continue
 
             for key in param.matrix_keys:
-                if '<'+key in line:
+                if '<' + key in line:
                     out_data[get_standard_key(key)] = read_matrix(line, key, fd)
                     pattern_matched = True
                     continue
             if pattern_matched:
                 continue
-            for key in patterns.keys():
+            for key in patterns:
                 if key in line:
                     out_data[patterns[key][0]] = patterns[key][1](
                         line, fd, debug=debug)
@@ -153,7 +153,7 @@ def read_file(filename, debug=False):
                     continue
             if pattern_matched:
                 continue
-            for key in special_patterns.keys():
+            for key in special_patterns:
                 if key in line:
                     a, b = special_patterns[key][1](line, fd)
                     out_data[special_patterns[key][0][0]] = a
@@ -263,11 +263,11 @@ def read_scfout_file(filename=None):
             if dt == 'i':
                 return data_struct[dt].from_bytes(byte, byteorder='little')
             elif dt == 'd':
-                return np.array(unpack(dt*(len(byte)//ds), byte))[0]
+                return np.array(unpack(dt * (len(byte) // ds), byte))[0]
         elif shape is not None:
-            return np.array(unpack(dt*(len(byte)//ds), byte)).reshape(shape)
+            return np.array(unpack(dt * (len(byte) // ds), byte)).reshape(shape)
         else:
-            return np.array(unpack(dt*(len(byte)//ds), byte))
+            return np.array(unpack(dt * (len(byte) // ds), byte))
 
     def inte(byte, shape=None):
         return easyReader(byte, 'i', shape)
@@ -286,7 +286,7 @@ def read_scfout_file(filename=None):
                 Gh_AN = natn[ct_AN][h_AN]
                 TNO2 = Total_NumOrbs[Gh_AN]
                 for i in range(TNO1):
-                    myOLP[ct_AN][h_AN].append(floa(fd.read(8*TNO2)))
+                    myOLP[ct_AN][h_AN].append(floa(fd.read(8 * TNO2)))
         return myOLP
 
     def readHam(SpinP_switch, FNAN, atomnum, Total_NumOrbs, natn, fd):
@@ -302,23 +302,23 @@ def read_scfout_file(filename=None):
                     Gh_AN = natn[ct_AN][h_AN]
                     TNO2 = Total_NumOrbs[Gh_AN]
                     for i in range(TNO1):
-                        Hks[spin][ct_AN][h_AN].append(floa(fd.read(8*TNO2)))
+                        Hks[spin][ct_AN][h_AN].append(floa(fd.read(8 * TNO2)))
         return Hks
 
     fd = open(filename, mode='rb')
     atomnum, SpinP_switch = inte(fd.read(8))
     Catomnum, Latomnum, Ratomnum, TCpyCell = inte(fd.read(16))
-    atv = floa(fd.read(8*4*(TCpyCell+1)), shape=(TCpyCell+1, 4))
-    atv_ijk = inte(fd.read(4*4*(TCpyCell+1)), shape=(TCpyCell+1, 4))
-    Total_NumOrbs = np.insert(inte(fd.read(4*(atomnum))), 0, 1, axis=0)
-    FNAN = np.insert(inte(fd.read(4*(atomnum))), 0, 0, axis=0)
-    natn = ins(spl(inte(fd.read(4*sum(FNAN[1:] + 1))), cum(FNAN[1:] + 1)),
+    atv = floa(fd.read(8 * 4 * (TCpyCell + 1)), shape=(TCpyCell + 1, 4))
+    atv_ijk = inte(fd.read(4 * 4 * (TCpyCell + 1)), shape=(TCpyCell + 1, 4))
+    Total_NumOrbs = np.insert(inte(fd.read(4 * (atomnum))), 0, 1, axis=0)
+    FNAN = np.insert(inte(fd.read(4 * (atomnum))), 0, 0, axis=0)
+    natn = ins(spl(inte(fd.read(4 * sum(FNAN[1:] + 1))), cum(FNAN[1:] + 1)),
                0, zeros(FNAN[0] + 1), axis=0)[:-1]
-    ncn = ins(spl(inte(fd.read(4*np.sum(FNAN[1:] + 1))), cum(FNAN[1:] + 1)),
+    ncn = ins(spl(inte(fd.read(4 * np.sum(FNAN[1:] + 1))), cum(FNAN[1:] + 1)),
               0, np.zeros(FNAN[0] + 1), axis=0)[:-1]
-    tv = ins(floa(fd.read(8*3*4), shape=(3, 4)), 0, [0, 0, 0, 0], axis=0)
-    rtv = ins(floa(fd.read(8*3*4), shape=(3, 4)), 0, [0, 0, 0, 0], axis=0)
-    Gxyz = ins(floa(fd.read(8*(atomnum)*4), shape=(atomnum, 4)), 0,
+    tv = ins(floa(fd.read(8 * 3 * 4), shape=(3, 4)), 0, [0, 0, 0, 0], axis=0)
+    rtv = ins(floa(fd.read(8 * 3 * 4), shape=(3, 4)), 0, [0, 0, 0, 0], axis=0)
+    Gxyz = ins(floa(fd.read(8 * (atomnum) * 4), shape=(atomnum, 4)), 0,
                [0., 0., 0., 0.], axis=0)
     Hks = readHam(SpinP_switch, FNAN, atomnum, Total_NumOrbs, natn, fd)
     iHks = []
@@ -330,10 +330,10 @@ def read_scfout_file(filename=None):
     OLPpoz = readOverlap(atomnum, Total_NumOrbs, FNAN, natn, fd)
     DM = readHam(SpinP_switch, FNAN, atomnum, Total_NumOrbs, natn, fd)
     Solver = inte(fd.read(4))
-    ChemP, E_Temp = floa(fd.read(8*2))
-    dipole_moment_core = floa(fd.read(8*3))
-    dipole_moment_background = floa(fd.read(8*3))
-    Valence_Electrons, Total_SpinS = floa(fd.read(8*2))
+    ChemP, E_Temp = floa(fd.read(8 * 2))
+    dipole_moment_core = floa(fd.read(8 * 3))
+    dipole_moment_background = floa(fd.read(8 * 3))
+    Valence_Electrons, Total_SpinS = floa(fd.read(8 * 2))
 
     fd.close()
     scf_out = {'atomnum': atomnum, 'SpinP_switch': SpinP_switch,
@@ -357,7 +357,7 @@ def read_band_file(filename=None):
         return {}
     band_kpath = []
     eigen_bands = []
-    with open(filename, 'r') as fd:
+    with open(filename) as fd:
         line = fd.readline().split()
         nkpts = 0
         nband = int(line[0])
@@ -389,7 +389,7 @@ def read_band_file(filename=None):
 
 def read_electron_valency(filename='H_CA13'):
     array = []
-    with open(filename, 'r') as fd:
+    with open(filename) as fd:
         array = fd.readlines()
         fd.close()
     required_line = ''
@@ -477,7 +477,7 @@ def read_stress_tensor(line, fd, debug=None):
     yx, yy, yz = read_tuple_float(line)
     line = fd.readline()
     zx, zy, zz = read_tuple_float(line)
-    stress = [xx, yy, zz, (zy + yz)/2, (zx + xz)/2, (yx + xy)/2]
+    stress = [xx, yy, zz, (zy + yz) / 2, (zx + xz) / 2, (yx + xy) / 2]
     return stress
 
 
@@ -487,7 +487,7 @@ def read_magmoms_and_total_magmom(line, fd, debug=None):
     fd.readline()
     line = fd.readline()
     magmoms = []
-    while not(line == '' or line.isspace()):
+    while not (line == '' or line.isspace()):
         magmoms.append(read_float(line))
         line = fd.readline()
     return magmoms, total_magmom
@@ -508,7 +508,7 @@ def read_energies(line, fd, debug=None):
         fd.readline()
     line = fd.readline()
     energies = []
-    while not(line == '' or line.isspace()):
+    while not (line == '' or line.isspace()):
         energies.append(float(line.split()[2]))
         line = fd.readline()
     return energies
@@ -604,12 +604,12 @@ def read_eigenvalues(line, fd, debug=False):
     # Fill up the half
     spin, half_kpts, bands = eigen_half.shape
     even_odd = np.array(kgrid).prod() % 2
-    eigen_values = np.zeros((spin, half_kpts*2-even_odd, bands))
+    eigen_values = np.zeros((spin, half_kpts * 2 - even_odd, bands))
     for i in range(half_kpts):
         eigen_values[0, i] = eigen_half[0, i, :]
         eigen_values[1, i] = eigen_half[1, i, :]
-        eigen_values[0, 2*half_kpts-1-i-even_odd] = eigen_half[0, i, :]
-        eigen_values[1, 2*half_kpts-1-i-even_odd] = eigen_half[1, i, :]
+        eigen_values[0, 2 * half_kpts - 1 - i - even_odd] = eigen_half[0, i, :]
+        eigen_values[1, 2 * half_kpts - 1 - i - even_odd] = eigen_half[1, i, :]
     return eigen_values
 
 
@@ -638,7 +638,7 @@ def read_scaled_positions(line, fd, debug=None):
     fd.readline()
     fd.readline()
     line = fd.readline()
-    while not(line == '' or line.isspace()):  # Detect empty line
+    while not (line == '' or line.isspace()):  # Detect empty line
         scaled_positions.append(read_tuple_float(line))
         line = fd.readline()
     return scaled_positions
@@ -712,8 +712,8 @@ def get_standard_parameters(parameters):
     units = param.unit_dat_keywords
     standard_parameters = {}
     standard_units = {'eV': 1, 'Ha': Ha, 'Ry': Ry, 'Bohr': Bohr, 'fs': fs,
-                      'K': 1, 'GV / m': 1e9/1.6e-19 / m, 'Ha/Bohr': Ha/Bohr,
-                      'm/s': m/s, '_amu': 1, 'Tesla': 1}
+                      'K': 1, 'GV / m': 1e9 / 1.6e-19 / m, 'Ha/Bohr': Ha / Bohr,
+                      'm/s': m / s, '_amu': 1, 'Tesla': 1}
     translated_parameters = {
         'scf.XcType': 'xc',
         'scf.maxIter': 'maxiter',
@@ -728,9 +728,8 @@ def get_standard_parameters(parameters):
     }
 
     for key in parameters.keys():
-        for openmx_key in translated_parameters.keys():
+        for openmx_key, standard_key in translated_parameters.items():
             if key == get_standard_key(openmx_key):
-                standard_key = translated_parameters[openmx_key]
                 unit = standard_units.get(units.get(openmx_key), 1)
                 standard_parameters[standard_key] = parameters[key] * unit
     standard_parameters['spinpol'] = parameters.get('scf_spinpolarization')
@@ -778,7 +777,7 @@ def get_atomic_formula(out_data=None, log_data=None, restart_data=None,
             scf_eigenvaluesolver = data['scf_eigenvaluesolver']
         # ???
         for openmx_keyword in data.keys():
-            for standard_keyword in parameters.keys():
+            for standard_keyword in parameters:
                 if openmx_keyword == standard_keyword:
                     atomic_formula[standard_keyword] = data[openmx_keyword]
 
@@ -834,15 +833,15 @@ def get_results(out_data=None, log_data=None, restart_data=None,
     from numpy import array as arr
     results = {}
     implemented_properties = {'free_energy': Ha, 'energy': Ha, 'energies': Ha,
-                              'forces': Ha/Bohr, 'stress': Ha/Bohr**3,
+                              'forces': Ha / Bohr, 'stress': Ha / Bohr**3,
                               'dipole': Debye, 'chemical_potential': Ha,
                               'magmom': 1, 'magmoms': 1, 'eigenvalues': Ha}
     data = [out_data, log_data, restart_data, scfout_data, dat_data, band_data]
     for datum in data:
         for key in datum.keys():
-            for property in implemented_properties.keys():
+            for property in implemented_properties:
                 if key == property:
-                    results[key] = arr(datum[key])*implemented_properties[key]
+                    results[key] = arr(datum[key]) * implemented_properties[key]
     return results
 
 

@@ -31,4 +31,4 @@ def test_surface_stack():
                 print('OK', name, nlayers)
                 break
         else:
-            assert 0, 'Unstackable surface {}'.format(name)
+            assert 0, f'Unstackable surface {name}'

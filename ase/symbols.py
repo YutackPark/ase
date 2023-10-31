@@ -97,7 +97,7 @@ class Symbols(collections.abc.Sequence):
         return self.get_chemical_formula('reduce')
 
     def __repr__(self) -> str:
-        return 'Symbols(\'{}\')'.format(self)
+        return f'Symbols(\'{self}\')'
 
     def __eq__(self, obj) -> bool:
         if not hasattr(obj, '__len__'):

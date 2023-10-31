@@ -40,7 +40,7 @@ def force_temperature(atoms: Atoms, temperature: float, unit: str = "K"):
     elif unit == "eV":
         E_temp = temperature
     else:
-        raise UnitError("'{}' is not supported, use 'K' or 'eV'.".format(unit))
+        raise UnitError(f"'{unit}' is not supported, use 'K' or 'eV'.")
 
     if temperature > eps_temp:
         E_kin0 = atoms.get_kinetic_energy() / len(atoms) / 1.5
@@ -297,12 +297,12 @@ def phonon_harmonics(
         worst_zero = np.abs(zeros).max()
         if worst_zero > 1e-3:
             msg = "Translational deviate from 0 significantly: "
-            raise ValueError(msg + "{}".format(w2_s[:3]))
+            raise ValueError(msg + f"{w2_s[:3]}")
 
         w2min = w2_s[3:].min()
         if w2min < 0:
             msg = "Dynamical matrix has negative eigenvalues such as "
-            raise ValueError(msg + "{}".format(w2min))
+            raise ValueError(msg + f"{w2min}")
 
     # First three modes are translational so ignore:
     nw = len(w2_s) - 3

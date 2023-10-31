@@ -26,11 +26,11 @@ def test_lammpslib_change_cell_bcs(factory, lattice_params, calc_params_NiH):
 
     energy_ppp_ref = -142.400000403
     energy_ppp = atoms.get_potential_energy()
-    print("Computed energy with boundary ppp = {}".format(energy_ppp))
+    print(f"Computed energy with boundary ppp = {energy_ppp}")
     assert energy_ppp == pytest.approx(energy_ppp_ref, rel=1e-4)
 
     atoms.set_pbc((False, False, True))
     energy_ssp_ref = -114.524625705
     energy_ssp = atoms.get_potential_energy()
-    print("Computed energy with boundary ssp = {}".format(energy_ssp))
+    print(f"Computed energy with boundary ssp = {energy_ssp}")
     assert energy_ssp == pytest.approx(energy_ssp_ref, rel=1e-4)

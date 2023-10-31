@@ -17,8 +17,8 @@ def get_avg_lattice_constant(syms):
 
 metals = ['Cu', 'Pt']
 # Use experimental lattice constants
-lattice_constants = dict((m, reference_states[atomic_numbers[m]]['a'])
-                         for m in metals)
+lattice_constants = {m: reference_states[atomic_numbers[m]]['a']
+                     for m in metals}
 
 # Create the references (pure slabs) manually
 pure_slabs = []
@@ -33,7 +33,7 @@ for m in metals:
     e = slab.get_potential_energy()
     e_per_atom = e / len(slab)
     refs[m] = e_per_atom
-    print('{0} = {1:.3f} eV/atom'.format(m, e_per_atom))
+    print(f'{m} = {e_per_atom:.3f} eV/atom')
 
     # The mixing energy for the pure slab is 0 by definition
     set_raw_score(slab, 0.0)

@@ -1,9 +1,7 @@
 # flake8: noqa
 import numpy as np
 import pytest
-from numpy.linalg import norm
 
-from ase.io import read
 from ase.io.aims import (LINE_NOT_FOUND, AimsOutCalcChunk, AimsOutChunk,
                          AimsOutHeaderChunk, AimsParseError)
 from ase.stress import full_3x3_to_voigt_6_stress
@@ -602,6 +600,7 @@ def calc_chunk(header_chunk):
         lines[ll] = line.strip()
     return AimsOutCalcChunk(lines, header_chunk)
 
+
 @pytest.fixture
 def numerical_stress_chunk(header_chunk):
     lines = """
@@ -806,6 +805,7 @@ def numerical_stress_chunk(header_chunk):
         lines[ll] = line.strip()
     return AimsOutCalcChunk(lines, header_chunk)
 
+
 @pytest.fixture
 def eigenvalues_occupancies():
     eigenvalues_occupancies = np.arange(8 * 3 * 4).reshape((8, 3, 2, 2))
@@ -871,6 +871,7 @@ def test_calc_stress(calc_chunk):
     assert np.allclose(calc_chunk.stress, stress)
     assert np.allclose(calc_chunk.atoms.get_stress(), stress)
     assert np.allclose(calc_chunk.results["stress"], stress)
+
 
 def test_calc_num_stress(numerical_stress_chunk):
     stress = full_3x3_to_voigt_6_stress(

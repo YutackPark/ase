@@ -13,6 +13,8 @@ from ase.optimize import BFGS, ODE12r
 from ase.optimize.precon import Exp
 from ase.utils.forcecurve import fit_images
 
+pytestmark = pytest.mark.optimize
+
 
 def calc():
     return MorsePotential(A=4.0, epsilon=1.0, r0=2.55)

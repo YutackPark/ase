@@ -58,14 +58,14 @@ class NeighborList:
 
         if self.debug:
             print()
-            print("Calculator skin: {}".format(self.skin))
+            print(f"Calculator skin: {self.skin}")
             print(f"Model influence distance: {model_influence_dist}")
             print(
                 "Calculator influence distance (including skin distance): {}"
                 "".format(self.influence_dist)
             )
-            print("Number of cutoffs: {}".format(model_cutoffs.size))
-            print("Model cutoffs: {}".format(model_cutoffs))
+            print(f"Number of cutoffs: {model_cutoffs.size}")
+            print(f"Model cutoffs: {model_cutoffs}")
             print(
                 "Calculator cutoffs (including skin distance): {}"
                 "".format(self.cutoffs)
@@ -215,7 +215,7 @@ class ASENeighborList(NeighborList):
         # Loop over all neighbor pairs. Because this loop will generally
         # include image atoms (for periodic systems), we keep track of
         # which atoms/images we've accounted for in the `used` dictionary.
-        used = dict()
+        used = {}
         for neigh_i, neigh_j, rel_pos, offset, dist in zip(
                 neigh_indices_i, neigh_indices_j,
                 relative_pos, neigh_cell_offsets, dists
@@ -247,7 +247,7 @@ class ASENeighborList(NeighborList):
         # Add neighbors of padding atoms if the potential requires them
         if self.padding_need_neigh:
             neighbor_list_size = len(new_atoms)
-            inv_used = dict((v, k) for k, v in used.items())
+            inv_used = {v: k for k, v in used.items()}
             # Loop over all the neighbors (k) and the image of that neighbor
             # in the cell (neigh)
             for k, neigh in enumerate(padding_image_of):

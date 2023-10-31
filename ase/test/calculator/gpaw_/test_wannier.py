@@ -364,7 +364,7 @@ def test_write_cube_default(wan, h2_calculator, testdir):
     # It returns some errors when using file objects, so we use a string
     cubefilename = 'wanf.cube'
     wanf.write_cube(index, cubefilename)
-    with open(cubefilename, mode='r') as inputfile:
+    with open(cubefilename) as inputfile:
         content = read_cube(inputfile)
     assert pytest.approx(content['atoms'].cell.array) == atoms.cell.array * 2
     assert pytest.approx(content['data']) == abs(wanf.get_function(index))
@@ -381,7 +381,7 @@ def test_write_cube_angle(wan, testdir):
     # It returns some errors when using file objects, so we use a string
     cubefilename = 'wanf.cube'
     wanf.write_cube(index, cubefilename, angle=True)
-    with open(cubefilename, mode='r') as inputfile:
+    with open(cubefilename) as inputfile:
         content = read_cube(inputfile)
     assert pytest.approx(content['atoms'].cell.array) == atoms.cell.array
     assert pytest.approx(content['data']) == np.angle(wanf.get_function(index))
@@ -400,7 +400,7 @@ def test_write_cube_repeat(wan, testdir):
     cubefilename = 'wanf.cube'
     wanf.write_cube(index, cubefilename, repeat=repetition)
 
-    with open(cubefilename, mode='r') as inputfile:
+    with open(cubefilename) as inputfile:
         content = read_cube(inputfile)
     assert pytest.approx(content['atoms'].cell.array) == \
         (atoms * repetition).cell.array

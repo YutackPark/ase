@@ -240,7 +240,7 @@ def run(factory, inputs, name='',
                       timestep=timestep,
                       atoms=atoms) as atoms.calc:
         with VelocityVerlet(atoms, timestep,
-                            trajectory='test-{}.traj'.format(name)) as dyn:
+                            trajectory=f'test-{name}.traj') as dyn:
             dyn.run(steps)
         res = atoms.calc.read_plumed_files()
     return atoms, res

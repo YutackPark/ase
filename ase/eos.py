@@ -334,18 +334,18 @@ def plot(eos_string, e0, v0, B, x, y, v, e, ax=None):
             mfc='C0')  # By default blue marker
 
     try:
-        ax.set_xlabel(u'volume [Å$^3$]')
-        ax.set_ylabel(u'energy [eV]')
-        ax.set_title(u'%s: E: %.3f eV, V: %.3f Å$^3$, B: %.3f GPa' %
+        ax.set_xlabel('volume [Å$^3$]')
+        ax.set_ylabel('energy [eV]')
+        ax.set_title('%s: E: %.3f eV, V: %.3f Å$^3$, B: %.3f GPa' %
                      (eos_string, e0, v0,
                       B / kJ * 1.e24))
 
     except ImportError:  # XXX what would cause this error?  LaTeX?
         import warnings
         warnings.warn('Could not use LaTeX formatting')
-        ax.set_xlabel(u'volume [L(length)^3]')
-        ax.set_ylabel(u'energy [E(energy)]')
-        ax.set_title(u'%s: E: %.3f E, V: %.3f L^3, B: %.3e E/L^3' %
+        ax.set_xlabel('volume [L(length)^3]')
+        ax.set_ylabel('energy [E(energy)]')
+        ax.set_title('%s: E: %.3f E, V: %.3f L^3, B: %.3e E/L^3' %
                      (eos_string, e0, v0, B))
 
     return ax

@@ -34,7 +34,7 @@ python_modules = {'gpaw': 'gpaw',
 
 
 def get_executable_env_var(name):
-    return 'ASE_{}_COMMAND'.format(name.upper())
+    return f'ASE_{name.upper()}_COMMAND'
 
 
 def detect(name):
@@ -100,5 +100,5 @@ def format_configs(configs):
 
             state = state.format(**config)
 
-        messages.append('{:<10s} {}'.format(name, state))
+        messages.append(f'{name:<10s} {state}')
     return messages

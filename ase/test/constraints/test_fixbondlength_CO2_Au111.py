@@ -9,6 +9,7 @@ from ase.constraints import FixBondLengths
 from ase.optimize import BFGS
 
 
+@pytest.mark.optimize
 @pytest.mark.slow
 @pytest.mark.parametrize('wrap', [False, True])
 def test_CO2_Au111(wrap, testdir):

@@ -223,7 +223,7 @@ class AimsCube:
         origin=(0, 0, 0),
         edges=[(0.1, 0.0, 0.0), (0.0, 0.1, 0.0), (0.0, 0.0, 0.1)],
         points=(50, 50, 50),
-        plots=tuple(),
+        plots=(),
     ):
         """parameters:
 

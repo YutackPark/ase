@@ -32,7 +32,7 @@ def read_forces(lines: List[str],
             x, y, z = lines[i].split()[-3:]
             f.append((float(x), float(y), float(z)))
         except (ValueError, IndexError) as m:
-            raise IOError('Malformed GPAW log file: %s' % m)
+            raise OSError(f'Malformed GPAW log file: {m}')
     return f, i
 
 
@@ -44,7 +44,7 @@ def read_stresses(lines: List[str],
             x, y, z = lines[i].split()[-3:]
             s.append((float(x), float(y), float(z)))
         except (ValueError, IndexError) as m:
-            raise IOError(f'Malformed GPAW log file: {m}')
+            raise OSError(f'Malformed GPAW log file: {m}')
     return s, i
 
 
@@ -262,6 +262,6 @@ def read_gpaw_out(fileobj, index):  # -> Union[Atoms, List[Atoms]]:
         images.append(atoms)
 
     if len(images) == 0:
-        raise IOError('Corrupted GPAW-text file!')
+        raise OSError('Corrupted GPAW-text file!')
 
     return images[index]

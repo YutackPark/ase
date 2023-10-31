@@ -1,12 +1,11 @@
 # type: ignore
 import numpy as np
 import pytest
-
 from numpy.testing import assert_allclose
 
 from ase import Atoms
-from ase.io import jsonio
 from ase.calculators.turbomole import Turbomole
+from ase.io import jsonio
 
 
 def test_turbomole_statpt():
