@@ -230,7 +230,7 @@ class Turbomole(FileIOCalculator):
         if not self.atoms:
             raise RuntimeError('atoms missing during initialization')
         if not os.path.isfile('coord'):
-            raise IOError('file coord not found')
+            raise OSError('file coord not found')
 
         # run define
         define_str = self.parameters.get_define_str(len(self.atoms))

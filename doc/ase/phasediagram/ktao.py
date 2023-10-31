@@ -12,4 +12,4 @@ references = [('K', 0), ('Ta', 0), ('O2', 0),
 pd = PhaseDiagram(references)
 for d in [2, 3]:
     pd.plot(dims=d, show=False)
-    plt.savefig('ktao-{}d.png'.format(d))
+    plt.savefig(f'ktao-{d}d.png')

@@ -14,16 +14,12 @@ class KIMCalculatorError(CalculatorError):
     incompatible in some way with this calculator
     """
 
-    pass
-
 
 class KIMModelNotFound(CalculatorError):
     """
     Requested model cannot be found in any of the KIM API model
     collections on the system
     """
-
-    pass
 
 
 class KIMModelInitializationError(CalculatorError):
@@ -32,15 +28,11 @@ class KIMModelInitializationError(CalculatorError):
     successfully created
     """
 
-    pass
-
 
 class KimpyError(CalculatorError):
     """
     A call to a kimpy function resulted in a RuntimeError being raised
     """
-
-    pass
 
 
 class KIMModelParameterError(CalculatorError):
@@ -48,5 +40,3 @@ class KIMModelParameterError(CalculatorError):
     An attempt to either access or mutate a KIM portable model
     parameter was unsuccessful
     """
-
-    pass

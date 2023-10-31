@@ -44,6 +44,7 @@ def test_subprocess_calculator_emt(atoms):
     assert_results_equal_to_ordinary_emt(atoms)
 
 
+@pytest.mark.optimize
 def test_subprocess_calculator_optimize(atoms):
     pack = NamedPackedCalculator('emt')
     opt = BFGS(atoms)

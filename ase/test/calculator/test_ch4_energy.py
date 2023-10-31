@@ -31,7 +31,7 @@ def inputs(name, **parameters):
 def _calculate(code, name):
     atoms = molecule(name)
     atoms.center(vacuum=3.5)
-    with workdir('test-{}'.format(name), mkdir=True):
+    with workdir(f'test-{name}', mkdir=True):
         atoms.calc = code.calc()
         return atoms.get_potential_energy()
 

@@ -51,9 +51,9 @@ class Analysis:
             assert len(nl) == self.nImages
             self._nl = nl
         elif nl is not None:
-            self._nl = [ nl ]
+            self._nl = [nl]
         else:
-            self._nl = [ build_neighbor_list(self.images[0], **kwargs) ]
+            self._nl = [build_neighbor_list(self.images[0], **kwargs)]
 
         self._cache = {}
 
@@ -62,15 +62,16 @@ class Analysis:
         Using *imageIdx* (can be integer or slice) the analyzed frames can be specified.
         If *imageIdx* is None, all frames will be analyzed.
         """
-        #get slice from imageIdx
+        # get slice from imageIdx
         if isinstance(imageIdx, int):
-            sl = slice(imageIdx, imageIdx+1)
+            sl = slice(imageIdx, imageIdx + 1)
         elif isinstance(imageIdx, slice):
             sl = imageIdx
         elif imageIdx is None:
             sl = slice(0, None)
         else:
-            raise ValueError("Unsupported type for imageIdx in ase.geometry.analysis.Analysis._get_slice")
+            raise ValueError(
+                "Unsupported type for imageIdx in ase.geometry.analysis.Analysis._get_slice")
         return sl
 
     @property
@@ -87,8 +88,7 @@ class Analysis:
         if isinstance(images, list):
             self._images = images
         else:
-            self._images = [ images ]
-
+            self._images = [images]
 
     @images.deleter
     def images(self):
@@ -121,7 +121,8 @@ class Analysis:
 
         xList = []
         for i in range(maxIter):
-            xList.append(get_distance_indices(self.distance_matrix[i], distance))
+            xList.append(get_distance_indices(
+                self.distance_matrix[i], distance))
 
         return xList
 
@@ -157,18 +158,20 @@ class Analysis:
 
             for imI in range(len(distList)):
                 self._cache['allAngles'].append([])
-                #iterate over second neighbors of all atoms
+                # iterate over second neighbors of all atoms
                 for iAtom, secNeighs in enumerate(distList[imI]):
                     self._cache['allAngles'][-1].append([])
                     if len(secNeighs) == 0:
                         continue
                     firstNeighs = self.all_bonds[imI][iAtom]
-                    #iterate over second neighbors of iAtom
+                    # iterate over second neighbors of iAtom
                     for kAtom in secNeighs:
-                        relevantFirstNeighs = [ idx for idx in firstNeighs if kAtom in self.all_bonds[imI][idx] ]
-                        #iterate over all atoms that are connected to iAtom and kAtom
+                        relevantFirstNeighs = [
+                            idx for idx in firstNeighs if kAtom in self.all_bonds[imI][idx]]
+                        # iterate over all atoms that are connected to iAtom and kAtom
                         for jAtom in relevantFirstNeighs:
-                            self._cache['allAngles'][-1][-1].append((jAtom, kAtom))
+                            self._cache['allAngles'][-1][-1].append(
+                                (jAtom, kAtom))
 
         return self._cache['allAngles']
 
@@ -194,24 +197,28 @@ class Analysis:
                     if len(thirdNeighs) == 0:
                         continue
                     anglesI = self.all_angles[imI][iAtom]
-                    #iterate over third neighbors of iAtom
+                    # iterate over third neighbors of iAtom
                     for lAtom in thirdNeighs:
-                        secondNeighs = [ angle[-1] for angle in anglesI ]
-                        firstNeighs = [ angle[0] for angle in anglesI ]
-                        relevantSecondNeighs = [ idx for idx in secondNeighs if lAtom in self.all_bonds[imI][idx] ]
-                        relevantFirstNeighs = [ firstNeighs[secondNeighs.index(idx)] for idx in relevantSecondNeighs ]
-                        #iterate over all atoms that are connected to iAtom and lAtom
+                        secondNeighs = [angle[-1] for angle in anglesI]
+                        firstNeighs = [angle[0] for angle in anglesI]
+                        relevantSecondNeighs = [
+                            idx for idx in secondNeighs if lAtom in self.all_bonds[imI][idx]]
+                        relevantFirstNeighs = [
+                            firstNeighs[secondNeighs.index(idx)] for idx in relevantSecondNeighs]
+                        # iterate over all atoms that are connected to iAtom and lAtom
                         for jAtom, kAtom in zip(relevantFirstNeighs, relevantSecondNeighs):
-                            #remove dihedrals in circles
+                            # remove dihedrals in circles
                             tupl = (jAtom, kAtom, lAtom)
                             if len(set((iAtom, ) + tupl)) != 4:
                                 continue
-                            #avoid duplicates
+                            # avoid duplicates
                             elif tupl in self._cache['allDihedrals'][-1][-1]:
                                 continue
                             elif iAtom in tupl:
-                                raise RuntimeError("Something is wrong in analysis.all_dihedrals!")
-                            self._cache['allDihedrals'][-1][-1].append((jAtom, kAtom, lAtom))
+                                raise RuntimeError(
+                                    "Something is wrong in analysis.all_dihedrals!")
+                            self._cache['allDihedrals'][-1][-1].append(
+                                (jAtom, kAtom, lAtom))
 
         return self._cache['allDihedrals']
 
@@ -227,7 +234,8 @@ class Analysis:
         if not 'adjacencyMatrix' in self._cache:
             self._cache['adjacencyMatrix'] = []
             for i in range(len(self.nl)):
-                self._cache['adjacencyMatrix'].append(self.nl[i].get_connectivity_matrix())
+                self._cache['adjacencyMatrix'].append(
+                    self.nl[i].get_connectivity_matrix())
 
         return self._cache['adjacencyMatrix']
 
@@ -244,10 +252,10 @@ class Analysis:
         if not 'distanceMatrix' in self._cache:
             self._cache['distanceMatrix'] = []
             for i in range(len(self.nl)):
-                self._cache['distanceMatrix'].append(get_distance_matrix(self.adjacency_matrix[i]))
+                self._cache['distanceMatrix'].append(
+                    get_distance_matrix(self.adjacency_matrix[i]))
 
         return self._cache['distanceMatrix']
-
 
     @property
     def unique_bonds(self):
@@ -261,23 +269,22 @@ class Analysis:
         for imI in range(len(self.all_bonds)):
             bonds.append([])
             for iAtom, bonded in enumerate(self.all_bonds[imI]):
-                bonds[-1].append([ jAtom for jAtom in bonded if jAtom > iAtom ])
+                bonds[-1].append([jAtom for jAtom in bonded if jAtom > iAtom])
 
         return bonds
-
 
     def _filter_unique(self, l):
         """Helper function to filter for unique lists in a list
         that also contains the reversed items.
         """
         r = []
-        #iterate over images
+        # iterate over images
         for imI in range(len(l)):
             r.append([])
-            #iterate over atoms
+            # iterate over atoms
             for i, tuples in enumerate(l[imI]):
-                #add the ones where i is smaller than the last element
-                r[-1].append([ x for x in tuples if i < x[-1]  ])
+                # add the ones where i is smaller than the last element
+                r[-1].append([x for x in tuples if i < x[-1]])
         return r
 
     def clear_cache(self):
@@ -302,19 +309,16 @@ class Analysis:
         """
         return self._filter_unique(self.all_dihedrals)
 
-
     def _get_symbol_idxs(self, imI, sym):
         """Get list of indices of element *sym*"""
         if isinstance(imI, int):
-            return [ idx for idx in range(len(self.images[imI])) if self.images[imI][idx].symbol == sym  ]
+            return [idx for idx in range(len(self.images[imI])) if self.images[imI][idx].symbol == sym]
         else:
-            return [ idx for idx in range(len(imI)) if imI[idx].symbol == sym ]
-
+            return [idx for idx in range(len(imI)) if imI[idx].symbol == sym]
 
     def _idxTuple2SymbolTuple(self, imI, tup):
         """Converts a tuple of indices to their symbols"""
-        return ( self.images[imI][idx].symbol for idx in tup )
-
+        return (self.images[imI][idx].symbol for idx in tup)
 
     def get_bonds(self, A, B, unique=True):
         """Get bonds from element A to element B.
@@ -342,15 +346,15 @@ class Analysis:
             for idx in aIdxs:
                 bonded = self.all_bonds[imI][idx]
                 if A == B:
-                    r[-1].extend([ (idx, x) for x in bonded if ( x in aIdxs ) and ( x > idx ) ])
+                    r[-1].extend([(idx, x)
+                                 for x in bonded if (x in aIdxs) and (x > idx)])
                 else:
-                    r[-1].extend([ (idx, x) for x in bonded if x in bIdxs ])
+                    r[-1].extend([(idx, x) for x in bonded if x in bIdxs])
 
             if not unique:
-                r[-1] +=  [ x[::-1] for x in r[-1] ]
+                r[-1] += [x[::-1] for x in r[-1]]
 
         return r
-
 
     def get_angles(self, A, B, C, unique=True):
         """Get angles from given elements A-B-C.
@@ -373,29 +377,31 @@ class Analysis:
         r = []
         for imI in range(len(self.all_angles)):
             r.append([])
-            #Middle Atom is fixed
+            # Middle Atom is fixed
             bIdxs = self._get_symbol_idxs(imI, B)
             for bIdx in bIdxs:
-                bondedA = [ idx for idx in self.all_bonds[imI][bIdx] if self.images[imI][idx].symbol == A ]
+                bondedA = [idx for idx in self.all_bonds[imI]
+                           [bIdx] if self.images[imI][idx].symbol == A]
                 if len(bondedA) == 0:
                     continue
 
                 if A != C:
-                    bondedC = [ idx for idx in self.all_bonds[imI][bIdx] if self.images[imI][idx].symbol == C ]
+                    bondedC = [idx for idx in self.all_bonds[imI]
+                               [bIdx] if self.images[imI][idx].symbol == C]
                     if len(bondedC) == 0:
                         continue
 
                 if A == C:
-                    extend = [ (x[0], bIdx, x[1]) for x in list(combinations(bondedA, 2)) ]
+                    extend = [(x[0], bIdx, x[1])
+                              for x in list(combinations(bondedA, 2))]
                 else:
                     extend = list(product(bondedA, [bIdx], bondedC))
 
                 if not unique:
-                    extend += [ x[::-1] for x in extend ]
+                    extend += [x[::-1] for x in extend]
 
                 r[-1].extend(extend)
         return r
-
 
     def get_dihedrals(self, A, B, C, D, unique=True):
         """Get dihedrals A-B-C-D.
@@ -417,19 +423,19 @@ class Analysis:
         r = []
         for imI in range(len(self.all_dihedrals)):
             r.append([])
-            #get indices of elements
+            # get indices of elements
             aIdxs = self._get_symbol_idxs(imI, A)
             bIdxs = self._get_symbol_idxs(imI, B)
             cIdxs = self._get_symbol_idxs(imI, C)
             dIdxs = self._get_symbol_idxs(imI, D)
             for aIdx in aIdxs:
-                dihedrals = [ (aIdx, ) + d for d in self.all_dihedrals[imI][aIdx] if ( d[0] in bIdxs ) and ( d[1] in cIdxs ) and ( d[2] in dIdxs ) ]
+                dihedrals = [(aIdx, ) + d for d in self.all_dihedrals[imI][aIdx]
+                             if (d[0] in bIdxs) and (d[1] in cIdxs) and (d[2] in dIdxs)]
                 if not unique:
-                    dihedrals += [ d[::-1] for d in dihedrals ]
+                    dihedrals += [d[::-1] for d in dihedrals]
                 r[-1].extend(dihedrals)
 
         return r
-
 
     def get_bond_value(self, imIdx, idxs, mic=True, **kwargs):
         """Get bond length.
@@ -527,7 +533,7 @@ class Analysis:
 
         sl = self._get_slice(imageIdx)
 
-        #get method to call from length of inputList
+        # get method to call from length of inputList
         if len(inputList[0][0]) == 2:
             get = self.get_bond_value
         elif len(inputList[0][0]) == 3:
@@ -535,12 +541,13 @@ class Analysis:
         elif len(inputList[0][0]) == 4:
             get = self.get_dihedral_value
         else:
-            raise ValueError("inputList in ase.geometry.analysis.Analysis.get_values has a bad shape.")
+            raise ValueError(
+                "inputList in ase.geometry.analysis.Analysis.get_values has a bad shape.")
 
-        #check if length of slice and inputList match
+        # check if length of slice and inputList match
         singleNL = False
         if len(inputList) != len(self.images[sl]):
-            #only one nl for all images
+            # only one nl for all images
             if len(inputList) == 1 and len(self.nl) == 1:
                 singleNL = True
             else:
@@ -551,7 +558,7 @@ class Analysis:
         for inputIdx, image in enumerate(self.images[sl]):
             imageIdx = self.images.index(image)
             r.append([])
-            #always use first list from input if only a single neighborlist was used
+            # always use first list from input if only a single neighborlist was used
             if singleNL:
                 inputIdx = 0
             for tupl in inputList[inputIdx]:
@@ -598,38 +605,42 @@ class Analysis:
         for image in self.images[sl]:
             if elements is None:
                 tmp_image = image
-            #integers
+            # integers
             elif isinstance(elements, int):
                 tmp_image = Atoms(cell=image.get_cell(), pbc=image.get_pbc())
                 tmp_image.append(image[elements])
-            #strings
+            # strings
             elif isinstance(elements, str):
                 tmp_image = Atoms(cell=image.get_cell(), pbc=image.get_pbc())
                 for idx in self._get_symbol_idxs(image, elements):
                     tmp_image.append(image[idx])
-            #lists
-            elif isinstance(elements, list) or isinstance(elements, tuple):
-                #list of ints
+            # lists
+            elif isinstance(elements, (list, tuple)):
+                # list of ints
                 if all(isinstance(x, int) for x in elements):
                     if len(elements) == 2:
-                        #use builtin get_rdf mask
+                        # use builtin get_rdf mask
                         el = elements
                         tmp_image = image
                     else:
-                        #create dummy image
-                        tmp_image = Atoms(cell=image.get_cell(), pbc=image.get_pbc())
+                        # create dummy image
+                        tmp_image = Atoms(
+                            cell=image.get_cell(), pbc=image.get_pbc())
                         for idx in elements:
                             tmp_image.append(image[idx])
-                #list of strings
+                # list of strings
                 elif all(isinstance(x, str) for x in elements):
-                    tmp_image = Atoms(cell=image.get_cell(), pbc=image.get_pbc())
+                    tmp_image = Atoms(cell=image.get_cell(),
+                                      pbc=image.get_pbc())
                     for element in elements:
                         for idx in self._get_symbol_idxs(image, element):
                             tmp_image.append(image[idx])
                 else:
-                    raise ValueError("Unsupported type of elements given in ase.geometry.analysis.Analysis.get_rdf!")
+                    raise ValueError(
+                        "Unsupported type of elements given in ase.geometry.analysis.Analysis.get_rdf!")
             else:
-                raise ValueError("Unsupported type of elements given in ase.geometry.analysis.Analysis.get_rdf!")
+                raise ValueError(
+                    "Unsupported type of elements given in ase.geometry.analysis.Analysis.get_rdf!")
 
             rdf = get_rdf(tmp_image, rmax, nbins, elements=el, no_dists=(not return_dists),
                           volume=volume)

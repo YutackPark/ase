@@ -38,7 +38,7 @@ def library_header():
     yield '========='
     yield ''
     for name, path in all_dependencies():
-        yield '{:24} {}'.format(name, path)
+        yield f'{name:24} {path}'
 
 
 def calculators_header(config):
@@ -187,7 +187,7 @@ def tkinter():
     try:
         tkinter.Tk()
     except tkinter.TclError as err:
-        pytest.skip('no tkinter: {}'.format(err))
+        pytest.skip(f'no tkinter: {err}')
 
 
 @pytest.fixture(autouse=True)

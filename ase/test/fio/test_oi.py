@@ -112,13 +112,13 @@ def test_ioformat(format, atoms, catch_warnings):
     images = [atoms, atoms]
 
     io = ioformats[format]
-    print('{0:20}{1}{2}{3}{4}'.format(format,
-                                      ' R'[io.can_read],
-                                      ' W'[io.can_write],
-                                      '+1'[io.single],
-                                      'SF'[io.acceptsfd]))
-    fname1 = 'io-test.1.{}'.format(format)
-    fname2 = 'io-test.2.{}'.format(format)
+    print('{:20}{}{}{}{}'.format(format,
+                                 ' R'[io.can_read],
+                                 ' W'[io.can_write],
+                                 '+1'[io.single],
+                                 'SF'[io.acceptsfd]))
+    fname1 = f'io-test.1.{format}'
+    fname2 = f'io-test.2.{format}'
     if io.can_write:
         write(fname1, atoms, format=format)
         if not io.single:

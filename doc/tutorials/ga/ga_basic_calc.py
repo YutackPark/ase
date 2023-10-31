@@ -7,7 +7,7 @@ from ase.optimize import BFGS
 
 fname = sys.argv[1]
 
-print('Now relaxing {0}'.format(fname))
+print(f'Now relaxing {fname}')
 a = read(fname)
 
 a.calc = EMT()
@@ -20,4 +20,4 @@ a.info['key_value_pairs']['raw_score'] = -a.get_potential_energy()
 
 write(fname[:-5] + '_done.traj', a)
 
-print('Done relaxing {0}'.format(fname))
+print(f'Done relaxing {fname}')

@@ -46,7 +46,7 @@ def test_optimization_log_and_trajectory_length(cls, testdir):
         opt.run(0.1)
 
     # Test number of lines in log file matches number of frames in trajectory
-    with open(logfile, 'rt') as lf:
+    with open(logfile) as lf:
         lines = [line for line in lf]
     loglines = len(lines)
     print("Number of lines in log file:", loglines)
@@ -76,7 +76,7 @@ def test_md_log_and_trajectory_length(cls, testdir, kwargs, loginterval):
         md.run(steps=5)
 
     # Test number of lines in log file matches number of frames in trajectory
-    with open(logfile, 'rt') as fd:
+    with open(logfile) as fd:
         lines = list(fd)
     loglines = len(lines)
     print("Number of lines in log file:", loglines)

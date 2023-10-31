@@ -305,7 +305,7 @@ class Dftb(FileIOCalculator):
             It will be destroyed after it is read to avoid
             reading it once again after some runtime error """
 
-        with open(os.path.join(self.directory, 'results.tag'), 'r') as fd:
+        with open(os.path.join(self.directory, 'results.tag')) as fd:
             self.lines = fd.readlines()
 
         self.atoms = self.atoms_input
@@ -323,7 +323,7 @@ class Dftb(FileIOCalculator):
         # stress stuff begins
         sstring = 'stress'
         have_stress = False
-        stress = list()
+        stress = []
         for iline, line in enumerate(self.lines):
             if sstring in line:
                 have_stress = True
@@ -379,7 +379,7 @@ class Dftb(FileIOCalculator):
         """Get partial charges on atoms
             in case we cannot find charges they are set to None
         """
-        with open(os.path.join(self.directory, 'detailed.out'), 'r') as fd:
+        with open(os.path.join(self.directory, 'detailed.out')) as fd:
             lines = fd.readlines()
 
         for line in lines:
@@ -537,7 +537,7 @@ class PointChargePotential:
     def read_forces_on_pointcharges(self):
         """Read Forces from dftb output file (results.tag)."""
         from ase.units import Bohr, Hartree
-        with open(os.path.join(self.directory, 'detailed.out'), 'r') as fd:
+        with open(os.path.join(self.directory, 'detailed.out')) as fd:
             lines = fd.readlines()
 
         external_forces = []
@@ -560,7 +560,7 @@ def read_max_angular_momentum(path):
 
     See dftb.org for A detailed description of the Slater-Koster file format.
     """
-    with open(path, 'r') as fd:
+    with open(path) as fd:
         line = fd.readline()
         if line[0] == '@':
             # Extended format

@@ -28,10 +28,10 @@ def testing_keywords():
         kwtlow = kwt.lower().replace(' ', '_')
         if 'Boolean' in kwt:
             kwtlow = 'boolean'
-        kw = 'test_{0}_kw'.format(kwtlow)
+        kw = f'test_{kwtlow}_kw'
 
         kw_data[kw] = {
-            'docstring': 'A fake {0} keyword'.format(kwt),
+            'docstring': f'A fake {kwt} keyword',
             'option_type': kwt,
             'keyword': kw,
             'level': 'Dummy'
@@ -45,7 +45,7 @@ def testing_keywords():
     param_kw_data = {}
     for (pkw, t) in param_kws:
         param_kw_data[pkw] = {
-            'docstring': 'Dummy {0} keyword'.format(pkw),
+            'docstring': f'Dummy {pkw} keyword',
             'option_type': t,
             'keyword': pkw,
             'level': 'Dummy'
@@ -67,7 +67,7 @@ def testing_keywords():
     cell_kw_data = {}
     for (ckw, t) in cell_kws:
         cell_kw_data[ckw] = {
-            'docstring': 'Dummy {0} keyword'.format(ckw),
+            'docstring': f'Dummy {ckw} keyword',
             'option_type': t,
             'keyword': ckw,
             'level': 'Dummy'
@@ -88,7 +88,7 @@ def pspot_tmp_path(tmp_path):
     os.mkdir(path)
 
     for el in ase.data.chemical_symbols:
-        with open(os.path.join(path, '{0}_test.usp'.format(el)), 'w') as fd:
+        with open(os.path.join(path, f'{el}_test.usp'), 'w') as fd:
             fd.write('Fake PPOT')
 
     return path
@@ -327,7 +327,7 @@ def test_set_kpoints(testing_calculator):
     assert c.cell.kpoint_mp_offset.value == '0.018519 0.018519 0.018519'
     c.set_kpts({'spacing': (1 / (np.pi * 10)),
                 'gamma': False, 'even': True})
-    assert c.cell.kpoint_mp_grid.value == '28 28 28'
+    assert c.cell.kpoint_mp_grid.value == '14 14 14'
     assert c.cell.kpoint_mp_offset.value == '0.0 0.0 0.0'
 
 

@@ -57,7 +57,7 @@ def test_potentiostat(testdir):
             dyn.run(5)
             energy_error = (atoms.get_potential_energy() -
                             initial_energy) / len(atoms)
-            print('Potentiostat Error {: .4f} eV/atom'.format(energy_error))
+            print(f'Potentiostat Error {energy_error: .4f} eV/atom')
             assert 0 == pytest.approx(energy_error, abs=0.01)
 
 
@@ -86,5 +86,5 @@ def test_potentiostat_no_fs(testdir):
             dyn.run(10)
             energy_error = (atoms.get_potential_energy() -
                             initial_energy) / len(atoms)
-            print('Potentiostat Error {: .4f} eV/atom'.format(energy_error))
+            print(f'Potentiostat Error {energy_error: .4f} eV/atom')
             assert 0 == pytest.approx(energy_error, abs=0.01)

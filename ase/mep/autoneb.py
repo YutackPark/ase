@@ -329,7 +329,7 @@ class AutoNEB:
             # is the largest OR where a higher energy reselution is needed
             if self.world.rank == 0:
                 print('****Now adding another image until n_max is reached',
-                      '({0}/{1})****'.format(n_cur, self.n_max))
+                      f'({n_cur}/{self.n_max})****')
             spring_lengths = []
             for j in range(n_cur - 1):
                 spring_vec = self.all_images[j + 1].get_positions() - \
@@ -361,8 +361,8 @@ class AutoNEB:
                 t = 'energy difference between neighbours!'
 
             if self.world.rank == 0:
-                print('Adding image between {0} and'.format(jmax),
-                      '{0}. New image point is selected'.format(jmax + 1),
+                print(f'Adding image between {jmax} and',
+                      f'{jmax + 1}. New image point is selected',
                       'on the basis of the biggest ' + t)
 
             toInterpolate = [self.all_images[jmax]]
@@ -463,8 +463,8 @@ class AutoNEB:
 
     def __initialize__(self):
         '''Load files from the filesystem.'''
-        if not os.path.isfile('%s000.traj' % self.prefix):
-            raise IOError('No file with name %s000.traj' % self.prefix,
+        if not os.path.isfile(f'{self.prefix}000.traj'):
+            raise OSError(f'No file with name {self.prefix}000.traj',
                           'was found. Should contain initial image')
 
         # Find the images that exist
@@ -489,12 +489,12 @@ class AutoNEB:
                 if os.path.isfile(filename_ref):
                     try:
                         os.rename(filename_ref, str(filename_ref) + '.bak')
-                    except IOError:
+                    except OSError:
                         pass
                 filename = '%s%03d.traj' % (self.prefix, i)
                 try:
                     shutil.copy2(filename, filename_ref)
-                except IOError:
+                except OSError:
                     pass
         # Wait for file system on all nodes is syncronized
         self.world.barrier()
