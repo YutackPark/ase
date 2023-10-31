@@ -127,15 +127,15 @@ class FortranFile(file):
 
     def _read_exactly(self, num_bytes):
         """Read in exactly num_bytes, raising an error if it can't be done."""
-        data = bytes()
+        data = b''
         while True:
             L = len(data)
             if L == num_bytes:
                 return data
             else:
                 read_data = self.read(num_bytes - L)
-            if read_data == bytes():
-                raise IOError('Could not read enough data.'
+            if read_data == b'':
+                raise OSError('Could not read enough data.'
                               '  Wanted %d bytes, got %d.' % (num_bytes, L))
             data += read_data
 
@@ -157,7 +157,7 @@ class FortranFile(file):
         data_str = self._read_exactly(L)
         check_size = self._read_check()
         if check_size != L:
-            raise IOError('Error reading record from data file')
+            raise OSError('Error reading record from data file')
         return data_str
 
     def writeRecord(self, s):

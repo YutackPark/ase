@@ -66,7 +66,7 @@ def test_logging(testdir):
         length = len(fd.readlines())
     assert length == 7, length
 
-    with io.Trajectory(traj_name, 'r') as traj, open(log_name, 'r') as fd:
+    with io.Trajectory(traj_name, 'r') as traj, open(log_name) as fd:
         # skip the first line because it's a small initialization step
         lines = fd.readlines()[1:]
         for i, (im, line) in enumerate(zip(traj, lines)):

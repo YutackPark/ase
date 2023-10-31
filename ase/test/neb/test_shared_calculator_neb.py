@@ -5,12 +5,14 @@ the SingleCalculatorNEB class.
 Intending to be a *true* unittest, by testing small things
 """
 
-from pytest import raises, warns
+from pytest import mark, raises, warns
 
 from ase import Atoms
 from ase.calculators.emt import EMT
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.mep import neb
+
+pytestmark = mark.optimize
 
 
 def test_get_neb_method():
@@ -29,7 +31,7 @@ def test_get_neb_method():
         _ = neb.get_neb_method(neb_dummy, "some_random_string")
 
 
-class TestNEB(object):
+class TestNEB:
     @classmethod
     def setup_class(cls):
         cls.h_atom = Atoms("H", positions=[[0., 0., 0.]], cell=[10., 10., 10.])

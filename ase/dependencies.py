@@ -19,7 +19,7 @@ def format_dependency(modname: str) -> Tuple[str, str]:
     if modname == 'ase':
         githash = search_current_git_hash(module)
         if githash:
-            name += '-{:.10}'.format(githash)
+            name += f'-{githash:.10}'
 
     # (only packages have __path__, but we are importing packages.)
     info = get_python_package_path_description(module)

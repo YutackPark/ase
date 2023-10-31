@@ -114,8 +114,8 @@ def write_v_sim(fd, atoms):
 
     fd.write('===== v_sim input file created using the'
              ' Atomic Simulation Environment (ASE) ====\n')
-    fd.write('{0} {1} {2}\n'.format(dxx, dyx, dyy))
-    fd.write('{0} {1} {2}\n'.format(dzx, dzy, dzz))
+    fd.write(f'{dxx} {dyx} {dyy}\n')
+    fd.write(f'{dzx} {dzy} {dzz}\n')
 
     # Use v_sim 3.5 keywords to indicate scaled positions, etc.
     fd.write('#keyword: reduced\n')
@@ -135,5 +135,5 @@ def write_v_sim(fd, atoms):
     # Add atoms (scaled positions)
     for position, symbol in zip(atoms.get_scaled_positions(),
                                 atoms.get_chemical_symbols()):
-        fd.write('{0} {1} {2} {3}\n'.format(
+        fd.write('{} {} {} {}\n'.format(
             position[0], position[1], position[2], symbol))

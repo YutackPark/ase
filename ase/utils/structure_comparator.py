@@ -19,7 +19,7 @@ class SpgLibNotFoundError(Exception):
     """Raised if SPG lib is not found when needed."""
 
     def __init__(self, msg):
-        super(SpgLibNotFoundError, self).__init__(msg)
+        super().__init__(msg)
 
 
 class SymmetryEquivalenceCheck:

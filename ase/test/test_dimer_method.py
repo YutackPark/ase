@@ -1,9 +1,12 @@
+import pytest
+
 from ase.build import add_adsorbate, fcc100
 from ase.calculators.emt import EMT
 from ase.constraints import FixAtoms
 from ase.mep import DimerControl, MinModeAtoms, MinModeTranslate
 
 
+@pytest.mark.optimize
 def test_dimer_method(testdir):
     # Set up a small "slab" with an adatoms
     atoms = fcc100('Pt', size=(2, 2, 1), vacuum=10.0)

@@ -35,10 +35,10 @@ def copy_frames(inbundle, outbundle, start=0, end=None, step=1,
     if metadata['backend'] == 'ulm':
         backend = UlmBundleBackend(True, metadata['ulm.singleprecision'])
     elif metadata['backend'] == 'pickle':
-        raise IOError("Input BundleTrajectory uses the 'pickle' backend.  " +
+        raise OSError("Input BundleTrajectory uses the 'pickle' backend.  " +
                       "This is not longer supported for security reasons")
     else:
-        raise IOError("Unknown backend type '{}'".format(metadata['backend']))
+        raise OSError("Unknown backend type '{}'".format(metadata['backend']))
 
     if start < 0:
         start += nframes
@@ -132,7 +132,7 @@ def copy_frames(inbundle, outbundle, start=0, end=None, step=1,
                         for i, s in enumerate(fn_sizes):
                             segment = f0_data[pointer:pointer + s]
                             pointer += s
-                            backend.write(outdir, '{}_{}'.format(arrayname, i),
+                            backend.write(outdir, f'{arrayname}_{i}',
                                           segment)
     # Finally, write the number of frames
     with open(os.path.join(outbundle, 'frames'), 'w') as fd:
@@ -146,32 +146,31 @@ def read_bundle_info(name):
     Returns (metadata, nframes)
     """
     if not os.path.isdir(name):
-        raise IOError("No directory (bundle) named '%s' found." % (name,))
+        raise OSError(f"No directory (bundle) named '{name}' found.")
 
     metaname = os.path.join(name, 'metadata.json')
 
     if not os.path.isfile(metaname):
         if os.path.isfile(os.path.join(name, 'metadata')):
-            raise IOError(
+            raise OSError(
                 "Found obsolete metadata in unsecure Pickle format.  "
                 "Refusing to load.")
         else:
-            raise IOError("'{}' does not appear to be a BundleTrajectory "
+            raise OSError("'{}' does not appear to be a BundleTrajectory "
                           "(no {})".format(name, metaname))
 
     with open(metaname) as fd:
         mdata = json.load(fd)
 
     if 'format' not in mdata or mdata['format'] != 'BundleTrajectory':
-        raise IOError("'%s' does not appear to be a BundleTrajectory" %
-                      (name,))
+        raise OSError(f"'{name}' does not appear to be a BundleTrajectory")
     if mdata['version'] != 1:
-        raise IOError("Cannot manipulate BundleTrajectories with version "
+        raise OSError("Cannot manipulate BundleTrajectories with version "
                       "number %s" % (mdata['version'],))
     with open(os.path.join(name, "frames")) as fd:
         nframes = int(fd.read())
     if nframes == 0:
-        raise IOError("'%s' is an empty BundleTrajectory" % (name,))
+        raise OSError(f"'{name}' is an empty BundleTrajectory")
     return mdata, nframes
 
 

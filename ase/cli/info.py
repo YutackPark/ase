@@ -22,7 +22,7 @@ class CLICommand:
                             help='List file formats known to ASE.')
         parser.add_argument('--config', action='store_true',
                             help='List configured calculators')
-        parser.add_argument('--check-calculators', action='store_true',
+        parser.add_argument('--calculators', action='store_true',
                             help='List all calculators known to ASE '
                             'and whether/how each is installed.  Also, '
                             'attempt to determine version numbers by '
@@ -44,7 +44,7 @@ class CLICommand:
             if args.config:
                 print()
                 cfg.print_everything()
-            if args.check_calculators:
+            if args.calculators:
                 print()
                 cfg.check_calculators()
                 # print()
@@ -97,7 +97,7 @@ def print_info():
                 ('python-' + sys.version.split()[0], sys.executable)]
 
     for name, path in versions + all_dependencies():
-        print('{:24} {}'.format(name, path))
+        print(f'{name:24} {path}')
 
 
 def print_formats():

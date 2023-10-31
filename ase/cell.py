@@ -305,7 +305,7 @@ class Cell:
         else:
             numbers = self.tolist()
 
-        return 'Cell({})'.format(numbers)
+        return f'Cell({numbers})'
 
     def niggli_reduce(self, eps=1e-5):
         """Niggli reduce this cell, returning a new cell and mapping.

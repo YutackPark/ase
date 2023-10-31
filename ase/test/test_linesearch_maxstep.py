@@ -43,6 +43,7 @@ labels = [
 optimizers = [BFGS, BFGSLineSearch, PreconLBFGS, PreconLBFGS]
 
 
+@pytest.mark.optimize
 @pytest.mark.parametrize(
     'optcls, name',
     zip(optimizers, labels),

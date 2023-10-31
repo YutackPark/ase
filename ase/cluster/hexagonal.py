@@ -17,9 +17,9 @@ class HexagonalFactory(ClusterFactory):
         "Get the lattice constant of an element with cubic crystal structure."
         symmetry = _refstate[self.atomic_numbers[0]]['symmetry']
         if symmetry != self.xtal_name:
-            raise ValueError("Cannot guess the %s " % (self.xtal_name,) +
+            raise ValueError(f"Cannot guess the {self.xtal_name} " +
                              "lattice constant of an element with crystal " +
-                             "structure %s." % (symmetry,))
+                             f"structure {symmetry}.")
         return _refstate[self.atomic_numbers[0]].copy()
 
     def set_basis(self):
@@ -35,8 +35,7 @@ class HexagonalFactory(ClusterFactory):
                 (a, c) = lattice
             else:
                 raise ValueError(
-                    "Improper lattice constants for %s crystal." %
-                    (self.xtal_name,))
+                    f"Improper lattice constants for {self.xtal_name} crystal.")
 
         self.lattice_constant = (a, c)
         self.lattice_basis = np.array([[a, 0., 0.],

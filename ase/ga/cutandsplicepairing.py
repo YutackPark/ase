@@ -186,8 +186,8 @@ class CutAndSplicePairing(OffspringCreator):
         f, m = parents
 
         indi = self.cross(f, m)
-        desc = 'pairing: {0} {1}'.format(f.info['confid'],
-                                         m.info['confid'])
+        desc = 'pairing: {} {}'.format(f.info['confid'],
+                                       m.info['confid'])
         # It is ok for an operator to return None
         # It means that it could not make a legal offspring
         # within a reasonable amount of time
@@ -411,7 +411,7 @@ class CutAndSplicePairing(OffspringCreator):
 
         # For each atom type make the pairing
         unique_sym.sort()
-        use_total = dict()
+        use_total = {}
         for s in unique_sym:
             used = []
             not_used = []

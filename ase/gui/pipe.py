@@ -18,7 +18,7 @@ def main():
         from ase.gui.graphs import make_plot
         make_plot(show=False, *data)
     else:
-        print('Invalid task {}'.format(task))
+        print(f'Invalid task {task}')
         sys.exit(17)
 
     # Magic string to tell GUI that things went okay:

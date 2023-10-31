@@ -20,6 +20,7 @@ class GaussianProcess():
             ase.optimize.gpmin.kernel
             Defaults to the Squared Exponential kernel with derivatives
     """
+
     def __init__(self, prior=None, kernel=None):
         if kernel is None:
             self.kernel = SquaredExponential()

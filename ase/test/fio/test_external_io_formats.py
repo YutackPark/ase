@@ -67,7 +67,7 @@ def test_external_ioformat_valid(tmp_path):
 
     atom = bulk('Ti')
     write(tmp_path / 'dummy_output', atom, format='dummy')
-    with open(tmp_path / 'dummy_output', 'r') as file:
+    with open(tmp_path / 'dummy_output') as file:
         assert file.read() == 'dummy output'
 
 
