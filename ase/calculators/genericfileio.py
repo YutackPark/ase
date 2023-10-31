@@ -64,7 +64,7 @@ class BaseProfile(ABC):
         """
         command = []
         if self.parallel:
-            command.append(self.parallel_info['binary'])
+            command.append(self.parallel_info.get("binary", ""))
 
             translation_keys = self.get_translation_keys()
 
