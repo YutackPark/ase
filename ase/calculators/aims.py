@@ -195,7 +195,7 @@ class Aims(GenericFileIOCalculator):
         if profile is None:
             profile = AimsProfile(
                 kwargs.pop(
-                    "aims_command", os.getenv("ASE_AIMS_COMMAND", "aims.x")
+                    "aims_command", self.cfg.get("ASE_AIMS_COMMAND", "aims.x")
                 )
             )
 

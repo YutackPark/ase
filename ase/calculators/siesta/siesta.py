@@ -273,7 +273,7 @@ class Siesta(FileIOCalculator):
             **parameters)
 
         # For compatibility with old variable name:
-        commandvar = os.environ.get('SIESTA_COMMAND')
+        commandvar = self.cfg.get('SIESTA_COMMAND')
         if commandvar is not None:
             warnings.warn('Please use $ASE_SIESTA_COMMAND and not '
                           '$SIESTA_COMMAND, which will be ignored '
@@ -834,8 +834,8 @@ class Siesta(FileIOCalculator):
 
         if self['pseudo_path'] is not None:
             pseudo_path = self['pseudo_path']
-        elif 'SIESTA_PP_PATH' in os.environ:
-            pseudo_path = os.environ['SIESTA_PP_PATH']
+        elif 'SIESTA_PP_PATH' in self.cfg:
+            pseudo_path = self.cfg['SIESTA_PP_PATH']
         else:
             mess = "Please set the environment variable 'SIESTA_PP_PATH'"
             raise Exception(mess)
@@ -902,7 +902,7 @@ class Siesta(FileIOCalculator):
                 vc = get_valence_charge(pseudopotential)
                 fraction = float(vc + paec) / vc
                 pseudo_head = name[:-4]
-                fractional_command = os.environ['SIESTA_UTIL_FRACTIONAL']
+                fractional_command = self.cfg['SIESTA_UTIL_FRACTIONAL']
                 cmd = '{} {} {:.7f}'.format(fractional_command,
                                             pseudo_head,
                                             fraction)

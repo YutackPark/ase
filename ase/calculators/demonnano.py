@@ -92,7 +92,7 @@ class DemonNano(FileIOCalculator):
         # basis path
         basis_path = parameters['basis_path']
         if basis_path is None:
-            basis_path = os.environ.get('DEMONNANO_BASIS_PATH')
+            basis_path = self.cfg.get('DEMONNANO_BASIS_PATH')
 
         if basis_path is None:
             mess = 'The "DEMONNANO_BASIS_PATH" environment is not defined.'

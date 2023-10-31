@@ -103,12 +103,17 @@ class MolecularDynamics(Dynamics):
         # dt as to be attached _before_ parent class is initialized
         self.dt = timestep
 
-        Dynamics.__init__(self, atoms, logfile=None, trajectory=None)
+        super().__init__(atoms, logfile=None, trajectory=None)
 
-        # Are the atoms always Atoms, or can they be filter?
-        # We assume here they are always Atoms
-        from ase import Atoms
-        assert isinstance(atoms, Atoms)
+        # Some codes (e.g. Asap) may be using filters to
+        # constrain atoms or do other things.  Current state of the art
+        # is that "atoms" must be either Atoms or Filter in order to
+        # work with dynamics.
+        #
+        # In the future, we should either use a special role interface
+        # for MD, or we should ensure that the input is *always* a Filter.
+        # That way we won't need to test multiple cases.  Currently,
+        # we do not test /any/ kind of MD with any kind of Filter in ASE.
         self.atoms = atoms
         self.masses = self.atoms.get_masses()
         self.max_steps = 0  # to be updated in run or irun
