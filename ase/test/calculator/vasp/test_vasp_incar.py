@@ -1,50 +1,26 @@
 from unittest import mock
 
-import numpy as np
 import pytest
 
-from ase.build import bulk
-from ase.calculators.vasp.create_input import GenerateVaspInput, FLOAT_FORMAT
+from ase.calculators.vasp.create_input import GenerateVaspInput, FLOAT_FORMAT, EXP_FORMAT
 from ase.atoms import Atoms
 
-calc = pytest.mark.calculator
-
 
 @pytest.fixture
-def rng():
-    return np.random.RandomState(seed=42)
-
-
-@pytest.fixture
-def nacl(rng):
-    atoms = bulk('NaCl', crystalstructure='rocksalt', a=4.1, cubic=True) * (
-        3,
-        3,
-        3,
-    )
-    rng.shuffle(atoms.symbols)  # Ensure symbols are mixed
-    return atoms
-
-
-@pytest.fixture
-def vaspinput_factory(nacl):
+def vaspinput_factory():
     """Factory for GenerateVaspInput class, which mocks the generation of
     pseudopotentials."""
 
-    def _vaspinput_factory(atoms=None, **kwargs) -> GenerateVaspInput:
-        if atoms is None:
-            atoms = nacl
+    def _vaspinput_factory(**kwargs) -> GenerateVaspInput:
         mocker = mock.Mock()
         inputs = GenerateVaspInput()
         inputs.set(**kwargs)
         inputs._build_pp_list = mocker(return_value=None)  # type: ignore
-        inputs.initialize(atoms)
         return inputs
 
     return _vaspinput_factory
 
 
-@calc('vasp')
 def test_vasp_incar(vaspinput_factory):
     """Test that INCAR is written correctly."""
     # Have each of every type of key in settings
@@ -64,10 +40,10 @@ def test_vasp_incar(vaspinput_factory):
         },  # dict key. Current writer uses %.3f
     }
 
-    calc = vaspinput_factory(**settings)
     atoms = Atoms('H2', positions=[[0, 0, 0], [0, 0, 1.2]])
-    calc.initialize(atoms)
-    calc.write_incar(atoms)
+    calc_factory = vaspinput_factory(**settings)
+    calc_factory.initialize(atoms)
+    calc_factory.write_incar(atoms)
 
     # Check that INCAR is written correctly
     with open('INCAR', 'r') as f:
@@ -78,3 +54,9 @@ def test_vasp_incar(vaspinput_factory):
     )
 
     assert f' ENCUT = {settings["encut"]:{FLOAT_FORMAT}}\n' in lines
+    assert f' EDIFF = {settings["ediff"]:{EXP_FORMAT}}\n' in lines
+    assert f' IBRION = {settings["ibrion"]}\n' in lines
+    assert f' PREC = {settings["prec"]}\n' in lines
+    assert f' LHFCALC = {settings["lhfcalc"]}\n' in lines
+    assert f' LREAL = {settings["lreal"]}\n' in lines
+    assert f' MAGMOM = {settings["magmom"][0]:.4f} {settings["magmom"][1]:.4f}\n' in lines
