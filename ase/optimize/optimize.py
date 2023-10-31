@@ -12,7 +12,7 @@ from ase.utils import IOContext
 from ase.utils.abc import Optimizable
 
 
-MAX_STEPS = 100_000_000  # maximum number of steps placeholder with maxint
+DEFAULT_MAX_STEPS = 100_000_000
 
 
 class RestartError(RuntimeError):
@@ -174,7 +174,7 @@ class Dynamics(IOContext):
             if call:
                 function(*args, **kwargs)
 
-    def irun(self, *args, **kwargs):
+    def irun(self, steps=DEFAULT_MAX_STEPS):
         """Run dynamics algorithm as generator. This allows, e.g.,
         to easily run two optimizers or MD thermostats at the same time.
 
@@ -184,6 +184,10 @@ class Dynamics(IOContext):
         >>> for _ in opt2:
         >>>     opt1.run()
         """
+
+        # update the maximum number of steps
+        self.max_steps = self.nsteps + steps
+
         # compute the initial step
         self.optimizable.get_forces()
 
@@ -325,11 +329,10 @@ class Optimizer(Dynamics):
     def initialize(self):
         pass
 
-    def irun(self, fmax=0.05, steps=None):
+    def irun(self, fmax=0.05, steps=DEFAULT_MAX_STEPS):
         """ call Dynamics.irun and keep track of fmax"""
         self.fmax = fmax
-        self.max_steps = MAX_STEPS if steps is None else steps + self.nsteps
-        return Dynamics.irun(self)
+        return Dynamics.irun(self, steps=steps)
 
     def converged(self, forces=None):
         """Did the optimization converge?"""

@@ -149,8 +149,7 @@ class MolecularDynamics(Dynamics):
 
     def irun(self, steps=50):
         """ Call Dynamics.irun and adjust max_steps """
-        self.max_steps = steps + self.nsteps
-        return Dynamics.irun(self)
+        return Dynamics.irun(self, steps=steps)
 
     def get_time(self):
         return self.nsteps * self.dt
