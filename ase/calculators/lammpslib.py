@@ -12,6 +12,7 @@ from ase.calculators.lammps import Prism, convert
 from ase.data import atomic_masses as ase_atomic_masses
 from ase.data import atomic_numbers as ase_atomic_numbers
 from ase.data import chemical_symbols as ase_chemical_symbols
+from ase.utils import deprecated
 
 # TODO
 # 1. should we make a new lammps object each time ?
@@ -22,11 +23,10 @@ from ase.data import chemical_symbols as ase_chemical_symbols
 #   into a python function that can be called
 # 8. make matscipy as fallback
 # 9. keep_alive not needed with no system changes
-# 10. it may be a good idea to unify the cell handling with the one found in
-#    lammpsrun.py
 
 
 # this one may be moved to some more generic place
+@deprecated("Please use the technique in https://stackoverflow.com/a/26912166")
 def is_upper_triangular(arr, atol=1e-8):
     """test for upper triangular matrix based on numpy"""
     # must be (n x n) matrix
@@ -36,6 +36,12 @@ def is_upper_triangular(arr, atol=1e-8):
         np.all(np.diag(arr) >= 0.0)
 
 
+@deprecated(
+    "Please use "
+    "`ase.calculators.lammps.coordinatetransform.calc_rotated_cell`. "
+    "Note that the new function returns the ASE lower trianglar cell and does "
+    "not return the conversion matrix."
+)
 def convert_cell(ase_cell):
     """
     Convert a parallelepiped (forming right hand basis)
