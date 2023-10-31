@@ -789,7 +789,7 @@ End CASTEP Interface Documentation
                 if kpts.get('spacing') is not None:
                     kpts = kpts.copy()
                     spacing = kpts.pop('spacing')
-                    kpts['density'] = 1 / (np.pi * spacing)
+                    kpts['density'] = 1 / (2 * np.pi * spacing)
 
                 clear_mp_keywords()
                 size, offsets = kpts2sizeandoffsets(atoms=self.atoms, **kpts)
