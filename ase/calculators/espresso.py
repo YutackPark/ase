@@ -5,6 +5,7 @@ Run pw.x jobs.
 
 
 import os
+import warnings
 
 from ase.calculators.genericfileio import (
     CalculatorTemplate,
@@ -42,8 +43,12 @@ class EspressoProfile(BaseProfile):
         return match.group(1)
 
     def version(self):
-        stdout = read_stdout(self.binary)
-        return self.parse_version(stdout)
+        try:
+            stdout = read_stdout(self.binary)
+            return self.parse_version(stdout)
+        except FileNotFoundError:
+            warnings.warn(f"The executable {self.binary} is not found on the path")
+            return None
 
     def get_calculator_command(self, inputfile):
         return [self.binary, '-in', inputfile]
