@@ -114,7 +114,7 @@ class SciPyOptimizer(Optimizer):
         self.call_observers()
         if self.converged(f):
             raise Converged
-        if self.nsteps + 1 <= self.max_steps:
+        if self.nsteps < self.max_steps:
             self.nsteps += 1
 
     def run(self, fmax=0.05, steps=100000000):
