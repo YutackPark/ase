@@ -109,22 +109,27 @@ class SciPyOptimizer(Optimizer):
         optimisation is complete. This will be silently ignored by
         :meth:`run`().
         """
+        if self.nsteps < self.max_steps:
+            self.nsteps += 1
         f = self.optimizable.get_forces()
         self.log(f)
         self.call_observers()
         if self.converged(f):
             raise Converged
-        if self.nsteps < self.max_steps:
-            self.nsteps += 1
 
     def run(self, fmax=0.05, steps=100000000):
         if self.force_consistent is None:
             self.set_force_consistent()
         self.fmax = fmax
+
         try:
             # As SciPy does not log the zeroth iteration, we do that manually
-            self.max_steps = steps
-            self.callback(None)
+            if self.nsteps == 0:
+                self.log()
+                self.call_observers()
+
+            self.max_steps = steps + self.nsteps
+
             # Scale the problem as SciPy uses I as initial Hessian.
             self.call_fmin(fmax / self.H0, self.max_steps)
         except Converged:
