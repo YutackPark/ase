@@ -1,12 +1,14 @@
 """Soft-mutation operator and associated tools"""
 import inspect
 import json
+
 import numpy as np
+from scipy.spatial.distance import cdist
+
 from ase.data import covalent_radii
-from ase.neighborlist import NeighborList
 from ase.ga.offspring_creator import OffspringCreator
 from ase.ga.utilities import atoms_too_close, gather_atoms_by_tag
-from scipy.spatial.distance import cdist
+from ase.neighborlist import NeighborList
 
 
 class TagFilter:
@@ -257,7 +259,7 @@ class SoftMutation(OffspringCreator):
         if self.used_modes_file is not None:
             try:
                 self.read_used_modes(self.used_modes_file)
-            except IOError:
+            except OSError:
                 # file doesn't exist (yet)
                 pass
 
@@ -314,7 +316,7 @@ class SoftMutation(OffspringCreator):
 
     def read_used_modes(self, filename):
         """Read used modes from json file."""
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             modes = json.load(fd)
             self.used_modes = {int(k): modes[k] for k in modes}
         return

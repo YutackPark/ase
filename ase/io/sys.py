@@ -6,10 +6,10 @@ The positions and cell dimensions are in Bohrs.
 Contributed by Rafi Ullah <rraffiu@gmail.com>
 """
 
+from re import compile
+
 from ase.atoms import Atoms
 from ase.units import Bohr
-
-from re import compile
 
 __all__ = ['read_sys', 'write_sys']
 
@@ -66,6 +66,6 @@ def write_sys(fileobj, atoms):
     for i, s in enumerate(set(ch_sym)):
         fileobj.write(('species {}{} {}.xml \n').format(s, an[i], s))
     for i, (S, Z, (x, y, z)) in enumerate(zip(ch_sym, atm_nm, a_pos)):
-        fileobj.write(('atom {0:5} {1:5}  {2:12.6f} {3:12.6f} {4:12.6f}\
+        fileobj.write(('atom {:5} {:5}  {:12.6f} {:12.6f} {:12.6f}\
         bohr\n').format(S + str(i + 1), S + str(Z), x / Bohr, y / Bohr,
                         z / Bohr))

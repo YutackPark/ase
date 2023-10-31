@@ -1,6 +1,7 @@
 import numpy as np
-from ase.calculators.calculator import Calculator
+
 from ase import units
+from ase.calculators.calculator import Calculator
 
 k_c = units.Hartree * units.Bohr
 

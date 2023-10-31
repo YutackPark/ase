@@ -1,7 +1,7 @@
 import numpy as np
 
-from ase.neighborlist import NeighborList
 from ase.calculators.calculator import Calculator, all_changes
+from ase.neighborlist import NeighborList
 from ase.stress import full_3x3_to_voigt_6_stress
 
 
@@ -140,7 +140,7 @@ class LennardJones(Calculator):
           The energy is upshifted to be continuous at rc.
           Default None
         ro: float, None
-          Onset of cutoff function in 'smooth' mode. Defaults to 2/3 * rc.
+          Onset of cutoff function in 'smooth' mode. Defaults to 0.66 * rc.
         smooth: bool, False
           Cutoff mode. False means that the pairwise energy is simply shifted
           to be 0 at r = rc, leading to the energy going to 0 continuously,

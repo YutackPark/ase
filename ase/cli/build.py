@@ -2,6 +2,7 @@
 # Try to avoid module level import statements here to reduce
 # import time during CLI execution
 import sys
+
 import numpy as np
 
 
@@ -120,8 +121,8 @@ class CLICommand:
 def build_molecule(args):
     from ase.atoms import Atoms
     from ase.build import molecule
-    from ase.data import ground_state_magnetic_moments
-    from ase.data import atomic_numbers, covalent_radii
+    from ase.data import (atomic_numbers, covalent_radii,
+                          ground_state_magnetic_moments)
     from ase.symbols import string2symbols
 
     try:
@@ -184,7 +185,7 @@ def build_bulk(args):
     from ase.build import bulk
 
     L = args.lattice_constant.replace(',', ' ').split()
-    d = dict([(key, float(x)) for key, x in zip('ac', L)])
+    d = {key: float(x) for key, x in zip('ac', L)}
     atoms = bulk(args.name, crystalstructure=args.crystal_structure,
                  a=d.get('a'), c=d.get('c'),
                  orthorhombic=args.orthorhombic, cubic=args.cubic)

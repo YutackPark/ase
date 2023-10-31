@@ -1,5 +1,6 @@
 def test_niggli_op():
     import numpy as np
+
     from ase.cell import Cell
 
     rng = np.random.RandomState(3)

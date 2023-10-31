@@ -1,8 +1,9 @@
 import os
+import pickle
 import sys
 from abc import ABC, abstractmethod
-import pickle
-from subprocess import Popen, PIPE
+from subprocess import PIPE, Popen
+
 from ase.calculators.calculator import Calculator, all_properties
 
 
@@ -78,7 +79,7 @@ class MPICommand:
         return [sys.executable, '-m', 'ase.calculators.subprocesscalculator']
 
     @classmethod
-    def parallel(cls, nprocs, mpi_argv=tuple()):
+    def parallel(cls, nprocs, mpi_argv=()):
         return cls(['mpiexec', '-n', str(nprocs)]
                    + list(mpi_argv)
                    + cls.python_argv()
@@ -321,6 +322,7 @@ class ParallelDispatch:
         parallel.call(function, args, kwargs)
 
     """
+
     def __init__(self, mpicommand):
         self._mpicommand = mpicommand
         self._protocol = None

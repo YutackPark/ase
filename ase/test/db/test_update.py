@@ -1,5 +1,7 @@
 from time import time
+
 import pytest
+
 import ase.db
 from ase import Atoms
 

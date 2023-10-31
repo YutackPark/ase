@@ -1,6 +1,6 @@
 from ase.build import bulk, molecule
-from ase.phonons import Phonons
 from ase.calculators.emt import EMT
+from ase.phonons import Phonons
 
 
 def check_set_atoms(atoms, set_atoms, expected_atoms):

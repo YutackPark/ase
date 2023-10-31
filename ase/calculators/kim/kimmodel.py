@@ -9,11 +9,9 @@ University of Minnesota
 """
 import numpy as np
 
-from ase.calculators.calculator import Calculator
-from ase.calculators.calculator import compare_atoms
+from ase.calculators.calculator import Calculator, compare_atoms
 
-from . import kimpy_wrappers
-from . import neighborlist
+from . import kimpy_wrappers, neighborlist
 
 
 class KIMModelData:
@@ -121,7 +119,7 @@ class KIMModelData:
                 species integer code (e.g. 1)
         """
         supported_species, codes = self._get_model_supported_species_and_codes()
-        species_map = dict()
+        species_map = {}
         for i, spec in enumerate(supported_species):
             species_map[spec] = codes[i]
             if self.debug:
@@ -243,7 +241,7 @@ class KIMModelCalculator(Calculator):
         pass
 
     def __repr__(self):
-        return "KIMModelCalculator(model_name={})".format(self.model_name)
+        return f"KIMModelCalculator(model_name={self.model_name})"
 
     def calculate(
         self,

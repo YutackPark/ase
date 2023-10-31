@@ -1,8 +1,9 @@
 from ase.build import niggli_reduce
 from ase.calculators.singlepoint import SinglePointCalculator
-from ase.optimize import FIRE
 from ase.constraints import ExpCellFilter
 from ase.ga import set_raw_score
+from ase.optimize import FIRE
+
 try:
     from asap3 import EMT
 except ImportError:

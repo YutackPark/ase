@@ -1,9 +1,9 @@
 import numpy as np
 
 import ase.units as u
+from ase.calculators.excitation_list import polarizability
 from ase.vibrations.raman import Raman, RamanPhonons
 from ase.vibrations.resonant_raman import ResonantRaman
-from ase.calculators.excitation_list import polarizability
 
 
 class Placzek(ResonantRaman):
@@ -157,7 +157,7 @@ class Profeta(ResonantRaman):
             Vel_rcc += self.electronic_me_profeta_rcc(omega, gamma, -1)
         else:
             raise RuntimeError(
-                'Bug: call with {0} should not happen!'.format(
+                'Bug: call with {} should not happen!'.format(
                     self.approximation))
 
         return self.map_to_modes(Vel_rcc)

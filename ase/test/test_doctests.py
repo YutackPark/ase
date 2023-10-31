@@ -1,14 +1,14 @@
 import doctest
 import importlib
 
-import pytest
 import numpy as np
-
+import pytest
 
 module_names = """\
 ase.atoms
 ase.build.tools
 ase.cell
+ase.calculators.vasp.vasp
 ase.collections.collection
 ase.dft.kpoints
 ase.eos

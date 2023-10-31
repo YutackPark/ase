@@ -5,7 +5,7 @@ import runpy
 import ase.io
 
 for name in ['al', 'mg', 'fe', 'diamond', 'nacl', 'rutile', 'skutterudite']:
-    py = 'spacegroup-{0}.py'.format(name)
+    py = f'spacegroup-{name}.py'
     dct = runpy.run_path(py)
     atoms = dct[name]
     renderer = ase.io.write('spacegroup-%s.pov' % name,

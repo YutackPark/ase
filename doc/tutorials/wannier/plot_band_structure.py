@@ -1,5 +1,5 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 fig = plt.figure(1, dpi=80, figsize=(4.2, 6))
 fig.subplots_adjust(left=.16, right=.97, top=.97, bottom=.05)

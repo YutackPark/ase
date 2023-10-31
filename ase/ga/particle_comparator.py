@@ -1,5 +1,6 @@
 """Comparators originally meant to be used with particles"""
 import numpy as np
+
 from ase.ga.utilities import get_nnmat
 
 

@@ -1,6 +1,6 @@
 from ase import Atoms
 from ase.build import molecule
-from ase.build.connected import connected_atoms, split_bond, separate
+from ase.build.connected import connected_atoms, separate, split_bond
 from ase.data.s22 import data
 
 

@@ -1,17 +1,18 @@
 """Test the ase.vibrations.Vibrations object using a harmonic calculator."""
 import os
 from pathlib import Path
-import pytest
+
 import numpy as np
+import pytest
 from numpy.testing import assert_array_almost_equal
 
-from ase import units, Atoms
 import ase.io
+from ase import Atoms, units
+from ase.build import add_adsorbate, fcc111
 from ase.calculators.qmmm import ForceConstantCalculator
-from ase.vibrations import Vibrations, VibrationsData
-from ase.thermochemistry import IdealGasThermo
 from ase.constraints import FixAtoms, FixCartesian
-from ase.build import fcc111, add_adsorbate
+from ase.thermochemistry import IdealGasThermo
+from ase.vibrations import Vibrations, VibrationsData
 
 
 @pytest.fixture
@@ -59,6 +60,35 @@ def test_harmonic_vibrations(testdir):
                        ) / units._e  # J/s -> eV/s
 
     assert np.allclose(vib.get_energies(), expected_energy)
+
+
+def test_frederiksen(testdir, random_dimer):
+    # Apply appropriate symmetry to non-"self" terms so that Frederiksen result
+    # is not modified by translational symmetrisation step:
+    #
+    # - We have a 6x6 matrix for the dimer force-constants
+    # - On-diagonal 3x3 blocks should by modified by correction
+    # - These blocks need to have translational symmetry after correction
+    # - So we impose that symmetry on off-diagonal blocks used in correction
+    random_dimer.calc.D[:3, 3:] += random_dimer.calc.D[:3, 3:].T
+    random_dimer.calc.D[3:, :3] += random_dimer.calc.D[3:, :3].T
+
+    vib = Vibrations(random_dimer, delta=1e-2, nfree=2)
+    vib.run()
+    vib_data_std = vib.get_vibrations(read_cache=False, method='standard')
+    vib_data_frd = vib.get_vibrations(read_cache=False, method='frederiksen')
+
+    # Check Frederiksen option made a difference
+    assert not np.allclose(vib_data_std.get_hessian(),
+                           vib_data_frd.get_hessian())
+
+    # Check sum rule was violated by original Hessian
+    assert not np.allclose(vib_data_std.get_hessian()[0, :, 0, :],
+                           -vib_data_std.get_hessian()[0, :, 1, :])
+
+    # And is fixed by Frederiksen scheme
+    assert_array_almost_equal(vib_data_frd.get_hessian()[0, :, 0, :],
+                              -vib_data_frd.get_hessian()[0, :, 1, :])
 
 
 def test_consistency_with_vibrationsdata(testdir, random_dimer):
@@ -138,7 +168,7 @@ def test_vibrations_methods(testdir, random_dimer):
     with open(logfilename, 'w') as fd:
         vib.summary(log=fd)
 
-    with open(logfilename, 'rt') as fd:
+    with open(logfilename) as fd:
         log_txt = fd.read()
         assert log_txt == '\n'.join(
             VibrationsData._tabulate_from_energies(vib_energies)) + '\n'
@@ -151,7 +181,7 @@ def test_vibrations_methods(testdir, random_dimer):
 
     vib.write_mode(n=3, nimages=5)
     for i in range(3):
-        assert not Path('vib.{}.traj'.format(i)).is_file()
+        assert not Path(f'vib.{i}.traj').is_file()
     mode_traj = ase.io.read('vib.3.traj', index=':')
     assert len(mode_traj) == 5
 

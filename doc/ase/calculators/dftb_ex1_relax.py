@@ -1,6 +1,6 @@
+from ase.build import molecule
 from ase.calculators.dftb import Dftb
 from ase.io import write
-from ase.build import molecule
 from ase.optimize import QuasiNewton
 
 atoms = molecule('H2O')

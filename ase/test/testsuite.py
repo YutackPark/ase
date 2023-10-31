@@ -1,8 +1,8 @@
+import argparse
 import os
 import sys
-from pathlib import Path
 import warnings
-import argparse
+from pathlib import Path
 
 from ase.cli.main import CLIError
 
@@ -43,15 +43,14 @@ def test(calculators=tuple(), jobs=0, verbose=False,
     if calculators:
         args += ['--calculators={}'.format(','.join(calculators))]
     if jobs:
-        args += '--jobs={}'.format(jobs)
+        args += f'--jobs={jobs}'
 
     main(args=args)
 
 
 def have_module(module):
-    import importlib
-
-    return importlib.find_loader(module) is not None
+    import importlib.util
+    return importlib.util.find_spec(module) is not None
 
 
 MULTIPROCESSING_MAX_WORKERS = 32
@@ -93,7 +92,7 @@ the ASE_CONFIG environment variable.  Example configuration file:
 [executables]
 abinit = abinit
 cp2k = cp2k_shell
-dftb+ = dftb+
+dftb = dftb+
 espresso = pw.x
 lammpsrun = lmp
 nwchem = /usr/bin/nwchem
@@ -152,6 +151,7 @@ class CLICommand:
     @staticmethod
     def run(args):
         from subprocess import Popen
+
         from ase.calculators.names import names as calc_names
 
         if args.help_calculators:
@@ -176,7 +176,7 @@ class CLICommand:
 
         jobs = choose_how_many_workers(args.jobs)
         if jobs:
-            add_args('--numprocesses={}'.format(jobs))
+            add_args(f'--numprocesses={jobs}')
 
         if args.fast:
             add_args('-m', 'not slow')

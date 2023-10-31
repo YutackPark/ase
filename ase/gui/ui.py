@@ -1,18 +1,17 @@
 # type: ignore
 import re
 import sys
-from collections import namedtuple
-from functools import partial
-
-import numpy as np
 import tkinter as tk
 import tkinter.ttk as ttk
-from tkinter.messagebox import askokcancel as ask_question
-from tkinter.messagebox import showerror, showwarning, showinfo
+from collections import namedtuple
+from functools import partial
 from tkinter.filedialog import LoadFileDialog, SaveFileDialog
+from tkinter.messagebox import askokcancel as ask_question
+from tkinter.messagebox import showerror, showinfo, showwarning
+
+import numpy as np
 
 from ase.gui.i18n import _
-
 
 __all__ = [
     'error', 'ask_question', 'MainWindow', 'LoadFileDialog', 'SaveFileDialog',
@@ -421,7 +420,7 @@ class MenuItem:
 
         if key:
             if key[:4] == 'Ctrl':
-                self.keyname = '<Control-{0}>'.format(key[-1].lower())
+                self.keyname = f'<Control-{key[-1].lower()}>'
             else:
                 self.keyname = {
                     'Home': '<Home>',
@@ -459,7 +458,7 @@ class MenuItem:
                                  accelerator=self.key,
                                  var=var)
 
-            def callback(key):
+            def callback(key):  # noqa: F811
                 var.set(not var.get())
                 self.callback()
 
@@ -588,7 +587,7 @@ class ASEFileChooser(LoadFileDialog):
 
 def show_io_error(filename, err):
     showerror(_('Read error'),
-              _('Could not read {}: {}'.format(filename, err)))
+              _(f'Could not read {filename}: {err}'))
 
 
 class ASEGUIWindow(MainWindow):
@@ -615,13 +614,13 @@ class ASEGUIWindow(MainWindow):
         right = mouse_buttons.get(3, 3)
         self.canvas.bind('<ButtonPress>', bind(press))
         self.canvas.bind('<B1-Motion>', bind(move))
-        self.canvas.bind('<B{right}-Motion>'.format(right=right), bind(move))
+        self.canvas.bind(f'<B{right}-Motion>', bind(move))
         self.canvas.bind('<ButtonRelease>', bind(release))
         self.canvas.bind('<Control-ButtonRelease>', bind(release, 'ctrl'))
         self.canvas.bind('<Shift-ButtonRelease>', bind(release, 'shift'))
         self.canvas.bind('<Configure>', resize)
         if not config['swap_mouse']:
-            self.canvas.bind('<Shift-B{right}-Motion>'.format(right=right),
+            self.canvas.bind(f'<Shift-B{right}-Motion>',
                              bind(scroll))
         else:
             self.canvas.bind('<Shift-B1-Motion>',

@@ -3,8 +3,7 @@
 import runpy
 
 from ase.io import read, write
-from ase.neb import NEBTools
-
+from ase.mep import NEBTools
 
 runpy.run_path('diffusion1.py')
 runpy.run_path('diffusion2.py')

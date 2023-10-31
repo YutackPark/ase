@@ -1,7 +1,7 @@
 import numpy as np
 
-from ase.calculators.eam import EAM
 from ase.build import bulk
+from ase.calculators.eam import EAM
 
 
 def test_eam(testdir):

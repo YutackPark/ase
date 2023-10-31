@@ -1,9 +1,10 @@
 import pytest
+
 from ase import io
-from ase.calculators.vdwcorrection import (vdWTkatchenko09prl,
-                                           TS09Polarizability)
-from ase.calculators.emt import EMT
 from ase.build import bulk, molecule
+from ase.calculators.emt import EMT
+from ase.calculators.vdwcorrection import (TS09Polarizability,
+                                           vdWTkatchenko09prl)
 
 
 # fake objects for the test

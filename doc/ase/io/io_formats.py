@@ -1,5 +1,6 @@
 # creates: formatoptions.rst
 from ase.io.formats import all_formats
+
 with open('formatoptions.rst', 'w') as fd:
     print('============================================', file=fd)
     print('Format Specific Options', file=fd)
@@ -7,7 +8,7 @@ with open('formatoptions.rst', 'w') as fd:
     format_names = list(sorted(all_formats.keys()))
     for name in format_names:
         fmt = all_formats[name]
-        print(".. _{:}:\n".format(name), file=fd)
+        print(f".. _{name}:\n", file=fd)
         print(name, file=fd)
         print('----------------------------------------', file=fd)
         if fmt.can_read:

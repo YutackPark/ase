@@ -5,8 +5,9 @@ The following lattice creator is defined:
     BaseCenteredMonoclinic
 """
 
-from ase.lattice.triclinic import TriclinicFactory
 import numpy as np
+
+from ase.lattice.triclinic import TriclinicFactory
 
 
 class SimpleMonoclinicFactory(TriclinicFactory):

@@ -1,6 +1,5 @@
-from ase.gui.i18n import _
-
 import ase.gui.ui as ui
+from ase.gui.i18n import _
 
 
 class Settings:

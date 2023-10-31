@@ -4,8 +4,8 @@ Function-like objects that creates cubic clusters.
 
 import numpy as np
 
-from ase.cluster.cubic import FaceCenteredCubic
 from ase.cluster.compounds import L1_2
+from ase.cluster.cubic import FaceCenteredCubic
 
 
 def Octahedron(symbol, length, cutoff=0, latticeconstant=None, alloy=False):

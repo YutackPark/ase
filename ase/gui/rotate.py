@@ -1,7 +1,6 @@
-from ase.gui.i18n import _
-
 import ase.gui.ui as ui
-from ase.utils import rotate, irotate
+from ase.gui.i18n import _
+from ase.utils import irotate, rotate
 
 
 class Rotate:
@@ -21,8 +20,8 @@ class Rotate:
         self.update_angles()
 
     def change(self):
-        x, y, z = [float(a.value) for a in self.rotate]
-        self.gui.axes = rotate('%fx,%fy,%fz' % (x, y, z))
+        x, y, z = (float(a.value) for a in self.rotate)
+        self.gui.axes = rotate(f'{x:f}x,{y:f}y,{z:f}z')
         self.gui.set_frame()
 
     def update_angles(self):

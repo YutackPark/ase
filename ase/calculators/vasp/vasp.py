@@ -19,70 +19,71 @@ http://cms.mpi.univie.ac.at/vasp/
 """
 
 import os
-import sys
 import re
-import numpy as np
 import subprocess
+import sys
 from contextlib import contextmanager
 from pathlib import Path
+from typing import Any, Dict, List, Tuple
 from warnings import warn
-from typing import Dict, Any, List, Tuple
 from xml.etree import ElementTree
 
+import numpy as np
+
 import ase
-from ase.io import read, jsonio
-from ase.utils import PurePath
 from ase.calculators import calculator
 from ase.calculators.calculator import Calculator
 from ase.calculators.singlepoint import SinglePointDFTCalculator
 from ase.calculators.vasp.create_input import GenerateVaspInput
+from ase.io import jsonio, read
+from ase.utils import PurePath
 from ase.vibrations.data import VibrationsData
 
 
-class Vasp(GenerateVaspInput, Calculator):  # type: ignore
+class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
     """ASE interface for the Vienna Ab initio Simulation Package (VASP),
     with the Calculator interface.
 
-        Parameters:
+    Parameters:
 
-            atoms:  object
-                Attach an atoms object to the calculator.
+    atoms:  object
+        Attach an atoms object to the calculator.
 
-            label: str
-                Prefix for the output file, and sets the working directory.
-                Default is 'vasp'.
+    label: str
+        Prefix for the output file, and sets the working directory.
+        Default is 'vasp'.
 
-            directory: str
-                Set the working directory. Is prepended to ``label``.
+    directory: str
+        Set the working directory. Is prepended to ``label``.
 
-            restart: str or bool
-                Sets a label for the directory to load files from.
-                if :code:`restart=True`, the working directory from
-                ``directory`` is used.
+    restart: str or bool
+        Sets a label for the directory to load files from.
+        if :code:`restart=True`, the working directory from
+        ``directory`` is used.
 
-            txt: bool, None, str or writable object
-                - If txt is None, output stream will be supressed
+    txt: bool, None, str or writable object
+        - If txt is None, output stream will be supressed
 
-                - If txt is '-' the output will be sent through stdout
+        - If txt is '-' the output will be sent through stdout
 
-                - If txt is a string a file will be opened,\
-                    and the output will be sent to that file.
+        - If txt is a string a file will be opened,\
+            and the output will be sent to that file.
 
-                - Finally, txt can also be a an output stream,\
-                    which has a 'write' attribute.
+        - Finally, txt can also be a an output stream,\
+            which has a 'write' attribute.
 
-                Default is 'vasp.out'
+        Default is 'vasp.out'
 
-                - Examples:
+        - Examples:
+            >>> from ase.calculators.vasp import Vasp
+            >>> calc = Vasp(label='mylabel', txt='vasp.out') # Redirect stdout
+            >>> calc = Vasp(txt='myfile.txt') # Redirect stdout
+            >>> calc = Vasp(txt='-') # Print vasp output to stdout
+            >>> calc = Vasp(txt=None)  # Suppress txt output
 
-                    >>> Vasp(label='mylabel', txt='vasp.out') # Redirect stdout
-                    >>> Vasp(txt='myfile.txt') # Redirect stdout
-                    >>> Vasp(txt='-') # Print vasp output to stdout
-                    >>> Vasp(txt=None)  # Suppress txt output
-
-            command: str
-                Custom instructions on how to execute VASP. Has priority over
-                environment variables.
+    command: str
+        Custom instructions on how to execute VASP. Has priority over
+        environment variables.
     """
     name = 'vasp'
     ase_objtype = 'vasp_calculator'  # For JSON storage
@@ -325,7 +326,7 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore
         if errorcode:
             raise calculator.CalculationFailed(
                 '{} in {} returned an error: {:d}'.format(
-                    self.name, self.directory, errorcode))
+                    self.name, Path(self.directory).resolve(), errorcode))
 
         # Read results from calculation
         self.update_atoms(atoms)
@@ -491,7 +492,7 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore
             file = self._indir(f)
             if not file.is_file():
                 raise calculator.ReadError(
-                    'VASP outputfile {} was not found'.format(file))
+                    f'VASP outputfile {file} was not found')
 
         # Build sorting and resorting lists
         self.read_sort()
@@ -519,7 +520,7 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore
         if os.path.isfile(sortfile):
             self.sort = []
             self.resort = []
-            with open(sortfile, 'r') as fd:
+            with open(sortfile) as fd:
                 for line in fd:
                     sort, resort = line.split()
                     self.sort.append(int(sort))
@@ -650,10 +651,12 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore
         """Reads a file in the directory, and returns the lines
 
         Example:
-        >>> outcar = load_file('OUTCAR')
+        >>> from ase.calculators.vasp import Vasp
+        >>> calc = Vasp()
+        >>> outcar = calc.load_file('OUTCAR')  # doctest: +SKIP
         """
         filename = self._indir(filename)
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             return fd.readlines()
 
     @contextmanager
@@ -661,7 +664,7 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore
         """Return a file iterator"""
 
         filename = self._indir(filename)
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             yield fd
 
     def read_outcar(self, lines=None):
@@ -713,8 +716,8 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore
     @property
     def _xml_calc(self) -> SinglePointDFTCalculator:
         if self.__xml_calc is None:
-            raise RuntimeError(('vasprun.xml data has not yet been loaded. '
-                                'Run read_results() first.'))
+            raise RuntimeError('vasprun.xml data has not yet been loaded. '
+                               'Run read_results() first.')
         return self.__xml_calc
 
     @_xml_calc.setter
@@ -772,7 +775,7 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore
         return nelect
 
     def get_k_point_weights(self):
-        filename = self._indir('IBZKPT')
+        filename = 'IBZKPT'
         return self.read_k_point_weights(filename)
 
     def get_dos(self, spin=None, **kwargs):
@@ -985,9 +988,9 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore
                     or (p['lorbit'] is None and q['rwigs'])):
                 magnetic_moments = self._read_magnetic_moments(lines=lines)
             else:
-                warn(('Magnetic moment data not written in OUTCAR (LORBIT<10),'
-                      ' setting magnetic_moments to zero.\nSet LORBIT>=10'
-                      ' to get information on magnetic moments'))
+                warn('Magnetic moment data not written in OUTCAR (LORBIT<10),'
+                     ' setting magnetic_moments to zero.\nSet LORBIT>=10'
+                     ' to get information on magnetic moments')
                 magnetic_moments = np.zeros(len(self.atoms))
         else:
             magnetic_moment = 0.0
@@ -1012,7 +1015,7 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore
         # Read that occurrence
         if nidx > -1:
             for m in range(len(self.atoms)):
-                magnetic_moments[m] = float(lines[nidx + m + 4].split()[4])
+                magnetic_moments[m] = float(lines[nidx + m + 4].split()[-1])
         return magnetic_moments[self.resort]
 
     def _read_magnetic_moment(self, lines=None):
@@ -1020,9 +1023,10 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore
         if not lines:
             lines = self.load_file('OUTCAR')
 
-        for n, line in enumerate(lines):
+        for line in lines:
             if 'number of electron  ' in line:
-                magnetic_moment = float(line.split()[-1])
+                _ = line.split()[-1]
+                magnetic_moment = 0.0 if _ == "magnetization" else float(_)
         return magnetic_moment
 
     def read_nbands(self, lines=None):
@@ -1075,8 +1079,8 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore
                     continue
         # Then if ibrion in [1,2,3] check whether ionic relaxation
         # condition been fulfilled
-        if ((self.int_params['ibrion'] in [1, 2, 3]
-             and self.int_params['nsw'] not in [0])):
+        if (self.int_params['ibrion'] in [1, 2, 3]
+                and self.int_params['nsw'] not in [0]):
             if not self.read_relaxed():
                 converged = False
             else:
@@ -1333,5 +1337,5 @@ def check_atoms_type(atoms: ase.Atoms) -> None:
     """
     if not isinstance(atoms, ase.Atoms):
         raise calculator.CalculatorSetupError(
-            ('Expected an Atoms object, '
-             'instead got object of type {}'.format(type(atoms))))
+            'Expected an Atoms object, '
+            'instead got object of type {}'.format(type(atoms)))

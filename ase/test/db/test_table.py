@@ -1,5 +1,6 @@
-from ase.db.table import Table
 from types import SimpleNamespace
+
+from ase.db.table import Table
 
 
 class TestConnection:

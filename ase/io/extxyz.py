@@ -7,24 +7,22 @@ comment line, and additional per-atom properties as extra columns.
 
 Contributed by James Kermode <james.kermode@gmail.com>
 """
-
-
-from itertools import islice
+import json
+import numbers
 import re
 import warnings
 from io import StringIO, UnsupportedOperation
-import json
 
 import numpy as np
-import numbers
 
 from ase.atoms import Atoms
-from ase.calculators.calculator import all_properties, Calculator
+from ase.calculators.calculator import BaseCalculator, all_properties
 from ase.calculators.singlepoint import SinglePointCalculator
-from ase.spacegroup.spacegroup import Spacegroup
-from ase.parallel import paropen
 from ase.constraints import FixAtoms, FixCartesian
 from ase.io.formats import index2range
+from ase.io.utils import ImageIterator
+from ase.parallel import paropen
+from ase.spacegroup.spacegroup import Spacegroup
 from ase.utils import reader
 
 __all__ = ['read_xyz', 'write_xyz', 'iread_xyz']
@@ -145,19 +143,26 @@ def key_val_str_to_dict(string, sep=None):
 
             # parse special strings as boolean or JSON
             if isinstance(value, str):
-                # Parse boolean values: 'T' -> True, 'F' -> False,
-                #                       'T T F' -> [True, True, False]
-                str_to_bool = {'T': True, 'F': False}
-
+                # Parse boolean values:
+                # T or [tT]rue or TRUE -> True
+                # F or [fF]alse or FALSE -> False
+                # For list: 'T T F' -> [True, True, False]
+                # Cannot use `.lower()` to reduce `str_to_bool` mapping because
+                # 't'/'f' not accepted
+                str_to_bool = {
+                    'T': True, 'F': False, 'true': True, 'false': False,
+                    'True': True, 'False': False, 'TRUE': True, 'FALSE': False
+                }
                 try:
                     boolvalue = [str_to_bool[vpart] for vpart in
                                  re.findall(r'[^\s,]+', value)]
+
                     if len(boolvalue) == 1:
                         value = boolvalue[0]
                     else:
                         value = boolvalue
                 except KeyError:
-                    # parse JSON
+                    # Try to parse JSON
                     if value.startswith("_JSON "):
                         d = json.loads(value.replace("_JSON ", "", 1))
                         value = np.array(d)
@@ -226,7 +231,7 @@ def key_val_str_to_dict_regex(s):
                 str_to_bool = {'T': True, 'F': False}
 
                 if len(value.split()) > 1:
-                    if all([x in str_to_bool.keys() for x in value.split()]):
+                    if all(x in str_to_bool for x in value.split()):
                         value = [str_to_bool[x] for x in value.split()]
                 elif value in str_to_bool:
                     value = str_to_bool[value]
@@ -242,7 +247,7 @@ def escape(string):
             '{' in string or '}' in string or
             '[' in string or ']' in string):
         string = string.replace('"', '\\"')
-        string = '"%s"' % string
+        string = f'"{string}"'
     return string
 
 
@@ -269,10 +274,10 @@ def key_val_dict_to_str(dct, sep=' '):
         return val
 
     def known_types_to_str(val):
-        if isinstance(val, bool) or isinstance(val, np.bool_):
+        if isinstance(val, (bool, np.bool_)):
             return 'T' if val else 'F'
         elif isinstance(val, numbers.Real):
-            return '{}'.format(val)
+            return f'{val}'
         elif isinstance(val, Spacegroup):
             return val.symbol
         else:
@@ -300,7 +305,7 @@ def key_val_dict_to_str(dct, sep=' '):
                 # if this fails, let give up
             except TypeError:
                 warnings.warn('Skipping unhashable information '
-                              '{0}'.format(key))
+                              '{}'.format(key))
                 continue
 
         key = escape(key)  # escape and quote key
@@ -312,7 +317,7 @@ def key_val_dict_to_str(dct, sep=' '):
             eq = ""
         val = escape(val)  # escape and quote val
 
-        string += '%s%s%s%s' % (key, eq, val, sep)
+        string += f'{key}{eq}{val}{sep}'
 
     return string.strip()
 
@@ -380,8 +385,7 @@ def _read_xyz_frame(lines, natoms, properties_parser=key_val_str_to_dict,
 
     pbc = None
     if 'pbc' in info:
-        pbc = info['pbc']
-        del info['pbc']
+        pbc = info.pop('pbc')
     elif 'Lattice' in info:
         # default pbc for extxyz file containing Lattice
         # is True in all directions
@@ -433,7 +437,7 @@ def _read_xyz_frame(lines, natoms, properties_parser=key_val_str_to_dict,
             entry = line.split()
 
             if not entry[0].startswith('VEC'):
-                raise XYZError('Expected cell vector, got {}'.format(entry[0]))
+                raise XYZError(f'Expected cell vector, got {entry[0]}')
 
             try:
                 n = int(entry[0][3:])
@@ -558,45 +562,12 @@ def ixyzchunks(fd):
         try:
             natoms = int(line)
         except ValueError:
-            raise XYZError('Expected integer, found "{0}"'.format(line))
+            raise XYZError(f'Expected integer, found "{line}"')
         try:
             lines = [next(fd) for _ in range(1 + natoms)]
         except StopIteration:
             raise XYZError('Incomplete XYZ chunk')
         yield XYZChunk(lines, natoms)
-
-
-class ImageIterator:
-    """"""
-
-    def __init__(self, ichunks):
-        self.ichunks = ichunks
-
-    def __call__(self, fd, indices=-1):
-        if not hasattr(indices, 'start'):
-            if indices < 0:
-                indices = slice(indices - 1, indices)
-            else:
-                indices = slice(indices, indices + 1)
-
-        for chunk in self._getslice(fd, indices):
-            yield chunk.build()
-
-    def _getslice(self, fd, indices):
-        try:
-            iterator = islice(self.ichunks(fd), indices.start, indices.stop,
-                              indices.step)
-        except ValueError:
-            # Negative indices.  Go through the whole thing to get the length,
-            # which allows us to evaluate the slice, and then read it again
-            startpos = fd.tell()
-            nchunks = 0
-            for chunk in self.ichunks(fd):
-                nchunks += 1
-            fd.seek(startpos)
-            indices_tuple = indices.indices(nchunks)
-            iterator = islice(self.ichunks(fd), *indices_tuple)
-        return iterator
 
 
 iread_xyz = ImageIterator(ixyzchunks)
@@ -829,7 +800,7 @@ def output_column_format(atoms, columns, arrays,
     comment_str = ''
     if atoms.cell.any():
         comment_str += lattice_str + ' '
-    comment_str += 'Properties={}'.format(props_str)
+    comment_str += f'Properties={props_str}'
 
     info = {}
     if write_info:
@@ -900,7 +871,7 @@ def write_xyz(fileobj, images, comment='', columns=None,
         if write_results:
             calculator = atoms.calc
             if (calculator is not None
-                    and isinstance(calculator, Calculator)):
+                    and isinstance(calculator, BaseCalculator)):
                 for key in all_properties:
                     value = calculator.results.get(key, None)
                     if value is None:
@@ -991,14 +962,14 @@ def write_xyz(fileobj, images, comment='', columns=None,
             elif column == 'move_mask':
                 arrays[column] = cnstr
             else:
-                raise ValueError('Missing array "%s"' % column)
+                raise ValueError(f'Missing array "{column}"')
 
         if write_results:
             for key in per_atom_results:
                 if key not in fr_cols:
                     fr_cols += [key]
                 else:
-                    warnings.warn('write_xyz() overwriting array "{0}" present '
+                    warnings.warn('write_xyz() overwriting array "{}" present '
                                   'in atoms.arrays with stored results '
                                   'from calculator'.format(key))
             arrays.update(per_atom_results)
@@ -1030,7 +1001,7 @@ def write_xyz(fileobj, images, comment='', columns=None,
             nat -= nPBC
         # Write the output
         fileobj.write('%d\n' % nat)
-        fileobj.write('%s\n' % comm)
+        fileobj.write(f'{comm}\n')
         for i in range(natoms):
             fileobj.write(fmt % tuple(data[i]))
 

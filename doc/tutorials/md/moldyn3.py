@@ -1,10 +1,11 @@
 """Demonstrates molecular dynamics with constant temperature."""
+from asap3 import EMT  # Way too slow with ase.EMT !
+
+from ase import units
+from ase.io.trajectory import Trajectory
 from ase.lattice.cubic import FaceCenteredCubic
 from ase.md.langevin import Langevin
-from ase.io.trajectory import Trajectory
-from ase import units
 
-from asap3 import EMT  # Way too slow with ase.EMT !
 size = 10
 
 T = 1500  # Kelvin

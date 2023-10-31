@@ -14,14 +14,15 @@ Some parts are adapted from the extxyz reader.
 Contributed by Patrick Melix <chemistry@melix.me>
 """
 
-import numpy as np
-from itertools import islice
 import os
+from itertools import islice
 
-from ase.atoms import Atoms, Atom
+import numpy as np
+
+from ase.atoms import Atom, Atoms
 from ase.cell import Cell
-from ase.io.formats import index2range
 from ase.data import atomic_numbers
+from ase.io.formats import index2range
 
 __all__ = ['read_cp2k_dcd', 'iread_cp2k_dcd', 'read_cp2k_restart']
 
@@ -254,7 +255,7 @@ def read_cp2k_restart(fileobj):
                 found = True
                 break
         if not found:
-            raise RuntimeError("No {:} section found!".format(section_header))
+            raise RuntimeError(f"No {section_header} section found!")
 
     def _read_cell(data):
         """Helper to read cell data, returns cell and pbc"""
@@ -270,7 +271,7 @@ def read_cp2k_restart(fileobj):
                     idx = char2idx[line[:2]]
                     cell[idx] = [float(x) for x in line.split()[1:]]
                     pbc[idx] = True
-            if not set([len(v) for v in cell]) == {3}:
+            if not {len(v) for v in cell} == {3}:
                 raise RuntimeError("Bad Cell Definition found.")
         return cell, pbc
 

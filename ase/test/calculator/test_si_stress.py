@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
-from ase.build import bulk
-import ase.units as u
 
+import ase.units as u
+from ase.build import bulk
 
 # For symmetry reasons, stress[1] and [2] should be equal as well as
 # stress[4] and [5].

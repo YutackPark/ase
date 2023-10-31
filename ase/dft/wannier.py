@@ -3,19 +3,19 @@
     Find the set of partly occupied Wannier functions using the method from
     Thygesen, Hansen and Jacobsen PRB v72 i12 p125119 2005.
 """
-import warnings
 import functools
+import warnings
+from math import pi, sqrt
 from time import time
-from math import sqrt, pi
-from scipy.linalg import qr
 
 import numpy as np
+from scipy.linalg import qr
 
-from ase.parallel import paropen
 from ase.dft.bandgap import bandgap
 from ase.dft.kpoints import get_monkhorst_pack_size_and_offset
-from ase.transport.tools import dagger, normalize
 from ase.io.jsonio import read_json, write_json
+from ase.parallel import paropen
+from ase.transport.tools import dagger, normalize
 
 dag = dagger
 
@@ -93,7 +93,7 @@ def steepest_descent(func, step=.005, tolerance=1e-6, log=silent, **kwargs):
         func.step(dF * step, **kwargs)
         fvalue = func.get_functional_value()
         count += 1
-        log('SteepestDescent: iter=%s, value=%s' % (count, fvalue))
+        log(f'SteepestDescent: iter={count}, value={fvalue}')
 
 
 def md_min(func, step=.25, tolerance=1e-6, max_iter=10000,
@@ -561,8 +561,8 @@ class Wannier:
         # Compute the number of extra degrees of freedom (EDF)
         self.edf_k = self.nwannier - self.fixedstates_k
 
-        self.log('Wannier: Fixed states            : %s' % self.fixedstates_k)
-        self.log('Wannier: Extra degrees of freedom: %s' % self.edf_k)
+        self.log(f'Wannier: Fixed states            : {self.fixedstates_k}')
+        self.log(f'Wannier: Extra degrees of freedom: {self.edf_k}')
 
         self.kklst_dk, k0_dkc = get_kklst(self.kpt_kc, self.Gdir_dc)
 
@@ -623,7 +623,7 @@ class Wannier:
 
         Keywords are identical to those of the constructor.
         """
-        from ase.dft.wannierstate import WannierState, WannierSpec
+        from ase.dft.wannierstate import WannierSpec, WannierState
 
         spec = WannierSpec(self.Nk, self.nwannier, self.nbands,
                            self.fixedstates_k)

@@ -1,9 +1,9 @@
 import numpy as np
+
 import ase.build
 from ase import Atoms
-from ase.visualize import view
 from ase.geometry.dimensionality import isolate_components
-
+from ase.visualize import view
 
 # build two slabs of different types of MoS2
 rep = [4, 4, 1]

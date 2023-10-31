@@ -1,6 +1,5 @@
 import numpy as np
 
-
 # The indices of the full stiffness matrix of (orthorhombic) interest
 voigt_notation = [(0, 0), (1, 1), (2, 2), (1, 2), (0, 2), (0, 1)]
 

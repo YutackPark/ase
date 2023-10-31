@@ -1,14 +1,16 @@
 """Tools for locally structure optimization."""
 import os
 from time import time
+
 import numpy as np
-from ase.units import kB
+
 from ase.build import niggli_reduce
 from ase.calculators.calculator import all_changes
-from ase.calculators.singlepoint import SinglePointCalculator
 from ase.calculators.lj import LennardJones
-from ase.optimize.precon import PreconLBFGS
+from ase.calculators.singlepoint import SinglePointCalculator
 from ase.ga import set_raw_score
+from ase.optimize.precon import PreconLBFGS
+from ase.units import kB
 
 
 def relax(atoms):

@@ -1,6 +1,7 @@
 import re
-import numpy as np
 from xml.dom import minidom
+
+import numpy as np
 
 
 def get_ion(fname):

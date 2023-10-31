@@ -1,9 +1,9 @@
 from ase.build import bulk
 from ase.calculators.emt import EMT
-from ase.utils.forcecurve import force_curve
+from ase.io import read
 from ase.md import VelocityVerlet
 from ase.units import fs
-from ase.io import read
+from ase.utils.forcecurve import force_curve
 
 
 def test_forcecurve(testdir, plt):

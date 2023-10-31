@@ -1,17 +1,16 @@
-from random import random
-from ase.io import write
 import time
+from random import random
+
+from ase.ga.cutandsplicepairing import CutAndSplicePairing
 from ase.ga.data import DataConnection
+from ase.ga.offspring_creator import OperationSelector
+from ase.ga.parallellocalrun import ParallelLocalRun
 from ase.ga.population import Population
 from ase.ga.standard_comparators import InteratomicDistanceComparator
-from ase.ga.cutandsplicepairing import CutAndSplicePairing
-from ase.ga.offspring_creator import OperationSelector
-from ase.ga.standardmutations import MirrorMutation
-from ase.ga.standardmutations import RattleMutation
-from ase.ga.standardmutations import PermutationMutation
-from ase.ga.utilities import closest_distances_generator
-from ase.ga.utilities import get_all_atom_types
-from ase.ga.parallellocalrun import ParallelLocalRun
+from ase.ga.standardmutations import (MirrorMutation, PermutationMutation,
+                                      RattleMutation)
+from ase.ga.utilities import closest_distances_generator, get_all_atom_types
+from ase.io import write
 
 population_size = 20
 mutation_probability = 0.3
@@ -62,7 +61,7 @@ population = Population(data_connection=da,
 
 # test n_to_test new candidates
 for i in range(n_to_test):
-    print('Now starting configuration number {0}'.format(i))
+    print(f'Now starting configuration number {i}')
     a1, a2 = population.get_two_candidates()
     a3, desc = pairing.get_new_individual([a1, a2])
     if a3 is None:

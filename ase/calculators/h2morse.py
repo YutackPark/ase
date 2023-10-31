@@ -1,12 +1,13 @@
 from itertools import count
+
 import numpy as np
 
 from ase import Atoms
-from ase.units import invcm, Ha
-from ase.data import atomic_masses
 from ase.calculators.calculator import all_changes
-from ase.calculators.morse import MorsePotential
 from ase.calculators.excitation_list import Excitation, ExcitationList
+from ase.calculators.morse import MorsePotential
+from ase.data import atomic_masses
+from ase.units import Ha, invcm
 
 """The H2 molecule represented by Morse-Potentials for
 gound and first 3 excited singlet states B + C(doubly degenerate)"""
@@ -93,9 +94,9 @@ class H2MorseCalculator(MorsePotential):
     def write(self, filename, option=None):
         """write calculated state to a file"""
         with open(filename, 'w') as fd:
-            fd.write('{}\n'.format(self.wfs[0]))
+            fd.write(f'{self.wfs[0]}\n')
             for wf in self.wfs[1:]:
-                fd.write('{0:g} {1:g} {2:g}\n'.format(*wf))
+                fd.write('{:g} {:g} {:g}\n'.format(*wf))
 
     def overlap(self, other):
         ov = np.zeros((4, 4))
@@ -171,7 +172,7 @@ class H2MorseExcitedStates(ExcitationList):
     def read(cls, filename, nstates=3):
         """Read myself from a file"""
         exl = cls(nstates)
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             exl.filename = filename
             n = int(fd.readline().split()[0])
             for i in range(min(n, exl.nstates)):
@@ -180,7 +181,7 @@ class H2MorseExcitedStates(ExcitationList):
 
     def write(self, fname):
         with open(fname, 'w') as fd:
-            fd.write('{0}\n'.format(len(self)))
+            fd.write(f'{len(self)}\n')
             for ex in self:
                 fd.write(ex.outstring())
 

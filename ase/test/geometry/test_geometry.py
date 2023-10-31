@@ -3,7 +3,7 @@ def test_geometry():
 
     import numpy as np
 
-    from ase.build import cut, bulk, fcc111
+    from ase.build import bulk, cut, fcc111
     from ase.cell import Cell
     from ase.geometry import get_layers, wrap_positions
     from ase.spacegroup import crystal, get_spacegroup

@@ -4,7 +4,6 @@ import ase
 from ase.data import chemical_symbols
 from ase.utils import reader, writer
 
-
 cfg_default_fields = np.array(['positions', 'momenta', 'numbers', 'magmoms'])
 
 
@@ -62,14 +61,14 @@ def write_cfg(fd, atoms):
         el = i.symbol
 
         fd.write('%f\n' % ase.data.atomic_masses[chemical_symbols.index(el)])
-        fd.write('%s\n' % el)
+        fd.write(f'{el}\n')
 
         x, y, z = spos[i.index, :]
-        s = '%e %e %e ' % (x, y, z)
+        s = f'{x:e} {y:e} {z:e} '
 
         if isinstance(vels, np.ndarray):
             vx, vy, vz = vels[i.index, :]
-            s = s + ' %e %e %e ' % (vx, vy, vz)
+            s = s + f' {vx:e} {vy:e} {vz:e} '
 
         for name, aux in atoms.arrays.items():
             if name not in cfg_default_fields:
@@ -78,7 +77,7 @@ def write_cfg(fd, atoms):
                 else:
                     s += (aux.shape[1] * ' %e') % tuple(aux[i.index].tolist())
 
-        fd.write('%s\n' % s)
+        fd.write(f'{s}\n')
 
 
 default_color = {
@@ -114,7 +113,7 @@ def write_clr(fd, atoms):
     radius.shape = (-1, 1)
 
     for c1, c2, c3, r in np.append(color, radius, axis=1):
-        fd.write('%f %f %f %f\n' % (c1, c2, c3, r))
+        fd.write(f'{c1:f} {c2:f} {c3:f} {r:f}\n')
 
 
 @reader
@@ -164,13 +163,13 @@ def read_cfg(fd):
                         if nat is not None:
                             aux = np.zeros([nat, naux])
                     elif key.startswith('H0('):
-                        i, j = [int(x) for x in key[3:-1].split(',')]
+                        i, j = (int(x) for x in key[3:-1].split(','))
                         cell[i - 1, j - 1] = float(value[0])
                     elif key.startswith('Transform('):
-                        i, j = [int(x) for x in key[10:-1].split(',')]
+                        i, j = (int(x) for x in key[10:-1].split(','))
                         transform[i - 1, j - 1] = float(value[0])
                     elif key.startswith('eta('):
-                        i, j = [int(x) for x in key[4:-1].split(',')]
+                        i, j = (int(x) for x in key[4:-1].split(','))
                         eta[i - 1, j - 1] = float(value[0])
                     elif key.startswith('auxiliary['):
                         i = int(key[10:-1])
@@ -209,8 +208,8 @@ def read_cfg(fd):
 
     # Sanity check
     if current_atom != nat:
-        raise RuntimeError('Number of atoms reported for CFG file (={0}) and '
-                           'number of atoms actually read (={1}) differ.'
+        raise RuntimeError('Number of atoms reported for CFG file (={}) and '
+                           'number of atoms actually read (={}) differ.'
                            .format(nat, current_atom))
 
     if np.any(eta != 0):

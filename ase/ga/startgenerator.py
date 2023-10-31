@@ -1,10 +1,11 @@
 """Tools for generating new random starting candidates."""
 import numpy as np
+
 from ase import Atoms
-from ase.data import atomic_numbers
 from ase.build import molecule
-from ase.ga.utilities import (closest_distances_generator, atoms_too_close,
-                              atoms_too_close_two_sets)
+from ase.data import atomic_numbers
+from ase.ga.utilities import (atoms_too_close, atoms_too_close_two_sets,
+                              closest_distances_generator)
 
 
 class StartGenerator:
@@ -146,7 +147,7 @@ class StartGenerator:
 
         self.blocks = []
         for item in blocks:
-            if isinstance(item, tuple) or isinstance(item, list):
+            if isinstance(item, (tuple, list)):
                 assert len(item) == 2, 'Item length %d != 2' % len(item)
                 block, count = item
             else:
@@ -189,7 +190,7 @@ class StartGenerator:
             msg += ' if there are no variable unit cell vectors'
             assert self.number_of_variable_cell_vectors == 0, msg
         for i in range(self.number_of_variable_cell_vectors):
-            msg = 'Unit cell %s-vector is marked as variable ' % ('abc'[i])
+            msg = f'Unit cell {("abc"[i])}-vector is marked as variable '
             msg += 'and slab must then also be periodic in this direction'
             assert self.slab.pbc[i], msg
 

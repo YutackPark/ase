@@ -1,4 +1,5 @@
 import numpy as np
+
 from ase.io.jsonio import read_json, write_json
 
 
@@ -24,7 +25,7 @@ class STM:
         self.use_density = use_density
 
         if isinstance(atoms, str):
-            with open(atoms, 'r') as fd:
+            with open(atoms) as fd:
                 self.ldos, self.bias, self.cell = read_json(fd,
                                                             always_array=False)
             self.atoms = None

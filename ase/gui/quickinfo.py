@@ -1,10 +1,11 @@
 "Module for displaying information about the system."
 
 
-import numpy as np
-from ase.gui.i18n import _
 import warnings
 
+import numpy as np
+
+from ase.gui.i18n import _
 
 ucellformat = """\
   {:8.3f}  {:8.3f}  {:8.3f}

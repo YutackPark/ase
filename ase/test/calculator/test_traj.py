@@ -1,7 +1,7 @@
 import pytest
 
-from ase.io import read, write
 from ase.build import molecule
+from ase.io import read, write
 from ase.test.factories import ObsoleteFactoryWrapper
 
 parameters = {

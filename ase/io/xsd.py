@@ -1,6 +1,7 @@
-import numpy as np
 import xml.etree.ElementTree as ET
 from xml.dom import minidom
+
+import numpy as np
 
 from ase import Atoms
 from ase.utils import writer
@@ -18,9 +19,9 @@ def read_xsd(fd):
         mappingfamily = mappingset.find('MappingFamily')
         system = mappingfamily.find('IdentityMapping')
 
-        coords = list()
-        cell = list()
-        formula = str()
+        coords = []
+        cell = []
+        formula = ''
 
         for atom in system:
             if atom.tag == 'Atom3d':
@@ -49,8 +50,8 @@ def read_xsd(fd):
     elif atomtreeroot.find('Molecule') is not None:
         system = atomtreeroot.find('Molecule')
 
-        coords = list()
-        formula = str()
+        coords = []
+        formula = ''
 
         for atom in system:
             if atom.tag == 'Atom3d':
@@ -304,7 +305,7 @@ def _write_xsd_html(images, connectivity=None):
     atom_cell = images[0].get_cell()
     atom_positions = images[0].get_positions()
     # Set up bonds
-    bonds = list()
+    bonds = []
     if connectivity is not None:
         for i in range(connectivity.shape[0]):
             for j in range(i + 1, connectivity.shape[0]):

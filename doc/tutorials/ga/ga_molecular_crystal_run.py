@@ -1,18 +1,17 @@
 import numpy as np
-from ase.io import write
-from ase.ga import get_raw_score
-from ase.ga.data import DataConnection
-from ase.ga.population import Population
-from ase.ga.utilities import closest_distances_generator, CellBounds
-from ase.ga.ofp_comparator import OFPComparator
-from ase.ga.offspring_creator import OperationSelector
-from ase.ga.cutandsplicepairing import CutAndSplicePairing
-from ase.ga.standardmutations import (RattleMutation, StrainMutation,
-                                      RotationalMutation,
-                                      RattleRotationalMutation)
-from ase.ga.soft_mutation import SoftMutation
 from ga_molecular_crystal_relax import relax
 
+from ase.ga import get_raw_score
+from ase.ga.cutandsplicepairing import CutAndSplicePairing
+from ase.ga.data import DataConnection
+from ase.ga.offspring_creator import OperationSelector
+from ase.ga.ofp_comparator import OFPComparator
+from ase.ga.population import Population
+from ase.ga.soft_mutation import SoftMutation
+from ase.ga.standardmutations import (RattleMutation, RattleRotationalMutation,
+                                      RotationalMutation, StrainMutation)
+from ase.ga.utilities import CellBounds, closest_distances_generator
+from ase.io import write
 
 da = DataConnection('gadb.db')
 
@@ -73,7 +72,7 @@ pairing.update_scaling_volume(current_pop, w_adapt=0.5, n_adapt=4)
 n_to_test = 10
 
 for step in range(n_to_test):
-    print('Now starting configuration number {0}'.format(step), flush=True)
+    print(f'Now starting configuration number {step}', flush=True)
 
     # Generate a new candidate
     a3 = None

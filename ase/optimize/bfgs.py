@@ -1,8 +1,10 @@
 import warnings
+from typing import IO, Optional, Union
 
 import numpy as np
 from numpy.linalg import eigh
 
+from ase import Atoms
 from ase.optimize.optimize import Optimizer
 
 
@@ -10,8 +12,16 @@ class BFGS(Optimizer):
     # default parameters
     defaults = {**Optimizer.defaults, 'alpha': 70.0}
 
-    def __init__(self, atoms, restart=None, logfile='-', trajectory=None,
-                 maxstep=None, master=None, alpha=None):
+    def __init__(
+        self,
+        atoms: Atoms,
+        restart: Optional[str] = None,
+        logfile: Union[IO, str] = '-',
+        trajectory: Optional[str] = None,
+        maxstep: Optional[float] = None,
+        master: Optional[bool] = None,
+        alpha: Optional[float] = None,
+    ):
         """BFGS optimizer.
 
         Parameters:
@@ -45,13 +55,14 @@ class BFGS(Optimizer):
             steps to converge might be less if a lower value is used. However,
             a lower value also means risk of instability.
         """
-        self.maxstep = maxstep
-        if self.maxstep is None:
+        if maxstep is None:
             self.maxstep = self.defaults['maxstep']
+        else:
+            self.maxstep = maxstep
 
         if self.maxstep > 1.0:
             warnings.warn('You are using a *very* large value for '
-                          'the maximum step size: %.1f Å' % maxstep)
+                          'the maximum step size: %.1f Å' % self.maxstep)
 
         self.alpha = alpha
         if self.alpha is None:
@@ -61,7 +72,7 @@ class BFGS(Optimizer):
 
     def initialize(self):
         # initial hessian
-        self.H0 = np.eye(3 * len(self.atoms)) * self.alpha
+        self.H0 = np.eye(3 * len(self.optimizable)) * self.alpha
 
         self.H = None
         self.pos0 = None
@@ -71,15 +82,15 @@ class BFGS(Optimizer):
         self.H, self.pos0, self.forces0, self.maxstep = self.load()
 
     def step(self, forces=None):
-        atoms = self.atoms
+        optimizable = self.optimizable
 
         if forces is None:
-            forces = atoms.get_forces()
+            forces = optimizable.get_forces()
 
-        pos = atoms.get_positions()
+        pos = optimizable.get_positions()
         dpos, steplengths = self.prepare_step(pos, forces)
         dpos = self.determine_step(dpos, steplengths)
-        atoms.set_positions(pos + dpos)
+        optimizable.set_positions(pos + dpos)
         self.dump((self.H, self.pos0, self.forces0, self.maxstep))
 
     def prepare_step(self, pos, forces):

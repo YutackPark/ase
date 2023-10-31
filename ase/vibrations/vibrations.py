@@ -1,19 +1,18 @@
 """A class for computing vibrational modes"""
 
-from math import pi, sqrt, log
 import sys
-
-import numpy as np
+from collections import namedtuple
+from math import log, pi, sqrt
 from pathlib import Path
 
-import ase.units as units
+import numpy as np
+
 import ase.io
-from ase.parallel import world, paropen
-
+import ase.units as units
+from ase.parallel import paropen, world
 from ase.utils.filecache import get_json_cache
-from .data import VibrationsData
 
-from collections import namedtuple
+from .data import VibrationsData
 
 
 class AtomicDisplacements:
@@ -363,7 +362,9 @@ Please remove them and recalculate or run \
                                ' to set all masses to non-zero values.')
 
         self.im = np.repeat(masses[self.indices]**-0.5, 3)
-        self._vibrations = self.get_vibrations(read_cache=False)
+        self._vibrations = self.get_vibrations(read_cache=False,
+                                               method=self.method,
+                                               direction=self.direction)
 
         omega2, modes = np.linalg.eigh(self.im[:, None] * H * self.im)
         self.modes = modes.T.copy()
@@ -552,7 +553,7 @@ Please remove them and recalculate or run \
         outdata.T[1] = spectrum
 
         with open(out, 'w') as fd:
-            fd.write('# %s folded, width=%g cm^-1\n' % (type.title(), width))
+            fd.write(f'# {type.title()} folded, width={width:g} cm^-1\n')
             fd.write('# [cm^-1] arbitrary\n')
             for row in outdata:
                 fd.write('%.3f  %15.5e\n' %

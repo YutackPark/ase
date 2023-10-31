@@ -33,11 +33,13 @@ The keywords are given, for instance, as follows:
 
 """
 
-from ase.units import Hartree, Bohr
-from ase.io import write
-import numpy as np
 import os
+
+import numpy as np
+
 from ase.calculators.calculator import FileIOCalculator
+from ase.io import write
+from ase.units import Bohr, Hartree
 
 
 class CRYSTAL(FileIOCalculator):
@@ -84,7 +86,7 @@ class CRYSTAL(FileIOCalculator):
         """
 
         # write BLOCK 1 (only SP with gradients)
-        with open(filename, 'wt', encoding='latin-1') as outfile:
+        with open(filename, 'w', encoding='latin-1') as outfile:
             self._write_crystal_in(outfile)
 
     def _write_crystal_in(self, outfile):
@@ -237,7 +239,6 @@ class CRYSTAL(FileIOCalculator):
             reading it once again after some runtime error """
 
         with open(os.path.join(self.directory, 'OUTPUT'),
-                  'rt',
                   encoding='latin-1') as myfile:
             self.lines = myfile.readlines()
 
@@ -399,7 +400,7 @@ class PointChargePotential:
 
     def read_forces_on_pointcharges(self):
         """Read Forces from CRYSTAL output file (OUTPUT)."""
-        with open(os.path.join(self.directory, 'OUTPUT'), 'r') as infile:
+        with open(os.path.join(self.directory, 'OUTPUT')) as infile:
             lines = infile.readlines()
 
         print('PCPOT crys_pcc: ' + str(self.crys_pcc))
@@ -435,7 +436,7 @@ class PointChargePotential:
             This will be standard in future CRYSTAL versions .'''
 
         with open(os.path.join(self.directory,
-                               'FORCES_CHG.DAT'), 'r') as infile:
+                               'FORCES_CHG.DAT')) as infile:
             lines = infile.readlines()
 
         e = [float(x.split()[-1])

@@ -4,11 +4,13 @@ try:
     from StringIO import StringIO
 except ImportError:
     from io import StringIO
+
 from IPython.display import HTML
+
 from ase.io.x3d import write_x3d
 
 
-def view_x3d(atoms):
+def view_x3d(atoms, *args, **kwargs):
     """View atoms inline in a jupyter notbook. This command
     should only be used within a jupyter/ipython notebook.
 

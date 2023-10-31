@@ -1,12 +1,12 @@
 import numpy as np
 import pytest
-from ase.build import bulk
 
+from ase.build import bulk
 from ase.calculators.qmmm import ForceQMMM, RescaledCalculator
 from ase.eos import EquationOfState
-from ase.optimize import FIRE
-from ase.neighborlist import neighbor_list
 from ase.geometry import get_distances
+from ase.neighborlist import neighbor_list
+from ase.optimize import FIRE
 
 
 @pytest.fixture
@@ -165,7 +165,7 @@ def compare_qm_cell_and_pbc(qm_calc, mm_calc, bulk_at,
                              "buffer_width": 3.61},
                             {"test_size": [1, 4, 4],
                              "expected_pbc": np.array([True, False, False]),
-                             "buffer_width":3.61},
+                             "buffer_width": 3.61},
                              # testing scenario periodic in one direction
                              # and non periodic in the other two
                              # relevant for surfaces.
@@ -195,6 +195,7 @@ def test_rescaled_calculator():
 
     from ase.calculators.eam import EAM
     from ase.units import GPa
+
     # A simple empirical N-body potential for
     # transition metals by M. W. Finnis & J.E. Sinclair
     # https://www.tandfonline.com/doi/abs/10.1080/01418618408244210

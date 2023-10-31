@@ -1,23 +1,22 @@
-
 # additional tests of the extended XYZ file I/O
 # (which is also included in oi.py test case)
 # maintained by James Kermode <james.kermode@gmail.com>
 
 from pathlib import Path
+
 import numpy as np
 import pytest
 
 import ase.io
-from ase.calculators.singlepoint import SinglePointCalculator
-from ase.io import extxyz
 from ase.atoms import Atoms
-from ase.build import bulk
-from ase.io.extxyz import escape
+from ase.build import bulk, molecule
 from ase.calculators.calculator import compare_atoms
 from ase.calculators.emt import EMT
+from ase.calculators.singlepoint import SinglePointCalculator
 from ase.constraints import FixAtoms, FixCartesian
+from ase.io import extxyz
+from ase.io.extxyz import escape
 from ase.stress import full_3x3_to_voigt_6_stress
-from ase.build import molecule
 
 # array data of shape (N, 1) squeezed down to shape (N, ) -- bug fixed
 # in commit r4541
@@ -194,7 +193,7 @@ def test_complex_key_val():
     expected_dict = {
         'str': 'astring',
         'quot': "quoted value",
-        'quote_special': u"a_to_Z_$%%^&*",
+        'quote_special': "a_to_Z_$%%^&*",
         'escaped_quote': 'esc"aped',
         'true_value': True,
         'false_value': False,
@@ -245,7 +244,7 @@ def test_complex_key_val():
     # Round trip through a file with complex line.
     # Create file with the complex line and re-read it afterwards.
     with open('complex.xyz', 'w', encoding='utf-8') as f_out:
-        f_out.write('1\n{}\nH 1.0 1.0 1.0'.format(complex_xyz_string))
+        f_out.write(f'1\n{complex_xyz_string}\nH 1.0 1.0 1.0')
     complex_atoms = ase.io.read('complex.xyz')
 
     # test all keys end up in info, as expected
@@ -318,7 +317,7 @@ def test_json_scalars():
     a.info['val_2'] = 42.0  # was np.float but that's the same.  Can remove
     a.info['val_3'] = np.int64(42)
     a.write('tmp.xyz')
-    with open('tmp.xyz', 'r') as fd:
+    with open('tmp.xyz') as fd:
         comment_line = fd.readlines()[1]
     assert ("val_1=42.0" in comment_line
             and "val_2=42.0" in comment_line
@@ -392,3 +391,24 @@ def test_write_read_charges(at, tmpdir, enable_initial_charges, enable_charges):
         assert np.allclose(r.get_initial_charges(), initial_charges)
     if enable_charges:
         assert np.allclose(r.get_charges(), charges)
+
+
+@pytest.mark.parametrize("pbc,atoms_pbc", (
+    ("True True True", [True, True, True]),
+    ("True True False", [True, True, False]),
+    ("False false T", [False, False, True]),
+    ("True true T", [True, True, True]),
+    ("True false T", [True, False, True]),
+    ("F F F", [False, False, False]),
+    ("T T F", [True, True, False]),
+    ("True", [True, True, True]),
+    ("False", [False, False, False]),
+))
+def test_pbc_property(pbc, atoms_pbc):
+    """Test various specifications of the ``pbc`` property."""
+    Path('pbc-test.xyz').write_text(f"""2
+Lattice="3.608 0.0 0.0 -1.804 3.125 0.0 0.0 0.0 21.3114930844" pbc="{pbc}"
+As           1.8043384632       1.0417352974      11.3518747709
+As          -0.0000000002       2.0834705948       9.9596183135""")
+    atoms = ase.io.read('pbc-test.xyz')
+    assert (atoms.pbc == atoms_pbc).all()

@@ -1,9 +1,8 @@
 import warnings
 
-from ase.units import kJ
-
 import numpy as np
 
+from ase.units import kJ
 
 eos_names = ['sj', 'taylor', 'murnaghan', 'birch', 'birchmurnaghan',
              'pouriertarantola', 'vinet', 'antonschmidt', 'p3']
@@ -52,7 +51,7 @@ def birchmurnaghan(V, E0, B0, BP, V0):
 
 
 def check_birchmurnaghan():
-    from sympy import symbols, Rational, diff, simplify
+    from sympy import Rational, diff, simplify, symbols
     v, b, bp, v0 = symbols('v b bp v0')
     x = (v0 / v)**Rational(2, 3)
     e = 9 * b * v0 * (x - 1)**2 * (6 + bp * (x - 1) - 4 * x) / 16
@@ -335,18 +334,18 @@ def plot(eos_string, e0, v0, B, x, y, v, e, ax=None):
             mfc='C0')  # By default blue marker
 
     try:
-        ax.set_xlabel(u'volume [Å$^3$]')
-        ax.set_ylabel(u'energy [eV]')
-        ax.set_title(u'%s: E: %.3f eV, V: %.3f Å$^3$, B: %.3f GPa' %
+        ax.set_xlabel('volume [Å$^3$]')
+        ax.set_ylabel('energy [eV]')
+        ax.set_title('%s: E: %.3f eV, V: %.3f Å$^3$, B: %.3f GPa' %
                      (eos_string, e0, v0,
                       B / kJ * 1.e24))
 
     except ImportError:  # XXX what would cause this error?  LaTeX?
         import warnings
         warnings.warn('Could not use LaTeX formatting')
-        ax.set_xlabel(u'volume [L(length)^3]')
-        ax.set_ylabel(u'energy [E(energy)]')
-        ax.set_title(u'%s: E: %.3f E, V: %.3f L^3, B: %.3e E/L^3' %
+        ax.set_xlabel('volume [L(length)^3]')
+        ax.set_ylabel('energy [E(energy)]')
+        ax.set_title('%s: E: %.3f E, V: %.3f L^3, B: %.3e E/L^3' %
                      (eos_string, e0, v0, B))
 
     return ax
@@ -368,6 +367,8 @@ def calculate_eos(atoms, npoints=5, eps=0.04, trajectory=None, callback=None):
 
     >>> from ase.build import bulk
     >>> from ase.calculators.emt import EMT
+    >>> from ase.eos import calculate_eos
+
     >>> a = bulk('Cu', 'fcc', a=3.6)
     >>> a.calc = EMT()
     >>> eos = calculate_eos(a, trajectory='Cu.traj')

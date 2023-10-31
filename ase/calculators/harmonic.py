@@ -3,8 +3,9 @@ from numpy.linalg import eigh, norm, pinv
 from scipy.linalg import lstsq  # performs better than numpy.linalg.lstsq
 
 from ase import units
-from ase.calculators.calculator import Calculator, BaseCalculator, all_changes
-from ase.calculators.calculator import CalculatorSetupError, CalculationFailed
+from ase.calculators.calculator import (BaseCalculator, CalculationFailed,
+                                        Calculator, CalculatorSetupError,
+                                        all_changes)
 
 
 class HarmonicCalculator(BaseCalculator):
@@ -166,7 +167,7 @@ class HarmonicForceField:
     @staticmethod
     def check_input(coord_functions, variable_orientation, cartesian):
         if None in coord_functions:
-            if not all([func is None for func in coord_functions]):
+            if not all(func is None for func in coord_functions):
                 msg = ('A user-defined coordinate system requires both '
                        '`get_q_from_x` and `get_jacobian`.')
                 raise CalculatorSetupError(msg)

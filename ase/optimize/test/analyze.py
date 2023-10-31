@@ -1,4 +1,5 @@
 from collections import defaultdict
+
 from numpy import inf
 
 import ase.db
@@ -37,7 +38,7 @@ def analyze(filename, tag='results'):
         print('optimizer,' + ','.join(formulas), file=fd)
         for o, d in D:
             print('{:18},{}'
-                  .format(o, ','.join('{:3}'.format(x[0])
+                  .format(o, ','.join(f'{x[0]:3}'
                                       if x[0] < 100 else '   '
                                       for x in d)),
                   file=fd)
@@ -49,7 +50,7 @@ def analyze(filename, tag='results'):
         print('optimizer,' + ','.join(formulas), file=fd)
         for o, d in D:
             print('{:18},{}'
-                  .format(o, ','.join('{:8.1f}'.format(x[1])
+                  .format(o, ','.join(f'{x[1]:8.1f}'
                                       if x[0] < 100 else '        '
                                       for x in d)),
                   file=fd)

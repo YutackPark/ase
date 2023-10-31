@@ -1,7 +1,7 @@
-import pytest
 import numpy as np
-from ase.constraints import FixAtoms
+import pytest
 
+from ase.constraints import FixAtoms
 
 calc = pytest.mark.calculator
 

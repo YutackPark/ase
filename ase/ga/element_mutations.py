@@ -151,7 +151,7 @@ class RandomElementMutation(ElementMutation):
             indi.append(a)
 
         return (self.finalize_individual(indi),
-                self.descriptor + ': Parent {0}'.format(f.info['confid']))
+                self.descriptor + ': Parent {}'.format(f.info['confid']))
 
 
 def mendeleiev_table():
@@ -293,7 +293,7 @@ class MoveDownMutation(ElementMutation):
             indi.append(a)
 
         return (self.finalize_individual(indi),
-                used_descriptor + ': Parent {0}'.format(f.info['confid']))
+                used_descriptor + ': Parent {}'.format(f.info['confid']))
 
 
 class MoveUpMutation(ElementMutation):
@@ -388,7 +388,7 @@ class MoveUpMutation(ElementMutation):
             indi.append(a)
 
         return (self.finalize_individual(indi),
-                used_descriptor + ': Parent {0}'.format(f.info['confid']))
+                used_descriptor + ': Parent {}'.format(f.info['confid']))
 
 
 class MoveRightMutation(ElementMutation):
@@ -481,7 +481,7 @@ class MoveRightMutation(ElementMutation):
             indi.append(a)
 
         return (self.finalize_individual(indi),
-                used_descriptor + ': Parent {0}'.format(f.info['confid']))
+                used_descriptor + ': Parent {}'.format(f.info['confid']))
 
 
 class MoveLeftMutation(ElementMutation):
@@ -574,7 +574,7 @@ class MoveLeftMutation(ElementMutation):
             indi.append(a)
 
         return (self.finalize_individual(indi),
-                used_descriptor + ':Parent {0}'.format(f.info['confid']))
+                used_descriptor + ':Parent {}'.format(f.info['confid']))
 
 
 class FullElementMutation(OffspringCreator):
@@ -625,4 +625,4 @@ class FullElementMutation(OffspringCreator):
             indi.append(a)
 
         return (self.finalize_individual(indi),
-                self.descriptor + ': Parent {0}'.format(f.info['confid']))
+                self.descriptor + ': Parent {}'.format(f.info['confid']))

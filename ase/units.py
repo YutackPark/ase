@@ -9,7 +9,6 @@ to and from ase internal units.
 
 from math import pi, sqrt
 
-
 # the version we actually use
 __codata_version__ = '2014'
 
@@ -21,7 +20,7 @@ class Units(dict):
     """Dictionary for units that supports .attribute access."""
 
     def __init__(self, *args, **kwargs):
-        super(Units, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.__dict__ = self
 
 
@@ -158,7 +157,7 @@ def create_units(codata_version):
     try:
         u = Units(CODATA[codata_version])
     except KeyError:
-        raise NotImplementedError('CODATA version "{0}" not implemented'
+        raise NotImplementedError('CODATA version "{}" not implemented'
                                   .format(codata_version))
 
     # derived from the CODATA values

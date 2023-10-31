@@ -1,18 +1,18 @@
-import os
 import copy
+import os
 from collections.abc import Iterable
 from shutil import which
 from typing import Dict, Optional
 
+from ase.calculators.calculator import FileIOCalculator
 from ase.io import read, write
-from ase.calculators.calculator import FileIOCalculator, EnvironmentError
 
 
 class GaussianDynamics:
     calctype = 'optimizer'
     delete = ['force']
     keyword: Optional[str] = None
-    special_keywords: Dict[str, str] = dict()
+    special_keywords: Dict[str, str] = {}
 
     def __init__(self, atoms, calc=None):
         self.atoms = atoms
@@ -110,8 +110,8 @@ class Gaussian(FileIOCalculator):
                     self.command = self.command.replace('GAUSSIAN', gau)
                     break
             else:
-                raise EnvironmentError('Missing Gaussian executable {}'
-                                       .format(gaussians))
+                raise OSError('Missing Gaussian executable {}'
+                              .format(gaussians))
 
         FileIOCalculator.calculate(self, *args, **kwargs)
 

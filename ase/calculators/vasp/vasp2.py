@@ -21,6 +21,7 @@ www.vasp.at
 """
 
 from ase.utils import deprecated
+
 from .vasp import Vasp
 
 

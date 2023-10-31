@@ -1,21 +1,20 @@
 """nanoparticle.py - Window for setting up crystalline nanoparticles.
 """
 from copy import copy
-from ase.gui.i18n import _
 
 import numpy as np
 
 import ase
 import ase.data
 import ase.gui.ui as ui
+from ase.cluster import wulff_construction
+from ase.cluster.cubic import BodyCenteredCubic, FaceCenteredCubic, SimpleCubic
+from ase.cluster.hexagonal import Graphite, HexagonalClosedPacked
+from ase.gui.i18n import _
+from ase.gui.widgets import Element, pybutton
 
 # Delayed imports:
 # ase.cluster.data
-
-from ase.cluster.cubic import FaceCenteredCubic, BodyCenteredCubic, SimpleCubic
-from ase.cluster.hexagonal import HexagonalClosedPacked, Graphite
-from ase.cluster import wulff_construction
-from ase.gui.widgets import Element, pybutton
 
 
 introtext = _("""\
@@ -285,7 +284,7 @@ class SetupNanoparticle:
             rows.add(_('Choose size using:'))
             rows.add(self.size_radio)
             rows.add([_('atoms'), self.size_natoms,
-                      _(u'Å³'), self.size_diameter])
+                      _('Å³'), self.size_diameter])
             rows.add(
                 _('Rounding: If exact size is not possible, choose the size:'))
             rows.add(self.round_radio)
@@ -446,7 +445,7 @@ class SetupNanoparticle:
             lc_str = str(lc)
         else:
             lc = self.a.value
-            lc_str = '%.5f' % (lc,)
+            lc_str = f'{lc:.5f}'
         if self.method_cb.value == 'wulff':
             # Wulff construction
             surfaces = [x[0] for x in self.direction_table]
@@ -515,7 +514,7 @@ class SetupNanoparticle:
             at_vol = self.get_atomic_volume()
             dia = 2 * (3 * len(self.atoms) * at_vol / (4 * np.pi))**(1 / 3)
             self.info[1].text = str(len(self.atoms))
-            self.info[3].text = u'{0:.1f} Å'.format(dia)
+            self.info[3].text = f'{dia:.1f} Å'
 
         if self.method_cb.value == 'wulff':
             if self.smaller_button is not None:

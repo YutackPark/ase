@@ -1,6 +1,8 @@
 # type: ignore
-import pytest
 import sys
+
+import pytest
+
 from ase.calculators.turbomole import Turbomole
 from ase.calculators.turbomole.executor import execute
 

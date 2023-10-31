@@ -5,14 +5,14 @@ from typing import Dict
 import numpy as np
 
 import ase  # Annotations
-from ase.utils import jsonable
 from ase.cell import Cell
+from ase.utils import jsonable
 
 
 def monkhorst_pack(size):
     """Construct a uniform sampling of k-space of given size."""
     if np.less_equal(size, 0).any():
-        raise ValueError('Illegal size: %s' % list(size))
+        raise ValueError(f'Illegal size: {list(size)}')
     kpts = np.indices(size).transpose((1, 2, 3, 0)).reshape((-1, 3))
     return (kpts + 0.5) / size - 0.5
 
@@ -89,7 +89,7 @@ def _mindistance2monkhorstpack(cell, pbc_c, min_distance, maxperdim, even):
         ranges = [range(step, maxperdim + 1, step)
                   if pbc else range(1, 2) for pbc in pbc_c]
         nkpts_nc = np.column_stack([*map(np.ravel, np.meshgrid(*ranges))])
-        yield from sorted(nkpts_nc, key=lambda nkpts_c: np.prod(nkpts_c))
+        yield from sorted(nkpts_nc, key=np.prod)
 
     try:
         return next(filter(check, generate_mpgrids()))
@@ -197,7 +197,7 @@ def resolve_custom_points(pathspec, special_points, eps):
     def name_generator():
         counter = 0
         while True:
-            name = 'Kpt{}'.format(counter)
+            name = f'Kpt{counter}'
             yield name
             counter += 1
     custom_names = name_generator()
@@ -268,6 +268,7 @@ class BandPath:
     BandPath(path='GXMGRX,MR', cell=[3x3], special_points={GMRX}, kpts=[40x3])
 
     """
+
     def __init__(self, cell, kpts=None,
                  special_points=None, path=None):
         if kpts is None:

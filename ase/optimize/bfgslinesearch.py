@@ -6,10 +6,14 @@
 # *****END NOTICE************
 
 import time
+from typing import IO, Optional, Union
+
 import numpy as np
-from numpy import eye, absolute, sqrt, isinf
-from ase.utils.linesearch import LineSearch
+from numpy import absolute, eye, isinf, sqrt
+
+from ase import Atoms
 from ase.optimize.optimize import Optimizer
+from ase.utils.linesearch import LineSearch
 
 # These have been copied from Numeric's MLab.py
 # I don't think they made the transition to scipy_core
@@ -22,9 +26,20 @@ __version__ = '0.1'
 
 
 class BFGSLineSearch(Optimizer):
-    def __init__(self, atoms, restart=None, logfile='-', maxstep=None,
-                 trajectory=None, c1=0.23, c2=0.46, alpha=10.0, stpmax=50.0,
-                 master=None, force_consistent=None):
+    def __init__(
+        self,
+        atoms: Atoms,
+        restart: Optional[str] = None,
+        logfile: Union[IO, str] = '-',
+        maxstep: float = None,
+        trajectory: Optional[str] = None,
+        c1: float = 0.23,
+        c2: float = 0.46,
+        alpha: float = 10.0,
+        stpmax: float = 50.0,
+        master: Optional[bool] = None,
+        force_consistent: Optional[bool] = None,
+    ):
         """Optimize atomic positions in the BFGSLineSearch algorithm, which
         uses both forces and potential energy information.
 
@@ -96,16 +111,15 @@ class BFGSLineSearch(Optimizer):
         self.rep_count = 0
 
     def step(self, forces=None):
-        atoms = self.atoms
+        optimizable = self.optimizable
 
         if forces is None:
-            forces = atoms.get_forces()
+            forces = optimizable.get_forces()
 
-        from ase.neb import NEB
-        if isinstance(atoms, NEB):
+        if optimizable.is_neb():
             raise TypeError('NEB calculations cannot use the BFGSLineSearch'
                             ' optimizer. Use BFGS or another optimizer.')
-        r = atoms.get_positions()
+        r = optimizable.get_positions()
         r = r.reshape(-1)
         g = -forces.reshape(-1) / self.alpha
         p0 = self.p
@@ -115,8 +129,8 @@ class BFGSLineSearch(Optimizer):
 
         self.p = -np.dot(self.H, g)
         p_size = np.sqrt((self.p**2).sum())
-        if p_size <= np.sqrt(len(atoms) * 1e-10):
-            self.p /= (p_size / np.sqrt(len(atoms) * 1e-10))
+        if p_size <= np.sqrt(len(optimizable) * 1e-10):
+            self.p /= (p_size / np.sqrt(len(optimizable) * 1e-10))
         ls = LineSearch()
         self.alpha_k, e, self.e0, self.no_update = \
             ls._line_search(self.func, self.fprime, r, self.p, g, e, self.e0,
@@ -126,15 +140,15 @@ class BFGSLineSearch(Optimizer):
             raise RuntimeError("LineSearch failed!")
 
         dr = self.alpha_k * self.p
-        atoms.set_positions((r + dr).reshape(len(atoms), -1))
+        optimizable.set_positions((r + dr).reshape(len(optimizable), -1))
         self.r0 = r
         self.g0 = g
         self.dump((self.r0, self.g0, self.e0, self.task, self.H))
 
     def update(self, r, g, r0, g0, p0):
-        self.I = eye(len(self.atoms) * 3, dtype=int)
+        self.I = eye(len(self.optimizable) * 3, dtype=int)
         if self.H is None:
-            self.H = eye(3 * len(self.atoms))
+            self.H = eye(3 * len(self.optimizable))
             # self.B = np.linalg.inv(self.H)
             return
         else:
@@ -165,19 +179,19 @@ class BFGSLineSearch(Optimizer):
 
     def func(self, x):
         """Objective function for use of the optimizers"""
-        self.atoms.set_positions(x.reshape(-1, 3))
+        self.optimizable.set_positions(x.reshape(-1, 3))
         self.function_calls += 1
         # Scale the problem as SciPy uses I as initial Hessian.
-        return (self.atoms.get_potential_energy(
+        return (self.optimizable.get_potential_energy(
                 force_consistent=self.force_consistent) / self.alpha)
 
     def fprime(self, x):
         """Gradient of the objective function for use of the optimizers"""
-        self.atoms.set_positions(x.reshape(-1, 3))
+        self.optimizable.set_positions(x.reshape(-1, 3))
         self.force_calls += 1
         # Remember that forces are minus the gradient!
         # Scale the problem as SciPy uses I as initial Hessian.
-        forces = self.atoms.get_forces().reshape(-1)
+        forces = self.optimizable.get_forces().reshape(-1)
         return - forces / self.alpha
 
     def replay_trajectory(self, traj):
@@ -206,9 +220,9 @@ class BFGSLineSearch(Optimizer):
         if self.logfile is None:
             return
         if forces is None:
-            forces = self.atoms.get_forces()
+            forces = self.optimizable.get_forces()
         fmax = sqrt((forces**2).sum(axis=1).max())
-        e = self.atoms.get_potential_energy(
+        e = self.optimizable.get_potential_energy(
             force_consistent=self.force_consistent)
         T = time.localtime()
         name = self.__class__.__name__
