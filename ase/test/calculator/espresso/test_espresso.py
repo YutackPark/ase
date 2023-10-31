@@ -76,7 +76,7 @@ def test_dipole(espresso_factory):
     assert dipol_arr == pytest.approx(expected_dipol_arr, abs=0.02)
 
 
-def test_warn_label():
+def test_warn_label(config_file):
     with pytest.warns(FutureWarning):
         Espresso(label='hello')
 

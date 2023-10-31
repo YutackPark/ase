@@ -192,7 +192,7 @@ class CalculatorTemplate(ABC):
         self.implemented_properties = frozenset(implemented_properties)
 
     @abstractmethod
-    def write_input(self, directory, atoms, parameters, properties):
+    def write_input(self, profile, directory, atoms, parameters, properties):
         ...
 
     @abstractmethod

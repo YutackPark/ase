@@ -2,7 +2,7 @@ import ase.build
 from ase.calculators.siesta import Siesta
 
 
-def test_siesta_read_eigenvalues_soc(datadir):
+def test_siesta_read_eigenvalues_soc(datadir, config_file):
     """ In this test, we read a stored siesta.EIG file."""
     calc = Siesta()
     assert calc.read_eigenvalues() == 1
