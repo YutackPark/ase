@@ -4,7 +4,7 @@ from math import cos, pi, sin
 import numpy as np
 
 from ase import Atoms
-from ase.calculators.lammpslib import convert_cell
+from ase.calculators.lammps.coordinatetransform import calc_rotated_cell
 from ase.cell import Cell
 from ase.ga.offspring_creator import CombinationMutation, OffspringCreator
 from ase.ga.utilities import (atoms_too_close, atoms_too_close_two_sets,
@@ -503,7 +503,7 @@ class StrainMutation(OffspringCreator):
 
             # convert the submatrix with the variable cell vectors
             # to a lower triangular form
-            cell_new = convert_cell(cell_new)[0].T
+            cell_new = calc_rotated_cell(cell_new)
             for i in range(self.number_of_variable_cell_vectors, 3):
                 cell_new[i] = cell_ref[i]
 
