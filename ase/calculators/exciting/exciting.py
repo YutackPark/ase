@@ -89,24 +89,33 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
         :param parameters: exciting ground state input parameters, in a
             dictionary. Expect species_path, title and ground_state data,
             either in an object or as dict.
-        :param properties: Currently, unused. Base method's API expects the
-            physical properties expected from a ground state
-            calculation, for example energies and forces.
+        :param properties: Base method's API expects the physical properties
+            expected from a ground state calculation, for example energies
+            and forces. For us this is not used.
         """
         del properties  # Unused but kept for API consistency.
         # Create a copy of the parameters dictionary so we don't
         # modify the callers dictionary.
         parameters_dict = parameters
         assert set(parameters_dict.keys()) == {
-            'title', 'species_path', 'ground_state_input'}, \
+            'title', 'species_path', 'ground_state_input',
+            'additional_parameters'}, \
             'Keys should be defined by ExcitingGroundState calculator'
         file_name = Path(directory) / 'input.xml'
         species_path = parameters_dict.pop('species_path')
         title = parameters_dict.pop('title')
+        # We can also pass additional parameters which are actually called
+        # properties in the exciting input xml. We don't use this term
+        # since ASE use properties to refer to results of a calculation
+        # (e.g. force, energy).
+        if 'additional_parameters' not in parameters_dict:
+            parameters_dict['additional_parameters'] = None
 
         ase.io.exciting.write_input_xml_file(
-            file_name, atoms, parameters_dict['ground_state_input'],
-            species_path, title)
+            file_name=file_name, atoms=atoms,
+            ground_state_parameters=parameters_dict['ground_state_input'],
+            species_path=species_path, title=title,
+            additional_parameters=parameters_dict['additional_parameters'])
 
     def execute(
             self, directory: PathLike,

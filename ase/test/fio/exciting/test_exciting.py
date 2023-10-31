@@ -32,7 +32,7 @@ def test_write_input_xml_file(
         tmp_path, nitrogen_trioxide_atoms, excitingtools):
     """Test writing input.xml file using write_input_xml_file()."""
     file_path = tmp_path / 'input.xml'
-    input_param_dict = {
+    ground_state_param_dict = {
         "rgkmax": 8.0,
         "do": "fromscratch",
         "ngridk": [6, 6, 6],
@@ -44,7 +44,7 @@ def test_write_input_xml_file(
     ase.io.exciting.write_input_xml_file(
         file_name=file_path,
         atoms=nitrogen_trioxide_atoms,
-        input_parameters=input_param_dict,
+        ground_state_parameters=ground_state_param_dict,
         species_path="/dummy/arbitrary/path",
         title=None)
     assert file_path.exists()
@@ -59,6 +59,71 @@ def test_write_input_xml_file(
     assert parsed_calc_params.get("tforce") == 'true'
 
 
+def test_write_bs_xml(
+        tmp_path, nitrogen_trioxide_atoms, excitingtools):
+    """Test writing input for bandstructure and skip ground state.
+
+    The input.xml should contain a `do`=skip key in the groun state to avoid
+    repeating the ground state. `do`=fromscratch can also be called if the
+    ground state should be recalculated or was never done.
+
+    The bandstructure is passed into the exciting xml as an additional property.
+    We use excitingtools and pass the ase atoms object and the number of steps
+    we want to run to get the bandstructure. Excitingtools in turn calls
+    bandpath = cell.bandpath() on the ase atoms object cell (lattice vectors).
+    This is done so that excitingtools is independent of ASE.
+
+    """
+    from excitingtools.input.bandstructure import (
+        band_structure_input_from_ase_atoms_obj)
+    file_path = tmp_path / 'input.xml'
+    ground_state_param_dict = {
+        "rgkmax": 8.0,
+        "do": "skip",
+        "ngridk": [6, 6, 6],
+        "xctype": "GGA_PBE_SOL",
+        "vkloff": [0, 0, 0],
+        "tforce": True,
+        "nosource": False
+    }
+    bandstructure_steps = 100
+    bandstructure = band_structure_input_from_ase_atoms_obj(
+        nitrogen_trioxide_atoms, steps=bandstructure_steps)
+    additional_parameters = {'bandstructure': bandstructure}
+
+    ase.io.exciting.write_input_xml_file(
+        file_name=file_path,
+        atoms=nitrogen_trioxide_atoms,
+        ground_state_parameters=ground_state_param_dict,
+        species_path="/dummy/arbitrary/path",
+        title=None, additional_parameters=additional_parameters)
+    assert file_path.exists()
+    # Now read the XML file and ensure that it has what we expect:
+    atoms_obj = ase.io.exciting.ase_atoms_from_exciting_input_xml(file_path)
+
+    assert all(atoms_obj.symbols == "NOOO")
+    input_xml_tree = ET.parse(file_path).getroot()
+    # Check ground state parameters.
+    parsed_ground_state_calc_params = list(input_xml_tree)[2]
+    assert parsed_ground_state_calc_params.get("xctype") == "GGA_PBE_SOL"
+    assert parsed_ground_state_calc_params.get("rgkmax") == "8.0"
+    assert parsed_ground_state_calc_params.get("tforce") == "true"
+    assert parsed_ground_state_calc_params.get("do") == "skip"
+
+    # Check additional properties which all relate to the bandstructure.
+    parsed_properties = list(input_xml_tree)[3]
+    assert parsed_properties.tag == "properties"
+    assert len(list(parsed_properties)) == 1
+    assert parsed_properties[0].tag == "bandstructure"
+    assert parsed_properties[0][0].tag == "plot1d"
+    parsed_bandstructure_path = parsed_properties[0][0][0]
+    assert parsed_bandstructure_path.tag == "path"
+    parsed_bandstructure_path.get("steps") == 100
+    parsed_bandstructure_gamma_point = parsed_bandstructure_path[0]
+    assert parsed_bandstructure_gamma_point.tag == "point"
+    assert parsed_bandstructure_gamma_point.get("coord") == "0.0 0.0 0.0"
+
+
 def test_ase_atoms_from_exciting_input_xml(
         tmp_path, nitrogen_trioxide_atoms, excitingtools):
     """Test reading the of the exciting input.xml file into ASE atoms obj."""
@@ -68,7 +133,7 @@ def test_ase_atoms_from_exciting_input_xml(
     # First we write an input.xml file into a temp dir, so we can
     # read it back with our method we put under test.
     file_path = tmp_path / 'input.xml'
-    input_param_dict = {
+    ground_state_param_dict = {
         "rgkmax": 8.0,
         "do": "fromscratch",
         "ngridk": [6, 6, 6],
@@ -80,7 +145,7 @@ def test_ase_atoms_from_exciting_input_xml(
     ase.io.exciting.write_input_xml_file(
         file_name=file_path,
         atoms=nitrogen_trioxide_atoms,
-        input_parameters=input_param_dict,
+        ground_state_parameters=ground_state_param_dict,
         species_path="/dummy/arbitrary/path",
         title=None)
     atoms_obj = ase.io.exciting.ase_atoms_from_exciting_input_xml(file_path)
