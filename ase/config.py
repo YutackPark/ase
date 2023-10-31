@@ -5,6 +5,8 @@ from pathlib import Path
 from ase.utils import lazymethod
 import shlex
 
+ASE_CONFIG_FILE = Path.home() / ".config/ase/ase.conf"
+
 
 class Config:
     @lazymethod
@@ -17,7 +19,7 @@ class Config:
         if envpath is not None:
             paths = [Path(p) for p in envpath.split(":")]
         else:
-            paths = [Path.home() / ".config/ase/config.ini"]
+            paths = [ASE_CONFIG_FILE, ]
         loaded_paths = parser.read(paths)
         return loaded_paths, parser
 

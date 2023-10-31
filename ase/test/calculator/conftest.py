@@ -1,6 +1,3 @@
-from os import PathLike
-# from typing import Mapping, Any
-
 import pytest
 
 from ase.calculators.genericfileio import CalculatorTemplate, BaseProfile
@@ -43,7 +40,7 @@ class DummyTemplate(CalculatorTemplate):
     def execute(self, directory, profile):
         pass
 
-    def read_results(self, directory: PathLike):
+    def read_results(self, directory):
         pass
 
 
