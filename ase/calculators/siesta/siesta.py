@@ -152,7 +152,7 @@ class SiestaParameters(Parameters):
             xc='LDA',
             basis_set='DZP',
             spin='non-polarized',
-            species=tuple(),
+            species=(),
             pseudo_qualifier=None,
             pseudo_path=None,
             symlink_pseudos=None,
@@ -293,7 +293,7 @@ class Siesta(FileIOCalculator):
                     "be a format string" +
                     " with two string arguments.\n" +
                     "Example : 'siesta < %s > %s'.\n" +
-                    "Got '%s'" % commandvar)
+                    f"Got '{commandvar}'")
 
     def __getitem__(self, key):
         """Convenience method to retrieve a parameter as
@@ -382,8 +382,8 @@ class Siesta(FileIOCalculator):
             if value is None:
                 continue
             if not (isinstance(value, (float, int)) and value > 0):
-                mess = "'%s' must be a positive number(in eV), \
-                    got '%s'" % (arg, value)
+                mess = "'{}' must be a positive number(in eV), \
+                    got '{}'".format(arg, value)
                 raise ValueError(mess)
 
         # Check the basis set input.
@@ -392,7 +392,7 @@ class Siesta(FileIOCalculator):
             allowed = self.allowed_basis_names
             if not (isinstance(basis_set, PAOBasisBlock) or
                     basis_set in allowed):
-                mess = "Basis must be either %s, got %s" % (allowed, basis_set)
+                mess = f"Basis must be either {allowed}, got {basis_set}"
                 raise ValueError(mess)
 
         # Check the spin input.
@@ -405,7 +405,7 @@ class Siesta(FileIOCalculator):
 
             spin = kwargs['spin']
             if spin is not None and (spin.lower() not in self.allowed_spins):
-                mess = "Spin must be %s, got '%s'" % (self.allowed_spins, spin)
+                mess = f"Spin must be {self.allowed_spins}, got '{spin}'"
                 raise ValueError(mess)
 
         # Check the functional input.
@@ -413,7 +413,7 @@ class Siesta(FileIOCalculator):
         if isinstance(xc, (tuple, list)) and len(xc) == 2:
             functional, authors = xc
             if functional.lower() not in [k.lower() for k in self.allowed_xc]:
-                mess = "Unrecognized functional keyword: '%s'" % functional
+                mess = f"Unrecognized functional keyword: '{functional}'"
                 raise ValueError(mess)
 
             lsauthorslower = [a.lower() for a in self.allowed_xc[functional]]
@@ -434,7 +434,7 @@ class Siesta(FileIOCalculator):
                     break
 
             if not found:
-                raise ValueError("Unrecognized 'xc' keyword: '%s'" % xc)
+                raise ValueError(f"Unrecognized 'xc' keyword: '{xc}'")
         kwargs['xc'] = (functional, authors)
 
         # Check fdf_arguments.
@@ -607,7 +607,7 @@ class Siesta(FileIOCalculator):
 
         fname = self.getpath(filename)
         if not os.path.exists(fname):
-            raise ReadError("The restart file '%s' does not exist" % fname)
+            raise ReadError(f"The restart file '{fname}' does not exist")
         with open(fname) as fd:
             self.atoms = read_siesta_xv(fd)
         self.read_results()
@@ -617,7 +617,7 @@ class Siesta(FileIOCalculator):
         if fname is None:
             fname = self.prefix
         if ext is not None:
-            fname = '{}.{}'.format(fname, ext)
+            fname = f'{fname}.{ext}'
         return os.path.join(self.directory, fname)
 
     def remove_analysis(self):
@@ -692,7 +692,7 @@ class Siesta(FileIOCalculator):
         elif af == 'zmatrix':
             self._write_atomic_coordinates_zmatrix(fd, atoms)
         else:
-            raise RuntimeError('Unknown atomic_coord_format: {}'.format(af))
+            raise RuntimeError(f'Unknown atomic_coord_format: {af}')
 
     def _write_atomic_coordinates_xyz(self, fd, atoms):
         """Write atomic coordinates.
@@ -868,7 +868,7 @@ class Siesta(FileIOCalculator):
                 pseudopotential = join(pseudo_path, pseudopotential)
 
             if not os.path.exists(pseudopotential):
-                mess = "Pseudopotential '%s' not found" % pseudopotential
+                mess = f"Pseudopotential '{pseudopotential}' not found"
                 raise RuntimeError(mess)
 
             name = os.path.basename(pseudopotential)
@@ -903,9 +903,9 @@ class Siesta(FileIOCalculator):
                 fraction = float(vc + paec) / vc
                 pseudo_head = name[:-4]
                 fractional_command = os.environ['SIESTA_UTIL_FRACTIONAL']
-                cmd = '%s %s %.7f' % (fractional_command,
-                                      pseudo_head,
-                                      fraction)
+                cmd = '{} {} {:.7f}'.format(fractional_command,
+                                            pseudo_head,
+                                            fraction)
                 os.system(cmd)
 
                 pseudo_head += '-Fraction-%.5f' % fraction
@@ -928,10 +928,10 @@ class Siesta(FileIOCalculator):
                 pao_basis.append(spec['basis_set'].script(label))
             else:
                 basis_sizes.append(("    " + label, spec['basis_set']))
-        fd.write((format_fdf('ChemicalSpecieslabel', chemical_labels)))
+        fd.write(format_fdf('ChemicalSpecieslabel', chemical_labels))
         fd.write('\n')
-        fd.write((format_fdf('PAO.Basis', pao_basis)))
-        fd.write((format_fdf('PAO.BasisSizes', basis_sizes)))
+        fd.write(format_fdf('PAO.Basis', pao_basis))
+        fd.write(format_fdf('PAO.BasisSizes', basis_sizes))
         fd.write('\n')
 
     def pseudo_qualifier(self):
@@ -1102,7 +1102,7 @@ class Siesta(FileIOCalculator):
         """Read number of grid points from SIESTA's text-output file. """
 
         fname = self.getpath(ext='out')
-        with open(fname, 'r') as fd:
+        with open(fname) as fd:
             for line in fd:
                 line = line.strip().lower()
                 if line.startswith('initmesh: mesh ='):
@@ -1116,7 +1116,7 @@ class Siesta(FileIOCalculator):
         """Read energy from SIESTA's text-output file.
         """
         fname = self.getpath(ext='out')
-        with open(fname, 'r') as fd:
+        with open(fname) as fd:
             text = fd.read().lower()
 
         assert 'final energy' in text
@@ -1138,7 +1138,7 @@ class Siesta(FileIOCalculator):
         """Read the forces and stress from the FORCE_STRESS file.
         """
         fname = self.getpath('FORCE_STRESS')
-        with open(fname, 'r') as fd:
+        with open(fname) as fd:
             lines = fd.readlines()
 
         stress_lines = lines[1:4]
@@ -1167,12 +1167,12 @@ class Siesta(FileIOCalculator):
 
         file_name = self.getpath(ext='EIG')
         try:
-            with open(file_name, "r") as fd:
+            with open(file_name) as fd:
                 self.results['fermi_energy'] = float(fd.readline())
                 n, num_hamilton_dim, nkp = map(int, fd.readline().split())
                 _ee = np.split(
                     np.array(fd.read().split()).astype(float), nkp)
-        except IOError:
+        except OSError:
             return 1
 
         n_spin = 1 if num_hamilton_dim > 2 else num_hamilton_dim
@@ -1195,7 +1195,7 @@ class Siesta(FileIOCalculator):
 
         fname = self.getpath(ext='KP')
         try:
-            with open(fname, "r") as fd:
+            with open(fname) as fd:
                 nkp = int(next(fd))
                 kpoints = np.empty((nkp, 3))
                 kweights = np.empty(nkp)
@@ -1207,7 +1207,7 @@ class Siesta(FileIOCalculator):
                     kpoints[i] = numbers[:3]
                     kweights[i] = numbers[3]
 
-        except (IOError):
+        except (OSError):
             return 1
 
         self.results['kpoints'] = kpoints
@@ -1218,7 +1218,7 @@ class Siesta(FileIOCalculator):
     def read_dipole(self):
         """Read dipole moment. """
         dipole = np.zeros([1, 3])
-        with open(self.getpath(ext='out'), 'r') as fd:
+        with open(self.getpath(ext='out')) as fd:
             for line in fd:
                 if line.rfind('Electric dipole (Debye)') > -1:
                     dipole = np.array([float(f) for f in line.split()[5:8]])

@@ -104,7 +104,7 @@ class DiffusionCoefficient:
         # These are the data objects we need when plotting information. First
         # the x-axis, timesteps
         self.timesteps = np.linspace(
-            0, total_images*self.timestep, total_images+1)
+            0, total_images * self.timestep, total_images + 1)
         # This holds all the data points for the diffusion coefficients,
         # averaged over atoms
         self.xyz_segment_ensemble_average = np.zeros(
@@ -137,9 +137,9 @@ class DiffusionCoefficient:
         self._initialise_arrays(ignore_n_images, number_of_segments)
 
         for segment_no in range(self.no_of_segments):
-            start = segment_no*self.len_segments
+            start = segment_no * self.len_segments
             end = start + self.len_segments
-            seg = self.traj[ignore_n_images+start:ignore_n_images+end]
+            seg = self.traj[ignore_n_images + start:ignore_n_images + end]
 
             # If we are considering a molecular system, work out the COM for the
             # starting structure
@@ -183,10 +183,10 @@ class DiffusionCoefficient:
                 for sym_index in range(self.no_of_types_of_atoms):
                     # Normalise by degrees of freedom and average overall atoms
                     # for each axes over entire segment
-                    denominator = (2*self.no_of_atoms[sym_index])
+                    denominator = (2 * self.no_of_atoms[sym_index])
                     for xyz in range(3):
                         self.xyz_segment_ensemble_average[segment_no][sym_index][xyz][image_no] = (
-                            xyz_disp[sym_index][xyz]/denominator)
+                            xyz_disp[sym_index][xyz] / denominator)
 
             # We've collected all the data for this entire segment, so now to
             # fit the data.
@@ -273,14 +273,14 @@ class DiffusionCoefficient:
         graph_timesteps = self.timesteps / fs_conversion
 
         for segment_no in range(self.no_of_segments):
-            start = segment_no*self.len_segments
+            start = segment_no * self.len_segments
             end = start + self.len_segments
             label = None
 
             for sym_index in range(self.no_of_types_of_atoms):
                 for xyz in range(3):
                     if segment_no == 0:
-                        label = 'Species: %s (%s)' % (
+                        label = 'Species: {} ({})'.format(
                             self.types_of_atoms[sym_index], xyz_labels[xyz])
                     # Add scatter graph  for the mean square displacement data
                     # in this segment
@@ -288,7 +288,7 @@ class DiffusionCoefficient:
                                color=color_list[sym_index], marker=xyz_markers[xyz], label=label, linewidth=1, edgecolor='grey')
 
                 # Print the line of best fit for segment
-                line = np.mean(self.slopes[sym_index][segment_no])*fs_conversion * \
+                line = np.mean(self.slopes[sym_index][segment_no]) * fs_conversion * \
                     graph_timesteps[start:end] + \
                     np.mean(self.intercepts[sym_index][segment_no])
                 if segment_no == 0:
@@ -298,11 +298,11 @@ class DiffusionCoefficient:
                     sym_index), label=label, linestyle='--')
 
             # Plot separator at end of segment
-            x_coord = graph_timesteps[end-1]
+            x_coord = graph_timesteps[end - 1]
             ax.plot([x_coord,
                      x_coord],
                     [-0.001,
-                     1.05*np.amax(self.xyz_segment_ensemble_average)],
+                     1.05 * np.amax(self.xyz_segment_ensemble_average)],
                     color='grey',
                     linestyle=":")
 
@@ -314,7 +314,7 @@ class DiffusionCoefficient:
         #    ax.plot(graph_timesteps, line, color='C%d'%(sym_index), label=label, linestyle="-")
 
         # Aesthetic parts of the plot
-        ax.set_ylim(-0.001, 1.05*np.amax(self.xyz_segment_ensemble_average))
+        ax.set_ylim(-0.001, 1.05 * np.amax(self.xyz_segment_ensemble_average))
         ax.legend(loc='best')
         ax.set_xlabel('Time (fs)')
         ax.set_ylabel(r'Mean Square Displacement ($\AA^2$)')
@@ -349,11 +349,11 @@ class DiffusionCoefficient:
             print('---')
             for segment_no in range(self.no_of_segments):
                 print(r'Segment   %3d:         Diffusion Coefficient = %.10f Å^2/fs; Intercept = %.10f Å^2;' %
-                      (segment_no, np.mean(self.slopes[sym_index][segment_no])*fs_conversion, np.mean(self.intercepts[sym_index][segment_no])))
+                      (segment_no, np.mean(self.slopes[sym_index][segment_no]) * fs_conversion, np.mean(self.intercepts[sym_index][segment_no])))
 
         # Print average overall data.
         print('---')
         for sym_index in range(self.no_of_types_of_atoms):
             print('Mean Diffusion Coefficient (X, Y and Z) : %s = %.10f Å^2/fs; Std. Dev. = %.10f Å^2/fs' %
-                  (self.types_of_atoms[sym_index], slopes[sym_index]*fs_conversion, std[sym_index]*fs_conversion))
+                  (self.types_of_atoms[sym_index], slopes[sym_index] * fs_conversion, std[sym_index] * fs_conversion))
         print('---')

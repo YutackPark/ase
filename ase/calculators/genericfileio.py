@@ -2,13 +2,12 @@ from abc import ABC, abstractmethod
 from os import PathLike
 from pathlib import Path
 from typing import Any, Iterable, Mapping
-from pydoc import locate
 
 from ase.calculators.abc import GetOutputsMixin
 from ase.calculators.calculator import BaseCalculator, EnvironmentError
 
-class BaseProfile(ABC):
 
+class BaseProfile(ABC):
 
     def __init__(self, parallel=True, parallel_info=None):
         """
@@ -17,8 +16,8 @@ class BaseProfile(ABC):
         parallel : bool
             If the calculator should be run in parallel.
         parallel_info : dict
-            Additional settings for parallel execution, e.g. 
-            arguments for the binary for parallelization (mpiexec, srun, mpirun).
+            Additional settings for parallel execution, e.g. arguments
+            for the binary for parallelization (mpiexec, srun, mpirun).
         """
         self.parallel_info = parallel_info
         self.parallel = parallel
@@ -27,17 +26,17 @@ class BaseProfile(ABC):
         """
         Get the translation keys for the parallel_info dictionary.
 
-        A translation key is specified in a config file with the syntax 
+        A translation key is specified in a config file with the syntax
         `key_kwarg_trans = command, type`, e.g if `nprocs_kwarg_trans = -np`
-        is specified in the config file, then the key `nprocs` will be translated
-        to `-np`. Then `nprocs` can be specified in parallel_info and will be 
-        translated to `-np` when the command is build. 
+        is specified in the config file, then the key `nprocs` will be
+        translated to `-np`. Then `nprocs` can be specified in parallel_info
+        and will be translated to `-np` when the command is build.
 
         Returns
         -------
         dict of iterable
-            Dictionary with translation keys where the keys are the keys in 
-            parallel_info that will be translated, the value is what the key 
+            Dictionary with translation keys where the keys are the keys in
+            parallel_info that will be translated, the value is what the key
             will be translated into.
         """
         translation_keys = {}
@@ -48,7 +47,7 @@ class BaseProfile(ABC):
                 trans_key = key[:-12]
                 translation_keys[trans_key] = value
         return translation_keys
-    
+
     def get_command(self, inputfile) -> Iterable[str]:
         """
         Get the command to run. This should be a list of strings.
@@ -67,11 +66,11 @@ class BaseProfile(ABC):
             command.append(self.parallel_info['binary'])
 
             translation_keys = self.get_translation_keys()
-            
+
             for key, value in self.parallel_info.items():
                 if key == 'binary' or "_kwarg_trans" in key:
                     continue
-                
+
                 command_key = key
                 if key in translation_keys:
                     command_key = translation_keys[key]
@@ -157,7 +156,7 @@ class BaseProfile(ABC):
         parallel_config.update(parallel_info)
 
         return cls(**cfg.parser[section_name], parallel_info=parallel_config,
-                parallel=parallel)
+                   parallel=parallel)
 
 
 def read_stdout(args, createfile=None):
@@ -276,7 +275,7 @@ class CalculatorTemplate(ABC):
 
 class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
     def __init__(self, *, template, profile, directory, parameters=None,
-                parallel_info=None, parallel=True):
+                 parallel_info=None, parallel=True):
         self.template = template
 
         if profile is None:
@@ -285,13 +284,14 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
             if template.name not in cfg.parser:
                 raise EnvironmentError(f"No configuration of {template.name}")
             try:
-                profile = template.load_profile(cfg, parallel_info=parallel_info, 
+                profile = template.load_profile(cfg,
+                                                parallel_info=parallel_info,
                                                 parallel=parallel)
             except Exception as err:
-                configvars = dict(cfg)
+                configvars = cfg.as_dict()
                 raise EnvironmentError(
                     f"Failed to load section [{template.name}] "
-                    "from configuration: {configvars}"
+                    f"from configuration: {configvars}"
                 ) from err
 
         self.profile = profile

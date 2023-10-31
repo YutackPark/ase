@@ -100,13 +100,13 @@ class Checkpoint:
         else:
             self.checkpoint_id[-1] += 1
         self.logfile.write('Entered checkpoint region '
-                           '{0}.\n'.format(self.checkpoint_id))
+                           '{}.\n'.format(self.checkpoint_id))
 
         self.in_checkpointed_region = True
 
     def _decrease_checkpoint_id(self):
         self.logfile.write('Leaving checkpoint region '
-                           '{0}.\n'.format(self.checkpoint_id))
+                           '{}.\n'.format(self.checkpoint_id))
         if not self.in_checkpointed_region:
             self.checkpoint_id = self.checkpoint_id[:-1]
             assert len(self.checkpoint_id) >= 1
@@ -144,7 +144,7 @@ class Checkpoint:
             atomsi = data['checkpoint_atoms_args_index']
             i = 0
             while (i == atomsi or
-                   '{0}{1}'.format(self._value_prefix, i) in data):
+                   f'{self._value_prefix}{i}' in data):
                 if i == atomsi:
                     newatoms = dbentry.toatoms()
                     if atoms is not None:
@@ -152,11 +152,11 @@ class Checkpoint:
                         newatoms.calc = atoms.calc
                     retvals += [newatoms]
                 else:
-                    retvals += [data['{0}{1}'.format(self._value_prefix, i)]]
+                    retvals += [data[f'{self._value_prefix}{i}']]
                 i += 1
 
         self.logfile.write('Successfully restored checkpoint '
-                           '{0}.\n'.format(self.checkpoint_id))
+                           '{}.\n'.format(self.checkpoint_id))
         self._decrease_checkpoint_id()
         if len(retvals) == 1:
             return retvals[0]
@@ -164,13 +164,13 @@ class Checkpoint:
             return tuple(retvals)
 
     def _flush(self, *args, **kwargs):
-        data = dict(('{0}{1}'.format(self._value_prefix, i), v)
-                    for i, v in enumerate(args))
+        data = {f'{self._value_prefix}{i}': v
+                for i, v in enumerate(args)}
 
         try:
             atomsi = [isinstance(v, ase.Atoms) for v in args].index(True)
             atoms = args[atomsi]
-            del data['{0}{1}'.format(self._value_prefix, atomsi)]
+            del data[f'{self._value_prefix}{atomsi}']
         except ValueError:
             atomsi = -1
             try:
@@ -196,7 +196,7 @@ class Checkpoint:
                      data=data)
 
         self.logfile.write('Successfully stored checkpoint '
-                           '{0}.\n'.format(self.checkpoint_id))
+                           '{}.\n'.format(self.checkpoint_id))
 
     def flush(self, *args, **kwargs):
         """
@@ -273,7 +273,7 @@ class CheckpointCalculator(Calculator):
             except AssertionError:
                 raise AssertionError('mismatch between current atoms and '
                                      'those read from checkpoint file')
-            self.logfile.write('retrieved results for {0} from checkpoint\n'
+            self.logfile.write('retrieved results for {} from checkpoint\n'
                                .format(properties))
             # save results in calculator for next time
             if isinstance(self.calculator, Calculator):
@@ -282,13 +282,13 @@ class CheckpointCalculator(Calculator):
                 self.calculator.results.update(dict(zip(properties, results)))
         except NoCheckpoint:
             if isinstance(self.calculator, Calculator):
-                self.logfile.write('doing calculation of {0} with new-style '
+                self.logfile.write('doing calculation of {} with new-style '
                                    'calculator interface\n'.format(properties))
                 self.calculator.calculate(atoms, properties, system_changes)
                 results = [self.calculator.results[prop]
                            for prop in properties]
             else:
-                self.logfile.write('doing calculation of {0} with old-style '
+                self.logfile.write('doing calculation of {} with old-style '
                                    'calculator interface\n'.format(properties))
                 results = []
                 for prop in properties:

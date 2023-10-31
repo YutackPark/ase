@@ -71,7 +71,7 @@ def test_formulas(x):
     f = Formula(x)
     y = str(f)
     assert y == x
-    print(f.count(), '{:latex}'.format(f))
+    print(f.count(), f'{f:latex}')
     a, b = divmod(f, 'H2O')
     assert a * Formula('H2O') + b == f
     assert f != 117  # check that formula can be compared to non-formula object

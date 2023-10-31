@@ -159,7 +159,7 @@ def parameters_to_keywords(label=None, atoms=None, parameters=None,
             return counterparts[openmx_keyword]
 
     # Overwrites openmx keyword using standard parameters
-    for openmx_keyword in counterparts.keys():
+    for openmx_keyword in counterparts:
         keywords[openmx_keyword] = parameter_overwrites(openmx_keyword)
 
     # keywords['scf_stress_tensor'] = 'stress' in properties
@@ -235,7 +235,7 @@ def get_scf_kgrid(atoms, parameters):
     if isinstance(kpts, (tuple, list, np.ndarray)) and len(
             kpts) == 3 and isinstance(kpts[0], int):
         return kpts
-    elif isinstance(kpts, float) or isinstance(kpts, int):
+    elif isinstance(kpts, (float, int)):
         return tuple(kpts2sizeandoffsets(atoms=atoms, density=kpts)[0])
     else:
         return scf_kgrid
@@ -639,7 +639,7 @@ def write_float(fd, key, value):
 
 def write_bool(fd, key, value):
     omx_bl = {True: 'On', False: 'Off'}
-    fd.write("        ".join([key, "%s" % omx_bl[value]]))
+    fd.write("        ".join([key, f"{omx_bl[value]}"]))
     fd.write("\n")
 
 

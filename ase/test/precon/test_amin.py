@@ -7,6 +7,7 @@ from ase.optimize.precon import Exp, PreconLBFGS
 
 
 # @pytest.mark.skip('FAILS WITH PYAMG')
+@pytest.mark.optimize
 @pytest.mark.slow
 def test_precon_amin():
     cu0 = bulk("Cu") * (2, 2, 2)

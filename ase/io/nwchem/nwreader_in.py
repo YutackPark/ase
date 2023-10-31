@@ -100,7 +100,7 @@ def _get_cell(text):
     for row in text.strip().split('\n'):
         row = row.strip().lower()
         for dim, vecname in enumerate(['a', 'b', 'c']):
-            if row.startswith('lat_{}'.format(vecname)):
+            if row.startswith(f'lat_{vecname}'):
                 pbc[dim] = True
                 lengths[dim] = float(row.split()[1])
         for i, angle in enumerate(['alpha', 'beta', 'gamma']):
@@ -128,7 +128,7 @@ def _get_cell(text):
         return cell, pbc
 
     # Hardest case: two lattice vectors are specified.
-    dim1, dim2 = [dim for dim, ipbc in enumerate(pbc) if ipbc]
+    dim1, dim2 = (dim for dim, ipbc in enumerate(pbc) if ipbc)
     angledim = np.argmin(pbc)
     cell[dim1, dim1] = lengths[dim1]
     cell[dim2, dim2] = lengths[dim2] * np.sin(angles[angledim])

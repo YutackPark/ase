@@ -103,34 +103,35 @@ class FIRE(Optimizer):
         self.v, self.dt = self.load()
 
     def step(self, f=None):
-        atoms = self.atoms
+        optimizable = self.optimizable
 
         if f is None:
-            f = atoms.get_forces()
+            f = optimizable.get_forces()
 
         if self.v is None:
-            self.v = np.zeros((len(atoms), 3))
+            self.v = np.zeros((len(optimizable), 3))
             if self.downhill_check:
-                self.e_last = atoms.get_potential_energy(
+                self.e_last = optimizable.get_potential_energy(
                     force_consistent=self.force_consistent)
-                self.r_last = atoms.get_positions().copy()
+                self.r_last = optimizable.get_positions().copy()
                 self.v_last = self.v.copy()
         else:
             is_uphill = False
             if self.downhill_check:
-                e = atoms.get_potential_energy(
+                e = optimizable.get_potential_energy(
                     force_consistent=self.force_consistent)
                 # Check if the energy actually decreased
                 if e > self.e_last:
                     # If not, reset to old positions...
                     if self.position_reset_callback is not None:
-                        self.position_reset_callback(atoms, self.r_last, e,
-                                                     self.e_last)
-                    atoms.set_positions(self.r_last)
+                        self.position_reset_callback(
+                            optimizable, self.r_last, e,
+                            self.e_last)
+                    optimizable.set_positions(self.r_last)
                     is_uphill = True
-                self.e_last = atoms.get_potential_energy(
+                self.e_last = optimizable.get_potential_energy(
                     force_consistent=self.force_consistent)
-                self.r_last = atoms.get_positions().copy()
+                self.r_last = optimizable.get_positions().copy()
                 self.v_last = self.v.copy()
 
             vf = np.vdot(f, self.v)
@@ -152,6 +153,6 @@ class FIRE(Optimizer):
         normdr = np.sqrt(np.vdot(dr, dr))
         if normdr > self.maxstep:
             dr = self.maxstep * dr / normdr
-        r = atoms.get_positions()
-        atoms.set_positions(r + dr)
+        r = optimizable.get_positions()
+        optimizable.set_positions(r + dr)
         self.dump((self.v, self.dt))

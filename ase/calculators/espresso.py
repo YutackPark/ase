@@ -80,7 +80,7 @@ class EspressoTemplate(CalculatorTemplate):
 
     def load_profile(self, cfg, **kwargs):
         return EspressoProfile.from_config(cfg, self.name, **kwargs)
-            
+
     def socketio_parameters(self, unixsocket, port):
         return {}
 

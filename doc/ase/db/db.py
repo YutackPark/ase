@@ -38,7 +38,7 @@ with open('ase-db-long.txt', 'w') as fd:
 
 row = c.get(relaxed=1, calculator='emt')
 for key in row:
-    print('{0:22}: {1}'.format(key, row[key]))
+    print(f'{key:22}: {row[key]}')
 
 print(row.data.abc)
 

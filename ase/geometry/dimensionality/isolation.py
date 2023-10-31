@@ -85,7 +85,7 @@ def build_supercomponent(atoms, components, k, v, anchor=True):
     numbers = np.array(numbers)
 
     # select an 'anchor' atom, which will lie at the origin
-    anchor_index = next((i for i in range(len(atoms)) if components[i] == k))
+    anchor_index = next(i for i in range(len(atoms)) if components[i] == k)
     if anchor:
         positions -= atoms.positions[anchor_index]
     return positions, numbers

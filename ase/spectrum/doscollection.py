@@ -15,6 +15,7 @@ if False:
 
 class DOSCollection(collections.abc.Sequence):
     """Base class for a collection of DOSData objects"""
+
     def __init__(self, dos_series: Iterable[DOSData]) -> None:
         self._data = list(dos_series)
 
@@ -154,7 +155,7 @@ class DOSCollection(collections.abc.Sequence):
 
     @staticmethod
     def _check_weights_and_info(weights: Sequence[Floats],
-                                info: Union[Sequence[Info], None],
+                                info: Optional[Sequence[Info]],
                                 ) -> Sequence[Info]:
         if info is None:
             info = [{} for _ in range(len(weights))]
@@ -191,7 +192,7 @@ class DOSCollection(collections.abc.Sequence):
         elif not len(self) == len(other):
             return False
         else:
-            return all([a._almost_equals(b) for a, b in zip(self, other)])
+            return all(a._almost_equals(b) for a, b in zip(self, other))
 
     def total(self) -> DOSData:
         """Sum all the DOSData in this Collection and label it as 'Total'"""
@@ -592,7 +593,7 @@ class GridDOSCollection(DOSCollection):
                         energies: Floats,
                         all_y: np.ndarray,
                         all_labels: Sequence[str],
-                        mplargs: Union[Dict, None]):
+                        mplargs: Optional[Dict]):
         """Plot DOS data with labels to axes
 
         This is separated into another function so that subclasses can

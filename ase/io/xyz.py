@@ -27,8 +27,7 @@ def read_xyz(fileobj, index):
             symbols.append(symbol)
             positions.append([float(x), float(y), float(z)])
         images.append(Atoms(symbols=symbols, positions=positions))
-    for atoms in images[index]:
-        yield atoms
+    yield from images[index]
 
 
 def write_xyz(fileobj, images, comment='', fmt='%22.15f'):

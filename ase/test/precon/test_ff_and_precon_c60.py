@@ -92,6 +92,7 @@ ref_energy = 17.238525
 # @pytest.mark.skip('FAILS WITH PYAMG')
 
 
+@pytest.mark.optimize
 @pytest.mark.slow
 def test_opt_with_precon(atoms, forcefield_params):
     kw = dict(forcefield_params)

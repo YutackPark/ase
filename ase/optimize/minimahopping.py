@@ -38,9 +38,9 @@ class MinimaHopping:
         self._atoms = atoms
         for key in kwargs:
             if key not in self._default_settings:
-                raise RuntimeError('Unknown keyword: %s' % key)
+                raise RuntimeError(f'Unknown keyword: {key}')
         for k, v in self._default_settings.items():
-            setattr(self, '_%s' % k, kwargs.pop(k, v))
+            setattr(self, f'_{k}', kwargs.pop(k, v))
 
         # when a MD sim. has passed a local minimum:
         self._passedminimum = PassedMinimum()
@@ -226,7 +226,7 @@ class MinimaHopping:
         if cat == 'init':
             if world.rank == 0:
                 if os.path.exists(self._logfile):
-                    raise RuntimeError('File exists: %s' % self._logfile)
+                    raise RuntimeError(f'File exists: {self._logfile}')
             fd = paropen(self._logfile, 'w')
             fd.write('par: %12s %12s %12s\n' % ('T (K)', 'Ediff (eV)',
                                                 'mdmin'))
@@ -236,7 +236,7 @@ class MinimaHopping:
             return
         fd = paropen(self._logfile, 'a')
         if cat == 'msg':
-            line = 'msg: %s' % message
+            line = f'msg: {message}'
         elif cat == 'par':
             line = ('par: %12.4f %12.4f %12i' %
                     (self._temperature, self._Ediff, self._mdmin))
@@ -499,7 +499,7 @@ class MHPlot:
         """Reads relevant parts of the log file."""
         data = []  # format: [energy, status, temperature, ediff]
 
-        with open(os.path.join(self._rundirectory, self._logname), 'r') as fd:
+        with open(os.path.join(self._rundirectory, self._logname)) as fd:
             lines = fd.read().splitlines()
 
         step_almost_over = False

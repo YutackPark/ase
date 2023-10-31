@@ -73,9 +73,9 @@ class CLICommand:
 
                     for i, entry in enumerate(result):
                         dimtype = entry.dimtype.rjust(4)
-                        score = '{:.3f}'.format(entry.score).ljust(5)
-                        a = '{:.3f}'.format(entry.a).ljust(5)
-                        b = '{:.3f}'.format(entry.b).ljust(5)
+                        score = f'{entry.score:.3f}'.ljust(5)
+                        a = f'{entry.a:.3f}'.ljust(5)
+                        b = f'{entry.b:.3f}'.ljust(5)
                         if i == 0:
                             name = f.ljust(lmax)
                         else:

@@ -170,8 +170,8 @@ def test_free_energy_bug(factory):
     dftd3 = factory.calc(dft=EMT())
     atoms.calc = dftd3
 
-    e1, e2 = [atoms.get_potential_energy(force_consistent=x)
-              for x in [False, True]]
+    e1, e2 = (atoms.get_potential_energy(force_consistent=x)
+              for x in [False, True])
     assert e1 == pytest.approx(e2, abs=1e-14)
 
 

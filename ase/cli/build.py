@@ -185,7 +185,7 @@ def build_bulk(args):
     from ase.build import bulk
 
     L = args.lattice_constant.replace(',', ' ').split()
-    d = dict([(key, float(x)) for key, x in zip('ac', L)])
+    d = {key: float(x) for key, x in zip('ac', L)}
     atoms = bulk(args.name, crystalstructure=args.crystal_structure,
                  a=d.get('a'), c=d.get('c'),
                  orthorhombic=args.orthorhombic, cubic=args.cubic)
