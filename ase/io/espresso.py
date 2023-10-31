@@ -519,6 +519,79 @@ def parse_position_line(line):
     return sym, float(x), float(y), float(z)
 
 
+@iofunction('r')
+def read_espresso_in(fileobj):
+    """Parse a Quantum ESPRESSO input files, '.in', '.pwi'.
+
+    ESPRESSO inputs are generally a fortran-namelist format with custom
+    blocks of data. The namelist is parsed as a dict and an atoms object
+    is constructed from the included information.
+
+    Parameters
+    ----------
+    fileobj : file | str
+        A file-like object that supports line iteration with the contents
+        of the input file, or a filename.
+
+    Returns
+    -------
+    atoms : Atoms
+        Structure defined in the input file.
+
+    Raises
+    ------
+    KeyError
+        Raised for missing keys that are required to process the file
+    """
+    # parse namelist section and extract remaining lines
+    data, card_lines = read_fortran_namelist(fileobj)
+
+    # get the cell if ibrav=0
+    if 'system' not in data:
+        raise KeyError('Required section &SYSTEM not found.')
+    elif 'ibrav' not in data['system']:
+        raise KeyError('ibrav is required in &SYSTEM')
+    elif data['system']['ibrav'] == 0:
+        # celldm(1) is in Bohr, A is in angstrom. celldm(1) will be
+        # used even if A is also specified.
+        if 'celldm(1)' in data['system']:
+            alat = data['system']['celldm(1)'] * units['Bohr']
+        elif 'A' in data['system']:
+            alat = data['system']['A']
+        else:
+            alat = None
+        cell, _ = get_cell_parameters(card_lines, alat=alat)
+    else:
+        raise ValueError(ibrav_error_message)
+
+    # species_info holds some info for each element
+    species_card = get_atomic_species(
+        card_lines, n_species=data['system']['ntyp'])
+    species_info = {}
+    for ispec, (label, weight, pseudo) in enumerate(species_card):
+        symbol = label_to_symbol(label)
+
+        # starting_magnetization is in fractions of valence electrons
+        magnet_key = f"starting_magnetization({ispec + 1})"
+        magmom = data["system"].get(magnet_key, 0.0)
+        species_info[symbol] = {"weight": weight, "pseudo": pseudo,
+                                "magmom": magmom}
+
+    positions_card = get_atomic_positions(
+        card_lines, n_atoms=data['system']['nat'], cell=cell, alat=alat)
+
+    symbols = [label_to_symbol(position[0]) for position in positions_card]
+    positions = [position[1] for position in positions_card]
+    magmoms = [species_info[symbol]["magmom"] for symbol in symbols]
+
+    # TODO: put more info into the atoms object
+    # e.g magmom, forces.
+    atoms = Atoms(symbols=symbols, positions=positions, cell=cell, pbc=True,
+                  magmoms=magmoms)
+
+    return atoms
+
+
 def get_atomic_positions(lines, n_atoms, cell=None, alat=None):
     """Parse atom positions from ATOMIC_POSITIONS card.
 
@@ -592,6 +665,46 @@ def get_atomic_positions(lines, n_atoms, cell=None, alat=None):
                 positions.append((split_line[0], position, force_mult))
 
     return positions
+
+
+def get_atomic_species(lines, n_species):
+    """Parse atomic species from ATOMIC_SPECIES card.
+
+    Parameters
+    ----------
+    lines : list[str]
+        A list of lines containing the ATOMIC_POSITIONS card.
+    n_species : int
+        Expected number of atom types. Only this many lines will be parsed.
+
+    Returns
+    -------
+    species : list[(str, float, str)]
+
+    Raises
+    ------
+    ValueError
+        Any problems parsing the data result in ValueError
+    """
+
+    species = None
+    # no blanks or comment lines, can the consume n_atoms lines for positions
+    trimmed_lines = (line.strip() for line in lines
+                     if line.strip() and not line.startswith('#'))
+
+    for line in trimmed_lines:
+        if line.startswith('ATOMIC_SPECIES'):
+            if species is not None:
+                raise ValueError('Multiple ATOMIC_SPECIES specified')
+
+            species = []
+            for _dummy in range(n_species):
+                label_weight_pseudo = next(trimmed_lines).split()
+                species.append((label_weight_pseudo[0],
+                                float(label_weight_pseudo[1]),
+                                label_weight_pseudo[2]))
+
+    return species
 
 
 def get_cell_parameters(lines, alat=None):
