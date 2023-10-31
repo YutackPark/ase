@@ -209,6 +209,13 @@ class Aims(GenericFileIOCalculator):
 
         """
 
+        if profile is None:
+            profile = AimsProfile(
+                kwargs.pop(
+                    "aims_command", self.cfg.get("ASE_AIMS_COMMAND", "aims.x")
+                )
+            )
+
         super().__init__(
             template=AimsTemplate(),
             profile=profile,

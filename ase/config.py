@@ -9,6 +9,19 @@ ASE_CONFIG_FILE = Path.home() / ".config/ase/ase.conf"
 
 
 class Config:
+
+    def __init__(self):
+        self._dct = os.environ
+
+    def __iter__(self):
+        return iter(self._dct)
+
+    def __getitem__(self, item):
+        return self._dct[item]
+
+    def __len__(self):
+        return len(self._dct)
+
     @lazymethod
     def paths_and_parser(self):
         def argv_converter(argv):

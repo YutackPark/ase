@@ -93,8 +93,8 @@ class DMol3(FileIOCalculator):
                           'symmetry': 'on'}
     discard_results_on_any_change = True
 
-    if 'DMOL_COMMAND' in os.environ:
-        command = os.environ['DMOL_COMMAND'] + ' PREFIX > PREFIX.out'
+    if 'DMOL_COMMAND' in FileIOCalculator.cfg:
+        command = FileIOCalculator.cfg['DMOL_COMMAND'] + ' PREFIX > PREFIX.out'
     else:
         command = None
 

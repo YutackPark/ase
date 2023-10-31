@@ -455,9 +455,7 @@ class LAMMPS(Calculator):
         stress_tensor = np.array([[xx, xy, xz],
                                   [xy, yy, yz],
                                   [xz, yz, zz]])
-        R = self.prism.rot_mat
-        stress_atoms = np.dot(R, stress_tensor)
-        stress_atoms = np.dot(stress_atoms, R.T)
+        stress_atoms = self.prism.tensor2_to_ase(stress_tensor)
         stress_atoms = stress_atoms[[0, 1, 2, 1, 0, 0],
                                     [0, 1, 2, 2, 2, 1]]
         stress = stress_atoms

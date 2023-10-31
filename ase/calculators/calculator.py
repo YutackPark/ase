@@ -11,6 +11,7 @@ import numpy as np
 
 from ase.calculators.abc import GetPropertiesMixin
 from ase.cell import Cell
+from ase.config import cfg as _cfg
 from ase.outputs import Properties, all_outputs
 from ase.utils import jsonable
 
