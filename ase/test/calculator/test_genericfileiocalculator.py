@@ -25,7 +25,7 @@ def test_run_command(tmp_path, dummy_template, calculator_kwargs, result_command
     mock_config = {
         "parallel": {
             "binary": "mpirun",
-            "nprocs_kwarg_trans": "-np, int"
+            "nprocs_kwarg_trans": "-np"
         },
         "dummy": {
             "exc": "dummy.x",

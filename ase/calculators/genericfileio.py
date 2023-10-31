@@ -28,19 +28,17 @@ class BaseProfile(ABC):
         Get the translation keys for the parallel_info dictionary.
 
         A translation key is specified in a config file with the syntax 
-        `key_kwarg_trans = command, type`, e.g if `nprocs_kwarg_trans = -np, int`
+        `key_kwarg_trans = command, type`, e.g if `nprocs_kwarg_trans = -np`
         is specified in the config file, then the key `nprocs` will be translated
-        to `-np` and value will be checked to be an integer. Then `nprocs`
-        can be specified in parallel_info and will be translated to `-np` when
-        the command is build. 
+        to `-np`. Then `nprocs` can be specified in parallel_info and will be 
+        translated to `-np` when the command is build. 
 
         Returns
         -------
         dict of iterable
             Dictionary with translation keys where the keys are the keys in 
-            parallel_info that will be translated, the values are a list where
-            the first element is the actual argument and the second element 
-            is the expected type for that argument.
+            parallel_info that will be translated, the value is what the key 
+            will be translated into.
         """
         translation_keys = {}
         for key, value in self.parallel_info.items():
@@ -48,13 +46,7 @@ class BaseProfile(ABC):
                 continue
             if key.endswith("_kwarg_trans"):
                 trans_key = key[:-12]
-                if len(value.split(",")) != 2:
-                    raise ValueError("Translation keys must have 2 elements, parameter name and type")
-                translation_keys[trans_key] = [val.strip() for val in value.split(",")]
-                if translation_keys[trans_key][0] in self.parallel_info and trans_key in self.parallel_info:
-                    raise ValueError(f"The keyword {trans_key} is defined twice once as {trans_key} and the second "
-                                        f"as {translation_keys[trans_key][0]}")
-                translation_keys[trans_key][1] = locate(translation_keys[key[:-12]][1])
+                translation_keys[trans_key] = value
         return translation_keys
     
     def get_command(self, inputfile) -> Iterable[str]:
@@ -82,9 +74,7 @@ class BaseProfile(ABC):
                 
                 command_key = key
                 if key in translation_keys:
-                    if not isinstance(value, translation_keys[key][1]):
-                        raise IOError(f"The value for {key} must be {translation_keys[key][1]}")
-                    command_key = translation_keys[key][0]
+                    command_key = translation_keys[key]
 
                 if type(value) is not bool:
                     command.append(f'{command_key}')
