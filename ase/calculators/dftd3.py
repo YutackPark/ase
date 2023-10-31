@@ -145,13 +145,13 @@ class PureDFTD3(FileIOCalculator):
                  **kwargs):
 
         super().__init__(label=label,
-                         command=command
+                         command=command,
                          **kwargs)
 
         # TARP: This is done because the calculator does not call
         # FileIOCalculator.calculate, but Calculator.calculate and does not
         # use the profile defined in FileIOCalculator.__init__
-        self.command = command  or "dftd3"
+        self.command = command or "dftd3"
         self.comm = comm
 
     def set(self, **kwargs):

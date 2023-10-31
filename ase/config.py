@@ -1,6 +1,5 @@
 import os
 import configparser
-import warnings
 from collections.abc import Mapping
 from pathlib import Path
 

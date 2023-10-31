@@ -299,7 +299,9 @@ exc = openmx.x
         f.write(dummy_config)
     monkeypatch.setenv("ASE_CONFIG_PATH", config_file_name.as_posix())
     cfg = Config()
-    monkeypatch.setattr("ase.calculators.genericfileio.GenericFileIOCalculator.cfg", cfg)
+    monkeypatch.setattr(
+        "ase.calculators.genericfileio.GenericFileIOCalculator.cfg", cfg
+    )
     monkeypatch.setattr("ase.calculators.calculator.FileIOCalculator.cfg", cfg)
 
 
