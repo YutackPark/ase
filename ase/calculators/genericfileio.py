@@ -192,7 +192,7 @@ class CalculatorTemplate(ABC):
         self.implemented_properties = frozenset(implemented_properties)
 
     @abstractmethod
-    def write_input(self, directory, atoms, parameters, properties):
+    def write_input(self, profile, directory, atoms, parameters, properties):
         ...
 
     @abstractmethod
@@ -288,7 +288,7 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
                                                 parallel_info=parallel_info,
                                                 parallel=parallel)
             except Exception as err:
-                configvars = dict(cfg)
+                configvars = cfg.as_dict()
                 raise EnvironmentError(
                     f"Failed to load section [{template.name}] "
                     f"from configuration: {configvars}"

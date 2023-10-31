@@ -82,14 +82,14 @@ class Config:
         print("Configuration")
         print("-------------")
         print()
-        if not cfg.paths:
+        if not self.paths:
             print("No configuration loaded.")
 
-        for path in cfg.paths:
+        for path in self.paths:
             print(f"Loaded: {path}")
 
         print()
-        for name, section in cfg.parser.items():
+        for name, section in self.parser.items():
             print(name)
             if not section:
                 print("  (Nothing configured)")
@@ -97,5 +97,7 @@ class Config:
                 print(f"  {key}: {val}")
             print()
 
+    def as_dict(self):
+        return {key: dict(val) for key, val in self.parser.items}
 
 cfg = Config()

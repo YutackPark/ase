@@ -15,6 +15,7 @@ import numpy as np
 from ase.calculators.genericfileio import (
     CalculatorTemplate,
     GenericFileIOCalculator,
+    BaseProfile,
 )
 from ase.io.aims import write_aims, write_control
 
@@ -24,19 +25,17 @@ def get_aims_version(string):
     return match.group(1)
 
 
-class AimsProfile:
-    def __init__(self, argv):
-        if isinstance(argv, str):
-            argv = argv.split()
+class AimsProfile(BaseProfile):
+    def __init__(self, exc, default_species_directory=None, **kwargs):
+        super().__init__(**kwargs)
+        self.exc = exc
+        self.default_species_directory = default_species_directory
 
-        self.argv = argv
+    def get_calculator_command(self, inputfile):
+        return [self.exc]
 
-    def run(self, directory, outputname):
-        from subprocess import check_call
-
-        with open(directory / outputname, "w") as fd:
-            check_call(self.argv, stdout=fd, cwd=directory, env=os.environ)
-
+    def version(self):
+        return None
 
 class AimsTemplate(CalculatorTemplate):
     def __init__(self):
@@ -143,10 +142,14 @@ class AimsTemplate(CalculatorTemplate):
         )
 
         control = directory / "control.in"
+
+        if "species_dir" not in parameters and profile.default_species_directory is not None:
+            parameters["species_dir"] = profile.default_species_directory
+
         write_control(control, atoms, parameters)
 
     def execute(self, directory, profile):
-        profile.run(directory, self.outputname)
+        profile.run(directory, inputfile=None, outputfile=self.outputname)
 
     def read_results(self, directory):
         from ase.io.aims import read_aims_results
@@ -154,8 +157,8 @@ class AimsTemplate(CalculatorTemplate):
         dst = directory / self.outputname
         return read_aims_results(dst, index=-1)
 
-    def load_profile(self, cfg):
-        return AimsProfile(cfg.getargv("argv"))
+    def load_profile(self, cfg, **kwargs):
+        return AimsProfile.from_config(cfg, self.name, **kwargs)
 
     def socketio_argv(self, profile, unixsocket, port):
         return [*profile.argv]
@@ -171,7 +174,14 @@ class AimsTemplate(CalculatorTemplate):
 
 
 class Aims(GenericFileIOCalculator):
-    def __init__(self, profile=None, directory=".", **kwargs):
+    def __init__(
+            self,
+            profile=None,
+            directory=".",
+            parallel_info=None,
+            parallel=True,
+            **kwargs
+        ):
         """Construct the FHI-aims calculator.
 
         The keyword arguments (kwargs) can be one of the ASE standard
@@ -195,27 +205,12 @@ class Aims(GenericFileIOCalculator):
 
         """
 
-        # The aims community likes to have the ASE_AIMS_COMMAND
-        # so we'll need to communicate before we can remove/change this:
-        #
-        # if profile is None:
-        #    profile = AimsProfile(
-        #        kwargs.pop(
-        #            "run_command",
-        #            os.getenv("ASE_AIMS_COMMAND", "aims.x")
-        #        )
-        #    )
-        if profile is None:
-            profile = AimsProfile(
-                kwargs.pop(
-                    "aims_command", os.getenv("ASE_AIMS_COMMAND", "aims.x")
-                )
-            )
-
         super().__init__(
             template=AimsTemplate(),
             profile=profile,
             parameters=kwargs,
+            parallel_info=parallel_info,
+            parallel=parallel,
             directory=directory,
         )
 
