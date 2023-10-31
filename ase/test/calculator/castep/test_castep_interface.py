@@ -327,7 +327,7 @@ def test_set_kpoints(testing_calculator):
     assert c.cell.kpoint_mp_offset.value == '0.018519 0.018519 0.018519'
     c.set_kpts({'spacing': (1 / (np.pi * 10)),
                 'gamma': False, 'even': True})
-    assert c.cell.kpoint_mp_grid.value == '28 28 28'
+    assert c.cell.kpoint_mp_grid.value == '14 14 14'
     assert c.cell.kpoint_mp_offset.value == '0.0 0.0 0.0'
 
 
