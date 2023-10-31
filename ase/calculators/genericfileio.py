@@ -5,6 +5,7 @@ from typing import Any, Iterable, Mapping
 
 from ase.calculators.abc import GetOutputsMixin
 from ase.calculators.calculator import BaseCalculator, EnvironmentError
+from ase.config import cfg as _cfg
 
 
 class BaseProfile(ABC):
@@ -297,21 +298,21 @@ class CalculatorTemplate(ABC):
 
 
 class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
+
+    cfg = _cfg
+
     def __init__(self, *, template, profile, directory, parameters=None,
                  parallel_info=None, parallel=True):
         self.template = template
-
         if profile is None:
-            from ase.config import cfg
-
-            if template.name not in cfg.parser:
+            if template.name not in self.cfg:
                 raise EnvironmentError(f"No configuration of {template.name}")
             try:
-                profile = template.load_profile(cfg,
+                profile = template.load_profile(self.cfg,
                                                 parallel_info=parallel_info,
                                                 parallel=parallel)
             except Exception as err:
-                configvars = cfg.as_dict()
+                configvars = self.cfg.as_dict()
                 raise EnvironmentError(
                     f"Failed to load section [{template.name}] "
                     f"from configuration: {configvars}"

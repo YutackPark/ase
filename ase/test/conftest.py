@@ -277,14 +277,14 @@ def pytest_generate_tests(metafunc):
 
 
 @pytest.fixture
-def config_file(tmp_path):
+def config_file(tmp_path, monkeypatch):
     dummy_config = """\
 [parallel]
 binary = mpirun
 
 [espresso]
 binary = pw.x
-pseudo_path =
+pseudo_path = /
 
 [siesta]
 exc = siesta.x
@@ -292,11 +292,15 @@ exc = siesta.x
 [openmx]
 exc = openmx.x
 """
+    from ase.config import Config
+
     config_file_name = tmp_path / "ase.conf"
     with open(config_file_name, "w") as f:
         f.write(dummy_config)
-        os.environ["ASE_CONFIG_PATH"] = config_file_name.as_posix()
-    return config_file_name
+    monkeypatch.setenv("ASE_CONFIG_PATH", config_file_name.as_posix())
+    cfg = Config()
+    monkeypatch.setattr("ase.calculators.genericfileio.GenericFileIOCalculator.cfg", cfg)
+    monkeypatch.setattr("ase.calculators.calculator.FileIOCalculator.cfg", cfg)
 
 
 class CLI:

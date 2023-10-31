@@ -956,9 +956,8 @@ class FileIOCalculator(Calculator):
             command = os.environ.get(name)
 
         if command is None:
-            from ase.config import cfg
-            if self.name in cfg.parser:
-                section = cfg.parser[self.name]
+            if self.name in self.cfg:
+                section = self.cfg[self.name]
                 # XXX getargv() returns None if missing!
                 profile = ArgvProfile(self.name, section.getargv('argv'))
             else:
