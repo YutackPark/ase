@@ -131,7 +131,7 @@ class PureDFTD3(FileIOCalculator):
     This class is an implementation detail."""
 
     name = 'puredftd3'
-    command = 'dftd3'
+    # command = 'dftd3'
 
     dftd3_properties = {'energy', 'free_energy', 'forces', 'stress'}
     implemented_properties = list(dftd3_properties)
@@ -146,9 +146,13 @@ class PureDFTD3(FileIOCalculator):
                  **kwargs):
 
         super().__init__(label=label,
-                         command=command or self.command,
+                         command=command or "dftd3",
                          **kwargs)
 
+        # TARP: This is done because the calculator does not call
+        # FileIOCalculator.calculate, but Calculator.calculate and does not
+        # use the profile defined in FileIOCalculator.__init__
+        self.command = command
         self.comm = comm
 
     def set(self, **kwargs):
