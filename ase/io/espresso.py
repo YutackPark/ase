@@ -944,46 +944,6 @@ def construct_namelist(parameters=None, warn=False, **kwargs):
     return input_namelist
 
 
-def grep_valence(pseudopotential):
-    """
-    Given a UPF pseudopotential file, find the number of valence atoms.
-
-    Parameters
-    ----------
-    pseudopotential: str
-        Filename of the pseudopotential.
-
-    Returns
-    -------
-    valence: float
-        Valence as reported in the pseudopotential.
-
-    Raises
-    ------
-    ValueError
-        If valence cannot be found in the pseudopotential.
-    """
-
-    # Example lines
-    # Sr.pbe-spn-rrkjus_psl.1.0.0.UPF:        z_valence="1.000000000000000E+001"
-    # C.pbe-n-kjpaw_psl.1.0.0.UPF (new ld1.x):
-    #                            ...PBC" z_valence="4.000000000000e0" total_p...
-    # C_ONCV_PBE-1.0.upf:                     z_valence="    4.00"
-    # Ta_pbe_v1.uspp.F.UPF:   13.00000000000      Z valence
-
-    with open(pseudopotential) as psfile:
-        for line in psfile:
-            if 'z valence' in line.lower():
-                return float(line.split()[0])
-            elif 'z_valence' in line.lower():
-                if line.split()[0] == '<PP_HEADER':
-                    line = list(filter(lambda x: 'z_valence' in x,
-                                       line.split(' ')))[0]
-                return float(line.split('=')[-1].strip().strip('"'))
-        else:
-            raise ValueError(f'Valence missing in {pseudopotential}')
-
-
 def kspacing_to_grid(atoms, spacing, calculated_spacing=None):
     """
     Calculate the kpoint mesh that is equivalent to the given spacing
