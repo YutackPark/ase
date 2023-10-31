@@ -101,9 +101,14 @@ main:
       -W "ignore:NumPy will stop allowing conversion of out-of-bound Python integers"
     - mv ase/test/coverage-html coverage-main
     - mv ase/test/.coverage coverage-main/coverage.dat
+    - coverage xml
   artifacts:
     paths:
       - coverage-main/
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
     expire_in: 1 week
 
 # Calculator integration tests which always run.
@@ -119,9 +124,14 @@ calculators-lite:
       -W "ignore:The --rsyncdir command line argument"
     - mv ase/test/coverage-html coverage-calculators-lite
     - mv ase/test/.coverage coverage-calculators-lite/coverage.dat
+    - coverage xml
   artifacts:
     paths:
       - coverage-calculators-lite/
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
     expire_in: 1 week
 
 # Plan: Test as many calculators as possible as well as possible.
