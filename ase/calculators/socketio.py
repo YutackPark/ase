@@ -9,6 +9,7 @@ import ase.units as units
 from ase.calculators.calculator import (Calculator,
                                         PropertyNotImplementedError,
                                         all_changes)
+from ase.calculators.genericfileio import GenericFileIOCalculator
 from ase.stress import full_3x3_to_voigt_6_stress
 from ase.utils import IOContext
 
@@ -224,9 +225,10 @@ class FileIOSocketClientLauncher:
     def __call__(self, atoms, properties=None, port=None, unixsocket=None):
         assert self.calc is not None
         cwd = self.calc.directory
-        profile = getattr(self.calc, 'profile', None)
-        if profile is not None:
+
+        if isinstance(self.calc, GenericFileIOCalculator):
             # New GenericFileIOCalculator:
+            profile = getattr(self.calc, 'profile', None)
 
             self.calc.write_inputfiles(atoms, properties)
             if unixsocket is not None:
