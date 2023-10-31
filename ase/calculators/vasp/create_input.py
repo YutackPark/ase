@@ -31,7 +31,7 @@ from ase.calculators.calculator import kpts2ndarray
 from ase.calculators.vasp.setups import get_default_setups
 
 
-def get_pp_setup(setup: [str, dict]) -> Tuple[dict, List[int]]:
+def get_pp_setup(setup: [str, dict]) -> Tuple[dict, Sequence[int]]:
     """
     Get the pseudopotential mapping based on the "setpus" input.
 
