@@ -3,10 +3,9 @@
 http://www.abinit.org/
 """
 
-import os
 import re
 from pathlib import Path
-from subprocess import check_call, check_output
+from subprocess import check_output
 
 import ase.io.abinit as io
 from ase.calculators.genericfileio import (
@@ -34,7 +33,9 @@ class AbinitProfile(BaseProfile):
         self.binary = binary
 
     def version(self):
-        return check_output(self.binary + ["--version"], encoding="ascii").strip()
+        return check_output(
+            self.binary + ["--version"], encoding="ascii"
+        ).strip()
 
     def get_calculator_command(self, inputfile):
         return [self.binary, str(inputfile)]
@@ -43,6 +44,7 @@ class AbinitProfile(BaseProfile):
         # XXX clean up the passing of the inputfile
         inputfile = AbinitTemplate().input_file
         return [self.binary, inputfile, "--ipi", f"{socket}:UNIX"]
+
 
 class AbinitTemplate(CalculatorTemplate):
     _label = "abinit"  # Controls naming of files within calculation directory
@@ -97,7 +99,10 @@ class AbinitTemplate(CalculatorTemplate):
             ipi_arg = f"{unixsocket}:UNIX"
         else:
             ipi_arg = f"localhost:{port:d}"
-        return profile.get_calculator_command(self.inputname) + ["--ipi", ipi_arg]
+
+        return (
+            profile.get_calculator_command(self.inputname) + ["--ipi", ipi_arg]
+        )
 
     def socketio_parameters(self, unixsocket, port):
         return dict(ionmov=28, expert_user=1, optcell=2)
@@ -137,6 +142,6 @@ class Abinit(GenericFileIOCalculator):
             profile=profile,
             directory=directory,
             parallel_info=parallel_info,
-            parallel = parallel,
+            parallel=parallel,
             parameters=kwargs,
         )

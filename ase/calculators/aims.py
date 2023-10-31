@@ -37,6 +37,7 @@ class AimsProfile(BaseProfile):
     def version(self):
         return None
 
+
 class AimsTemplate(CalculatorTemplate):
     def __init__(self):
         super().__init__(
@@ -143,7 +144,10 @@ class AimsTemplate(CalculatorTemplate):
 
         control = directory / "control.in"
 
-        if "species_dir" not in parameters and profile.default_species_directory is not None:
+        if (
+            "species_dir" not in parameters and
+            profile.default_species_directory is not None
+        ):
             parameters["species_dir"] = profile.default_species_directory
 
         write_control(control, atoms, parameters)
@@ -175,13 +179,13 @@ class AimsTemplate(CalculatorTemplate):
 
 class Aims(GenericFileIOCalculator):
     def __init__(
-            self,
-            profile=None,
-            directory=".",
-            parallel_info=None,
-            parallel=True,
-            **kwargs
-        ):
+        self,
+        profile=None,
+        directory=".",
+        parallel_info=None,
+        parallel=True,
+        **kwargs
+    ):
         """Construct the FHI-aims calculator.
 
         The keyword arguments (kwargs) can be one of the ASE standard

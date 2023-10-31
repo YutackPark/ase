@@ -98,6 +98,7 @@ class Config:
             print()
 
     def as_dict(self):
-        return {key: dict(val) for key, val in self.parser.items}
+        return {key: dict(val) for key, val in self.parser.items()}
+
 
 cfg = Config()

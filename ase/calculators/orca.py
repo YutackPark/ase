@@ -2,7 +2,7 @@ import re
 
 import ase.io.orca as io
 from ase.calculators.genericfileio import (CalculatorTemplate,
-                                           GenericFileIOCalculator, 
+                                           GenericFileIOCalculator,
                                            BaseProfile)
 
 
@@ -17,12 +17,12 @@ class OrcaProfile(BaseProfile):
         Parameters
         ----------
         binary : str
-            Full path to the orca binary, if full path is not specified ORCA 
+            Full path to the orca binary, if full path is not specified ORCA
             cannot run in parallel.
         """
-        # Because ORCA handles its parallelization without being called with 
-        # mpirun/mpiexec/etc parallel should be set to False. 
-        # Whether or not it is run in parallel is controlled by the orcablocks 
+        # Because ORCA handles its parallelization without being called with
+        # mpirun/mpiexec/etc parallel should be set to False.
+        # Whether or not it is run in parallel is controlled by the orcablocks
         super().__init__(parallel=False, parallel_info={})
         self.binary = binary
 
@@ -34,6 +34,7 @@ class OrcaProfile(BaseProfile):
 
     def get_calculator_command(self, inputfile):
         return [self.binary, inputfile]
+
 
 class OrcaTemplate(CalculatorTemplate):
     _label = 'orca'
@@ -64,6 +65,7 @@ class OrcaTemplate(CalculatorTemplate):
     def load_profile(self, cfg, **kwargs):
         return OrcaProfile.from_config(cfg, self.name, **kwargs)
 
+
 class ORCA(GenericFileIOCalculator):
     """Class for doing ORCA calculations.
 
@@ -73,8 +75,8 @@ class ORCA(GenericFileIOCalculator):
         orcablocks='%pal nprocs 16 end')
     """
 
-    def __init__(self, *, profile=None, directory='.', parallel_info=None, 
-                parallel=None, **kwargs):
+    def __init__(self, *, profile=None, directory='.', parallel_info=None,
+                 parallel=None, **kwargs):
         """Construct ORCA-calculator object.
 
         Parameters
@@ -104,8 +106,10 @@ class ORCA(GenericFileIOCalculator):
 
         """
 
-        assert parallel is None, 'ORCA does not support keyword parallel - use orcablocks'
-        assert parallel_info is None, 'ORCA does not support keyword parallel_info - use orcablocks'
+        assert parallel is None, \
+            'ORCA does not support keyword parallel - use orcablocks'
+        assert parallel_info is None, \
+            'ORCA does not support keyword parallel_info - use orcablocks'
 
         super().__init__(template=OrcaTemplate(),
                          profile=profile, directory=directory,

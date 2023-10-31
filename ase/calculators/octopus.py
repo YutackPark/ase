@@ -21,7 +21,7 @@ class OctopusIOError(IOError):
 
 class OctopusProfile(BaseProfile):
     def __init__(self, exc, **kwargs):
-        super().__init__(**kwargs)        
+        super().__init__(**kwargs)
         self.exc = exc
 
     def get_calculator_command(self, inputfile):
@@ -35,7 +35,6 @@ class OctopusProfile(BaseProfile):
         # With MPI it prints the line for each rank, but we just match
         # the first line.
         return match.group(1)
-
 
 
 class OctopusTemplate(CalculatorTemplate):
@@ -94,7 +93,7 @@ class Octopus(GenericFileIOCalculator):
         Label is always taken as a subdirectory.
         Restart is taken to be a label."""
 
-        super().__init__(profile=profile, 
+        super().__init__(profile=profile,
                          template=OctopusTemplate(),
                          directory=directory,
                          parameters=kwargs,
@@ -114,4 +113,3 @@ class Octopus(GenericFileIOCalculator):
         else:
             raise OctopusIOError('Expected recipe, but found '
                                  'useful physical output!')
-

@@ -284,7 +284,7 @@ binary = mpirun
 
 [espresso]
 binary = pw.x
-pseudo_path = 
+pseudo_path =
 
 [siesta]
 exc = siesta.x

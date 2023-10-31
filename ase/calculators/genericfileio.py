@@ -100,7 +100,12 @@ class BaseProfile(ABC):
         """
         ...
 
-    def run(self, directory, inputfile, outputfile, errorfile=None, append=False):
+    def run(self,
+            directory,
+            inputfile,
+            outputfile,
+            errorfile=None,
+            append=False):
         """
         Run the command in the given directory.
 
@@ -125,16 +130,18 @@ class BaseProfile(ABC):
         mode = "wb" if not append else "ab"
         if errorfile is None:
             with open(directory / outputfile, mode) as fd:
-                check_call(argv_command, cwd=directory, stdout=fd, env=os.environ)
+                check_call(argv_command,
+                           cwd=directory,
+                           stdout=fd,
+                           env=os.environ)
         else:
             with open(directory / outputfile, mode) as fd, \
-                     open(directory / errorfile, mode) as fe:
+                    open(directory / errorfile, mode) as fe:
                 check_call(argv_command,
                            cwd=directory,
                            stdout=fd,
                            stderr=fe,
                            env=os.environ)
-
 
     @abstractmethod
     def version(self):
@@ -297,18 +304,18 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
         if profile is None:
             from ase.config import cfg
 
-            # if template.name not in cfg.parser:
-            #     raise EnvironmentError(f"No configuration of {template.name}")
-            # try:
-            profile = template.load_profile(cfg,
-                                            parallel_info=parallel_info,
-                                            parallel=parallel)
-            # except Exception as err:
-            #     configvars = cfg.as_dict()
-            #     raise EnvironmentError(
-            #         f"Failed to load section [{template.name}] "
-            #         f"from configuration: {configvars}"
-            #     ) from err
+            if template.name not in cfg.parser:
+                raise EnvironmentError(f"No configuration of {template.name}")
+            try:
+                profile = template.load_profile(cfg,
+                                                parallel_info=parallel_info,
+                                                parallel=parallel)
+            except Exception as err:
+                configvars = cfg.as_dict()
+                raise EnvironmentError(
+                    f"Failed to load section [{template.name}] "
+                    f"from configuration: {configvars}"
+                ) from err
 
         self.profile = profile
 

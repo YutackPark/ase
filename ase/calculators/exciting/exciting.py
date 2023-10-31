@@ -86,7 +86,8 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
 
     def write_input(
         self,
-        profile: ExcitingProfile,  # ase test linter enforces method signatures be consistent with the
+        profile: ExcitingProfile,  # ase test linter enforces method signatures
+                                   # be consistent with the
                                    # abstract method that it implements
         directory: PathLike,
         atoms: ase.Atoms,

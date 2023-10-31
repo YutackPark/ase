@@ -4,9 +4,7 @@ T. Demeyere, T.Demeyere@soton.ac.uk (2023)
 
 https://onetep.org"""
 
-from os import environ
 from pathlib import Path
-from subprocess import check_call
 
 from ase.calculators.genericfileio import (CalculatorTemplate,
                                            GenericFileIOCalculator,
@@ -71,7 +69,6 @@ class OnetepTemplate(CalculatorTemplate):
         input_path = directory / self.input
         write(input_path, atoms, format='onetep-in',
               properties=properties, **parameters)
-
 
     def load_profile(self, cfg, **kwargs):
         return OnetepProfile.from_config(cfg, self.name, **kwargs)
@@ -138,7 +135,8 @@ class Onetep(GenericFileIOCalculator):
            via the keyword dictionary, it is the user responsibility that they
            are valid ONETEP keywords.
     """
-    # TARP: I thought GenericFileIO calculators no longer had  atoms attached to them
+    # TARP: I thought GenericFileIO calculators no longer had  atoms attached
+    # to them
     def __init__(
             self,
             label='onetep',
@@ -170,7 +168,7 @@ class Onetep(GenericFileIOCalculator):
         if atoms is not None:
             self.atoms = atoms.copy()
             if atoms.calc is not None:
-                # TARP: Does this make sense? Why append the previous calculators
-                # results to a new calculator. Especially without checking if the
-                # parameters are the same as well.
+                # TARP: Does this make sense? Why append the previous
+                # calculators results to a new calculator. Especially
+                # without checking if the parameters are the same as well.
                 self.results = atoms.calc.results.copy()

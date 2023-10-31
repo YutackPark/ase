@@ -218,7 +218,9 @@ def test_ground_state_template_write_input(
         ase.calculators.exciting.exciting.ExcitingGroundStateTemplate())
     exciting_profile = ase.calculators.exciting.exciting.ExcitingProfile()
     gs_template_obj.write_input(
-        profile=exciting_profile, directory=tmp_path, atoms=nitrogen_trioxide_atoms,
+        profile=exciting_profile,
+        directory=tmp_path,
+        atoms=nitrogen_trioxide_atoms,
         parameters={
             "title": None,
             "species_path": tmp_path,

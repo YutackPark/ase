@@ -47,7 +47,8 @@ class EspressoProfile(BaseProfile):
             stdout = read_stdout(self.binary)
             return self.parse_version(stdout)
         except FileNotFoundError:
-            warnings.warn(f"The executable {self.binary} is not found on the path")
+            warnings.warn(f"The executable {self.binary} "
+                          'is not found on the path')
             return None
 
     def get_calculator_command(self, inputfile):
@@ -94,7 +95,9 @@ class EspressoTemplate(CalculatorTemplate):
             ipi_arg = f"{unixsocket}:UNIX"
         else:
             ipi_arg = f"localhost:{port:d}"  # XXX should take host, too
-        return profile.get_calculator_command(self.inputname) + ["--ipi", ipi_arg]
+        return (
+            profile.get_calculator_command(self.inputname) + ["--ipi", ipi_arg]
+        )
 
 
 class Espresso(GenericFileIOCalculator):
