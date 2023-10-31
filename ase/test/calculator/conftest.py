@@ -1,5 +1,5 @@
 from os import PathLike
-from typing import Mapping, Any
+# from typing import Mapping, Any
 
 import pytest
 
@@ -24,7 +24,8 @@ class DummyProfile(BaseProfile):
 
     def version(self):
         return "0.0.0"
-    
+
+
 class DummyTemplate(CalculatorTemplate):
 
     def __init__(self):
