@@ -100,8 +100,8 @@ main:
       -W "ignore:The --rsyncdir command line argument"
       -W "ignore:NumPy will stop allowing conversion of out-of-bound Python integers"
     - mv ase/test/coverage-html coverage-main
-    - mv ase/test/.coverage coverage-main/coverage.dat
     - coverage xml
+    - mv ase/test/.coverage coverage-main/coverage.dat
   artifacts:
     paths:
       - coverage-main/
@@ -122,9 +122,9 @@ calculators-lite:
       ase test calculator --calculators=auto --coverage
       --pytest -m calculator_lite --color=yes --durations=20 -v
       -W "ignore:The --rsyncdir command line argument"
+    - coverage xml
     - mv ase/test/coverage-html coverage-calculators-lite
     - mv ase/test/.coverage coverage-calculators-lite/coverage.dat
-    - coverage xml
   artifacts:
     paths:
       - coverage-calculators-lite/
