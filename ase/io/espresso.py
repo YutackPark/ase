@@ -13,11 +13,9 @@ ESPRESSO.
 """
 
 import operator as op
-import os
 import re
 import warnings
 from collections import OrderedDict
-from os import path
 
 import numpy as np
 
@@ -25,9 +23,8 @@ from ase.atoms import Atoms
 from ase.calculators.calculator import kpts2ndarray, kpts2sizeandoffsets
 from ase.calculators.singlepoint import (SinglePointDFTCalculator,
                                          SinglePointKPoint)
-from ase.cell import Cell
 from ase.constraints import FixAtoms, FixCartesian
-from ase.data import atomic_numbers, chemical_symbols
+from ase.data import chemical_symbols
 from ase.dft.kpoints import kpoint_convert
 from ase.units import create_units
 from ase.utils import iofunction
@@ -520,6 +517,158 @@ def parse_position_line(line):
     assert match is not None
     sym, x, y, z = match.group(1, 2, 3, 4)
     return sym, float(x), float(y), float(z)
+
+
+def get_atomic_positions(lines, n_atoms, cell=None, alat=None):
+    """Parse atom positions from ATOMIC_POSITIONS card.
+
+    Parameters
+    ----------
+    lines : list[str]
+        A list of lines containing the ATOMIC_POSITIONS card.
+    n_atoms : int
+        Expected number of atoms. Only this many lines will be parsed.
+    cell : np.array
+        Unit cell of the crystal. Only used with crystal coordinates.
+    alat : float
+        Lattice parameter for atomic coordinates. Only used for alat case.
+
+    Returns
+    -------
+    positions : list[(str, (float, float, float), (float, float, float))]
+        A list of the ordered atomic positions in the format:
+        label, (x, y, z), (if_x, if_y, if_z)
+        Force multipliers are set to None if not present.
+
+    Raises
+    ------
+    ValueError
+        Any problems parsing the data result in ValueError
+
+    """
+
+    positions = None
+    # no blanks or comment lines, can the consume n_atoms lines for positions
+    trimmed_lines = (line for line in lines
+                     if line.strip() and not line[0] == '#')
+
+    for line in trimmed_lines:
+        if line.strip().startswith('ATOMIC_POSITIONS'):
+            if positions is not None:
+                raise ValueError('Multiple ATOMIC_POSITIONS specified')
+            # Priority and behaviour tested with QE 5.3
+            if 'crystal_sg' in line.lower():
+                raise NotImplementedError('CRYSTAL_SG not implemented')
+            elif 'crystal' in line.lower():
+                cell = cell
+            elif 'bohr' in line.lower():
+                cell = np.identity(3) * units['Bohr']
+            elif 'angstrom' in line.lower():
+                cell = np.identity(3)
+            # elif 'alat' in line.lower():
+            #     cell = np.identity(3) * alat
+            else:
+                if alat is None:
+                    raise ValueError('Set lattice parameter in &SYSTEM for '
+                                     'alat coordinates')
+                # Always the default, will be DEPRECATED as mandatory
+                # in future
+                cell = np.identity(3) * alat
+
+            positions = []
+            for _dummy in range(n_atoms):
+                split_line = next(trimmed_lines).split()
+                # These can be fractions and other expressions
+                position = np.dot((infix_float(split_line[1]),
+                                   infix_float(split_line[2]),
+                                   infix_float(split_line[3])), cell)
+                if len(split_line) > 4:
+                    force_mult = (float(split_line[4]),
+                                  float(split_line[5]),
+                                  float(split_line[6]))
+                else:
+                    force_mult = None
+
+                positions.append((split_line[0], position, force_mult))
+
+    return positions
+
+
+def get_cell_parameters(lines, alat=None):
+    """Parse unit cell from CELL_PARAMETERS card.
+
+    Parameters
+    ----------
+    lines : list[str]
+        A list with lines containing the CELL_PARAMETERS card.
+    alat : float | None
+        Unit of lattice vectors in Angstrom. Only used if the card is
+        given in units of alat. alat must be None if CELL_PARAMETERS card
+        is in Bohr or Angstrom. For output files, alat will be parsed from
+        the card header and used in preference to this value.
+
+    Returns
+    -------
+    cell : np.array | None
+        Cell parameters as a 3x3 array in Angstrom. If no cell is found
+        None will be returned instead.
+    cell_alat : float | None
+        If a value for alat is given in the card header, this is also
+        returned, otherwise this will be None.
+
+    Raises
+    ------
+    ValueError
+        If CELL_PARAMETERS are given in units of bohr or angstrom
+        and alat is not
+    """
+
+    cell = None
+    cell_alat = None
+    # no blanks or comment lines, can take three lines for cell
+    trimmed_lines = (line for line in lines
+                     if line.strip() and not line[0] == '#')
+
+    for line in trimmed_lines:
+        if line.strip().startswith('CELL_PARAMETERS'):
+            if cell is not None:
+                # multiple definitions
+                raise ValueError('CELL_PARAMETERS specified multiple times')
+            # Priority and behaviour tested with QE 5.3
+            if 'bohr' in line.lower():
+                if alat is not None:
+                    raise ValueError('Lattice parameters given in '
+                                     '&SYSTEM celldm/A and CELL_PARAMETERS '
+                                     'bohr')
+                cell_units = units['Bohr']
+            elif 'angstrom' in line.lower():
+                if alat is not None:
+                    raise ValueError('Lattice parameters given in '
+                                     '&SYSTEM celldm/A and CELL_PARAMETERS '
+                                     'angstrom')
+                cell_units = 1.0
+            elif 'alat' in line.lower():
+                # Output file has (alat = value) (in Bohrs)
+                if '=' in line:
+                    alat = float(line.strip(') \n').split()[-1]) * units['Bohr']
+                    cell_alat = alat
+                elif alat is None:
+                    raise ValueError('Lattice parameters must be set in '
+                                     '&SYSTEM for alat units')
+                cell_units = alat
+            elif alat is None:
+                # may be DEPRECATED in future
+                cell_units = units['Bohr']
+            else:
+                # may be DEPRECATED in future
+                cell_units = alat
+            # Grab the parameters; blank lines have been removed
+            cell = [[ffloat(x) for x in next(trimmed_lines).split()[:3]],
+                    [ffloat(x) for x in next(trimmed_lines).split()[:3]],
+                    [ffloat(x) for x in next(trimmed_lines).split()[:3]]]
+            cell = np.array(cell) * cell_units
+
+    return cell, cell_alat
 
 
 def str_to_value(string):
@@ -1063,7 +1212,6 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
     - Hubbard parameters
     - Validation of the argument types for input
     - Validation of required options
-    - Noncollinear magnetism
 
     Parameters
     ----------
@@ -1138,8 +1286,7 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
         # Look in all possible locations for the pseudos and try to figure
         # out the number of valence electrons
         pseudo = pseudopotentials.get(species, None)
-        valence = get_valence_electrons(species, input_parameters, pseudo)
-        species_info[species] = {'pseudo': pseudo, 'valence': valence}
+        species_info[species] = {'pseudo': pseudo}
 
     # Convert atoms into species.
     # Each different magnetic moment needs to be a separate type even with
@@ -1151,31 +1298,34 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
     atomic_positions_str = []
 
     nspin = input_parameters['system'].get('nspin', 1)  # 1 is the default
+    noncolin = input_parameters['system'].get('noncolin', False)
+    rescale_magmom_fac = kwargs.get('rescale_magmom_fac', 1.0)
     if any(atoms.get_initial_magnetic_moments()):
-        if nspin == 1:
+        if nspin == 1 and not noncolin:
             # Force spin on
             input_parameters['system']['nspin'] = 2
             nspin = 2
 
-    if nspin == 2:
-        # Spin on
+    if nspin == 2 or noncolin:
+        # Magnetic calculation on
         for atom, mask, magmom in zip(
                 atoms, masks, atoms.get_initial_magnetic_moments()):
             if (atom.symbol, magmom) not in atomic_species:
-                # spin as fraction of valence
-                fspin = float(magmom) / species_info[atom.symbol]['valence']
+                # for qe version 7.2 or older magmon must be rescale by
+                # about a factor 10 to assume sensible values
+                # since qe-v7.3 magmom values will be provided unscaled
+                fspin = float(magmom) / rescale_magmom_fac
                 # Index in the atomic species list
                 sidx = len(atomic_species) + 1
                 # Index for that atom type; no index for first one
                 tidx = sum(atom.symbol == x[0] for x in atomic_species) or ' '
                 atomic_species[(atom.symbol, magmom)] = (sidx, tidx)
                 # Add magnetization to the input file
-                mag_str = f'starting_magnetization({sidx})'
+                mag_str = f"starting_magnetization({sidx})"
                 input_parameters['system'][mag_str] = fspin
+                species_pseudo = species_info[atom.symbol]['pseudo']
                 atomic_species_str.append(
-                    '{species}{tidx} {mass} {pseudo}\n'.format(
-                        species=atom.symbol, tidx=tidx, mass=atom.mass,
-                        pseudo=species_info[atom.symbol]['pseudo']))
+                    f"{atom.symbol}{tidx} {atom.mass} {species_pseudo}\n")
             # lookup tidx to append to name
             sidx, tidx = atomic_species[(atom.symbol, magmom)]
             # construct line for atomic positions
@@ -1188,10 +1338,9 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
         for atom, mask in zip(atoms, masks):
             if atom.symbol not in atomic_species:
                 atomic_species[atom.symbol] = True  # just a placeholder
+                species_pseudo = species_info[atom.symbol]['pseudo']
                 atomic_species_str.append(
-                    '{species} {mass} {pseudo}\n'.format(
-                        species=atom.symbol, mass=atom.mass,
-                        pseudo=species_info[atom.symbol]['pseudo']))
+                    f"{atom.symbol} {atom.mass} {species_pseudo}\n")
             # construct line for atomic positions
             atomic_positions_str.append(
                 format_atom_position(atom, crystal_coordinates, mask=mask)
@@ -1260,15 +1409,15 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
         kgrid = kpts2ndarray(kgrid, atoms=atoms)
         pwi.append(f'{len(kgrid)}\n')
         for k in kgrid:
-            pwi.append('{k[0]:.14f} {k[1]:.14f} {k[2]:.14f} 0\n'.format(k=k))
+            pwi.append(f"{k[0]:.14f} {k[1]:.14f} {k[2]:.14f} 0\n")
         pwi.append('\n')
     elif isinstance(kgrid, str) and (kgrid == "gamma"):
         pwi.append('K_POINTS gamma\n')
         pwi.append('\n')
     else:
         pwi.append('K_POINTS automatic\n')
-        pwi.append('{0[0]} {0[1]} {0[2]}  {1[0]:d} {1[1]:d} {1[2]:d}\n'
-                   ''.format(kgrid, koffset))
+        pwi.append(f"{kgrid[0]} {kgrid[1]} {kgrid[2]} "
+                   f" {koffset[0]:d} {koffset[1]:d} {koffset[2]:d}\n")
         pwi.append('\n')
 
     # CELL block, if required
