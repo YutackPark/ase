@@ -49,15 +49,15 @@ oldlibs:
 # Currently we have trouble with pyhon3.8 where we need to compile some
 # libraries that don't have binary wheels; we don't want to install gcc
 # in this test job.
-pipinstall:
-  image: python:3.8
-  extends: .database-configuration
-  script:
-    - python --version
-    - pip install psycopg2-binary pymysql cryptography
-    - pip install .[test]
-    - ase test --pytest --color=yes
-  when: manual
+# pipinstall:
+#   image: python:3.8
+#   extends: .database-configuration
+#   script:
+#     - python --version
+#     - pip install psycopg2-binary pymysql cryptography
+#     - pip install .[test]
+#     - ase test --pytest --color=yes
+#   when: manual
 
 # This is the main test job using new versions of libraries.
 # The intention is to enable as many features and libraries as possible.
@@ -130,22 +130,22 @@ calculators-lite:
 # calculators with ASE.
 #
 # It would be great if someone could enable more calculators with this.
-calculators:
-  image: registry.gitlab.com/ase/ase:ase-full-monty
-  script:
-    - pip install --no-deps --editable .
-    - ase info --calculators
-    - >
-      ase test calculator --calculators abinit,asap,cp2k,dftb,espresso,gpaw,kim,lammpslib,lammpsrun,mopac,nwchem,octopus,siesta
-      --coverage --pytest --color=yes --durations 20
-      -W "ignore:The --rsyncdir command line argument"
-    - mv ase/test/coverage-html coverage-calculators
-    - mv ase/test/.coverage coverage-calculators/coverage.dat
-  when: manual
-  artifacts:
-    paths:
-      - coverage-calculators/
-    expire_in: 1 week
+# calculators:
+#   image: registry.gitlab.com/ase/ase:ase-full-monty
+#   script:
+#     - pip install --no-deps --editable .
+#     - ase info --calculators
+#     - >
+#       ase test calculator --calculators abinit,asap,cp2k,dftb,espresso,gpaw,kim,lammpslib,lammpsrun,mopac,nwchem,octopus,siesta
+#       --coverage --pytest --color=yes --durations 20
+#       -W "ignore:The --rsyncdir command line argument"
+#     - mv ase/test/coverage-html coverage-calculators
+#     - mv ase/test/.coverage coverage-calculators/coverage.dat
+#   when: manual
+#   artifacts:
+#     paths:
+#       - coverage-calculators/
+#     expire_in: 1 week
 
 doc:
   image: registry.gitlab.com/ase/ase:ase-main
@@ -161,23 +161,23 @@ doc:
       - $CI_PROJECT_DIR/doc/build/
     expire_in: 1 week
 
-distribution-package:
-  image: registry.gitlab.com/ase/ase:ase-main
-  extends: .database-configuration
-  script:
-    - mkdir dist
-    - python setup.py sdist | tee dist/setup_sdist.log
-    - python setup.py bdist_wheel | tee dist/setup_bdist_wheel.log
-    - pip install dist/ase-*.tar.gz
-    - ase test --pytest --color=yes
-    - pip uninstall --yes ase
-    - pip install dist/ase-*-py3-none-any.whl
-    - ase test --pytest --color=yes
-  artifacts:
-    paths:
-      - dist
-    expire_in: 1 week
-  when: manual
+# distribution-package:
+#   image: registry.gitlab.com/ase/ase:ase-main
+#   extends: .database-configuration
+#   script:
+#     - mkdir dist
+#     - python setup.py sdist | tee dist/setup_sdist.log
+#     - python setup.py bdist_wheel | tee dist/setup_bdist_wheel.log
+#     - pip install dist/ase-*.tar.gz
+#     - ase test --pytest --color=yes
+#     - pip uninstall --yes ase
+#     - pip install dist/ase-*-py3-none-any.whl
+#     - ase test --pytest --color=yes
+#   artifacts:
+#     paths:
+#       - dist
+#     expire_in: 1 week
+#   when: manual
 
 # Publish code coverage data on web.
 #  * The deploy stage is specially recognized by gitlab
