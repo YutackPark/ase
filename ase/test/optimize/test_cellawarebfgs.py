@@ -1,15 +1,67 @@
+import pytest
 from ase.optimize.cellawarebfgs import CellAwareBFGS
-from ase.filters import FrechetCellFilter
-from ase.build import bulk
+from ase.optimize import BFGS
+from ase.filters import FrechetCellFilter, UnitCellFilter
+from ase.build import bulk, fcc110
 from ase.calculators.emt import EMT
+import numpy as np
+
+
+def test_rattle_supercell_old():
+    def relax(atoms):
+        atoms.calc = EMT()
+        relax = BFGS(FrechetCellFilter(atoms), alpha=70)
+        relax.run(fmax=0.05)
+        return relax.nsteps
+
+    atoms = bulk('Au')
+    atoms *= 2
+    atoms.rattle(0.05)
+    nsteps = relax(atoms.copy())
+    atoms *= 2
+    nsteps2 = relax(atoms.copy())
+    assert nsteps != nsteps2
+
+
+def test_rattle_supercell():
+    def relax(atoms):
+        atoms.calc = EMT()
+        relax = CellAwareBFGS(FrechetCellFilter(atoms, exp_cell_factor=1.0), alpha=70, long_output=True)
+        relax.run(fmax=0.05, smax=0.005)
+        return relax.nsteps
+
+    atoms = bulk('Au')
+    atoms *= 2
+    atoms.rattle(0.05)
+    nsteps = relax(atoms.copy())
+    atoms *= 2
+    nsteps2 = relax(atoms.copy())
+    assert nsteps == nsteps2
+
+
+@pytest.mark.parametrize('filt', [FrechetCellFilter, UnitCellFilter])
+def test_cellaware_bfgs_2d(filt):
+    atoms = fcc110('Au', size=(2,2, 3), vacuum=4)
+    orig_cell = atoms.cell.copy()
+    atoms.cell = atoms.cell @ np.array([[1.0, 0.05, 0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]])
+    atoms.calc = EMT()
+    relax = CellAwareBFGS(filt(atoms, mask=[1,1,0,0,0,1]), alpha=70, long_output=True)
+    relax.run(fmax=0.0005)
+    assert np.allclose(atoms.cell[2,:], orig_cell[2,:])
+    assert np.allclose(atoms.cell[:, 2], orig_cell[:, 2])
 
 
 def test_cellaware_bfgs():
-    atoms = bulk('Au')
-    atoms *= 5
-    atoms.calc = EMT()
-    relax = CellAwareBFGS(FrechetCellFilter(atoms), alpha=70)
-    relax.run()
+    steps = []
+    for scale in [1, 2]:
+        atoms = bulk('Au')
+        atoms *= scale
+        atoms.calc = EMT()
+        print(atoms.get_forces())
+        relax = CellAwareBFGS(FrechetCellFilter(atoms, exp_cell_factor=1.0), alpha=70, long_output=True)
+        relax.run()
+        steps.append(relax.nsteps)
+    assert steps[0] == steps[1]
      
 
 def oldcode():
