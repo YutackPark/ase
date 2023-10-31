@@ -210,7 +210,7 @@ def add_adsorbate(slab, adsorbate, height, position=(0, 0), offset=None,
                             'ase.build function, ' +
                             'position cannot be a name.')
         if position not in info['sites']:
-            raise TypeError('Adsorption site %s not supported.' % position)
+            raise TypeError(f'Adsorption site {position} not supported.')
         spos += info['sites'][position]
     else:
         pos += position
@@ -279,8 +279,8 @@ def _surface(symbol, structure, face, size, a, c, vacuum, periodic,
     if a is None:
         sym = reference_states[Z]['symmetry']
         if sym != structure:
-            raise ValueError("Can't guess lattice constant for %s-%s!" %
-                             (structure, symbol))
+            raise ValueError(
+                f"Can't guess lattice constant for {structure}-{symbol}!")
         a = reference_states[Z]['a']
 
     if structure == 'hcp' and c is None:
@@ -477,11 +477,18 @@ def mx2(formula='MoS2', kind='2H', a=3.18, thickness=3.19,
         size=(1, 1, 1), vacuum=None):
     """Create three-layer 2D materials with hexagonal structure.
 
-    For metal dichalcogenites, etc.
+    This can be used for e.g. metal dichalcogenides :mol:`MX_2` 2D structures
+    such as :mol:`MoS_2`.
 
-    The kind argument accepts '2H', which gives a mirror plane symmetry
-    and '1T', which gives an inversion symmetry."""
+    https://en.wikipedia.org/wiki/Transition_metal_dichalcogenide_monolayers
 
+    Parameters
+    ----------
+    kind : {'2H', '1T'}, default: '2H'
+
+        - '2H': mirror-plane symmetry
+        - '1T': inversion symmetry
+    """
     if kind == '2H':
         basis = [(0, 0, 0),
                  (2 / 3, 1 / 3, 0.5 * thickness),
@@ -503,10 +510,17 @@ def mx2(formula='MoS2', kind='2H', a=3.18, thickness=3.19,
     return atoms
 
 
-def graphene(formula='C2', a=2.460, size=(1, 1, 1), vacuum=None):
-    """Create a graphene monolayer structure."""
+def graphene(formula='C2', a=2.460, thickness=0.0,
+             size=(1, 1, 1), vacuum=None):
+    """Create a graphene monolayer structure.
+
+    Parameters
+    ----------
+    thickness : float, default: 0.0
+        Thickness of the layer; maybe for a buckled structure like silicene.
+    """
     cell = [[a, 0, 0], [-a / 2, a * 3**0.5 / 2, 0], [0, 0, 0]]
-    basis = [[0, 0, 0], [2 / 3, 1 / 3, 0]]
+    basis = [[0, 0, -0.5 * thickness], [2 / 3, 1 / 3, 0.5 * thickness]]
     atoms = Atoms(formula, cell=cell, pbc=(1, 1, 0))
     atoms.set_scaled_positions(basis)
     if vacuum is not None:

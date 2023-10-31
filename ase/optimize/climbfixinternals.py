@@ -1,6 +1,11 @@
+from typing import IO, Any, Dict, List, Optional, Type, Union
+
 from numpy.linalg import norm
-from ase.optimize.bfgs import BFGS
+
+from ase import Atoms
 from ase.constraints import FixInternals
+from ase.optimize.bfgs import BFGS
+from ase.optimize.optimize import Optimizer
 
 
 class BFGSClimbFixInternals(BFGS):
@@ -44,11 +49,22 @@ class BFGSClimbFixInternals(BFGS):
     .. literalinclude:: ../../ase/test/optimize/test_climb_fix_internals.py
        :end-before: # end example for documentation
     """
-    def __init__(self, atoms, restart=None, logfile='-', trajectory=None,
-                 maxstep=None, master=None, alpha=None,
-                 climb_coordinate=None,
-                 optB=BFGS, optB_kwargs=None, optB_fmax=0.05,
-                 optB_fmax_scaling=0.0):
+
+    def __init__(
+        self,
+        atoms: Atoms,
+        restart: Optional[str] = None,
+        logfile: Union[IO, str] = '-',
+        trajectory: Optional[str] = None,
+        maxstep: Optional[float] = None,
+        master: Optional[bool] = None,
+        alpha: Optional[float] = None,
+        climb_coordinate: Optional[List[FixInternals]] = None,
+        optB: Type[Optimizer] = BFGS,
+        optB_kwargs: Optional[Dict[str, Any]] = None,
+        optB_fmax: float = 0.05,
+        optB_fmax_scaling: float = 0.0,
+    ):
         """Allowed parameters are similar to the parent class
         :class:`~ase.optimize.bfgs.BFGS` with the following additions:
 
@@ -92,7 +108,8 @@ class BFGSClimbFixInternals(BFGS):
                          trajectory=trajectory, maxstep=maxstep, master=master,
                          alpha=alpha)
 
-        self.constr2climb = self.get_constr2climb(self.atoms, climb_coordinate)
+        self.constr2climb = get_constr2climb(
+            self.optimizable.atoms, climb_coordinate)
         self.targetvalue = self.targetvalue or self.constr2climb.targetvalue
 
         self.optB = optB
@@ -102,18 +119,6 @@ class BFGSClimbFixInternals(BFGS):
         # log optimizer 'B' in logfiles named after current value of constraint
         self.autolog = 'logfile' not in self.optB_kwargs
         self.autotraj = 'trajectory' not in self.optB_kwargs
-
-    def get_constr2climb(self, atoms, climb_coordinate):
-        """Get pointer to the subconstraint that is to be climbed.
-        Identification by its definition via indices (and coefficients)."""
-        constr = self.get_fixinternals(atoms)
-        return constr.get_subconstraint(atoms, climb_coordinate)
-
-    def get_fixinternals(self, atoms):
-        """Get pointer to the FixInternals constraint on the atoms object."""
-        all_constr_types = list(map(type, atoms.constraints))
-        index = all_constr_types.index(FixInternals)  # locate constraint
-        return atoms.constraints[index]
 
     def read(self):
         (self.H, self.pos0, self.forces0, self.maxstep,
@@ -131,7 +136,7 @@ class BFGSClimbFixInternals(BFGS):
     def pretend2climb(self):
         """Get directions for climbing and climb with optimizer 'A'."""
         proj_forces = self.get_projected_forces()
-        pos = self.atoms.get_positions()
+        pos = self.optimizable.get_positions()
         dpos, steplengths = self.prepare_step(pos, proj_forces)
         dpos = self.determine_step(dpos, steplengths)
         return pos, dpos
@@ -141,7 +146,8 @@ class BFGSClimbFixInternals(BFGS):
         self.constr2climb.adjust_positions(pos, pos + dpos)  # update sigma
         self.targetvalue += self.constr2climb.sigma          # climb constraint
         self.constr2climb.targetvalue = self.targetvalue     # adjust positions
-        self.atoms.set_positions(self.atoms.get_positions())   # to targetvalue
+        self.optimizable.set_positions(
+            self.optimizable.get_positions())   # to targetvalue
 
     def relax_remaining_dof(self):
         """Optimize remaining degrees of freedom with optimizer 'B'."""
@@ -150,7 +156,7 @@ class BFGSClimbFixInternals(BFGS):
         if self.autotraj:
             self.optB_kwargs['trajectory'] = f'optB_{self.targetvalue}.traj'
         fmax = self.get_scaled_fmax()
-        with self.optB(self.atoms, **self.optB_kwargs) as opt:
+        with self.optB(self.optimizable.atoms, **self.optB_kwargs) as opt:
             opt.run(fmax)  # optimize with scaled fmax
             if self.converged() and fmax > self.optB_fmax:
                 # (final) optimization with desired fmax
@@ -166,12 +172,12 @@ class BFGSClimbFixInternals(BFGS):
         """Return the projected forces along the constrained coordinate in
         uphill direction (negative sign)."""
         forces = self.constr2climb.projected_forces
-        forces = -forces.reshape(self.atoms.positions.shape)
+        forces = -forces.reshape(self.optimizable.get_positions().shape)
         return forces
 
     def get_total_forces(self):
         """Return forces obeying all constraints plus projected forces."""
-        return self.atoms.get_forces() + self.get_projected_forces()
+        return self.optimizable.get_forces() + self.get_projected_forces()
 
     def converged(self, forces=None):
         """Did the optimization converge based on the total forces?"""
@@ -181,3 +187,17 @@ class BFGSClimbFixInternals(BFGS):
     def log(self, forces=None):
         forces = forces or self.get_total_forces()
         super().log(forces=forces)
+
+
+def get_fixinternals(atoms):
+    """Get pointer to the FixInternals constraint on the atoms object."""
+    all_constr_types = list(map(type, atoms.constraints))
+    index = all_constr_types.index(FixInternals)  # locate constraint
+    return atoms.constraints[index]
+
+
+def get_constr2climb(atoms, climb_coordinate):
+    """Get pointer to the subconstraint that is to be climbed.
+    Identification by its definition via indices (and coefficients)."""
+    constr = get_fixinternals(atoms)
+    return constr.get_subconstraint(atoms, climb_coordinate)

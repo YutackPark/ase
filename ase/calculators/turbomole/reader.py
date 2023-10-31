@@ -2,12 +2,14 @@
 
 import os
 import re
-import warnings
 import subprocess
+import warnings
+
 import numpy as np
+
 from ase import Atom, Atoms
-from ase.units import Ha, Bohr
 from ase.calculators.calculator import ReadError
+from ase.units import Bohr, Ha
 
 
 def execute_command(args):
@@ -56,7 +58,7 @@ def read_output(regex, path):
         if filename.startswith('job.') or filename.endswith('.out'):
             checkfiles.append(filename)
     for filename in checkfiles:
-        with open(filename, 'rt') as f:
+        with open(filename) as f:
             lines = f.readlines()
             for line in lines:
                 match = re.search(regex, line)
@@ -189,9 +191,9 @@ def read_run_parameters(results):
 def read_energy(results, post_HF):
     """Read energy from Turbomole energy file."""
     try:
-        with open('energy', 'r') as enf:
+        with open('energy') as enf:
             text = enf.read().lower()
-    except IOError:
+    except OSError:
         raise ReadError('failed to read energy file')
     if text == '':
         raise ReadError('empty energy file')
@@ -473,7 +475,7 @@ def read_forces(results, natoms):
     dg = read_data_group('grad')
     if len(dg) == 0:
         return
-    file = open('gradient', 'r')
+    file = open('gradient')
     lines = file.readlines()
     file.close()
 
@@ -743,7 +745,7 @@ def read_charges(filename, natoms):
     """read partial charges on atoms from an ESP fit"""
     charges = None
     if os.path.exists(filename):
-        with open(filename, 'r') as infile:
+        with open(filename) as infile:
             lines = infile.readlines()
         oklines = None
         for n, line in enumerate(lines):

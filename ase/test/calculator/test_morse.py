@@ -2,9 +2,9 @@ import numpy as np
 from scipy.optimize import check_grad
 
 from ase import Atoms
-from ase.vibrations import Vibrations
-from ase.calculators.morse import MorsePotential, fcut, fcut_d
 from ase.build import bulk
+from ase.calculators.morse import MorsePotential, fcut, fcut_d
+from ase.vibrations import Vibrations
 
 De = 5.
 Re = 3.

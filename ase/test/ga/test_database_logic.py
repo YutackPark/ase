@@ -2,14 +2,14 @@ db_file = 'gadb_logics_test.db'
 
 
 def test_database_logic(seed, testdir):
-    from ase.ga.data import PrepareDB
-    from ase.ga.data import DataConnection
-    from ase.ga.startgenerator import StartGenerator
-    from ase.ga.utilities import closest_distances_generator
-    from ase.ga import set_raw_score
     import numpy as np
+
     from ase.build import fcc111
     from ase.constraints import FixAtoms
+    from ase.ga import set_raw_score
+    from ase.ga.data import DataConnection, PrepareDB
+    from ase.ga.startgenerator import StartGenerator
+    from ase.ga.utilities import closest_distances_generator
 
     # set up the random number generator
     rng = np.random.RandomState(seed)

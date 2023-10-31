@@ -1,13 +1,13 @@
-import re
 import os
+import re
 
-from ase.data import atomic_masses, atomic_numbers
-from ase.calculators.lammpsrun import LAMMPS
-from ase.calculators.lammpslib import LAMMPSlib
 from ase.calculators.lammps import convert
+from ase.calculators.lammpslib import LAMMPSlib
+from ase.calculators.lammpsrun import LAMMPS
+from ase.data import atomic_masses, atomic_numbers
 
-from .kimmodel import KIMModelCalculator
 from .exceptions import KIMCalculatorError
+from .kimmodel import KIMModelCalculator
 
 
 def KIMCalculator(model_name, options, debug):
@@ -48,7 +48,7 @@ def LAMMPSRunCalculator(
         parameters["units"] = supported_units
 
         parameters["model_init"] = [
-            "kim_init {} {}{}".format(model_name, supported_units, os.linesep)
+            f"kim_init {model_name} {supported_units}{os.linesep}"
         ]
 
         parameters["kim_interactions"] = "kim_interactions {}{}".format(
@@ -126,7 +126,7 @@ def LAMMPSLibCalculator(model_name, supported_species,
     model_init = ["units " + supported_units + os.linesep]
 
     model_init.append(
-        "kim_init {} {}{}".format(model_name, supported_units, os.linesep)
+        f"kim_init {model_name} {supported_units}{os.linesep}"
     )
     model_init.append("atom_modify map array sort 0 0" + os.linesep)
 
@@ -251,7 +251,7 @@ def _check_conflict_options(options, options_not_allowed, simulator):
     common = s1.intersection(s2)
 
     if common:
-        options_in_not_allowed = ", ".join(['"{}"'.format(s) for s in common])
+        options_in_not_allowed = ", ".join([f'"{s}"' for s in common])
 
         msg = (
             'Simulator "{}" does not support argument(s): '

@@ -1,10 +1,10 @@
 import numpy as np
 
 from ase.atoms import Atoms
-from ase.units import Hartree
-from ase.data import atomic_numbers
 from ase.calculators.singlepoint import SinglePointCalculator
-from ase.utils import writer, reader
+from ase.data import atomic_numbers
+from ase.units import Hartree
+from ase.utils import reader, writer
 
 
 @writer
@@ -43,16 +43,16 @@ def write_xsf(fileobj, images, data=None, origin=None, span_vectors=None):
             write_cell = (n == 0 or cell_variable)
             if write_cell:
                 if cell_variable:
-                    fileobj.write('PRIMVEC%s\n' % anim_token)
+                    fileobj.write(f'PRIMVEC{anim_token}\n')
                 else:
                     fileobj.write('PRIMVEC\n')
                 cell = atoms.get_cell()
                 for i in range(3):
                     fileobj.write(' %.14f %.14f %.14f\n' % tuple(cell[i]))
 
-            fileobj.write('PRIMCOORD%s\n' % anim_token)
+            fileobj.write(f'PRIMCOORD{anim_token}\n')
         else:
-            fileobj.write('ATOMS%s\n' % anim_token)
+            fileobj.write(f'ATOMS{anim_token}\n')
 
         # Get the forces if it's not too expensive:
         calc = atoms.calc

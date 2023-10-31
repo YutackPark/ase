@@ -6,10 +6,11 @@
 import os
 import re
 import sys
-from setuptools import setup, find_packages
-from setuptools.command.build_py import build_py as _build_py
 from glob import glob
 from os.path import join
+
+from setuptools import find_packages, setup
+from setuptools.command.build_py import build_py as _build_py
 
 python_min_version = (3, 6)
 python_requires = '>=' + '.'.join(str(num) for num in python_min_version)
@@ -22,7 +23,7 @@ if sys.version_info < python_min_version:
 install_requires = [
     'numpy>=1.17.0',  # July 2019
     'scipy>=1.3.1',  # August 2019
-    'matplotlib>=3.1.0',  # May 2019
+    'matplotlib>=3.3.0',  # July 2020
     'importlib-metadata>=0.12;python_version<"3.8"'
 ]
 
@@ -34,8 +35,7 @@ extras_require = {
         'pillow',
     ],
     'test': [
-        'pytest>=5.0.0',  # required by pytest-mock
-        'pytest-mock>=3.3.0',
+        'pytest>=5.0.0',
         'pytest-xdist>=1.30.0',
     ]
 }
@@ -66,6 +66,7 @@ package_data = {'ase': ['spacegroup/spacegroup.dat',
 
 class build_py(_build_py):
     """Custom command to build translations."""
+
     def __init__(self, *args, **kwargs):
         _build_py.__init__(self, *args, **kwargs)
         # Keep list of files to appease bdist_rpm.  We have to keep track of
@@ -84,7 +85,7 @@ class build_py(_build_py):
                     os.makedirs(dirname)
                 mofile = join(dirname, 'ag.mo')
                 print()
-                print('Compile {}'.format(pofile))
+                print(f'Compile {pofile}')
                 status = os.system('%s -cv %s --output-file=%s 2>&1' %
                                    (msgfmt, pofile, mofile))
                 assert status == 0, 'msgfmt failed!'
@@ -116,7 +117,7 @@ setup(name='ase',
           'GNU Lesser General Public License v2 or later (LGPLv2+)',
           'Operating System :: OS Independent',
           'Programming Language :: Python :: 3',
-          'Programming Language :: Python :: 3.5',
           'Programming Language :: Python :: 3.6',
           'Programming Language :: Python :: 3.7',
+          'Programming Language :: Python :: 3.8',
           'Topic :: Scientific/Engineering :: Physics'])

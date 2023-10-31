@@ -1,5 +1,5 @@
-import pytest
 import numpy as np
+import pytest
 
 from ase.io import write
 
@@ -29,7 +29,7 @@ def test_vasp_co(factory, atoms_co, calc_settings):
     environment variables
 
     """
-    def array_almost_equal(a1, a2, tol=np.finfo(type(1.0)).eps):
+    def array_almost_equal(a1, a2, tol=np.finfo(float).eps):
         """Replacement for old numpy.testing.utils.array_almost_equal."""
         return (np.abs(a1 - a2) < tol).all()
 

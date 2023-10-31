@@ -3,15 +3,17 @@ import json
 import numpy as np
 import pytest
 
+from ase.build import bulk
 from ase.calculators.morse import MorsePotential
+from ase.constraints import FixBondLength
+from ase.geometry.geometry import find_mic, get_distances
+from ase.mep import NEB, NEBTools
+from ase.mep.neb import NEBOptimizer
 from ase.optimize import BFGS, ODE12r
 from ase.optimize.precon import Exp
-from ase.build import bulk
-from ase.neb import NEB, NEBTools, NEBOptimizer
-from ase.geometry.geometry import find_mic
-from ase.constraints import FixBondLength
-from ase.geometry.geometry import get_distances
 from ase.utils.forcecurve import fit_images
+
+pytestmark = pytest.mark.optimize
 
 
 def calc():
@@ -199,6 +201,28 @@ def test_single_precon_initialisation(setup_images):
     mep.get_forces()
     assert len(mep.precon) == len(mep.images)
     assert mep.precon[0].mu == mep.precon[1].mu
+
+
+def test_list_precon_initialisation(setup_images):
+    images, _, _ = setup_images
+
+    precon = Exp()
+    mep = NEB(images, method='spline', precon=precon)
+    mep.get_forces()
+
+    # the tested scenario is saving computed precon
+    # for restarting of a calculation
+
+    # saving as PreconImages object
+    mep_restart = NEB(images, method='spline', precon=mep.precon)
+    mep_restart.get_forces()
+    assert len(mep_restart.precon) == len(mep_restart.images)
+    assert mep_restart.precon[0].mu == mep_restart.precon[1].mu
+    # saving as a list of precon objects
+    mep_restart = NEB(images, method='spline', precon=mep.precon.precon)
+    mep_restart.get_forces()
+    assert len(mep_restart.precon) == len(mep_restart.images)
+    assert mep_restart.precon[0].mu == mep_restart.precon[1].mu
 
 
 def test_precon_assembly(setup_images):

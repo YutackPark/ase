@@ -2,10 +2,11 @@
 
 import sys
 from pathlib import Path
+
 import numpy as np
 
 import ase.units as u
-from ase.parallel import world, paropen, parprint
+from ase.parallel import paropen, parprint, world
 from ase.vibrations import Vibrations
 from ase.vibrations.raman import Raman, RamanCalculatorBase
 
@@ -355,8 +356,8 @@ class ResonantRaman(Raman):
                                u.Bohr / 2 / self.delta)
         else:
             # did not read
-            self.exmE_rp = self.expE_rp = self.exF_rp = np.empty((0))
-            self.exmm_rpc = self.expm_rpc = self.exdmdr_rpc = np.empty((0))
+            self.exmE_rp = self.expE_rp = self.exF_rp = np.empty(0)
+            self.exmm_rpc = self.expm_rpc = self.exdmdr_rpc = np.empty(0)
 
     def read(self, *args, **kwargs):
         """Read data from a pre-performed calculation."""
@@ -452,10 +453,10 @@ class ResonantRaman(Raman):
         with paropen(out, 'w') as fd:
             fd.write('# Resonant Raman spectrum\n')
             if hasattr(self, '_approx'):
-                fd.write('# approximation: {0}\n'.format(self._approx))
+                fd.write(f'# approximation: {self._approx}\n')
             for key in self.observation:
-                fd.write('# {0}: {1}\n'.format(key, self.observation[key]))
-            fd.write('# omega={0:g} eV, gamma={1:g} eV\n'
+                fd.write(f'# {key}: {self.observation[key]}\n')
+            fd.write('# omega={:g} eV, gamma={:g} eV\n'
                      .format(omega, gamma))
             if width is not None:
                 fd.write('# %s folded, width=%g cm^-1\n'
@@ -480,7 +481,7 @@ class ResonantRaman(Raman):
         elif te > -2 and te < 3:
             ts = str(10**te)
         else:
-            ts = '10^{0}'.format(te)
+            ts = f'10^{te}'
 
         if isinstance(log, str):
             log = paropen(log, 'a')
@@ -491,7 +492,7 @@ class ResonantRaman(Raman):
         parprint(' method:', self.vibrations.method, file=log)
         parprint(' approximation:', self.approximation, file=log)
         parprint(' Mode    Frequency        Intensity', file=log)
-        parprint('  #    meV     cm^-1      [{0}A^4/amu]'.format(ts), file=log)
+        parprint(f'  #    meV     cm^-1      [{ts}A^4/amu]', file=log)
         parprint('-------------------------------------', file=log)
         for n, e in enumerate(hnu):
             if e.imag != 0:

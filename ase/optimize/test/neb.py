@@ -1,8 +1,8 @@
-from ase.optimize import QuasiNewton
-from ase.constraints import FixAtoms
+from ase.build import add_adsorbate, fcc100
 from ase.calculators.emt import EMT
-from ase.neb import NEB
-from ase.build import fcc100, add_adsorbate
+from ase.constraints import FixAtoms
+from ase.mep import NEB
+from ase.optimize import QuasiNewton
 
 
 def main():

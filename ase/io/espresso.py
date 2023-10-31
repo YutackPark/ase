@@ -12,8 +12,8 @@ Units are converted using CODATA 2006, as used internally by Quantum
 ESPRESSO.
 """
 
-import os
 import operator as op
+import os
 import re
 import warnings
 from collections import OrderedDict
@@ -22,16 +22,15 @@ from os import path
 import numpy as np
 
 from ase.atoms import Atoms
-from ase.cell import Cell
+from ase.calculators.calculator import kpts2ndarray, kpts2sizeandoffsets
 from ase.calculators.singlepoint import (SinglePointDFTCalculator,
                                          SinglePointKPoint)
-from ase.calculators.calculator import kpts2ndarray, kpts2sizeandoffsets
-from ase.dft.kpoints import kpoint_convert
+from ase.cell import Cell
 from ase.constraints import FixAtoms, FixCartesian
-from ase.data import chemical_symbols, atomic_numbers
+from ase.data import atomic_numbers, chemical_symbols
+from ase.dft.kpoints import kpoint_convert
 from ase.units import create_units
 from ase.utils import iofunction
-
 
 # Quantum ESPRESSO uses CODATA 2006 internally
 units = create_units('2006')
@@ -51,6 +50,8 @@ _PW_HIGHEST_OCCUPIED_LOWEST_FREE = 'highest occupied, lowest unoccupied level'
 _PW_KPTS = 'number of k points='
 _PW_BANDS = _PW_END
 _PW_BANDSTRUCTURE = 'End of band structure calculation'
+_PW_DIPOLE = "Debye"
+_PW_DIPOLE_DIRECTION = "Computed dipole along edir"
 
 # ibrav error message
 ibrav_error_message = (
@@ -64,23 +65,23 @@ class Namelist(OrderedDict):
     """Case insensitive dict that emulates Fortran Namelists."""
 
     def __contains__(self, key):
-        return super(Namelist, self).__contains__(key.lower())
+        return super().__contains__(key.lower())
 
     def __delitem__(self, key):
-        return super(Namelist, self).__delitem__(key.lower())
+        return super().__delitem__(key.lower())
 
     def __getitem__(self, key):
-        return super(Namelist, self).__getitem__(key.lower())
+        return super().__getitem__(key.lower())
 
     def __setitem__(self, key, value):
-        super(Namelist, self).__setitem__(key.lower(), value)
+        super().__setitem__(key.lower(), value)
 
     def get(self, key, default=None):
-        return super(Namelist, self).get(key.lower(), default)
+        return super().get(key.lower(), default)
 
 
-@iofunction('rU')
-def read_espresso_out(fileobj, index=-1, results_required=True):
+@iofunction('r')
+def read_espresso_out(fileobj, index=slice(None), results_required=True):
     """Reads Quantum ESPRESSO output files.
 
     The atomistic configurations as well as results (energy, force, stress,
@@ -130,6 +131,8 @@ def read_espresso_out(fileobj, index=-1, results_required=True):
         _PW_KPTS: [],
         _PW_BANDS: [],
         _PW_BANDSTRUCTURE: [],
+        _PW_DIPOLE: [],
+        _PW_DIPOLE_DIRECTION: [],
     }
 
     for idx, line in enumerate(pwo_lines):
@@ -162,8 +165,8 @@ def read_espresso_out(fileobj, index=-1, results_required=True):
         for config_index, config_index_next in zip(
                 all_config_indexes,
                 all_config_indexes[1:] + [len(pwo_lines)]):
-            if any([config_index < results_index < config_index_next
-                    for results_index in results_indexes]):
+            if any(config_index < results_index < config_index_next
+                    for results_index in results_indexes):
                 results_config_indexes.append(config_index)
 
         # slice from the subset
@@ -174,7 +177,7 @@ def read_espresso_out(fileobj, index=-1, results_required=True):
     # Extract initialisation information each time PWSCF starts
     # to add to subsequent configurations. Use None so slices know
     # when to fill in the blanks.
-    pwscf_start_info = dict((idx, None) for idx in indexes[_PW_START])
+    pwscf_start_info = {idx: None for idx in indexes[_PW_START]}
 
     for image_index in image_indexes:
         # Find the nearest calculation start to parse info. Needed in,
@@ -275,6 +278,22 @@ def read_espresso_out(fileobj, index=-1, results_required=True):
                     in pwo_lines[magmoms_index + 1:
                                  magmoms_index + 1 + len(structure)]]
 
+        # Dipole moment
+        dipole = None
+        if indexes[_PW_DIPOLE]:
+            for dipole_index in indexes[_PW_DIPOLE]:
+                if image_index < dipole_index < next_index:
+                    _dipole = float(pwo_lines[dipole_index].split()[-2])
+
+            for dipole_index in indexes[_PW_DIPOLE_DIRECTION]:
+                if image_index < dipole_index < next_index:
+                    _direction = pwo_lines[dipole_index].strip()
+                    prefix = 'Computed dipole along edir('
+                    _direction = _direction[len(prefix):]
+                    _direction = int(_direction[0])
+
+            dipole = np.eye(3)[_direction - 1] * _dipole * units['Debye']
+
         # Fermi level / highest occupied level
         efermi = None
         for fermi_index in indexes[_PW_FERMI]:
@@ -298,7 +317,7 @@ def read_espresso_out(fileobj, index=-1, results_required=True):
                           "set verbosity='high' to print them."
 
         for kpts_index in indexes[_PW_KPTS]:
-            nkpts = int(pwo_lines[kpts_index].split()[4])
+            nkpts = int(re.findall(r'\b\d+\b', pwo_lines[kpts_index])[0])
             kpts_index += 2
 
             if pwo_lines[kpts_index].strip() == kpoints_warning:
@@ -376,13 +395,23 @@ def read_espresso_out(fileobj, index=-1, results_required=True):
 
         # Put everything together
         #
-        # I have added free_energy.  Can and should we distinguish
-        # energy and free_energy?  --askhl
+        # In PW the forces are consistent with the "total energy"; that's why
+        # its value must be assigned to free_energy.
+        # PW doesn't compute the extrapolation of the energy to 0K smearing
+        # the closer thing to this is again the total energy that contains
+        # the correct (i.e. variational) form of the band energy is
+        #   Eband = \int e N(e) de   for e<Ef , where N(e) is the DOS
+        # This differs by the term (-TS)  from the sum of KS eigenvalues:
+        #    Eks = \sum wg(n,k) et(n,k)
+        # which is non variational. When a Fermi-Dirac function is used
+        # for a given T, the variational energy is REALLY the free energy F,
+        # and F = E - TS , with E = non variational energy.
+        #
         calc = SinglePointDFTCalculator(structure, energy=energy,
                                         free_energy=energy,
                                         forces=forces, stress=stress,
                                         magmoms=magmoms, efermi=efermi,
-                                        ibzkpts=ibzkpts)
+                                        ibzkpts=ibzkpts, dipole=dipole)
         calc.kpts = kpts
         structure.calc = calc
 
@@ -493,7 +522,7 @@ def parse_position_line(line):
     return sym, float(x), float(y), float(z)
 
 
-@iofunction('rU')
+@iofunction('r')
 def read_espresso_in(fileobj):
     """Parse a Quantum ESPRESSO input files, '.in', '.pwi'.
 
@@ -547,7 +576,7 @@ def read_espresso_in(fileobj):
         valence = get_valence_electrons(symbol, data, pseudo)
 
         # starting_magnetization is in fractions of valence electrons
-        magnet_key = "starting_magnetization({0})".format(ispec + 1)
+        magnet_key = f"starting_magnetization({ispec + 1})"
         magmom = valence * data["system"].get(magnet_key, 0.0)
         species_info[symbol] = {"weight": weight, "pseudo": pseudo,
                                 "valence": valence, "magmom": magmom}
@@ -700,7 +729,7 @@ def ibrav_to_cell(system):
                          [b_over_a * cosab, b_over_a * sinab, 0.0],
                          v3]) * alat
     else:
-        raise NotImplementedError('ibrav = {0} is not implemented'
+        raise NotImplementedError('ibrav = {} is not implemented'
                                   ''.format(system['ibrav']))
 
     return Cell(cell)
@@ -745,7 +774,7 @@ def get_valence_electrons(symbol, data, pseudo=None):
         http://materialscloud.org/sssp/ is employed.
     """
     if pseudo is None:
-        pseudo = '{}_dummy.UPF'.format(symbol)
+        pseudo = f'{symbol}_dummy.UPF'
     for pseudo_dir in get_pseudo_dirs(data):
         if path.exists(path.join(pseudo_dir, pseudo)):
             valence = grep_valence(path.join(pseudo_dir, pseudo))
@@ -1147,7 +1176,7 @@ def label_to_symbol(label):
     if test_symbol in chemical_symbols:
         return test_symbol
     else:
-        raise KeyError('Could not parse species from label {0}.'
+        raise KeyError('Could not parse species from label {}.'
                        ''.format(label))
 
 
@@ -1200,7 +1229,7 @@ def infix_float(text):
 
     while '(' in text:
         middle = middle_brackets(text)
-        text = text.replace(middle, '{}'.format(eval_no_bracket_expr(middle)))
+        text = text.replace(middle, f'{eval_no_bracket_expr(middle)}')
 
     return float(eval_no_bracket_expr(text))
 
@@ -1406,7 +1435,7 @@ def grep_valence(pseudopotential):
                                        line.split(' ')))[0]
                 return float(line.split('=')[-1].strip().strip('"'))
         else:
-            raise ValueError('Valence missing in {}'.format(pseudopotential))
+            raise ValueError(f'Valence missing in {pseudopotential}')
 
 
 def kspacing_to_grid(atoms, spacing, calculated_spacing=None):
@@ -1583,7 +1612,7 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
         elif isinstance(constraint, FixCartesian):
             constraint_mask[constraint.a] = constraint.mask
         else:
-            warnings.warn('Ignored unknown constraint {}'.format(constraint))
+            warnings.warn(f'Ignored unknown constraint {constraint}')
     masks = []
     for atom in atoms:
         # only inclued mask if something is fixed
@@ -1635,7 +1664,7 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
                 tidx = sum(atom.symbol == x[0] for x in atomic_species) or ' '
                 atomic_species[(atom.symbol, magmom)] = (sidx, tidx)
                 # Add magnetization to the input file
-                mag_str = 'starting_magnetization({0})'.format(sidx)
+                mag_str = f'starting_magnetization({sidx})'
                 input_parameters['system'][mag_str] = fspin
                 atomic_species_str.append(
                     '{species}{tidx} {mass} {pseudo}\n'.format(
@@ -1682,15 +1711,15 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
     # Assume sections are ordered (taken care of in namelist construction)
     # and that repr converts to a QE readable representation (except bools)
     for section in input_parameters:
-        pwi.append('&{0}\n'.format(section.upper()))
+        pwi.append(f'&{section.upper()}\n')
         for key, value in input_parameters[section].items():
             if value is True:
-                pwi.append('   {0:16} = .true.\n'.format(key))
+                pwi.append(f'   {key:16} = .true.\n')
             elif value is False:
-                pwi.append('   {0:16} = .false.\n'.format(key))
+                pwi.append(f'   {key:16} = .false.\n')
             else:
                 # repr format to get quotes around strings
-                pwi.append('   {0:16} = {1!r:}\n'.format(key, value))
+                pwi.append(f'   {key:16} = {value!r}\n')
         pwi.append('/\n')  # terminate section
     pwi.append('\n')
 
@@ -1723,7 +1752,7 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
         pwi.append('K_POINTS crystal_b\n')
         assert hasattr(kgrid, 'path') or 'path' in kgrid
         kgrid = kpts2ndarray(kgrid, atoms=atoms)
-        pwi.append('%s\n' % len(kgrid))
+        pwi.append(f'{len(kgrid)}\n')
         for k in kgrid:
             pwi.append('{k[0]:.14f} {k[1]:.14f} {k[2]:.14f} 0\n'.format(k=k))
         pwi.append('\n')

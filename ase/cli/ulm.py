@@ -27,10 +27,11 @@ class CLICommand:
     @staticmethod
     def run(args):
         import os
+
         from ase.io.ulm import copy, print_ulm_info
 
         if args.delete:
-            exclude = set('.' + key for key in args.delete.split(','))
+            exclude = {'.' + key for key in args.delete.split(',')}
             copy(args.filename, args.filename + '.temp', exclude)
             os.rename(args.filename + '.temp', args.filename)
         else:

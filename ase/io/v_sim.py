@@ -5,6 +5,7 @@ Atoms object in V_Sim 3.5+ ascii format.
 """
 
 import numpy as np
+
 from ase.utils import reader, writer
 
 
@@ -17,9 +18,10 @@ def read_v_sim(fd):
     https://l_sim.gitlab.io/v_sim/sample.html#sample_ascii
     """
 
+    import re
+
     from ase import Atoms, units
     from ase.geometry import cellpar_to_cell
-    import re
 
     # Read comment:
     fd.readline()
@@ -52,7 +54,7 @@ def read_v_sim(fd):
 
         elif re_node.match(line):
             unit = 1.0
-            if not ("reduced" in keywords):
+            if "reduced" not in keywords:
                 if (("bohr" in keywords) or ("bohrd0" in keywords) or
                         ("atomic" in keywords) or ("atomicd0" in keywords)):
                     unit = units.Bohr
@@ -101,7 +103,7 @@ def write_v_sim(fd, atoms):
     V_sim format is specified here:
     https://l_sim.gitlab.io/v_sim/sample.html#sample_ascii
     """
-    from ase.geometry import cellpar_to_cell, cell_to_cellpar
+    from ase.geometry import cell_to_cellpar, cellpar_to_cell
 
     # Convert the lattice vectors to triangular matrix by converting
     #   to and from a set of lengths and angles
@@ -112,13 +114,13 @@ def write_v_sim(fd, atoms):
 
     fd.write('===== v_sim input file created using the'
              ' Atomic Simulation Environment (ASE) ====\n')
-    fd.write('{0} {1} {2}\n'.format(dxx, dyx, dyy))
-    fd.write('{0} {1} {2}\n'.format(dzx, dzy, dzz))
+    fd.write(f'{dxx} {dyx} {dyy}\n')
+    fd.write(f'{dzx} {dzy} {dzz}\n')
 
     # Use v_sim 3.5 keywords to indicate scaled positions, etc.
     fd.write('#keyword: reduced\n')
     fd.write('#keyword: angstroem\n')
-    if np.alltrue(atoms.pbc):
+    if np.all(atoms.pbc):
         fd.write('#keyword: periodic\n')
     elif not np.any(atoms.pbc):
         fd.write('#keyword: freeBC\n')
@@ -133,5 +135,5 @@ def write_v_sim(fd, atoms):
     # Add atoms (scaled positions)
     for position, symbol in zip(atoms.get_scaled_positions(),
                                 atoms.get_chemical_symbols()):
-        fd.write('{0} {1} {2} {3}\n'.format(
+        fd.write('{} {} {} {}\n'.format(
             position[0], position[1], position[2], symbol))

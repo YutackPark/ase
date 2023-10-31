@@ -1,6 +1,7 @@
+import importlib.util
 import os
 import shutil
-import importlib
+
 from ase.calculators.calculator import names
 
 builtins = {'eam', 'emt', 'ff', 'lj', 'morse', 'tip3p', 'tip4p'}
@@ -33,7 +34,7 @@ python_modules = {'gpaw': 'gpaw',
 
 
 def get_executable_env_var(name):
-    return 'ASE_{}_COMMAND'.format(name.upper())
+    return f'ASE_{name.upper()}_COMMAND'
 
 
 def detect(name):
@@ -45,11 +46,11 @@ def detect(name):
         return d
 
     if name in python_modules:
-        loader = importlib.find_loader(python_modules[name])
-        if loader is not None:
+        spec = importlib.util.find_spec(python_modules[name])
+        if spec is not None:
             d['type'] = 'python'
             d['module'] = python_modules[name]
-            d['path'] = loader.get_filename()
+            d['path'] = spec.loader.get_filename()
             return d
 
     envvar = get_executable_env_var(name)
@@ -99,5 +100,5 @@ def format_configs(configs):
 
             state = state.format(**config)
 
-        messages.append('{:<10s} {}'.format(name, state))
+        messages.append(f'{name:<10s} {state}')
     return messages

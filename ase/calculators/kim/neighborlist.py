@@ -1,12 +1,13 @@
 from collections import defaultdict
 
-import numpy as np
 import kimpy
+import numpy as np
 from kimpy import neighlist
-from ase.neighborlist import neighbor_list
-from ase import Atom
 
-from .kimpy_wrappers import check_call_wrapper, c_int, c_double
+from ase import Atom
+from ase.neighborlist import neighbor_list
+
+from .kimpy_wrappers import c_double, c_int, check_call_wrapper
 
 
 class NeighborList:
@@ -57,14 +58,14 @@ class NeighborList:
 
         if self.debug:
             print()
-            print("Calculator skin: {}".format(self.skin))
+            print(f"Calculator skin: {self.skin}")
             print(f"Model influence distance: {model_influence_dist}")
             print(
                 "Calculator influence distance (including skin distance): {}"
                 "".format(self.influence_dist)
             )
-            print("Number of cutoffs: {}".format(model_cutoffs.size))
-            print("Model cutoffs: {}".format(model_cutoffs))
+            print(f"Number of cutoffs: {model_cutoffs.size}")
+            print(f"Model cutoffs: {model_cutoffs}")
             print(
                 "Calculator cutoffs (including skin distance): {}"
                 "".format(self.cutoffs)
@@ -123,8 +124,17 @@ class NeighborList:
                 if a.shape == b.shape:
                     delta = np.linalg.norm(a - b, axis=1)
                     # Indices of the two largest elements
-                    ind = np.argpartition(delta, -2)[-2:]
-                    if sum(delta[ind]) <= self.skin:
+                    try:
+                        ind = np.argpartition(delta, -2)[-2:]
+
+                        if sum(delta[ind]) <= self.skin:
+                            need_neigh_update = False
+                    except ValueError as error:
+                        # if there is only a single atom that gets displaced
+                        # np.argpartition(delta, -2) will fail with a
+                        # ValueError, a single atom has no neighbors to update
+                        if atoms.positions.shape[0] != 1:
+                            raise error
                         need_neigh_update = False
 
         return need_neigh_update
@@ -205,7 +215,7 @@ class ASENeighborList(NeighborList):
         # Loop over all neighbor pairs. Because this loop will generally
         # include image atoms (for periodic systems), we keep track of
         # which atoms/images we've accounted for in the `used` dictionary.
-        used = dict()
+        used = {}
         for neigh_i, neigh_j, rel_pos, offset, dist in zip(
                 neigh_indices_i, neigh_indices_j,
                 relative_pos, neigh_cell_offsets, dists
@@ -237,7 +247,7 @@ class ASENeighborList(NeighborList):
         # Add neighbors of padding atoms if the potential requires them
         if self.padding_need_neigh:
             neighbor_list_size = len(new_atoms)
-            inv_used = dict((v, k) for k, v in used.items())
+            inv_used = {v: k for k, v in used.items()}
             # Loop over all the neighbors (k) and the image of that neighbor
             # in the cell (neigh)
             for k, neigh in enumerate(padding_image_of):

@@ -1,33 +1,33 @@
 from random import random
-from ase.io import write
+
+import numpy as np
+
+from ase.ga import get_parametrization
+from ase.ga.cutandsplicepairing import CutAndSplicePairing
 from ase.ga.data import DataConnection
+from ase.ga.offspring_creator import OperationSelector
+from ase.ga.pbs_queue_run import PBSQueueRun
 from ase.ga.population import Population
 from ase.ga.standard_comparators import InteratomicDistanceComparator
-from ase.ga.cutandsplicepairing import CutAndSplicePairing
-from ase.ga.offspring_creator import OperationSelector
-from ase.ga.standardmutations import MirrorMutation
-from ase.ga.standardmutations import RattleMutation
-from ase.ga.standardmutations import PermutationMutation
-from ase.ga.utilities import closest_distances_generator
-from ase.ga.utilities import get_all_atom_types
-from ase.ga.pbs_queue_run import PBSQueueRun
-from ase.ga import get_parametrization
-import numpy as np
-from ase.ga.utilities import get_atoms_connections, get_atoms_distribution
-from ase.ga.utilities import get_angles_distribution
-from ase.ga.utilities import get_rings, get_neighborlist
+from ase.ga.standardmutations import (MirrorMutation, PermutationMutation,
+                                      RattleMutation)
+from ase.ga.utilities import (closest_distances_generator, get_all_atom_types,
+                              get_angles_distribution, get_atoms_connections,
+                              get_atoms_distribution, get_neighborlist,
+                              get_rings)
+from ase.io import write
 
 
 def jtg(job_name, traj_file):
     s = '#!/bin/sh\n'
     s += '#PBS -l nodes=1:ppn=16\n'
     s += '#PBS -l walltime=100:00:00\n'
-    s += '#PBS -N {0}\n'.format(job_name)
+    s += f'#PBS -N {job_name}\n'
     s += '#PBS -q q16\n'
     s += 'cd $PBS_O_WORKDIR\n'
     s += 'NPROCS==`wc -l < $PBS_NODEFILE`\n'
     s += 'mpirun --mca mpi_warn_on_fork 0 -np $NPROCS '
-    s += 'gpaw-python calc_gpaw.py {0}\n'.format(traj_file)
+    s += f'gpaw-python calc_gpaw.py {traj_file}\n'
     return s
 
 

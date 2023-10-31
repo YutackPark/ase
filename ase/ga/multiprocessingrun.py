@@ -1,9 +1,10 @@
 """ Class for handling several simultaneous jobs.
 The class has been tested on Niflheim-opteron4.
 """
-from multiprocessing import Pool
 import time
-from ase.io import write, read
+from multiprocessing import Pool
+
+from ase.io import read, write
 
 
 class MultiprocessingRun:
@@ -35,8 +36,8 @@ class MultiprocessingRun:
         """Relax the atoms object a by submitting the relaxation
         to the pool of cpus."""
         self.dc.mark_as_queued(a)
-        fname = '{0}/cand{1}.traj'.format(self.tmp_folder,
-                                          a.info['confid'])
+        fname = '{}/cand{}.traj'.format(self.tmp_folder,
+                                        a.info['confid'])
         write(fname, a)
         self.results.append(self.pool.apply_async(self.relax_function,
                                                   [fname]))

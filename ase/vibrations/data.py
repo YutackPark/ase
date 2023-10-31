@@ -1,21 +1,20 @@
 """Storage and analysis for vibrational data"""
 
 import collections
-from math import sin, pi, sqrt
-from numbers import Real, Integral
+from math import pi, sin, sqrt
+from numbers import Integral, Real
 from typing import Any, Dict, Iterator, List, Sequence, Tuple, TypeVar, Union
 
 import numpy as np
 
-from ase.atoms import Atoms
-import ase.units as units
 import ase.io
-from ase.utils import jsonable, lazymethod
-
+import ase.units as units
+from ase.atoms import Atoms
 from ase.calculators.singlepoint import SinglePointCalculator
-from ase.spectrum.dosdata import RawDOSData
+from ase.constraints import FixAtoms, FixCartesian, constrained_indices
 from ase.spectrum.doscollection import DOSCollection
-from ase.constraints import constrained_indices, FixCartesian, FixAtoms
+from ase.spectrum.dosdata import RawDOSData
+from ase.utils import jsonable, lazymethod
 
 RealSequence4D = Sequence[Sequence[Sequence[Sequence[Real]]]]
 VD = TypeVar('VD', bound='VibrationsData')
@@ -61,9 +60,10 @@ class VibrationsData:
                  ) -> None:
 
         if indices is None:
-            self._indices = self.indices_from_constraints(atoms)
-        else:
-            self._indices = np.array(indices, dtype=int)
+            indices = np.asarray(self.indices_from_constraints(atoms),
+                                 dtype=int)
+
+        self._indices = np.array(indices, dtype=int)
 
         n_atoms = self._check_dimensions(atoms, np.asarray(hessian),
                                          indices=self._indices)
@@ -157,7 +157,7 @@ class VibrationsData:
     @staticmethod
     def _check_dimensions(atoms: Atoms,
                           hessian: np.ndarray,
-                          indices: Sequence[int],
+                          indices: Union[np.ndarray, Sequence[int]],
                           two_d: bool = False) -> int:
         """Sanity check on array shapes from input data
 

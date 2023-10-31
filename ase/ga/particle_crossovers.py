@@ -1,7 +1,9 @@
-from ase.ga.offspring_creator import OffspringCreator
-from ase import Atoms
 from itertools import chain
+
 import numpy as np
+
+from ase import Atoms
+from ase.ga.offspring_creator import OffspringCreator
 
 
 class Crossover(OffspringCreator):
@@ -114,7 +116,7 @@ class CutSpliceCrossover(Crossover):
             # correct_by: dictionary that specifies how many
             # of the atom_numbers should be removed (a negative number)
             # or added (a positive number)
-            correct_by = dict([(j, opt_sm.count(j)) for j in set(opt_sm)])
+            correct_by = {j: opt_sm.count(j) for j in set(opt_sm)}
             for n in cur_sm:
                 correct_by[n] -= 1
             correct_in = tmpf if self.rng.choice([0, 1]) else tmpm
@@ -148,8 +150,8 @@ class CutSpliceCrossover(Crossover):
         for atom in chain(tmpf, tmpm):
             indi.append(atom)
 
-        parent_message = ':Parents {0} {1}'.format(f.info['confid'],
-                                                   m.info['confid'])
+        parent_message = ':Parents {} {}'.format(f.info['confid'],
+                                                 m.info['confid'])
         return (self.finalize_individual(indi),
                 self.descriptor + parent_message)
 

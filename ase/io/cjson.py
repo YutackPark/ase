@@ -3,6 +3,7 @@
 https://wiki.openchemistry.org/Chemical_JSON
 """
 import json
+
 import numpy as np
 
 from ase import Atoms
@@ -17,7 +18,11 @@ def contract(dictionary):
     return dcopy
 
 
-def read_cml(fileobj):
+def read_cjson(fileobj):
+    """Read a Chemical Json file as written by avogadro2 (>=1.93.0)
+
+    See https://wiki.openchemistry.org/Chemical_JSON
+    """
     data = contract(json.load(fileobj))
     atoms = Atoms()
     datoms = data['atoms']

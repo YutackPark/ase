@@ -25,7 +25,7 @@ Quick links:
     - :mod:`~ase.io`
     - :mod:`~ase.lattice`
   * - :mod:`~ase.md`
-    - :mod:`~ase.neb`
+    - :mod:`~ase.mep`
     - :mod:`~ase.neighborlist`
     - :mod:`~ase.optimize`
   * - :mod:`~ase.parallel`
@@ -68,6 +68,7 @@ List of all modules:
    optimize
    md
    constraints
+   filters
    spacegroup/spacegroup
    neighborlist
    geometry

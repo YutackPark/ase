@@ -1,8 +1,8 @@
 import numpy as np
 
 import ase  # Annotations
-from ase.utils import jsonable
 from ase.calculators.calculator import PropertyNotImplementedError
+from ase.utils import jsonable
 
 
 def calculate_band_structure(atoms, path=None, scf_kwargs=None,
@@ -107,8 +107,8 @@ def get_band_structure(atoms=None, calc=None, path=None, reference=None):
     energies = np.array(energies)
 
     if path is None:
-        from ase.dft.kpoints import (BandPath, resolve_custom_points,
-                                     find_bandpath_kinks)
+        from ase.dft.kpoints import (BandPath, find_bandpath_kinks,
+                                     resolve_custom_points)
         standard_path = atoms.cell.bandpath(npoints=0)
         # Kpoints are already evaluated, we just need to put them into
         # the path (whether they fit our idea of what the path is, or not).
@@ -301,6 +301,7 @@ class BandStructure:
 
     BandStructure objects support JSON I/O.
     """
+
     def __init__(self, path, energies, reference=0.0):
         self._path = path
         self._energies = np.asarray(energies)

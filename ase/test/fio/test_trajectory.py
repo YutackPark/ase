@@ -1,9 +1,9 @@
 import pytest
 
 from ase import Atom, Atoms
-from ase.io import Trajectory, read
-from ase.constraints import FixBondLength
 from ase.calculators.calculator import PropertyNotImplementedError
+from ase.constraints import FixBondLength
+from ase.io import Trajectory, read
 
 
 @pytest.fixture

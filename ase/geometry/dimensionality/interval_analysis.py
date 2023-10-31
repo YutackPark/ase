@@ -7,12 +7,12 @@ P.M. Larsen, M. Pandey, M. Strange, and K. W. Jacobsen
 Phys. Rev. Materials 3 034003, 2019
 https://doi.org/10.1103/PhysRevMaterials.3.034003
 """
-import numpy as np
 from collections import namedtuple
-from ase.geometry.dimensionality import rank_determination
-from ase.geometry.dimensionality import topology_scaling
-from ase.geometry.dimensionality.bond_generator import next_bond
 
+import numpy as np
+
+from ase.geometry.dimensionality import rank_determination, topology_scaling
+from ase.geometry.dimensionality.bond_generator import next_bond
 
 KInterval = namedtuple('KInterval', 'dimtype score a b h components cdim')
 
@@ -61,7 +61,7 @@ def merge_intervals(intervals):
     calculated from its k-interval.  This is necessary to maintain the property
     that the scores sum to 1.
     """
-    dimtypes = set([e.dimtype for e in intervals])
+    dimtypes = {e.dimtype for e in intervals}
 
     merged_intervals = []
     for dimtype in dimtypes:
@@ -82,7 +82,7 @@ def build_kintervals(atoms, method_name):
     method = {'RDA': rank_determination.RDA,
               'TSA': topology_scaling.TSA}[method_name]
 
-    assert all([e in [0, 1] for e in atoms.pbc])
+    assert all(e in [0, 1] for e in atoms.pbc)
     num_atoms = len(atoms)
     intervals = []
     kprev = 0

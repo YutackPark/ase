@@ -1,9 +1,10 @@
-import numpy as np
 from operator import itemgetter
 
+import numpy as np
+
+from ase import Atoms
 from ase.ga.offspring_creator import OffspringCreator
 from ase.ga.utilities import get_distance_matrix, get_nndist
-from ase import Atoms
 
 
 class Mutation(OffspringCreator):
@@ -109,7 +110,7 @@ class RandomMutation(Mutation):
             indi.append(atom)
 
         return (self.finalize_individual(indi),
-                self.descriptor + ':Parent {0}'.format(f.info['confid']))
+                self.descriptor + ':Parent {}'.format(f.info['confid']))
 
     @classmethod
     def random_vector(cls, length, rng=np.random):
@@ -151,7 +152,7 @@ class RandomPermutation(Mutation):
             indi.append(atom)
 
         return (self.finalize_individual(indi),
-                self.descriptor + ':Parent {0}'.format(f.info['confid']))
+                self.descriptor + ':Parent {}'.format(f.info['confid']))
 
     @classmethod
     def mutate(cls, atoms, elements=None, rng=np.random):
@@ -215,7 +216,7 @@ class COM2surfPermutation(Mutation):
             indi.append(atom)
 
         return (self.finalize_individual(indi),
-                self.descriptor + ':Parent {0}'.format(f.info['confid']))
+                self.descriptor + ':Parent {}'.format(f.info['confid']))
 
     @classmethod
     def mutate(cls, atoms, elements, min_ratio, rng=np.random):
@@ -247,8 +248,8 @@ class COM2surfPermutation(Mutation):
         """Recursive function that returns the indices in the core subject to
         the min_ratio constraint. The indices are found from the supplied
         atomic configuration."""
-        elements = list(set([atoms[i].symbol
-                             for subl in atomic_conf for i in subl]))
+        elements = list({atoms[i].symbol
+                         for subl in atomic_conf for i in subl})
 
         core = [i for subl in atomic_conf[:1 + recurs] for i in subl]
         while len(core) < 1:
@@ -270,8 +271,8 @@ class COM2surfPermutation(Mutation):
         """Recursive function that returns the indices in the surface
         subject to the min_ratio constraint. The indices are found from
         the supplied atomic configuration."""
-        elements = list(set([atoms[i].symbol
-                             for subl in atomic_conf for i in subl]))
+        elements = list({atoms[i].symbol
+                         for subl in atomic_conf for i in subl})
 
         shell = [i for subl in atomic_conf[-1 - recurs:] for i in subl]
         while len(shell) < 1:
@@ -366,7 +367,7 @@ class Poor2richPermutation(_NeighborhoodPermutation):
             indi.append(atom)
 
         return (self.finalize_individual(indi),
-                self.descriptor + ':Parent {0}'.format(f.info['confid']))
+                self.descriptor + ':Parent {}'.format(f.info['confid']))
 
     @classmethod
     def mutate(cls, atoms, elements, rng=np.random):
@@ -422,7 +423,7 @@ class Rich2poorPermutation(_NeighborhoodPermutation):
             indi.append(atom)
 
         return (self.finalize_individual(indi),
-                self.descriptor + ':Parent {0}'.format(f.info['confid']))
+                self.descriptor + ':Parent {}'.format(f.info['confid']))
 
     @classmethod
     def mutate(cls, atoms, elements, rng=np.random):
@@ -469,7 +470,7 @@ class SymmetricSubstitute(Mutation):
         indi.info['data']['parents'] = [f.info['confid']]
 
         return (self.finalize_individual(indi),
-                self.descriptor + ':Parent {0}'.format(f.info['confid']))
+                self.descriptor + ':Parent {}'.format(f.info['confid']))
 
 
 class RandomSubstitute(Mutation):
@@ -505,4 +506,4 @@ class RandomSubstitute(Mutation):
         indi.info['data']['parents'] = [f.info['confid']]
 
         return (self.finalize_individual(indi),
-                self.descriptor + ':Parent {0}'.format(f.info['confid']))
+                self.descriptor + ':Parent {}'.format(f.info['confid']))

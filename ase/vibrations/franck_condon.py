@@ -1,11 +1,11 @@
 from functools import reduce
-from itertools import combinations, chain
+from itertools import chain, combinations
 from math import factorial
 from operator import mul
 
 import numpy as np
 
-from ase.units import kg, C, _hbar, kB
+from ase.units import C, _hbar, kB, kg
 from ase.vibrations import Vibrations
 
 

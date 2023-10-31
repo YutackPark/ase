@@ -1,12 +1,13 @@
 import sys
-import numpy as np
 from itertools import combinations_with_replacement
 
+import numpy as np
+
 import ase.units as u
-from ase.parallel import parprint, paropen
+from ase.parallel import paropen, parprint
+from ase.vibrations.franck_condon import (FranckCondonOverlap,
+                                          FranckCondonRecursive)
 from ase.vibrations.resonant_raman import ResonantRaman
-from ase.vibrations.franck_condon import FranckCondonOverlap
-from ase.vibrations.franck_condon import FranckCondonRecursive
 
 
 class Albrecht(ResonantRaman):
@@ -446,7 +447,7 @@ class Albrecht(ResonantRaman):
         parprint('  #    meV     cm^-1      [e^4A^4/eV^2]', file=log)
         parprint('-------------------------------------', file=log)
         for v, e in enumerate(om_v):
-            parprint(self.ind_v[v], '{0:6.1f}   {1:7.1f} {2:9.1f}'.format(
+            parprint(self.ind_v[v], '{:6.1f}   {:7.1f} {:9.1f}'.format(
                 1000 * e, e / u.invcm, 1e9 * intens_v[v]),
                 file=log)
         parprint('-------------------------------------', file=log)

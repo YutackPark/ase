@@ -1,6 +1,9 @@
+from typing import IO, Optional, Union
+
 import numpy as np
 
-from ase.optimize.sciopt import SciPyOptimizer, OptimizerConvergenceError
+from ase import Atoms
+from ase.optimize.sciopt import OptimizerConvergenceError, SciPyOptimizer
 
 
 def ode12r(f, X0, h=None, verbose=1, fmax=1e-6, maxtol=1e3, steps=100,
@@ -64,7 +67,6 @@ def ode12r(f, X0, h=None, verbose=1, fmax=1e-6, maxtol=1e3, steps=100,
     if callback is None:
         def callback(X):
             pass
-    callback(X)
 
     if residual is None:
         def residual(F, X):
@@ -101,7 +103,7 @@ def ode12r(f, X0, h=None, verbose=1, fmax=1e-6, maxtol=1e3, steps=100,
         h = 0.5 * rtol ** 0.5 / r  # Chose a stepsize based on that force
         h = max(h, hmin)  # Make sure the step size is not too big
 
-    for nit in range(1, steps):
+    for nit in range(1, steps + 1):
         Xnew = X + h * Fp  # Pick a new position
         Fn_new = f(Xnew)  # Calculate the new forces at this position
         Rn_new = residual(Fn_new, Xnew)
@@ -146,7 +148,7 @@ def ode12r(f, X0, h=None, verbose=1, fmax=1e-6, maxtol=1e3, steps=100,
                     f"large at iteration number {nit}")
 
             if converged(Fn, X):
-                log(f"ODE12r: terminates successfully "
+                log("ODE12r: terminates successfully "
                     f"after {nit} iterations.")
                 return X
 
@@ -172,29 +174,38 @@ def ode12r(f, X0, h=None, verbose=1, fmax=1e-6, maxtol=1e3, steps=100,
             raise OptimizerConvergenceError('ODE12r terminates unsuccessfully'
                                             f' Step size {h} too small')
 
-    raise OptimizerConvergenceError(f'ODE12r terminates unsuccessfully after '
-                                    f'{steps} iterations.')
-
 
 class ODE12r(SciPyOptimizer):
     """
     Optimizer based on adaptive ODE solver :func:`ode12r`
     """
 
-    def __init__(self, atoms, logfile='-', trajectory=None,
-                 callback_always=False, alpha=1.0, master=None,
-                 force_consistent=None, precon=None, verbose=0, rtol=1e-2):
+    def __init__(
+        self,
+        atoms: Atoms,
+        logfile: Union[IO, str] = '-',
+        trajectory: Optional[str] = None,
+        callback_always: bool = False,
+        alpha: float = 1.0,
+        master: Optional[bool] = None,
+        force_consistent: Optional[bool] = None,
+        precon: Optional[str] = None,
+        verbose: int = 0,
+        rtol: float = 1e-2,
+    ):
         SciPyOptimizer.__init__(self, atoms, logfile, trajectory,
                                 callback_always, alpha, master,
                                 force_consistent)
-        from ase.optimize.precon.precon import make_precon  # avoid circular dep
+        self._actual_atoms = atoms
+        from ase.optimize.precon.precon import \
+            make_precon  # avoid circular dep
         self.precon = make_precon(precon)
         self.verbose = verbose
         self.rtol = rtol
 
     def apply_precon(self, Fn, X):
-        self.atoms.set_positions(X.reshape(len(self.atoms), 3))
-        Fn, Rn = self.precon.apply(Fn, self.atoms)
+        self._actual_atoms.set_positions(X.reshape(len(self._actual_atoms), 3))
+        Fn, Rn = self.precon.apply(Fn, self._actual_atoms)
         return Fn, Rn
 
     def call_fmin(self, fmax, steps):

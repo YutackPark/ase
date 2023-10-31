@@ -1,5 +1,5 @@
 """Read Wannier90 wout format."""
-from typing import IO, Dict, Any
+from typing import IO, Any, Dict
 
 import numpy as np
 

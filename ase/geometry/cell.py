@@ -10,7 +10,7 @@
 # Implement total ordering of Bravais classes 1-14
 
 import numpy as np
-from numpy import pi, sin, cos, arccos, sqrt, dot
+from numpy import arccos, cos, dot, pi, sin, sqrt
 from numpy.linalg import norm
 
 
@@ -65,6 +65,8 @@ def cellpar_to_cell(cellpar, ab_normal=(0, 0, 1), a_direction=None):
     plane.
 
     Example:
+
+    >>> from ase.geometry.cell import cellpar_to_cell
 
     >>> cell = cellpar_to_cell([1, 2, 4, 10, 20, 30], (0, 1, 1), (1, 2, 3))
     >>> np.round(cell, 3)

@@ -1,11 +1,11 @@
 import pytest
+
 from ase import Atoms
 from ase.calculators.calculator import compare_atoms
 from ase.db import connect
+from ase.db.app import DatabaseProject
 from ase.db.cli import check_jsmol
 from ase.db.web import Session
-from ase.db.app import DatabaseProject
-
 
 projectname = 'db-web-test-project'
 

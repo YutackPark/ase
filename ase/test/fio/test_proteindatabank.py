@@ -1,10 +1,10 @@
 # flake8: noqa
-import pytest
 from io import StringIO
+
 import numpy as np
+import pytest
 
 from ase.io.proteindatabank import read_proteindatabank
-
 
 header1 = """
 CRYST1    2.000    2.000    2.000  90.00  90.00  90.00 P 1
@@ -72,7 +72,7 @@ def test_pdb_filled_optional_fields():
     assert all(atoms.get_array('occupancy') == np.array([1., 1.]))
     assert all(atoms.get_array('bfactor') == np.array([0., 0.]))
     assert all(atoms.get_array('atomtypes') == np.array(['C', 'O']))
-    assert all(atoms.get_array('residuenames') == np.array(['MOL ', 'MOL ']))
+    assert all(atoms.get_array('residuenames') == np.array(['MOL', 'MOL']))
     assert all(atoms.get_array('residuenumbers') == np.array([1, 1]))
 
 
@@ -82,5 +82,5 @@ def test_pdb_unfilled_optional_fields():
     assert not ('occupancy' in atoms.__dict__['arrays'])
     assert all(atoms.get_array('bfactor') == np.array([0., 0.]))
     assert all(atoms.get_array('atomtypes') == np.array(['', '']))
-    assert all(atoms.get_array('residuenames') == np.array(['    ', '    ']))
+    assert all(atoms.get_array('residuenames') == np.array(['', '']))
     assert all(atoms.get_array('residuenumbers') == np.array([1, 1]))

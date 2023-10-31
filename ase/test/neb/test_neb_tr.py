@@ -2,10 +2,11 @@ import pytest
 
 from ase import Atoms
 from ase.calculators.lj import LennardJones
-from ase.neb import NEB, NEBTools, idpp_interpolate
-from ase.optimize import FIRE, BFGS
+from ase.mep import NEB, NEBTools, idpp_interpolate
+from ase.optimize import BFGS, FIRE
 
 
+@pytest.mark.optimize
 @pytest.mark.slow
 def test_neb_tr(testdir):
     nimages = 3

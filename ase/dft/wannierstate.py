@@ -71,6 +71,7 @@ class WannierSpec:
 
     def scdm(self, calc, kpt_kc, spin):
         from ase.dft.wannier import scdm
+
         # get the size of the grid and check if there are Nw bands:
         ps = calc.get_pseudo_wave_function(band=self.Nw,
                                            kpt=0, spin=0)

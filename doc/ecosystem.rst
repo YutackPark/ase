@@ -26,6 +26,10 @@ Listed in alphabetical order, for want of a better approach.
    with first-principles codes via ASE as well as other Python
    libraries.
 
+ * `CHGNet <https://github.com/CederGroupHub/chgnet>`_:
+   A pretrained universal neural network potential for charge-informed
+   atomistic modeling
+
  * `CLEASE <https://gitlab.com/computationalmaterials/clease#clease>`_:
    CLuster Expansion in Atomic Simulation Environment (CLEASE) is a package
    that automates the cumbersome setup and construction procedure of cluster
@@ -38,6 +42,10 @@ Listed in alphabetical order, for want of a better approach.
    package is useful for analysing properties of bond-breaking
    reactions, such as how much force is required to break a chemical
    bond.
+
+ * `effmass <https://github.com/lucydot/effmass/>`_:
+   Calculates various definitions of effective mass from the electronic 
+   bandstructure of a semiconductor.
 
  * `evgraf <https://github.com/pmla/evgraf>`_:
    A python library for crystal reduction (i.e. finding primitive cells), and
@@ -70,11 +78,21 @@ Listed in alphabetical order, for want of a better approach.
    validation techniques, and includes a Monte Carlo module with
    support for many different thermodynamic ensembles.
 
+ * `matgl` <https://github.com/materialsvirtuallab/matgl>:
+   Graph deep learning library for materials
+
  * `NequIP <https://github.com/mir-group/nequip>`_:
    Euclidian Equivariant neural network potentials.  Nequip can fit
    neural network potentials to series of DFT calculations (using
    e.g. ASE trajectory files), and then be used to perform
    optimization and molecular dynamics in ASE or LAMMPS.
+
+ * `QuAcc <https://github.com/Quantum-Accelerators/quacc>`_:
+   A flexible platform for high-throughput, database-driven computational 
+   materials science and quantum chemistry workflows built around ASE.
+
+ * `SchNet Pack <https://github.com/Quantum-Accelerators/quacc>`_:
+   Deep Neural Networks for Atomistic Systems
 
  * `Sella <https://github.com/zadorlab/sella>`_:
    Sella is a saddle point refinement (optimization) tool which uses
@@ -82,6 +100,9 @@ Listed in alphabetical order, for want of a better approach.
    refinement of arbitrary-order saddle points with constraints.
    Additionally, Sella can perform intrinsic reaction coordinate (IRC)
    calculations.
+
+ * `TorchANI <https://github.com/aiqm/torchani>`_:
+   Accurate Neural Network Potential on PyTorch
 
  * `Wulffpack <https://wulffpack.materialsmodeling.org/>`_:
    Python package for making Wulff constructions, typically for finding

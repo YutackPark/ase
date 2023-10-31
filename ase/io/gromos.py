@@ -122,5 +122,5 @@ def write_gromos(fileobj, atoms):
         fileobj.write('BOX\n')
         mycell = atoms.get_cell()
         grocell = mycell.flat[[0, 4, 8, 1, 2, 3, 5, 6, 7]] * 0.1
-        fileobj.write(''.join(['{:15.9f}'.format(x) for x in grocell]))
+        fileobj.write(''.join([f'{x:15.9f}' for x in grocell]))
         fileobj.write('\nEND\n')

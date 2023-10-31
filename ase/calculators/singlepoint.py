@@ -1,9 +1,9 @@
 import numpy as np
 
-from ase.outputs import Properties
-from ase.calculators.calculator import (Calculator, all_properties,
+from ase.calculators.calculator import (Calculator,
                                         PropertyNotImplementedError,
-                                        PropertyNotPresent)
+                                        PropertyNotPresent, all_properties)
+from ase.outputs import Properties
 from ase.utils import lazyproperty
 
 
@@ -35,9 +35,9 @@ class SinglePointCalculator(Calculator):
         tokens = []
         for key, val in sorted(self.results.items()):
             if np.isscalar(val):
-                txt = '{}={}'.format(key, val)
+                txt = f'{key}={val}'
             else:
-                txt = '{}=...'.format(key)
+                txt = f'{key}=...'
             tokens.append(txt)
         return '{}({})'.format(self.__class__.__name__, ', '.join(tokens))
 
@@ -47,7 +47,7 @@ class SinglePointCalculator(Calculator):
         if name not in self.results or self.check_state(atoms):
             if allow_calculation:
                 raise PropertyNotImplementedError(
-                    'The property "{0}" is not available.'.format(name))
+                    f'The property "{name}" is not available.')
             return None
 
         result = self.results[name]
@@ -123,7 +123,7 @@ class SinglePointDFTCalculator(SinglePointCalculator):
         return None
 
     def get_number_of_bands(self):
-        values = set(len(kpt.eps_n) for kpt in self.kpts)
+        values = {len(kpt.eps_n) for kpt in self.kpts}
         if not values:
             return None
         elif len(values) == 1:
@@ -197,7 +197,7 @@ class SinglePointDFTCalculator(SinglePointCalculator):
             if kpt.s == spin:
                 break
         else:
-            raise RuntimeError('No k-point with spin {0}'.format(spin))
+            raise RuntimeError(f'No k-point with spin {spin}')
         if self.eFermi is None:
             raise RuntimeError('Fermi level is not available')
         eH = -1.e32

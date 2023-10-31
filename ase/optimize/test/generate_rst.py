@@ -1,7 +1,6 @@
 import os
 import re
 
-
 rst = """\
 .. _optimizer_tests:
 
@@ -35,7 +34,7 @@ def main():
     fd.write(rst)
 
     for name in namelist:
-        lines = open(name + '.csv', 'r').read().split('\n')
+        lines = open(name + '.csv').read().split('\n')
         firstline = lines.pop(0)
         fd.write(
             '\n' +

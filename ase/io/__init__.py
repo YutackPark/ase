@@ -1,7 +1,7 @@
-from ase.io.trajectory import Trajectory, PickleTrajectory
 from ase.io.bundletrajectory import BundleTrajectory
+from ase.io.formats import iread, read, string2index, write
 from ase.io.netcdftrajectory import NetCDFTrajectory
-from ase.io.formats import read, iread, write, string2index
+from ase.io.trajectory import PickleTrajectory, Trajectory
 
 
 class ParseError(Exception):

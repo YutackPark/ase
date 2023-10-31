@@ -6,19 +6,18 @@ import os
 import re
 import warnings
 from time import time
-from typing import List, Dict, Any
+from typing import Any, Dict, List
 
 import numpy as np
 
 from ase.atoms import Atoms
-from ase.calculators.calculator import all_properties, all_changes
+from ase.calculators.calculator import all_changes, all_properties
 from ase.data import atomic_numbers
 from ase.db.row import AtomsRow
 from ase.formula import Formula
 from ase.io.jsonio import create_ase_object
-from ase.parallel import world, DummyMPI, parallel_function, parallel_generator
+from ase.parallel import DummyMPI, parallel_function, parallel_generator, world
 from ase.utils import Lock, PurePath
-
 
 T2000 = 946681200.0  # January 1. 2000
 YEAR = 31557600.0  # 365.25 days
@@ -125,7 +124,7 @@ reserved_keys = set(all_properties +
                      'calculator', 'calculator_parameters',
                      'key_value_pairs', 'data'])
 
-numeric_keys = set(['id', 'energy', 'magmom', 'charge', 'natoms'])
+numeric_keys = {'id', 'energy', 'magmom', 'charge', 'natoms'}
 
 
 def check(key_value_pairs):
@@ -136,7 +135,7 @@ def check(key_value_pairs):
             continue
 
         if not word.match(key) or key in reserved_keys:
-            raise ValueError('Bad key: {}'.format(key))
+            raise ValueError(f'Bad key: {key}')
         try:
             Formula(key, strict=True)
         except ValueError:
@@ -148,16 +147,16 @@ def check(key_value_pairs):
                 'you will not find rows with your key.  Instead, you wil get '
                 'rows containing the atoms in the formula!'.format(key))
         if not isinstance(value, (numbers.Real, str, np.bool_)):
-            raise ValueError('Bad value for {!r}: {}'.format(key, value))
+            raise ValueError(f'Bad value for {key!r}: {value}')
         if isinstance(value, str):
             for t in [int, float]:
                 if str_represents(value, t):
                     raise ValueError(
                         'Value ' + value + ' is put in as string ' +
                         'but can be interpreted as ' +
-                        '{}! Please convert '.format(t.__name__) +
-                        'to {} using '.format(t.__name__) +
-                        '{}(value) before '.format(t.__name__) +
+                        f'{t.__name__}! Please convert ' +
+                        f'to {t.__name__} using ' +
+                        f'{t.__name__}(value) before ' +
                         'writing to the database OR change ' +
                         'to a different string.')
 
@@ -331,6 +330,7 @@ def parse_selection(selection, **kwargs):
 
 class Database:
     """Base class for all databases."""
+
     def __init__(self, filename=None, create_indices=True,
                  use_lock_file=False, serial=False):
         """Database object.
@@ -635,9 +635,9 @@ def float_to_time_string(t, long=False):
         if x > 5:
             break
     if long:
-        return '{:.3f} {}s'.format(x, longwords[s])
+        return f'{x:.3f} {longwords[s]}s'
     else:
-        return '{:.0f}{}'.format(round(x), s)
+        return f'{round(x):.0f}{s}'
 
 
 def object_to_bytes(obj: Any) -> bytes:

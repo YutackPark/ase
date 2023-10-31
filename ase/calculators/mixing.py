@@ -1,6 +1,6 @@
-from ase.calculators.calculator import BaseCalculator, all_changes
-from ase.calculators.calculator import (PropertyNotImplementedError,
-                                        CalculatorSetupError)
+from ase.calculators.calculator import (BaseCalculator, CalculatorSetupError,
+                                        PropertyNotImplementedError,
+                                        all_changes)
 
 
 class Mixer:
@@ -70,7 +70,7 @@ class LinearCombinationCalculator(BaseCalculator):
     def __str__(self):
         calculators = ', '.join(
             calc.__class__.__name__ for calc in self.mixer.calcs)
-        return '{}({})'.format(self.__class__.__name__, calculators)
+        return f'{self.__class__.__name__}({calculators})'
 
 
 class MixedCalculator(LinearCombinationCalculator):

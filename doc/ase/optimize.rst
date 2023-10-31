@@ -47,6 +47,11 @@ should be less than *fmax*:
 
 .. math:: \max_a |\vec{F_a}| < f_\text{max}
 
+.. note::
+
+    ``Optimizer`` classes themselves optimize only internal atomic positions.
+    Cell volume and shape can also be optimized in combination with ``Filter``
+    classes. (See :doc:`filters` for details.)
 
 BFGS
 ----
@@ -525,7 +530,7 @@ Transition state search
 There are several strategies and tools for the search and optimization of
 transition states available in ASE.
 The transition state search and optimization algorithms are:
-:class:`ClimbFixInternals`, :mod:`~ase.neb` and :mod:`~ase.dimer`.
+:class:`ClimbFixInternals`, :mod:`~ase.mep.neb` and :mod:`~ase.mep.dimer`.
 
 ClimbFixInternals
 -----------------

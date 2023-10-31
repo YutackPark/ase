@@ -1,12 +1,13 @@
-from typing import Dict, List, Tuple, Union, Optional
-from numbers import Real
-from collections import namedtuple
 import re
+from collections import namedtuple
+from numbers import Real
 from string import digits
+from typing import Dict, List, Optional, Tuple, Union
+
 import numpy as np
+
 from ase import Atoms
 from ase.units import Angstrom, Bohr, nm
-
 
 # split on newlines or semicolons
 _re_linesplit = re.compile(r'\n|;')
@@ -34,7 +35,7 @@ class _ZMatrixToAtoms:
         self.dconv = self.get_units('distance', dconv)  # type: float
         self.aconv = self.get_units('angle', aconv)  # type: float
         self.set_defs(defs)
-        self.name_to_index: Optional[Dict[str, int]] = dict()
+        self.name_to_index: Optional[Dict[str, int]] = {}
         self.symbols: List[str] = []
         self.positions: List[ThreeFloats] = []
 
@@ -53,7 +54,7 @@ class _ZMatrixToAtoms:
 
     def set_defs(self, defs: Union[Dict[str, float], str,
                                    List[str], None]) -> None:
-        self.defs = dict()  # type: Dict[str, float]
+        self.defs = {}  # type: Dict[str, float]
         if defs is None:
             return
 

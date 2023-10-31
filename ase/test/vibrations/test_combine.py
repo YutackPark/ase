@@ -1,7 +1,7 @@
 from ase.build import molecule
-from ase.vibrations import Vibrations, Infrared
-from ase.utils import workdir
 from ase.test.utils import RandomCalculator
+from ase.utils import workdir
+from ase.vibrations import Infrared, Vibrations
 
 
 def test_combine(testdir):

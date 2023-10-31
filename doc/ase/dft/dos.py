@@ -1,6 +1,6 @@
 # creates: dos.png
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 
 from ase.dft import DOS
 

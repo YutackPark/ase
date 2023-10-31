@@ -1,18 +1,18 @@
-import os
 import copy
+import os
 import subprocess
-from math import pi, sqrt
-from pathlib import Path
-from typing import Union, Optional, List, Set, Dict, Any
 import warnings
 from abc import abstractmethod
+from math import pi, sqrt
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Set, Union
 
 import numpy as np
 
+from ase.calculators.abc import GetPropertiesMixin
 from ase.cell import Cell
 from ase.outputs import Properties, all_outputs
 from ase.utils import jsonable
-from ase.calculators.abc import GetPropertiesMixin
 
 from .names import names
 
@@ -24,7 +24,7 @@ class CalculatorError(RuntimeError):
 class CalculatorSetupError(CalculatorError):
     """Calculation cannot be performed with the given parameters.
 
-    Reasons to raise this errors are:
+    Reasons to raise this error are:
       * The calculator is not properly configured
         (missing executable, environment variables, ...)
       * The given atoms object is not supported
@@ -135,6 +135,7 @@ special = {'cp2k': 'CP2K',
            'eam': 'EAM',
            'elk': 'ELK',
            'emt': 'EMT',
+           'exciting': 'ExcitingGroundStateCalculator',
            'crystal': 'CRYSTAL',
            'ff': 'ForceField',
            'gamess_us': 'GAMESSUS',
@@ -425,7 +426,7 @@ class Parameters(dict):
     def tostring(self):
         keys = sorted(self)
         return 'dict(' + ',\n     '.join(
-            '{}={!r}'.format(key, self[key]) for key in keys) + ')\n'
+            f'{key}={self[key]!r}' for key in keys) + ')\n'
 
     def write(self, filename):
         Path(filename).write_text(self.tostring())
@@ -671,7 +672,7 @@ class Calculator(BaseCalculator):
         if self.prefix is None:
             return self.directory + '/'
 
-        return '{}/{}'.format(self.directory, self.prefix)
+        return f'{self.directory}/{self.prefix}'
 
     @label.setter
     def label(self, label):
@@ -861,6 +862,7 @@ class Calculator(BaseCalculator):
     def band_structure(self):
         """Create band-structure object for plotting."""
         from ase.spectrum.band_structure import get_band_structure
+
         # XXX This calculator is supposed to just have done a band structure
         # calculation, but the calculator may not have the correct Fermi level
         # if it updated the Fermi level after changing k-points.
@@ -918,8 +920,8 @@ class FileIOCalculator(Calculator):
             # probably the shell launches successfully.  But we soon want
             # to allow calling the subprocess directly, and then this
             # distinction (failed to launch vs failed to run) is useful.
-            msg = 'Failed to execute "{}"'.format(command)
-            raise EnvironmentError(msg) from err
+            msg = f'Failed to execute "{command}"'
+            raise OSError(msg) from err
 
         errorcode = proc.wait()
 
@@ -942,4 +944,3 @@ class FileIOCalculator(Calculator):
 
     def read_results(self):
         """Read energy, forces, ... from output file(s)."""
-        pass

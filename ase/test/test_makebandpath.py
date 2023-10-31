@@ -1,5 +1,5 @@
-from ase.dft.kpoints import bandpath
 from ase.build import bulk
+from ase.dft.kpoints import bandpath
 
 
 def test_makebandpath():

@@ -1,5 +1,5 @@
-import pytest
 import numpy as np
+import pytest
 
 from ase import Atoms
 from ase.calculators.emt import EMT
@@ -43,6 +43,7 @@ labels = [
 optimizers = [BFGS, BFGSLineSearch, PreconLBFGS, PreconLBFGS]
 
 
+@pytest.mark.optimize
 @pytest.mark.parametrize(
     'optcls, name',
     zip(optimizers, labels),

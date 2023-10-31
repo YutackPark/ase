@@ -1,6 +1,7 @@
-from ase.io.pov import POVRAY
 from ase import io
+from ase.io.pov import POVRAY
 from ase.utils.ptable import ptable
+
 run_povray = True
 
 atoms = ptable(spacing=3)
@@ -12,7 +13,7 @@ io.write('ptable.xyz', atoms)
 styles = list(POVRAY.material_styles_dict)
 
 for style in styles:
-    pov_name = 'ptable.{}.pov'.format(style)
+    pov_name = f'ptable.{style}.pov'
     ini_name = pov_name.replace('pov', 'ini')
 
     kwargs = {  # For povray files only

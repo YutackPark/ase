@@ -1,9 +1,9 @@
 import numpy as np
 from scipy.optimize import fmin_bfgs
 
-from ase.io import read, Trajectory
 from ase.build import bulk
 from ase.calculators.emt import EMT
+from ase.io import Trajectory, read
 
 
 class NDPoly:
@@ -49,7 +49,7 @@ def polyfit(x, y, order=3):
 def test_hcp(testdir):
     a0 = 3.52 / np.sqrt(2)
     c0 = np.sqrt(8 / 3.0) * a0
-    print('%.4f %.3f' % (a0, c0 / a0))
+    print(f'{a0:.4f} {c0 / a0:.3f}')
     for i in range(3):
         with Trajectory('Ni.traj', 'w') as traj:
             eps = 0.01
@@ -65,6 +65,6 @@ def test_hcp(testdir):
         ac = [(config.cell[0, 0], config.cell[2, 2]) for config in configs]
         p = polyfit(ac, energies, 2)
         a0, c0 = fmin_bfgs(p, (a0, c0))
-        print('%.4f %.3f' % (a0, c0 / a0))
+        print(f'{a0:.4f} {c0 / a0:.3f}')
     assert abs(a0 - 2.466) < 0.001
     assert abs(c0 / a0 - 1.632) < 0.005

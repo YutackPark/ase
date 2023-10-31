@@ -1,9 +1,9 @@
-from datetime import datetime
 import io
+from datetime import datetime
 
 import numpy as np
 
-from ase.io.jsonio import encode, decode, read_json, write_json
+from ase.io.jsonio import decode, encode, read_json, write_json
 
 
 def test_jsonio():

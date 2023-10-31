@@ -1,10 +1,20 @@
+from typing import IO, Optional, Union
+
+from ase import Atoms
 from ase.optimize.optimize import Optimizer
-from ase.units import Ha, Bohr
+from ase.units import Bohr, Ha
 
 
 class Berny(Optimizer):
-    def __init__(self, atoms, restart=None, logfile='-', trajectory=None,
-                 master=None, dihedral=True):
+    def __init__(
+        self,
+        atoms: Atoms,
+        restart: Optional[str] = None,
+        logfile: Union[IO, str] = '-',
+        trajectory: Optional[str] = None,
+        master: Optional[bool] = None,
+        dihedral: bool = True,
+    ):
         """Berny optimizer.
 
         This is a light ASE wrapper around the ``Berny`` optimizer from
@@ -45,11 +55,15 @@ class Berny(Optimizer):
         dihedral: boolean
             Defaults to True, which means that dihedral angles will be used.
         """
-        from berny import Berny as _Berny, Geometry
+        from berny import Berny as _Berny
+        from berny import Geometry
 
         self._restart_data = None  # Optimizer.__init__() may overwrite
         Optimizer.__init__(self, atoms, restart, logfile, trajectory, master)
-        geom = Geometry(atoms.get_chemical_symbols(), atoms.positions)
+
+        # Only works with actual Atoms objects since it needs chemical symbols
+        geom = Geometry(self.optimizable.atoms.get_chemical_symbols(),
+                        self.optimizable.get_positions())
         self._berny = _Berny(
             geom,
             debug=True,
@@ -68,13 +82,14 @@ class Berny(Optimizer):
 
     def step(self, forces=None):
         if forces is None:
-            forces = self.atoms.get_forces()
-        energy = self.atoms.get_potential_energy()
+            forces = self.optimizable.get_forces()
+        # Should this use force_consistent? We just set it to False
+        energy = self.optimizable.get_potential_energy(force_consistent=False)
         gradients = -forces
         debug = self._berny.send((energy / Ha, gradients / Ha * Bohr))
         self.dump(debug)
         geom = next(self._berny)
-        self.atoms.positions[:] = geom.coords
+        self.optimizable.set_positions(geom.coords)
 
     def read(self):
         self._restart_data = self.load()

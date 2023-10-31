@@ -43,9 +43,16 @@ Contact
 -------
 
 * Mailing list: ase-users_
-* IRC_: #ase on freenode.net
 
-Please send us bug-reports, patches, code, ideas and questions.
+* Chat: Join the ``#ase`` channel on Matrix_, also accessible via the Element_ webclient.
+
+* There is an `ASE forum <https://matsci.org/c/ase/36>`_ on
+  the `Materials Science Community Forum <https://matsci.org/>`_.
+
+Feel free to create Merge Requests and Issues on our GitLab page:
+https://gitlab.com/ase/ase
+
+For regular support, please use the mailing list or chat rather than GitLab.
 
 
 Example
@@ -83,4 +90,5 @@ This example requires NWChem to be installed.
 .. _SciPy: http://docs.scipy.org/doc/scipy/reference/
 .. _Matplotlib: http://matplotlib.org/
 .. _ase-users: https://listserv.fysik.dtu.dk/mailman/listinfo/ase-users
-.. _IRC: http://webchat.freenode.net/?randomnick=0&channels=ase
+.. _Matrix: https://matrix.to/#/!JEiuNJLuxedbohAOuH:matrix.org
+.. _Element: https://app.element.io/#/room/#ase:matrix.org

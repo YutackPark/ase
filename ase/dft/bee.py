@@ -5,7 +5,7 @@ import numpy as np
 
 from ase import Atoms
 from ase.io.jsonio import read_json, write_json
-from ase.parallel import world, parprint
+from ase.parallel import parprint, world
 
 DFTCalculator = Any
 
@@ -21,6 +21,7 @@ def ensemble(energy: float,
 
 class BEEFEnsemble:
     """BEEF type ensemble error estimation."""
+
     def __init__(self,
                  atoms: Union[Atoms, DFTCalculator] = None,
                  e: float = None,
@@ -144,7 +145,7 @@ class BEEFEnsemble:
 def readbee(fname: str, all: bool = False):
     if not fname.endswith('.bee'):
         fname += '.bee'
-    with open(fname, 'r') as fd:
+    with open(fname) as fd:
         e, de, contribs, seed, xc = read_json(fd, always_array=False)
     if all:
         return e, de, contribs, seed, xc

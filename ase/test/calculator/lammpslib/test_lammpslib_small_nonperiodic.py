@@ -1,5 +1,5 @@
-import pytest
 import numpy as np
+import pytest
 
 from ase import Atoms
 
@@ -19,7 +19,7 @@ def test_lammpslib_small_nonperiodic(factory, dimer_params, calc_params_NiH):
     # Check energy
     energy_ref = -1.10756669119
     energy = dimer.get_potential_energy()
-    print("Computed energy: {}".format(energy))
+    print(f"Computed energy: {energy}")
     assert energy == pytest.approx(energy_ref, rel=1e-4)
 
     # Check forces

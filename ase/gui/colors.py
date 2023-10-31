@@ -1,9 +1,8 @@
 """colors.py - select how to color the atoms in the GUI."""
-from ase.gui.i18n import _
-
 import numpy as np
 
 import ase.gui.ui as ui
+from ase.gui.i18n import _
 from ase.gui.utils import get_magmoms
 
 
@@ -33,7 +32,7 @@ class ColorWindow:
         for key in self.gui.atoms.arrays:
             if key not in haveit:
                 values.append(key)
-                labels.append('By user-defined "{}"'.format(key))
+                labels.append(f'By user-defined "{key}"')
 
         self.radio = ui.RadioButtons(labels, values, self.toggle,
                                      vertical=True)
@@ -108,7 +107,7 @@ class ColorWindow:
                         'velocity': '(eV/amu)^(1/2)',
                         'charge': '|e|',
                         'initial charge': '|e|',
-                        u'magmom': 'μB'}[value]
+                        'magmom': 'μB'}[value]
             except KeyError:
                 unit = ''
             text = ''
@@ -150,17 +149,17 @@ class ColorWindow:
             colorscale = ['#{0:02X}80{0:02X}'.format(int(red))
                           for red in np.linspace(0, 250, N)]
         elif cmap == 'old':
-            colorscale = ['#{0:02X}AA00'.format(int(red))
+            colorscale = [f'#{int(red):02X}AA00'
                           for red in np.linspace(0, 230, N)]
         else:
             try:
-                import pylab as plt
                 import matplotlib
+                import pylab as plt
                 cmap = plt.cm.get_cmap(cmap)
                 colorscale = [matplotlib.colors.rgb2hex(c[:3]) for c in
                               cmap(np.linspace(0, 1, N))]
             except (ImportError, ValueError) as e:
-                raise RuntimeError('Can not load colormap {0}: {1}'.format(
+                raise RuntimeError('Can not load colormap {}: {}'.format(
                     cmap, str(e)))
         self.gui.colormode_data = colorscale, mn, mx
         self.gui.draw()

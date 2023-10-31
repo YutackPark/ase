@@ -1,10 +1,11 @@
 # flake8: noqa
 # tests of the dlpoly I/O
-from ase import io as aseIO
-from ase.io.dlp4 import iread_dlp_history
 from io import StringIO
 
 import numpy as np
+
+from ase import io as aseIO
+from ase.io.dlp4 import iread_dlp_history
 
 # Test HISTORY reading with no frames count
 fd = StringIO("""                                                                             tes
@@ -69,7 +70,7 @@ def test_dlp():
 
     symbols = frame.get_chemical_symbols()
 
-    traj = iread_dlp_history(fd, symbols)
+    traj = iread_dlp_history(fd, symbols=symbols)
     for i, frame in enumerate(traj):
         assert len(frame) == 2
         assert all(frame.symbols == 'ONi')
@@ -132,12 +133,15 @@ X                4      0.000000     -1.048440      0.001277
 
 def test_dlp3():
     cells = []
-    cells.append(np.array([[23.9999973028, 0.0, 0.0], [
-                 0.0, 23.9999973028, 0.0], [0.0, 0.0, 23.9999973028]]))
-    cells.append(np.array([[23.9999947494, 0.0, 0.0], [
-                 0.0, 23.9999947494, 0.0], [0.0, 0.0, 23.9999947494]]))
-    cells.append(np.array([[23.9999911871, 0.0, 0.0], [
-                 0.0, 23.9999911871, 0.0], [0.0, 0.0, 23.9999911871]]))
+    cells.append(np.array([[23.9999973028, 0.0, 0.0],
+                           [0.0, 23.9999973028, 0.0],
+                           [0.0, 0.0, 23.9999973028]]))
+    cells.append(np.array([[23.9999947494, 0.0, 0.0],
+                           [0.0, 23.9999947494, 0.0],
+                           [0.0, 0.0, 23.9999947494]]))
+    cells.append(np.array([[23.9999911871, 0.0, 0.0],
+                           [0.0, 23.9999911871, 0.0],
+                           [0.0, 0.0, 23.9999911871]]))
 
     traj = aseIO.read(fd3, format='dlp-history', index=slice(0, None))
     assert len(traj) == 3
@@ -150,7 +154,7 @@ def test_dlp3():
 
     symbols = frame.get_chemical_symbols()
 
-    traj = iread_dlp_history(fd3, symbols)
+    traj = iread_dlp_history(fd3, symbols=symbols)
     for i, frame in enumerate(traj):
         assert len(frame) == 4
         assert all(frame.symbols == 'OHHX')

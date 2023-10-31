@@ -1,11 +1,12 @@
 import os
 import subprocess
-from warnings import warn
 from pathlib import Path
+from warnings import warn
 
 import numpy as np
-from ase.calculators.calculator import (BaseCalculator, FileIOCalculator,
-                                        Calculator)
+
+from ase.calculators.calculator import (BaseCalculator, Calculator,
+                                        FileIOCalculator)
 from ase.io import write
 from ase.io.vasp import write_vasp
 from ase.parallel import world
@@ -316,13 +317,13 @@ class PureDFTD3(FileIOCalculator):
     def _actually_write_input(self, directory, prefix, atoms, properties,
                               damppars, pbc):
         if pbc:
-            fname = directory / '{}.POSCAR'.format(prefix)
+            fname = directory / f'{prefix}.POSCAR'
             # We sort the atoms so that the atomtypes list becomes as
             # short as possible.  The dftd3 program can only handle 10
             # atomtypes
             write_vasp(fname, atoms, sort=True)
         else:
-            fname = directory / '{}.xyz'.format(prefix)
+            fname = directory / f'{prefix}.xyz'
             write(fname, atoms, format='xyz', parallel=False)
 
         # Generate custom damping parameters file. This is kind of ugly, but

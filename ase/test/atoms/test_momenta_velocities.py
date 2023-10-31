@@ -1,7 +1,8 @@
-import pytest
 import numpy as np
-from ase.constraints import Hookean, FixAtoms
+import pytest
+
 from ase.build import molecule
+from ase.constraints import FixAtoms, Hookean
 
 
 @pytest.fixture

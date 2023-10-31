@@ -2,7 +2,6 @@ import numpy as np
 
 from ase.data.vdw import vdw_radii
 
-
 __all__ = ['vdw_radii', 'chemical_symbols', 'ground_state_magnetic_moments',
            'reference_states', 'atomic_names', 'atomic_masses',
            'atomic_numbers', 'covalent_radii']
@@ -33,10 +32,7 @@ chemical_symbols = [
     'Rf', 'Db', 'Sg', 'Bh', 'Hs', 'Mt', 'Ds', 'Rg', 'Cn', 'Nh', 'Fl', 'Mc',
     'Lv', 'Ts', 'Og']
 
-atomic_numbers = {}
-for Z, symbol in enumerate(chemical_symbols):
-    atomic_numbers[symbol] = Z
-
+atomic_numbers = {symbol: Z for Z, symbol in enumerate(chemical_symbols)}
 # IUPAC version dated 28 November 2016
 atomic_names = [
     '', 'Hydrogen', 'Helium', 'Lithium', 'Beryllium', 'Boron',

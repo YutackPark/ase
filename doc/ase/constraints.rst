@@ -270,7 +270,7 @@ This class allows to fix an arbitrary number of bond lengths, angles
 and dihedral angles as well as linear combinations of bond lengths
 ('bondcombos').
 A fixed linear combination of bond lengths fulfils
-:math:`\sum_i \text{coef}_i \times \text{bond_length}_i 
+:math:`\sum_i \text{coef}_i \times \text{bond_length}_i
 = \text{constant}`.
 The defined constraints are satisfied self consistently.
 To define the constraints one needs to specify the
@@ -391,80 +391,6 @@ will be ignored if missing:
    (Note that inplace adjustment is not possible for energy, which is a
    float.)
 
-
-The Filter class
-================
-
-Constraints can also be applied via filters, which acts as a wrapper
-around an atoms object. A typical use case will look like this::
-
-   -------       --------       ----------
-  |       |     |        |     |          |
-  | Atoms |<----| Filter |<----| Dynamics |
-  |       |     |        |     |          |
-   -------       --------       ----------
-
-and in Python this would be::
-
-  >>> atoms = Atoms(...)
-  >>> filter = Filter(atoms, ...)
-  >>> dyn = Dynamics(filter, ...)
-
-
-This class hides some of the atoms in an Atoms object.
-
-.. class:: Filter(atoms, indices=None, mask=None)
-
-You must supply either the indices of the atoms that should be kept
-visible or a mask. The mask is a list of booleans, one for each atom,
-being true if the atom should be kept visible.
-
-Example of use::
-
-  >>> from ase import Atoms, Filter
-  >>> atoms=Atoms(positions=[[ 0    , 0    , 0],
-  ...                        [ 0.773, 0.600, 0],
-  ...                        [-0.773, 0.600, 0]],
-  ...             symbols='OH2')
-  >>> f1 = Filter(atoms, indices=[1, 2])
-  >>> f2 = Filter(atoms, mask=[0, 1, 1])
-  >>> f3 = Filter(atoms, mask=[a.Z == 1 for a in atoms])
-  >>> f1.get_positions()
-  [[ 0.773  0.6    0.   ]
-   [-0.773  0.6    0.   ]]
-
-In all three filters only the hydrogen atoms are made
-visible.  When asking for the positions only the positions of the
-hydrogen atoms are returned.
-
-
-The UnitCellFilter class
-========================
-
-The unit cell filter is for optimizing positions and unit cell
-simultaneously.  Note that :class:`ExpCellFilter` will probably
-perform better.
-
-.. autoclass:: UnitCellFilter
-
-The StrainFilter class
-======================
-
-The strain filter is for optimizing the unit cell while keeping
-scaled positions fixed.
-
-.. autoclass:: StrainFilter
-
-
-The ExpCellFilter class
-=======================
-
-The exponential cell filter is an improved :class:`UnitCellFilter`
-which is parameter free.
-
-.. autoclass:: ExpCellFilter
-
-
 .. module:: ase.spacegroup.symmetrize
 
 The FixSymmetry class
@@ -485,4 +411,4 @@ Since bcc is unstable with respect to fcc with a Lennard Jones model, the
 unsymmetrised case relaxes to fcc, while the constraint keeps the original
 symmetry.
 
--.. literalinclude:: fix_symmetry_example.py
+.. literalinclude:: fix_symmetry_example.py
