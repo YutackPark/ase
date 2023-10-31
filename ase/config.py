@@ -1,5 +1,6 @@
 import os
 import configparser
+from collections.abc import Mapping
 from pathlib import Path
 
 from ase.utils import lazymethod
@@ -8,10 +9,11 @@ import shlex
 ASE_CONFIG_FILE = Path.home() / ".config/ase/ase.conf"
 
 
-class Config:
+class Config(Mapping):
 
     def __init__(self):
         self._dct = os.environ
+
 
     def __iter__(self):
         return iter(self._dct)
