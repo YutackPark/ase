@@ -228,8 +228,6 @@ coverage-combine:
       coverage_report:
         coverage_format: cobertura
         path: ase/test/coverage.xml
-      junit: report.xml
-
     expire_in: 1 week
 
 .shared_windows_runners:
