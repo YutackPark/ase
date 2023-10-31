@@ -161,14 +161,14 @@ class AimsTemplate(CalculatorTemplate):
         return AimsProfile.from_config(cfg, self.name, **kwargs)
 
     def socketio_argv(self, profile, unixsocket, port):
-        return [*profile.argv]
+        return [profile.exc]
 
     def socketio_parameters(self, unixsocket, port):
         if port:
-            use_pimd_wrapper = (("localhost", port),)
+            use_pimd_wrapper = ("localhost", port)
         else:
             # (INET port number should be unused.)
-            use_pimd_wrapper = ((f"UNIX:{unixsocket}", 31415),)
+            use_pimd_wrapper = (f"UNIX:{unixsocket}", 31415)
 
         return dict(use_pimd_wrapper=use_pimd_wrapper, compute_forces=True)
 

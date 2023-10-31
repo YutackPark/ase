@@ -94,7 +94,7 @@ class EspressoTemplate(CalculatorTemplate):
             ipi_arg = f"{unixsocket}:UNIX"
         else:
             ipi_arg = f"localhost:{port:d}"  # XXX should take host, too
-        return [*profile.argv, "-in", self.inputname, "--ipi", ipi_arg]
+        return profile.get_calculator_command(self.inputname) + ["--ipi", ipi_arg]
 
 
 class Espresso(GenericFileIOCalculator):

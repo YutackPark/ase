@@ -275,6 +275,7 @@ class CalculatorTemplate(ABC):
 
             self.write_input(
                 atoms=atoms,
+                profile=profile,
                 parameters=parameters,
                 properties=properties,
                 directory=directory,
@@ -296,18 +297,18 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
         if profile is None:
             from ase.config import cfg
 
-            if template.name not in cfg.parser:
-                raise EnvironmentError(f"No configuration of {template.name}")
-            try:
-                profile = template.load_profile(cfg,
-                                                parallel_info=parallel_info,
-                                                parallel=parallel)
-            except Exception as err:
-                configvars = cfg.as_dict()
-                raise EnvironmentError(
-                    f"Failed to load section [{template.name}] "
-                    f"from configuration: {configvars}"
-                ) from err
+            # if template.name not in cfg.parser:
+            #     raise EnvironmentError(f"No configuration of {template.name}")
+            # try:
+            profile = template.load_profile(cfg,
+                                            parallel_info=parallel_info,
+                                            parallel=parallel)
+            # except Exception as err:
+            #     configvars = cfg.as_dict()
+            #     raise EnvironmentError(
+            #         f"Failed to load section [{template.name}] "
+            #         f"from configuration: {configvars}"
+            #     ) from err
 
         self.profile = profile
 

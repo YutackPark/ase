@@ -97,7 +97,7 @@ class AbinitTemplate(CalculatorTemplate):
             ipi_arg = f"{unixsocket}:UNIX"
         else:
             ipi_arg = f"localhost:{port:d}"
-        return [*profile.argv, self.inputname, "--ipi", ipi_arg]
+        return profile.get_calculator_command(self.inputname) + ["--ipi", ipi_arg]
 
     def socketio_parameters(self, unixsocket, port):
         return dict(ionmov=28, expert_user=1, optcell=2)
@@ -112,7 +112,7 @@ class Abinit(GenericFileIOCalculator):
       calc = Abinit(label='abinit', xc='LDA', ecut=400, toldfe=1e-5)
     """
 
-    def __init__(self, *, profile=None, directory=".", parallel_info=None, 
+    def __init__(self, *, profile=None, directory=".", parallel_info=None,
                  parallel=True, **kwargs):
         """Construct ABINIT-calculator object.
 
