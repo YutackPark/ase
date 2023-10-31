@@ -288,7 +288,7 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
                                                 parallel_info=parallel_info,
                                                 parallel=parallel)
             except Exception as err:
-                configvars = dict(cfg)
+                configvars = dict(cfg.as_dict())
                 raise EnvironmentError(
                     f"Failed to load section [{template.name}] "
                     f"from configuration: {configvars}"
