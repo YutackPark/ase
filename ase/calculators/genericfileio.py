@@ -100,7 +100,7 @@ class BaseProfile(ABC):
         """
         ...
 
-    def run(self, directory, inputfile, outputfile):
+    def run(self, directory, inputfile, outputfile, errorfile=None, append=False):
         """
         Run the command in the given directory.
 
@@ -112,14 +112,29 @@ class BaseProfile(ABC):
             The name of the input file.
         outputfile : str
             The name of the output file.
+        errorfile: str
+            the stderror file
+        append: bool
+            if True then use append mode
         """
 
         from subprocess import check_call
         import os
 
         argv_command = self.get_command(inputfile)
-        with open(directory / outputfile, "wb") as fd:
-            check_call(argv_command, cwd=directory, stdout=fd, env=os.environ)
+        mode = "wb" if not append else "ab"
+        if errorfile is None:
+            with open(directory / outputfile, mode) as fd:
+                check_call(argv_command, cwd=directory, stdout=fd, env=os.environ)
+        else:
+            with open(directory / outputfile, mode) as fd, \
+                     open(directory / errorfile, mode) as fe:
+                check_call(argv_command,
+                           cwd=directory,
+                           stdout=fd,
+                           stderr=fe,
+                           env=os.environ)
+
 
     @abstractmethod
     def version(self):
