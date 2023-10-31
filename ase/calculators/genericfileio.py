@@ -20,7 +20,7 @@ class BaseProfile(ABC):
             Additional settings for parallel execution, e.g. arguments
             for the binary for parallelization (mpiexec, srun, mpirun).
         """
-        self.parallel_info = parallel_info
+        self.parallel_info = parallel_info or {}
         self.parallel = parallel
 
     def get_translation_keys(self):
