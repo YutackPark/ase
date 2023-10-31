@@ -247,7 +247,7 @@ class FileIOSocketClientLauncher:
             elif isinstance(profile, OldShellProfile):
                 cmd = profile.command
                 if "PREFIX" in cmd:
-                    cmd = cmd.replace("PREIX", profile.prefix)
+                    cmd = cmd.replace("PREFIX", profile.prefix)
             elif isinstance(profile, ArgvProfile):
                 cmd = " ".join(profile.argv)
 
