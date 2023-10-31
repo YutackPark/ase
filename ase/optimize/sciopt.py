@@ -71,6 +71,7 @@ class SciPyOptimizer(Optimizer):
         self.force_calls = 0
         self.callback_always = callback_always
         self.H0 = alpha
+        self.max_steps = 0
 
     def x0(self):
         """Return x0 in a way SciPy can use
