@@ -276,6 +276,29 @@ def pytest_generate_tests(metafunc):
         metafunc.parametrize('seed', seeds)
 
 
+@pytest.fixture
+def config_file(tmp_path):
+    dummy_config = """\
+[parallel]
+binary = mpirun
+
+[espresso]
+binary = pw.x
+pseudo_path = 
+
+[siesta]
+exc = siesta.x
+
+[openmx]
+exc = openmx.x
+"""
+    config_file_name = tmp_path / "ase.conf"
+    with open(config_file_name, "w") as f:
+        f.write(dummy_config)
+        os.environ["ASE_CONFIG_PATH"] = config_file_name.as_posix()
+    return config_file_name
+
+
 class CLI:
     def __init__(self, calculators):
         self.calculators = calculators
