@@ -730,7 +730,7 @@ class Demon(FileIOCalculator):
                 raise RuntimeError
 
         if coord_units == 'Bohr':
-            xyz = xyz * Bohr
+            xyz *= Bohr
 
         natoms = len(chemical_symbols)
 

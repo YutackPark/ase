@@ -337,7 +337,7 @@ class DemonNano(FileIOCalculator):
                     xyz.append(xyz_loc)
 
         if coord_units == 'Bohr':
-            xyz = xyz * Bohr
+            xyz *= Bohr
 
         # set atoms object
         atoms = ase.Atoms(symbols=chem_symbols, positions=xyz)
