@@ -326,7 +326,7 @@ class MirrorMutation(OffspringCreator):
 
             # In the case of an uneven number of
             # atoms we need to add one extra
-            for n in nu.keys():
+            for n in nu:
                 if nu[n] % 2 == 0:
                     continue
                 while sum(n_use == n) > nu[n]:

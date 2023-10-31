@@ -145,7 +145,7 @@ def read_file(filename, debug=False):
                     continue
             if pattern_matched:
                 continue
-            for key in patterns.keys():
+            for key in patterns:
                 if key in line:
                     out_data[patterns[key][0]] = patterns[key][1](
                         line, fd, debug=debug)
@@ -153,7 +153,7 @@ def read_file(filename, debug=False):
                     continue
             if pattern_matched:
                 continue
-            for key in special_patterns.keys():
+            for key in special_patterns:
                 if key in line:
                     a, b = special_patterns[key][1](line, fd)
                     out_data[special_patterns[key][0][0]] = a
@@ -728,7 +728,7 @@ def get_standard_parameters(parameters):
     }
 
     for key in parameters.keys():
-        for openmx_key in translated_parameters.keys():
+        for openmx_key in translated_parameters:
             if key == get_standard_key(openmx_key):
                 standard_key = translated_parameters[openmx_key]
                 unit = standard_units.get(units.get(openmx_key), 1)
@@ -778,7 +778,7 @@ def get_atomic_formula(out_data=None, log_data=None, restart_data=None,
             scf_eigenvaluesolver = data['scf_eigenvaluesolver']
         # ???
         for openmx_keyword in data.keys():
-            for standard_keyword in parameters.keys():
+            for standard_keyword in parameters:
                 if openmx_keyword == standard_keyword:
                     atomic_formula[standard_keyword] = data[openmx_keyword]
 
@@ -840,7 +840,7 @@ def get_results(out_data=None, log_data=None, restart_data=None,
     data = [out_data, log_data, restart_data, scfout_data, dat_data, band_data]
     for datum in data:
         for key in datum.keys():
-            for property in implemented_properties.keys():
+            for property in implemented_properties:
                 if key == property:
                     results[key] = arr(datum[key]) * implemented_properties[key]
     return results

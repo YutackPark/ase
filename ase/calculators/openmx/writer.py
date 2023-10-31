@@ -159,7 +159,7 @@ def parameters_to_keywords(label=None, atoms=None, parameters=None,
             return counterparts[openmx_keyword]
 
     # Overwrites openmx keyword using standard parameters
-    for openmx_keyword in counterparts.keys():
+    for openmx_keyword in counterparts:
         keywords[openmx_keyword] = parameter_overwrites(openmx_keyword)
 
     # keywords['scf_stress_tensor'] = 'stress' in properties
