@@ -220,6 +220,7 @@ coverage-combine:
     - coverage xml
     - cd ../..
     - mv ase/test/coverage-html .
+    - mv ase/test/coverage.xml .
   coverage: '/TOTAL.+ ([0-9]+\.[0-9]+%)/'
   artifacts:
     paths:
@@ -227,7 +228,7 @@ coverage-combine:
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: ase/test/coverage.xml
+        path: coverage.xml
     expire_in: 1 week
 
 .shared_windows_runners:
