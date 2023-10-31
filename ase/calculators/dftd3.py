@@ -146,7 +146,7 @@ class PureDFTD3(FileIOCalculator):
                  **kwargs):
 
         super().__init__(label=label,
-                         command=command,
+                         command=command or self.command,
                          **kwargs)
 
         self.comm = comm
