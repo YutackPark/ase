@@ -728,9 +728,8 @@ def get_standard_parameters(parameters):
     }
 
     for key in parameters.keys():
-        for openmx_key in translated_parameters:
+        for openmx_key, standard_key in translated_parameters.items():
             if key == get_standard_key(openmx_key):
-                standard_key = translated_parameters[openmx_key]
                 unit = standard_units.get(units.get(openmx_key), 1)
                 standard_parameters[standard_key] = parameters[key] * unit
     standard_parameters['spinpol'] = parameters.get('scf_spinpolarization')
