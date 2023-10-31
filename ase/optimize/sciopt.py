@@ -132,7 +132,7 @@ class SciPyOptimizer(Optimizer):
             self.max_steps = steps + self.nsteps
 
             # Scale the problem as SciPy uses I as initial Hessian.
-            self.call_fmin(fmax / self.H0, self.max_steps)
+            self.call_fmin(fmax / self.H0, steps)
         except Converged:
             pass
         return self.converged()
