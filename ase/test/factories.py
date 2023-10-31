@@ -72,7 +72,7 @@ class AbinitFactory:
     def calc(self, **kwargs):
         from ase.calculators.abinit import Abinit, AbinitProfile
 
-        profile = AbinitProfile([self.executable])
+        profile = AbinitProfile(self.executable)
 
         kw = self._base_kw()
         assert kw["pp_paths"] is not None
@@ -275,7 +275,7 @@ class EspressoFactory:
     def _profile(self):
         from ase.calculators.espresso import EspressoProfile
 
-        return EspressoProfile([self.executable], self.pseudo_dir)
+        return EspressoProfile(self.executable, self.pseudo_dir)
 
     def version(self):
         return self._profile().version()
@@ -591,7 +591,7 @@ class OctopusFactory:
     def _profile(self):
         from ase.calculators.octopus import OctopusProfile
 
-        return OctopusProfile([self.executable])
+        return OctopusProfile(self.executable)
 
     def version(self):
         return self._profile().version()
@@ -614,7 +614,7 @@ class OrcaFactory:
     def _profile(self):
         from ase.calculators.orca import OrcaProfile
 
-        return OrcaProfile([self.executable])
+        return OrcaProfile(self.executable)
 
     def version(self):
         return self._profile().version()
