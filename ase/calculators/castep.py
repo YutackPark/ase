@@ -37,6 +37,7 @@ import ase.units as units
 from ase.calculators.calculator import (PropertyNotImplementedError,
                                         compare_atoms, kpts2sizeandoffsets)
 from ase.calculators.general import Calculator
+from ase.config import cfg
 from ase.constraints import FixCartesian
 from ase.dft.kpoints import BandPath
 from ase.io.castep import read_bands, read_param
@@ -2201,7 +2202,7 @@ End CASTEP Interface Documentation
         """
         # should be a '==' right? Otherwise setting _castep_pp_path is not
         # honored.
-        if (not os.environ.get('PSPOT_DIR', None)
+        if (not cfg.get('PSPOT_DIR', None)
                 and self._castep_pp_path == os.path.abspath('.')):
             # By default CASTEP consults the environment variable
             # PSPOT_DIR. If this contains a list of colon separated
@@ -2965,10 +2966,10 @@ def get_castep_pp_path(castep_pp_path=''):
     """Abstract the quest for a CASTEP PSP directory."""
     if castep_pp_path:
         return os.path.abspath(os.path.expanduser(castep_pp_path))
-    elif 'PSPOT_DIR' in os.environ:
-        return os.environ['PSPOT_DIR']
-    elif 'CASTEP_PP_PATH' in os.environ:
-        return os.environ['CASTEP_PP_PATH']
+    elif 'PSPOT_DIR' in cfg:
+        return cfg['PSPOT_DIR']
+    elif 'CASTEP_PP_PATH' in cfg:
+        return cfg['CASTEP_PP_PATH']
     else:
         return os.path.abspath('.')
 
@@ -2977,8 +2978,8 @@ def get_castep_command(castep_command=''):
     """Abstract the quest for a castep_command string."""
     if castep_command:
         return castep_command
-    elif 'CASTEP_COMMAND' in os.environ:
-        return os.environ['CASTEP_COMMAND']
+    elif 'CASTEP_COMMAND' in cfg:
+        return cfg['CASTEP_COMMAND']
     else:
         return 'castep'
 
