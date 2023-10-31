@@ -29,9 +29,9 @@ compatibility_msg = (
 
 
 class EspressoProfile(BaseProfile):
-    def __init__(self, exc, pseudo_path, **kwargs):
+    def __init__(self, binary, pseudo_path, **kwargs):
         super().__init__(**kwargs)
-        self.exc = exc
+        self.binary = binary
         self.pseudo_path = pseudo_path
 
     @staticmethod
@@ -42,11 +42,11 @@ class EspressoProfile(BaseProfile):
         return match.group(1)
 
     def version(self):
-        stdout = read_stdout(self.exc)
+        stdout = read_stdout(self.binary)
         return self.parse_version(stdout)
 
     def get_calculator_command(self, inputfile):
-        return [self.exc, '-in', inputfile]
+        return [self.binary, '-in', inputfile]
 
 
 class EspressoTemplate(CalculatorTemplate):
