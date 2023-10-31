@@ -152,11 +152,6 @@ class MolecularDynamics(Dynamics):
         self.max_steps = steps + self.nsteps
         return Dynamics.irun(self)
 
-    def run(self, steps=50):
-        """ Call Dynamics.run and adjust max_steps """
-        self.max_steps = steps + self.nsteps
-        return Dynamics.run(self)
-
     def get_time(self):
         return self.nsteps * self.dt
 

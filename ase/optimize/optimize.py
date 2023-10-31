@@ -174,7 +174,7 @@ class Dynamics(IOContext):
             if call:
                 function(*args, **kwargs)
 
-    def irun(self):
+    def irun(self, *args, **kwargs):
         """Run dynamics algorithm as generator. This allows, e.g.,
         to easily run two optimizers or MD thermostats at the same time.
 
@@ -210,14 +210,14 @@ class Dynamics(IOContext):
             is_converged = self.converged()
             yield is_converged
 
-    def run(self):
+    def run(self, *args, **kwargs):
         """Run dynamics algorithm.
 
         This method will return when the forces on all individual
         atoms are less than *fmax* or when the number of steps exceeds
         *steps*."""
 
-        for converged in Dynamics.irun(self):
+        for converged in self.irun(*args, **kwargs):
             pass
         return converged
 
@@ -330,12 +330,6 @@ class Optimizer(Dynamics):
         self.fmax = fmax
         self.max_steps = MAX_STEPS if steps is None else steps + self.nsteps
         return Dynamics.irun(self)
-
-    def run(self, fmax=0.05, steps=None):
-        """ call Dynamics.run and keep track of fmax"""
-        self.fmax = fmax
-        self.max_steps = MAX_STEPS if steps is None else steps + self.nsteps
-        return Dynamics.run(self)
 
     def converged(self, forces=None):
         """Did the optimization converge?"""
