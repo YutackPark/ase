@@ -38,7 +38,7 @@ class MOPAC(FileIOCalculator):
 
     def __init__(self, restart=None,
                  ignore_bad_restart_file=FileIOCalculator._deprecated,
-                 label='mopac', atoms=None, **kwargs):
+                 label='mopac', atoms=None, self.command, **kwargs):
         """Construct MOPAC-calculator object.
 
         Parameters:
