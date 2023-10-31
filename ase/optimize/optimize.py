@@ -38,12 +38,12 @@ class OptimizableAtoms(Optimizable):
         try:
             self.atoms.get_potential_energy(force_consistent=True)
         except PropertyNotImplementedError:
-            warnings.warn(
-                'Could not get force consistent energy (\'free_energy\').  '
-                'Please make sure calculator provides \'free_energy\', even '
-                'if equal to the ordinary energy.  '
-                'This will raise an error in future versions of ASE.',
-                FutureWarning)
+            # warnings.warn(
+            #     'Could not get force consistent energy (\'free_energy\').  '
+            #     'Please make sure calculator provides \'free_energy\', even '
+            #     'if equal to the ordinary energy.  '
+            #     'This will raise an error in future versions of ASE.',
+            #     FutureWarning)
             return False
         else:
             return True
@@ -376,9 +376,7 @@ class Optimizer(Dynamics):
         if forces is None:
             forces = self.optimizable.get_forces()
         fmax = sqrt((forces ** 2).sum(axis=1).max())
-        e = self.optimizable.get_potential_energy(
-            force_consistent=self.force_consistent
-        )
+        e = self.optimizable.get_potential_energy()
         T = time.localtime()
         if self.logfile is not None:
             name = self.__class__.__name__
@@ -387,19 +385,9 @@ class Optimizer(Dynamics):
                 msg = "%s  %4s %8s %15s  %12s\n" % args
                 self.logfile.write(msg)
 
-                # if self.force_consistent:
-                #     msg = "*Force-consistent energies used in optimization.\n"
-                #     self.logfile.write(msg)
-
-            # XXX The "force consistent" handling is really arbitrary.
-            # Let's disable the special printing for now.
-            #
-            # ast = {1: "*", 0: ""}[self.force_consistent]
-            ast = ''
-            args = (name, self.nsteps, T[3], T[4], T[5], e, ast, fmax)
-            msg = "%s:  %3d %02d:%02d:%02d %15.6f%1s %15.6f\n" % args
+            args = (name, self.nsteps, T[3], T[4], T[5], e, fmax)
+            msg = "%s:  %3d %02d:%02d:%02d %15.6f %15.6f\n" % args
             self.logfile.write(msg)
-
             self.logfile.flush()
 
     def dump(self, data):
