@@ -1,5 +1,6 @@
 import os
 import configparser
+import warnings
 from collections.abc import Mapping
 from pathlib import Path
 
@@ -14,18 +15,25 @@ class Config(Mapping):
     def __init__(self):
         self._dct = os.environ
 
-
     def __iter__(self):
         return iter(self._dct)
 
     def __getitem__(self, item):
-        return self._dct[item]
+        if item in self.parser:
+            return self.parser[item]
+        elif item in self._dct:
+            return self._dct[item]
+        else:
+            raise KeyError
 
     def __len__(self):
         return len(self._dct)
 
+    def __contains__(self, item):
+        return item in self._dct or item in self.parser
+
     @lazymethod
-    def paths_and_parser(self):
+    def _paths_and_parser(self):
         def argv_converter(argv):
             return shlex.split(argv)
 
@@ -40,11 +48,11 @@ class Config(Mapping):
 
     @property
     def paths(self):
-        return self.paths_and_parser()[0]
+        return self._paths_and_parser()[0]
 
     @property
     def parser(self):
-        return self.paths_and_parser()[1]
+        return self._paths_and_parser()[1]
 
     def check_calculators(self):
         from ase.calculators.names import names, templates
