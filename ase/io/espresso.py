@@ -395,8 +395,18 @@ def read_espresso_out(fileobj, index=slice(None), results_required=True):
 
         # Put everything together
         #
-        # I have added free_energy.  Can and should we distinguish
-        # energy and free_energy?  --askhl
+        # In PW the forces are consistent with the "total energy"; that's why
+        # its value must be assigned to free_energy.
+        # PW doesn't compute the extrapolation of the energy to 0K smearing
+        # the closer thing to this is again the total energy that contains
+        # the correct (i.e. variational) form of the band energy is
+        #   Eband = \int e N(e) de   for e<Ef , where N(e) is the DOS
+        # This differs by the term (-TS)  from the sum of KS eigenvalues:
+        #    Eks = \sum wg(n,k) et(n,k)
+        # which is non variational. When a Fermi-Dirac function is used
+        # for a given T, the variational energy is REALLY the free energy F,
+        # and F = E - TS , with E = non variational energy.
+        #
         calc = SinglePointDFTCalculator(structure, energy=energy,
                                         free_energy=energy,
                                         forces=forces, stress=stress,
