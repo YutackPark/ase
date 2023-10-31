@@ -4,6 +4,7 @@ from collections.abc import Callable
 from math import sqrt
 from os.path import isfile
 from typing import IO, Any, Dict, List, Optional, Union
+import warnings
 
 from ase import Atoms
 from ase.calculators.calculator import PropertyNotImplementedError
@@ -37,7 +38,6 @@ class OptimizableAtoms(Optimizable):
         try:
             self.atoms.get_potential_energy(force_consistent=True)
         except PropertyNotImplementedError:
-            import warnings
             warnings.warn(
                 'Could not get force consistent energy (\'free_energy\').  '
                 'Please make sure calculator provides \'free_energy\', even '
@@ -48,9 +48,9 @@ class OptimizableAtoms(Optimizable):
         else:
             return True
 
-    def get_potential_energy(self, force_consistent):
-        if force_consistent is None:
-            force_consistent = self._use_force_consistent_energy
+    def get_potential_energy(self, force_consistent=None):
+        # ignore force_consistent
+        force_consistent = self._use_force_consistent_energy
         return self.atoms.get_potential_energy(
             force_consistent=force_consistent)
 
@@ -260,6 +260,7 @@ class Optimizer(Dynamics):
 
     # default maxstep for all optimizers
     defaults = {'maxstep': 0.2}
+    _deprecated = object()
 
     def __init__(
         self,
@@ -269,7 +270,7 @@ class Optimizer(Dynamics):
         trajectory: Optional[str] = None,
         master: Optional[bool] = None,
         append_trajectory: bool = False,
-        force_consistent: Optional[bool] = False,
+        force_consistent: Optional[bool] = _deprecated,
     ):
         """Structure optimizer object.
 
@@ -303,22 +304,16 @@ class Optimizer(Dynamics):
             force-consistent energies if available in the calculator, but
             falls back to force_consistent=False if not.
         """
-        Dynamics.__init__(
-            self,
+        super().__init__(
             atoms,
             logfile,
             trajectory,
             append_trajectory=append_trajectory,
-            master=master,
-        )
+            master=master)
 
-        self.force_consistent = force_consistent
-        if self.force_consistent is None:
-            self.set_force_consistent()
-
+        self.force_consistent = self.check_deprecated(force_consistent)
         self.restart = restart
 
-        # initialize attribute
         self.fmax = None
 
         if restart is None or not isfile(restart):
@@ -326,6 +321,19 @@ class Optimizer(Dynamics):
         else:
             self.read()
             barrier()
+
+    @classmethod
+    def check_deprecated(cls, force_consistent):
+        if force_consistent is cls._deprecated:
+            return False
+
+        warnings.warn(
+            'force_consistent keyword is deprecated and will '
+            'be ignored.  This will raise an error in future versions '
+            'of ASE.',
+            FutureWarning)
+
+        return force_consistent
 
     def read(self):
         raise NotImplementedError
@@ -410,13 +418,3 @@ class Optimizer(Dynamics):
                        'You may need to delete the restart file '
                        f'{self.restart}')
                 raise RestartError(msg) from ex
-
-    def set_force_consistent(self):
-        """Automatically sets force_consistent to True if force_consistent
-        energies are supported by calculator; else False."""
-        try:
-            self.optimizable.get_potential_energy(force_consistent=True)
-        except PropertyNotImplementedError:
-            self.force_consistent = False
-        else:
-            self.force_consistent = True

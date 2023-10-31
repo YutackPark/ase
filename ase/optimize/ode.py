@@ -188,7 +188,7 @@ class ODE12r(SciPyOptimizer):
         callback_always: bool = False,
         alpha: float = 1.0,
         master: Optional[bool] = None,
-        force_consistent: Optional[bool] = None,
+        force_consistent: Optional[bool] = SciPyOptimizer._deprecated,
         precon: Optional[str] = None,
         verbose: int = 0,
         rtol: float = 1e-2,

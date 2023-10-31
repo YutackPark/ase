@@ -264,7 +264,7 @@ class NEBOptimizable(Optimizable):
     def get_forces(self):
         return self.neb.get_forces()
 
-    def get_potential_energy(self, force_consistent):
+    def get_potential_energy(self, force_consistent=None):
         return self.neb.get_potential_energy(
             force_consistent=force_consistent)
 
