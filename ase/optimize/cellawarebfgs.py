@@ -16,8 +16,7 @@ def calculate_isotropic_elasticity_tensor(bulk_modulus, poisson_ratio,
                      Hessian (in ASE units (eV/Å^3)).
 
         poisson_ratio Poisson ratio of the isotropic system used to set up the
-                      initial Hessian (unitless, between -1 and 0.5). Default
-                      value is 0.3.
+                      initial Hessian (unitless, between -1 and 0.5).
 
         suppress_rotation The rank-2 matrix C_ijkl.reshape((9,9)) has by
                           default 6 non-zero eigenvalues, because energy is
