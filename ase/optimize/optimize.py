@@ -175,14 +175,26 @@ class Dynamics(IOContext):
                 function(*args, **kwargs)
 
     def irun(self, steps=DEFAULT_MAX_STEPS):
-        """Run dynamics algorithm as generator. This allows, e.g.,
-        to easily run two optimizers or MD thermostats at the same time.
+        """Run dynamics algorithm as generator.
 
-        Examples:
+        Parameters
+        ----------
+        steps : int, default=DEFAULT_MAX_STEPS
+            Number of dynamics steps to be run.
+
+        Yields
+        ------
+        converged : bool
+            True if the forces on atoms are converged.
+
+        Examples
+        --------
+        This method allows, e.g., to run two optimizers or MD thermostats at
+        the same time.
         >>> opt1 = BFGS(atoms)
         >>> opt2 = BFGS(StrainFilter(atoms)).irun()
         >>> for _ in opt2:
-        >>>     opt1.run()
+        ...     opt1.run()
         """
 
         # update the maximum number of steps
@@ -214,14 +226,25 @@ class Dynamics(IOContext):
             is_converged = self.converged()
             yield is_converged
 
-    def run(self, *args, **kwargs):
+    def run(self, steps=DEFAULT_MAX_STEPS):
         """Run dynamics algorithm.
 
         This method will return when the forces on all individual
         atoms are less than *fmax* or when the number of steps exceeds
-        *steps*."""
+        *steps*.
 
-        for converged in self.irun(*args, **kwargs):
+        Parameters
+        ----------
+        steps : int, default=DEFAULT_MAX_STEPS
+            Number of dynamics steps to be run.
+
+        Returns
+        -------
+        converged : bool
+            True if the forces on atoms are converged.
+        """
+
+        for converged in Dynamics.irun(self, steps=steps):
             pass
         return converged
 
@@ -330,9 +353,40 @@ class Optimizer(Dynamics):
         pass
 
     def irun(self, fmax=0.05, steps=DEFAULT_MAX_STEPS):
-        """ call Dynamics.irun and keep track of fmax"""
+        """Run optimizer as generator.
+
+        Parameters
+        ----------
+        fmax : float
+            Convergence criterion of the forces on atoms.
+        steps : int, default=DEFAULT_MAX_STEPS
+            Number of optimizer steps to be run.
+
+        Yields
+        ------
+        converged : bool
+            True if the forces on atoms are converged.
+        """
         self.fmax = fmax
         return Dynamics.irun(self, steps=steps)
+
+    def run(self, fmax=0.05, steps=DEFAULT_MAX_STEPS):
+        """Run optimizer.
+
+        Parameters
+        ----------
+        fmax : float
+            Convergence criterion of the forces on atoms.
+        steps : int, default=DEFAULT_MAX_STEPS
+            Number of optimizer steps to be run.
+
+        Returns
+        -------
+        converged : bool
+            True if the forces on atoms are converged.
+        """
+        self.fmax = fmax
+        return Dynamics.run(self, steps=steps)
 
     def converged(self, forces=None):
         """Did the optimization converge?"""
