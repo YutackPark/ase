@@ -7,24 +7,24 @@ voigt_notation = [(0, 0), (1, 1), (2, 2), (1, 2), (0, 2), (0, 1)]
 def get_elasticity_tensor(atoms, h=0.001, verbose=False):
     """
 
-          1    dE         dσ_ij 
- C     =  - ----------- = ----- 
-  ijkl    V dε_ij dε_kl   dε_kl 
-                          
+             1    dE         dσ_ij
+    C     =  - ----------- = -----
+     ijkl    V dε_ij dε_kl   dε_kl
+
     """
     cell0 = atoms.cell.copy()
-    C_ijkl = np.zeros((3,3,3,3))
+    C_ijkl = np.zeros((3, 3, 3, 3))
     f = voigt_6_to_full_3x3_stress
     for k in range(3):
         for l in range(3):
             strain = np.eye(3)
-            strain[k,l] += h
+            strain[k, l] += h
             atoms.set_cell(cell0 @ strain, scale_atoms=True)
             stressp_ij = f(atoms.get_stress())
-            strain[k,l] -= 2*h
+            strain[k, l] -= 2 * h
             atoms.set_cell(cell0 @ strain, scale_atoms=True)
             stressm_ij = f(atoms.get_stress())
-            C_ijkl[k,l] = (stressp_ij - stressm_ij) / (2*h)
+            C_ijkl[k, l] = (stressp_ij - stressm_ij) / (2 * h)
 
     if verbose:
         for i in range(3):
@@ -32,12 +32,13 @@ def get_elasticity_tensor(atoms, h=0.001, verbose=False):
                 print(f'C_ijkl[{i}, {j}] =')
                 for k in range(3):
                     for l in range(3):
-                        print(round(C_ijkl[i,j,k,l], 2), end=' ')
+                        print(round(C_ijkl[i, j, k, l], 2), end=' ')
                     print()
                 print()
             print()
-        
+
     return C_ijkl
+
 
 def full_3x3_to_voigt_6_index(i, j):
     if i == j:
