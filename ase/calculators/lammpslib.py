@@ -276,6 +276,12 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
         Calculator.__init__(self, *args, **kwargs)
         self.lmp = None
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.clean()
+
     def clean(self):
         if self.started:
             self.lmp.close()
