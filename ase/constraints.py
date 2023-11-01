@@ -56,7 +56,7 @@ def constrained_indices(atoms, only_include=None):
 class FixConstraint:
     """Base class for classes that fix one or more atoms in some way."""
 
-    def index_shuffle(self, atoms, ind):
+    def index_shuffle(self, atoms: Atoms, ind):
         """Change the indices.
 
         When the ordering of the atoms in the Atoms object changes,
@@ -68,7 +68,7 @@ class FixConstraint:
         """
         raise NotImplementedError
 
-    def repeat(self, m, n):
+    def repeat(self, m: int, n: int):
         """ basic method to multiply by m, needs to know the length
         of the underlying atoms object for the assignment of
         multiplied constraints to work.
@@ -78,12 +78,27 @@ class FixConstraint:
                'remove your constraints.')
         raise NotImplementedError(msg)
 
-    def adjust_momenta(self, atoms, momenta):
-        """Adjusts momenta in identical manner to forces."""
+    def get_removed_dof(self, atoms: Atoms):
+        """Get number of removed degrees of freedom due to constraint."""
+
+    def adjust_positions(self, atoms: Atoms, new):
+        """Adjust positions."""
+
+    def adjust_momenta(self, atoms: Atoms, momenta):
+        """Adjust momenta."""
+        # The default is in identical manner to forces.
+        # TODO: The default is however not always reasonable.
         self.adjust_forces(atoms, momenta)
 
+    def adjust_forces(self, atoms: Atoms, forces):
+        """Adjust forces."""
+
     def copy(self):
+        """Copy constraint."""
         return dict2constraint(self.todict().copy())
+
+    def todict(self):
+        """Convert constraint to dictionary."""
 
 
 class IndexedConstraint(FixConstraint):
