@@ -22,7 +22,7 @@ import os
 import shutil
 import warnings
 from os.path import isfile, islink, join
-from typing import List, Sequence, Tuple, Union
+from typing import List, Sequence, Tuple
 
 import numpy as np
 
@@ -1137,7 +1137,7 @@ class GenerateVaspInput:
             raise ValueError('{} is not supported for xc! Supported xc values'
                              'are: {}'.format(xc, xc_allowed))
         else:
-            #print future warning in case pw91 is selected:
+            # print future warning in case pw91 is selected:
             if xc == 'pw91':
                 warnings.warn(
                     "The PW91 (potpaw_GGA) pseudopotential set is "
@@ -1353,7 +1353,6 @@ class GenerateVaspInput:
                         No pseudopotential for {}!""".format(potcar, symbol))
                 raise RuntimeError(msg)
         return ppp_list
-
 
     def initialize(self, atoms):
         """Initialize a VASP calculation
