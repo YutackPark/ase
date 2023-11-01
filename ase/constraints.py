@@ -840,8 +840,8 @@ class FixScaled(IndexedConstraint):
     def __init__(self, a, mask=(1, 1, 1), cell=None):
         # XXX The unused cell keyword is there for compatibility
         # with old trajectory files.
-        super().__init__(a)
-        self.mask = np.array(mask, bool)
+        super().__init__(indices=a)
+        self.mask = np.asarray(mask, bool)
 
     def get_removed_dof(self, atoms: Atoms):
         return self.mask.sum() * len(self.index)
@@ -867,7 +867,8 @@ class FixScaled(IndexedConstraint):
                            'mask': self.mask.tolist()}}
 
     def __repr__(self):
-        return f'FixScaled({self.index.tolist()}, {self.mask})'
+        name = type(self).__name__
+        return f'{name}(indices={self.index.tolist()}, {self.mask.tolist()})'
 
 
 # TODO: Better interface might be to use dictionaries in place of very
