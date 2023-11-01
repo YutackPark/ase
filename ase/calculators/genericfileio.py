@@ -7,6 +7,8 @@ from ase.calculators.abc import GetOutputsMixin
 from ase.calculators.calculator import BaseCalculator, EnvironmentError
 from ase.config import cfg as _cfg
 
+from contextlib import ExitStack
+
 
 class BaseProfile(ABC):
     def __init__(self, parallel=True, parallel_info=None):
@@ -126,22 +128,18 @@ class BaseProfile(ABC):
 
         argv_command = self.get_command(inputfile)
         mode = 'wb' if not append else 'ab'
-        if errorfile is None:
-            with open(directory / outputfile, mode) as fd:
-                check_call(
-                    argv_command, cwd=directory, stdout=fd, env=os.environ
-                )
-        else:
-            with open(directory / outputfile, mode) as fd, open(
-                directory / errorfile, mode
-            ) as fe:
-                check_call(
-                    argv_command,
-                    cwd=directory,
-                    stdout=fd,
-                    stderr=fe,
-                    env=os.environ,
-                )
+
+        with ExitStack() as stack:
+            fd_out = stack.enter_context(open(outputfile, mode))
+            if errorfile is not None:
+                fd_err = stack.enter_context(open(errorfile, mode))
+            else:
+                fd_err = None
+            check_call(argv_command,
+                       cwd=directory,
+                       stdout=fd_out,
+                       stderr=fd_err,
+                       env=os.environ)
 
     @abstractmethod
     def version(self):
