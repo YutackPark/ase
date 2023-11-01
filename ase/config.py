@@ -15,12 +15,21 @@ class Config(Mapping):
         self._dct = os.environ
 
     def __iter__(self):
-        return iter(self._dct)
+        # TARP: Iterate over the config file first and then over the
+        #       the environment
+        for x in iter(self.parser):
+            yield x
+        for x in iter(self._dct):
+            yield x
 
     def __getitem__(self, item):
+        # TARP: Frist check the config file for an item and then check the
+        #       environment variables.
         if item in self.parser:
             return self.parser[item]
         elif item in self._dct:
+            # TARP: We may want to add a deprecation warning for this if we
+            #       want to no longer use the environment in the future
             return self._dct[item]
         else:
             raise KeyError
