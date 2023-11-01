@@ -1,13 +1,9 @@
-import unittest
 import pytest
-from unittest import mock
+import os
 
-import numpy as np
 from ase.calculators.vasp import Vasp
-from ase.calculators.vasp.create_input import _args_without_comment
-from ase.calculators.vasp.create_input import _to_vasp_bool, _from_vasp_bool
 
-from ase.build import bulk
+from ase.build import bulk, molecule
 
 @pytest.fixture
 def nacl():
@@ -15,32 +11,46 @@ def nacl():
                  cubic=True)
     return atoms
 
+@pytest.fixture
+def nh3():
+    atoms = molecule('NH3', vacuum=10)
+    return atoms
 
+def get_suffixes(ppp_list):
+    suffixes = []
+    for p in ppp_list:
+        name = (p.split('/')[-2])
+        # since the H PPs with fractional valence
+        # do not have an '_', we need to handle them
+        element = name.split('_')[0] if '.' not in name else 'H'
+        suffix = name[len(element):]
+        suffixes.append(suffix)
+    return suffixes
 
-def test_vasp_potcar(nacl):
-    def get_pp_symbols(ppp_list):
-        mappings = {}
-        for p in ppp_list:
-            name = (p.split('/')[-2])
-            element = name.split('_')[0] if '.' not in name else 'H'
-            mappings[element] = name
-        return mappings
-
+@pytest.mark.skipif('VASP_PP_PATH' not in os.environ, reason='VASP_PP_PATH not set')
+def test_potcar_setups(nacl):
     setups = {'recommended':
-                  {'Na': 'Na_pv', 'Cl': 'Cl'},
+                  ['_pv', ''],
               'GW':
-                    {'Na': 'Na_sv_GW', 'Cl': 'Cl_GW'},
+                   ['_sv_GW', '_GW'],
               'custom':
-                    {'Na': 'Na', 'Cl': 'Cl_h'},
+                    ['', '_h'],
               }
     calc = Vasp(setups='recommended')
     calc.initialize(nacl)
-    assert get_pp_symbols(calc.ppp_list) == setups['recommended']
+    assert get_suffixes(calc.ppp_list) == setups['recommended']
 
     calc = Vasp(setups='GW')
     calc.initialize(nacl)
-    assert get_pp_symbols(calc.ppp_list) == setups['GW']
+    assert get_suffixes(calc.ppp_list) == setups['GW']
 
     calc = Vasp(setups={'base': 'minimal', 'Cl': '_h'})
     calc.initialize(nacl)
-    assert get_pp_symbols(calc.ppp_list) == setups['custom']
+    assert get_suffixes(calc.ppp_list) == setups['custom']
+
+@pytest.mark.skipif('VASP_PP_PATH' not in os.environ, reason='VASP_PP_PATH not set')
+def test_potcar_setups_fractional_valence(nh3):
+    setups = {'base': 'recommended', 1: 'H.5', 2: 'H1.75', 3: 'H.75'}
+    calc = Vasp(setups=setups, xc='PBE')
+    calc.initialize(nh3)
+    assert get_suffixes(calc.ppp_list) == ['.5', '1.75', '.75', '']
