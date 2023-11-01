@@ -33,6 +33,7 @@ from ase.calculators.vasp.setups import get_default_setups
 FLOAT_FORMAT = '5.6f'
 EXP_FORMAT = '5.2e'
 
+
 def format_kpoints(kpts, atoms, reciprocal=False, gamma=False):
     tokens = []
     append = tokens.append
@@ -1572,7 +1573,8 @@ class GenerateVaspInput:
                         lst[-1][0] += 1
                     else:
                         lst.append([1, val[n]])
-                line += ' '.join(['{:d}*{:.4f}'.format(mom[0], mom[1]) for mom in lst]) + '\n'
+                line += ' '.join(['{:d}*{:.4f}'.format(mom[0], mom[1])
+                                  for mom in lst]) + '\n'
                 incar.write(line)
             else:
                 line = f' {key.upper()} = '
@@ -1583,7 +1585,7 @@ class GenerateVaspInput:
         for key, val in self.bool_params.items():
             if val is not None:
                 incar.write(f' {key.upper()} = {_to_vasp_bool(val)}\n')
-                
+
         for key, val in self.special_params.items():
             if val is not None:
                 line = f' {key.upper()} = '
@@ -1593,7 +1595,7 @@ class GenerateVaspInput:
                     elif isinstance(val, bool):
                         line += f'{_to_vasp_bool(val)}\n'
                 incar.write(line)
-                        
+
         for key, val in self.dict_params.items():
             if val is not None:
                 if key == 'ldau_luj':
