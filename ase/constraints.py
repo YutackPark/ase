@@ -4,6 +4,7 @@ from warnings import warn
 
 import numpy as np
 
+from ase import Atoms
 from ase.filters import ExpCellFilter as ExpCellFilterOld
 from ase.filters import Filter as FilterOld
 from ase.filters import StrainFilter as StrainFilterOld
@@ -795,15 +796,15 @@ class FixCartesian(IndexedConstraint):
         super().__init__(indices=a)
         self.mask = ~np.asarray(mask, bool)
 
-    def get_removed_dof(self, atoms):
+    def get_removed_dof(self, atoms: Atoms):
         return (3 - self.mask.sum()) * len(self.index)
 
-    def adjust_positions(self, atoms, new):
+    def adjust_positions(self, atoms: Atoms, new):
         step = new[self.index] - atoms.positions[self.index]
         step *= self.mask[None, :]
         new[self.index] = atoms.positions[self.index] + step
 
-    def adjust_forces(self, atoms, forces):
+    def adjust_forces(self, atoms: Atoms, forces):
         forces[self.index] *= self.mask[None, :]
 
     def __repr__(self):
@@ -825,17 +826,17 @@ class FixScaled(IndexedConstraint):
         super().__init__(a)
         self.mask = np.array(mask, bool)
 
-    def get_removed_dof(self, atoms):
+    def get_removed_dof(self, atoms: Atoms):
         return self.mask.sum() * len(self.index)
 
-    def adjust_positions(self, atoms, new):
+    def adjust_positions(self, atoms: Atoms, new):
         cell = atoms.cell
         scaled_old = cell.scaled_positions(atoms.positions[self.index])
         scaled_new = cell.scaled_positions(new[self.index])
         scaled_new[:, self.mask] = scaled_old[:, self.mask]
         new[self.index] = cell.cartesian_positions(scaled_new)
 
-    def adjust_forces(self, atoms, forces):
+    def adjust_forces(self, atoms: Atoms, forces):
         # Forces are covariant to the coordinate transformation,
         # use the inverse transformations
         cell = atoms.cell
