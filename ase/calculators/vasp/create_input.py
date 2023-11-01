@@ -1522,9 +1522,11 @@ class GenerateVaspInput:
             if val is None:
                 pass
             else:
-                incar.write(f' {key.upper()} = ')
-                [incar.write(f'{_to_vasp_bool(x)} ') for x in val]
-                incar.write('\n')
+                line = f' {key.upper()} ='
+                for x in val:
+                    line += f' {_to_vasp_bool(x)}'
+                line += '\n'
+                incar.write(line)
 
         for key, val in self.list_int_params.items():
             if val is None:
@@ -1555,7 +1557,8 @@ class GenerateVaspInput:
                     self.spinpol = True
                     incar.write(' ispin = 2\n'.upper())
 
-                incar.write(f' {key.upper()} = ')
+                line = f' {key.upper()} = '
+                # incar.write(f' {key.upper()} = ')
                 magmom_written = True
                 # Work out compact a*x b*y notation and write in this form
                 # Assume 1 magmom per atom, ordered as our atoms object
@@ -1569,13 +1572,13 @@ class GenerateVaspInput:
                         lst[-1][0] += 1
                     else:
                         lst.append([1, val[n]])
-                incar.write(' '.join(
-                    ['{:d}*{:.4f}'.format(mom[0], mom[1]) for mom in lst]))
-                incar.write('\n')
+                line += ' '.join(['{:d}*{:.4f}'.format(mom[0], mom[1]) for mom in lst]) + '\n'
+                incar.write(line)
             else:
-                incar.write(f' {key.upper()} = ')
-                [incar.write(f'{x:.4f} ' % x) for x in val]
-                incar.write('\n')
+                line = f' {key.upper()} = '
+                line += ' '.join([f'{x:.4f}' for x in val])
+                line += '\n'
+                incar.write(line)
 
         for key, val in self.bool_params.items():
             if val is not None:
@@ -1583,12 +1586,13 @@ class GenerateVaspInput:
                 
         for key, val in self.special_params.items():
             if val is not None:
-                incar.write(f' {key.upper()} = ')
+                line = f' {key.upper()} = '
                 if key == 'lreal':
                     if isinstance(val, str):
-                        incar.write(val + '\n')
+                        line += val + '\n'
                     elif isinstance(val, bool):
-                        incar.write(f'{_to_vasp_bool(val)}\n')
+                        line += f'{_to_vasp_bool(val)}\n'
+                incar.write(line)
                         
         for key, val in self.dict_params.items():
             if val is not None:
