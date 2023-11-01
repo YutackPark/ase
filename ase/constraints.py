@@ -809,27 +809,29 @@ class FixCartesian(IndexedConstraint):
 
     def __init__(self, a, mask=(1, 1, 1)):
         super().__init__(indices=a)
-        self.mask = ~np.asarray(mask, bool)
+        self.mask = np.asarray(mask, bool)
 
     def get_removed_dof(self, atoms: Atoms):
-        return (3 - self.mask.sum()) * len(self.index)
+        return self.mask.sum() * len(self.index)
 
     def adjust_positions(self, atoms: Atoms, new):
-        step = new[self.index] - atoms.positions[self.index]
-        step *= self.mask[None, :]
-        new[self.index] = atoms.positions[self.index] + step
+        new[self.index] = np.where(
+            self.mask[None, :],
+            atoms.positions[self.index],
+            new[self.index],
+        )
 
     def adjust_forces(self, atoms: Atoms, forces):
-        forces[self.index] *= self.mask[None, :]
-
-    def __repr__(self):
-        return 'FixCartesian(indices={}, mask={})'.format(
-            self.index.tolist(), list(~self.mask))
+        forces[self.index] *= ~self.mask[None, :]
 
     def todict(self):
         return {'name': 'FixCartesian',
                 'kwargs': {'a': self.index.tolist(),
-                           'mask': (~self.mask).tolist()}}
+                           'mask': self.mask.tolist()}}
+
+    def __repr__(self):
+        name = type(self).__name__
+        return f'{name}(indices={self.index.tolist()}, {self.mask.tolist()})'
 
 
 class FixScaled(IndexedConstraint):
