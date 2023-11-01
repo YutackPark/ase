@@ -40,24 +40,17 @@ class ExcitingProfile(BaseProfile):
          method, which is part of the BinaryRunner class.
     """
 
-    def __init__(
-                self, exciting_root=None, species_path=None,
-                binary=None, **kwargs):
-        from excitingtools.input.base_class import query_exciting_version
-
+    def __init__(self, binary, species_path=None, **kwargs):
         super().__init__(**kwargs)
 
-        if exciting_root is not None:
-            self.version = query_exciting_version(exciting_root)
-        else:
-            self.version = None
         self.species_path = species_path
         self.binary = binary
 
     def version(self):
         """Return exciting version."""
-        return self.version
-    
+        # TARP No way to get the version for the binary in use
+        return None
+
     # Machine specific config files in the config
     # species_file goes in the config
     # binary file in the config.
@@ -68,8 +61,10 @@ class ExcitingProfile(BaseProfile):
         """Returns command to run binary as a list of strings."""
         # input_file unused for exciting, it looks for input.xml in run
         # directory.
-        del input_file
-        return [self.binary]
+        if input_file is None:
+            return [self.binary]
+        else:
+            return [self.binary, str(input_file)]
 
 
 class ExcitingGroundStateTemplate(CalculatorTemplate):
@@ -81,11 +76,10 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
         * read_results
     """
 
-    program_name = 'exciting'
     parser = {'info.xml': ase.io.exciting.parse_output}
     output_names = list(parser)
     # Use frozenset since the CalculatorTemplate enforces it.
-    implemented_properties = frozenset(['energy', 'tforce'])
+    implemented_properties = frozenset(['energy', 'forces'])
 
     def __init__(self):
         """Initialise with constant class attributes.
@@ -94,7 +88,7 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
         :param implemented_properties: What properties should exciting
             calculate/read from output.
         """
-        super().__init__(self.program_name, self.implemented_properties)
+        super().__init__('exciting', self.implemented_properties)
 
     @staticmethod
     def _require_forces(input_parameters):
@@ -133,7 +127,6 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
             physical properties expected from a ground state
             calculation, for example energies and forces.
         """
-        del properties  # Unused but kept for API consistency.
         # Create a copy of the parameters dictionary so we don't
         # modify the callers dictionary.
         parameters_dict = parameters
@@ -167,7 +160,7 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
 
         :return: Results of the subprocess.run command.
         """
-        return profile.run(directory)
+        return profile.run(directory, self.file_name)
 
     def read_results(self, directory: PathLike) -> Mapping[str, Any]:
         """Parse results from each ground state output file.
@@ -187,7 +180,7 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
 
     def load_profile(self, cfg, **kwargs):
         """ExcitingProfile can be created via a config file.
-        
+
         Alternative to this method the profile can be created with it's
         init method. This method allows for more settings to be passed.
         """
