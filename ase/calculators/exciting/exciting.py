@@ -160,7 +160,7 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
 
         :return: Results of the subprocess.run command.
         """
-        return profile.run(directory, self.file_name)
+        return profile.run(directory, f"{directory}/input.xml")
 
     def read_results(self, directory: PathLike) -> Mapping[str, Any]:
         """Parse results from each ground state output file.
