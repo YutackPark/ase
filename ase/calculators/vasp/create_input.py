@@ -1495,7 +1495,8 @@ class GenerateVaspInput:
                     if val is not None and val != nelect_from_charge:
                         raise ValueError('incompatible input parameters: '
                                          f'nelect={val}, but charge={charge} '
-                                         f'(neutral nelect is {default_nelect})')
+                                         '(neutral nelect is '
+                                         f'{default_nelect})')
                     val = nelect_from_charge
             if val is not None:
                 incar.write(f' {key.upper()} = {val:{FLOAT_FORMAT}}\n')
