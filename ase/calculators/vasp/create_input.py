@@ -22,7 +22,7 @@ import os
 import warnings
 import shutil
 from os.path import join, isfile, islink
-from typing import List, Sequence, Tuple
+from typing import List, Sequence, Tuple, Union
 
 import numpy as np
 
@@ -31,7 +31,7 @@ from ase.calculators.calculator import kpts2ndarray
 from ase.calculators.vasp.setups import get_default_setups
 
 
-def get_pp_setup(setup: [str, dict]) -> Tuple[dict, Sequence[int]]:
+def get_pp_setup(setup: Union[str, dict]) -> Tuple[dict, Sequence[int]]:
     """
     Get the pseudopotential mapping based on the "setpus" input.
 
@@ -1304,7 +1304,7 @@ class GenerateVaspInput:
             if m in setups:
                 special_setup_index = m
             elif str(m) in setups:
-                special_setup_index = str(m)  # type: ignore
+                special_setup_index = str(m)  # type: ignore[assignment]
             else:
                 raise Exception("Having trouble with special setup index {0}."
                                 " Please use an int.".format(m))
