@@ -11,18 +11,19 @@ import ase.io.abinit as io
 from ase.calculators.genericfileio import (
     CalculatorTemplate,
     GenericFileIOCalculator,
-    BaseProfile
+    BaseProfile,
 )
 
 
 def get_abinit_version(command):
-    txt = check_output([command, "--version"]).decode("ascii")
+    txt = check_output([command, '--version']).decode('ascii')
     # This allows trailing stuff like betas, rc and so
-    m = re.match(r"\s*(\d\.\d\.\d)", txt)
+    m = re.match(r'\s*(\d\.\d\.\d)', txt)
     if m is None:
         raise RuntimeError(
-            "Cannot recognize abinit version. "
-            "Start of output: {}".format(txt[:40])
+            'Cannot recognize abinit version. ' 'Start of output: {}'.format(
+                txt[:40]
+            )
         )
     return m.group(1)
 
@@ -34,7 +35,7 @@ class AbinitProfile(BaseProfile):
 
     def version(self):
         return check_output(
-            self.binary + ["--version"], encoding="ascii"
+            self.binary + ['--version'], encoding='ascii'
         ).strip()
 
     def get_calculator_command(self, inputfile):
@@ -43,28 +44,28 @@ class AbinitProfile(BaseProfile):
     def socketio_argv_unix(self, socket):
         # XXX clean up the passing of the inputfile
         inputfile = AbinitTemplate().input_file
-        return [self.binary, inputfile, "--ipi", f"{socket}:UNIX"]
+        return [self.binary, inputfile, '--ipi', f'{socket}:UNIX']
 
 
 class AbinitTemplate(CalculatorTemplate):
-    _label = "abinit"  # Controls naming of files within calculation directory
+    _label = 'abinit'  # Controls naming of files within calculation directory
 
     def __init__(self):
         super().__init__(
-            name="abinit",
+            name='abinit',
             implemented_properties=[
-                "energy",
-                "free_energy",
-                "forces",
-                "stress",
-                "magmom",
+                'energy',
+                'free_energy',
+                'forces',
+                'stress',
+                'magmom',
             ],
         )
 
         # XXX superclass should require inputname and outputname
 
-        self.inputname = f"{self._label}.in"
-        self.outputname = f"{self._label}.log"
+        self.inputname = f'{self._label}.in'
+        self.outputname = f'{self._label}.log'
 
     def execute(self, directory, profile) -> None:
         profile.run(directory, self.inputname, self.outputname)
@@ -72,10 +73,10 @@ class AbinitTemplate(CalculatorTemplate):
     def write_input(self, profile, directory, atoms, parameters, properties):
         directory = Path(directory)
         parameters = dict(parameters)
-        pp_paths = parameters.pop("pp_paths", None)
+        pp_paths = parameters.pop('pp_paths', None)
         assert pp_paths is not None
 
-        kw = dict(xc="LDA", smearing=None, kpts=None, raw=None, pps="fhi")
+        kw = dict(xc='LDA', smearing=None, kpts=None, raw=None, pps='fhi')
         kw.update(parameters)
 
         io.prepare_abinit_input(
@@ -96,13 +97,14 @@ class AbinitTemplate(CalculatorTemplate):
         # XXX This handling of --ipi argument is used by at least two
         # calculators, should refactor if needed yet again
         if unixsocket:
-            ipi_arg = f"{unixsocket}:UNIX"
+            ipi_arg = f'{unixsocket}:UNIX'
         else:
-            ipi_arg = f"localhost:{port:d}"
+            ipi_arg = f'localhost:{port:d}'
 
-        return (
-            profile.get_calculator_command(self.inputname) + ["--ipi", ipi_arg]
-        )
+        return profile.get_calculator_command(self.inputname) + [
+            '--ipi',
+            ipi_arg,
+        ]
 
     def socketio_parameters(self, unixsocket, port):
         return dict(ionmov=28, expert_user=1, optcell=2)
@@ -117,8 +119,15 @@ class Abinit(GenericFileIOCalculator):
       calc = Abinit(label='abinit', xc='LDA', ecut=400, toldfe=1e-5)
     """
 
-    def __init__(self, *, profile=None, directory=".", parallel_info=None,
-                 parallel=True, **kwargs):
+    def __init__(
+        self,
+        *,
+        profile=None,
+        directory='.',
+        parallel_info=None,
+        parallel=True,
+        **kwargs,
+    ):
         """Construct ABINIT-calculator object.
 
         Parameters

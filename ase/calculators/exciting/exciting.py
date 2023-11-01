@@ -38,6 +38,7 @@ class ExcitingProfile:
 
     def __init__(self, exciting_root=None, species_path=None):
         from excitingtools.input.base_class import query_exciting_version
+
         if exciting_root is not None:
             self.version = query_exciting_version(exciting_root)
         else:
@@ -54,11 +55,11 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
         * read_results
     """
 
-    program_name = "exciting"
-    parser = {"info.xml": ase.io.exciting.parse_output}
+    program_name = 'exciting'
+    parser = {'info.xml': ase.io.exciting.parse_output}
     output_names = list(parser)
     # Use frozenset since the CalculatorTemplate enforces it.
-    implemented_properties = frozenset(["energy", "tforce"])
+    implemented_properties = frozenset(['energy', 'tforce'])
 
     def __init__(self):
         """Initialise with constant class attributes.
@@ -87,8 +88,8 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
     def write_input(
         self,
         profile: ExcitingProfile,  # ase test linter enforces method signatures
-                                   # be consistent with the
-                                   # abstract method that it implements
+        # be consistent with the
+        # abstract method that it implements
         directory: PathLike,
         atoms: ase.Atoms,
         parameters: dict,
@@ -111,18 +112,18 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
         # modify the callers dictionary.
         parameters_dict = parameters
         assert set(parameters_dict.keys()) == {
-            "title",
-            "species_path",
-            "ground_state_input",
-        }, "Keys should be defined by ExcitingGroundState calculator"
-        file_name = Path(directory) / "input.xml"
-        species_path = parameters_dict.pop("species_path")
-        title = parameters_dict.pop("title")
+            'title',
+            'species_path',
+            'ground_state_input',
+        }, 'Keys should be defined by ExcitingGroundState calculator'
+        file_name = Path(directory) / 'input.xml'
+        species_path = parameters_dict.pop('species_path')
+        title = parameters_dict.pop('title')
 
         ase.io.exciting.write_input_xml_file(
             file_name,
             atoms,
-            parameters_dict["ground_state_input"],
+            parameters_dict['ground_state_input'],
             species_path,
             title,
         )
@@ -168,21 +169,21 @@ class ExcitingGroundStateResults:
 
     def __init__(self, results: dict) -> None:
         self.results = results
-        self.final_scl_iteration = list(results["scl"].keys())[-1]
+        self.final_scl_iteration = list(results['scl'].keys())[-1]
 
     def total_energy(self) -> float:
         """Return total energy of system."""
         # TODO(Alex) We should a common list of keys somewhere
         # such that parser -> results -> getters are consistent
         return float(
-            self.results["scl"][self.final_scl_iteration]["Total energy"]
+            self.results['scl'][self.final_scl_iteration]['Total energy']
         )
 
     def band_gap(self) -> float:
         """Return the estimated fundamental gap from the exciting sim."""
         return float(
-            self.results["scl"][self.final_scl_iteration][
-                "Estimated fundamental gap"
+            self.results['scl'][self.final_scl_iteration][
+                'Estimated fundamental gap'
             ]
         )
 
@@ -231,9 +232,9 @@ class ExcitingGroundStateCalculator(GenericFileIOCalculator):
         *,
         runner: SimpleBinaryRunner,
         ground_state_input,
-        directory="./",
-        species_path="./",
-        title="ASE-generated input"
+        directory='./',
+        species_path='./',
+        title='ASE-generated input',
     ):
         self.runner = runner
         # Package data to be passed to
@@ -241,9 +242,9 @@ class ExcitingGroundStateCalculator(GenericFileIOCalculator):
         # Structure not included, as it's passed when one calls .calculate
         # method directly
         self.exciting_inputs = {
-            "title": title,
-            "species_path": species_path,
-            "ground_state_input": ground_state_input,
+            'title': title,
+            'species_path': species_path,
+            'ground_state_input': ground_state_input,
         }
         self.directory = Path(directory)
 

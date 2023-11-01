@@ -11,14 +11,14 @@ from ase.calculators.genericfileio import (
     CalculatorTemplate,
     GenericFileIOCalculator,
     read_stdout,
-    BaseProfile
+    BaseProfile,
 )
 from ase.io import read, write
 
 compatibility_msg = (
-    "Espresso calculator is being restructured.  Please use e.g. "
+    'Espresso calculator is being restructured.  Please use e.g. '
     "Espresso(profile=EspressoProfile(argv=['mpiexec', 'pw.x'])) "
-    "to customize command-line arguments."
+    'to customize command-line arguments.'
 )
 
 
@@ -38,7 +38,8 @@ class EspressoProfile(BaseProfile):
     @staticmethod
     def parse_version(stdout):
         import re
-        match = re.match(r"\s*Program PWSCF\s*v\.(\S+)", stdout, re.M)
+
+        match = re.match(r'\s*Program PWSCF\s*v\.(\S+)', stdout, re.M)
         assert match is not None
         return match.group(1)
 
@@ -47,8 +48,9 @@ class EspressoProfile(BaseProfile):
             stdout = read_stdout(self.binary)
             return self.parse_version(stdout)
         except FileNotFoundError:
-            warnings.warn(f"The executable {self.binary} "
-                          'is not found on the path')
+            warnings.warn(
+                f'The executable {self.binary} ' 'is not found on the path'
+            )
             return None
 
     def get_calculator_command(self, inputfile):
@@ -56,21 +58,20 @@ class EspressoProfile(BaseProfile):
 
 
 class EspressoTemplate(CalculatorTemplate):
-
     def __init__(self):
         super().__init__(
-            "espresso",
-            ["energy", "free_energy", "forces", "stress", "magmoms", "dipole"],
+            'espresso',
+            ['energy', 'free_energy', 'forces', 'stress', 'magmoms', 'dipole'],
         )
-        self.inputname = "espresso.pwi"
-        self.outputname = "espresso.pwo"
+        self.inputname = 'espresso.pwi'
+        self.outputname = 'espresso.pwo'
 
     def write_input(self, profile, directory, atoms, parameters, properties):
         dst = directory / self.inputname
         write(
             dst,
             atoms,
-            format="espresso-in",
+            format='espresso-in',
             properties=properties,
             pseudo_dir=str(profile.pseudo_path),
             **parameters,
@@ -81,7 +82,7 @@ class EspressoTemplate(CalculatorTemplate):
 
     def read_results(self, directory):
         path = directory / self.outputname
-        atoms = read(path, format="espresso-out")
+        atoms = read(path, format='espresso-out')
         return dict(atoms.calc.properties())
 
     def load_profile(self, cfg, **kwargs):
@@ -92,12 +93,13 @@ class EspressoTemplate(CalculatorTemplate):
 
     def socketio_argv(self, profile, unixsocket, port):
         if unixsocket:
-            ipi_arg = f"{unixsocket}:UNIX"
+            ipi_arg = f'{unixsocket}:UNIX'
         else:
-            ipi_arg = f"localhost:{port:d}"  # XXX should take host, too
-        return (
-            profile.get_calculator_command(self.inputname) + ["--ipi", ipi_arg]
-        )
+            ipi_arg = f'localhost:{port:d}'  # XXX should take host, too
+        return profile.get_calculator_command(self.inputname) + [
+            '--ipi',
+            ipi_arg,
+        ]
 
 
 class Espresso(GenericFileIOCalculator):
@@ -107,7 +109,7 @@ class Espresso(GenericFileIOCalculator):
         profile=None,
         command=GenericFileIOCalculator._deprecated,
         label=GenericFileIOCalculator._deprecated,
-        directory=".",
+        directory='.',
         parallel_info=None,
         parallel=True,
         **kwargs,
@@ -193,10 +195,10 @@ class Espresso(GenericFileIOCalculator):
             import warnings
 
             warnings.warn(
-                "Ignoring label, please use directory instead", FutureWarning
+                'Ignoring label, please use directory instead', FutureWarning
             )
 
-        if "ASE_ESPRESSO_COMMAND" in os.environ and profile is None:
+        if 'ASE_ESPRESSO_COMMAND' in os.environ and profile is None:
             import warnings
 
             warnings.warn(compatibility_msg, FutureWarning)
