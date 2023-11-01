@@ -303,6 +303,8 @@ class Optimizer(Dynamics):
             force-consistent energies if available in the calculator, but
             falls back to force_consistent=False if not.
         """
+        self.check_deprecated(force_consistent)
+
         super().__init__(
             atoms,
             logfile,
@@ -310,7 +312,6 @@ class Optimizer(Dynamics):
             append_trajectory=append_trajectory,
             master=master)
 
-        self.force_consistent = self.check_deprecated(force_consistent)
         self.restart = restart
 
         self.fmax = None
@@ -331,8 +332,6 @@ class Optimizer(Dynamics):
             'be ignored.  This will raise an error in future versions '
             'of ASE.',
             FutureWarning)
-
-        return force_consistent
 
     def read(self):
         raise NotImplementedError
