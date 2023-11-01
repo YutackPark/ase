@@ -100,9 +100,8 @@ main:
       --junit-xml=report.xml
       -W "ignore:The --rsyncdir command line argument"
       -W "ignore:NumPy will stop allowing conversion of out-of-bound Python integers"
+    - coverage xml --data-file ase/test/.coverage
     - mv ase/test/coverage-html coverage-main
-    - cp ase/test/.coverage .
-    - coverage xml
     - mv ase/test/.coverage coverage-main/coverage.dat
   artifacts:
     paths:
@@ -126,8 +125,7 @@ calculators-lite:
       --pytest -m calculator_lite --color=yes --durations=20 -v
       --junit-xml=report.xml
       -W "ignore:The --rsyncdir command line argument"
-    - cp ase/test/.coverage .
-    - coverage xml
+    - coverage xml --data-file ase/test/.coverage
     - mv ase/test/coverage-html coverage-calculators-lite
     - mv ase/test/.coverage coverage-calculators-lite/coverage.dat
   artifacts:
@@ -153,14 +151,20 @@ calculators:
     - ase info --calculators
     - >
       ase test calculator --calculators abinit,asap,cp2k,dftb,espresso,gpaw,kim,lammpslib,lammpsrun,mopac,nwchem,octopus,siesta
-      --coverage --pytest --color=yes --durations 20
+      --coverage --pytest --color=yes --durations 20 --junit-xml=report.xml
       -W "ignore:The --rsyncdir command line argument"
+    - coverage xml --data-file ase/test/.coverage
     - mv ase/test/coverage-html coverage-calculators
     - mv ase/test/.coverage coverage-calculators/coverage.dat
   when: manual
   artifacts:
     paths:
       - coverage-calculators/
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+      junit: ase/test/report.xml
     expire_in: 1 week
 
 doc:
