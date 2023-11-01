@@ -15,6 +15,7 @@ import numpy as np
 import ase.io
 from ase.calculators.calculator import (Calculator, CalculatorSetupError,
                                         Parameters, all_changes)
+from ase.config import cfg
 from ase.units import Rydberg
 
 
@@ -194,14 +195,12 @@ class CP2K(Calculator):
             self.command = command
         elif CP2K.command is not None:
             self.command = CP2K.command
-        elif 'ASE_CP2K_COMMAND' in os.environ:
-            self.command = os.environ['ASE_CP2K_COMMAND']
         else:
-            self.command = 'cp2k_shell'  # default
+            self.command = cfg.get('ASE_CP2K_COMMAND', 'cp2k_shell')
 
-        Calculator.__init__(self, restart=restart,
-                            ignore_bad_restart_file=ignore_bad_restart_file,
-                            label=label, atoms=atoms, **kwargs)
+        super().__init__(restart=restart,
+                         ignore_bad_restart_file=ignore_bad_restart_file,
+                         label=label, atoms=atoms, **kwargs)
 
         self._shell = Cp2kShell(self.command, self._debug)
 
@@ -329,7 +328,7 @@ class CP2K(Calculator):
         inp_fn = self.label + '.inp'
         out_fn = self.label + '.out'
         self._write_file(inp_fn, inp)
-        self._shell.send('LOAD %s %s' % (inp_fn, out_fn))
+        self._shell.send(f'LOAD {inp_fn} {out_fn}')
         self._force_env_id = int(self._shell.recv())
         assert self._force_env_id > 0
         self._shell.expect('* READY')
@@ -432,7 +431,7 @@ class CP2K(Calculator):
         syms = self.atoms.get_chemical_symbols()
         atoms = self.atoms.get_positions()
         for elm, pos in zip(syms, atoms):
-            line = '%s %.18e %.18e %.18e' % (elm, pos[0], pos[1], pos[2])
+            line = f'{elm} {pos[0]:.18e} {pos[1]:.18e} {pos[2]:.18e}'
             root.add_keyword('FORCE_EVAL/SUBSYS/COORD', line, unique=False)
 
         # write cell
@@ -442,7 +441,7 @@ class CP2K(Calculator):
         root.add_keyword('FORCE_EVAL/SUBSYS/CELL', 'PERIODIC ' + pbc)
         c = self.atoms.get_cell()
         for i, a in enumerate('ABC'):
-            line = '%s %.18e %.18e %.18e' % (a, c[i, 0], c[i, 1], c[i, 2])
+            line = f'{a} {c[i, 0]:.18e} {c[i, 1]:.18e} {c[i, 2]:.18e}'
             root.add_keyword('FORCE_EVAL/SUBSYS/CELL', line)
 
         # determine pseudo-potential
@@ -457,7 +456,7 @@ class CP2K(Calculator):
 
         # write atomic kinds
         subsys = root.get_subsection('FORCE_EVAL/SUBSYS').subsections
-        kinds = dict([(s.params, s) for s in subsys if s.name == "KIND"])
+        kinds = {s.params: s for s in subsys if s.name == "KIND"}
         for elem in set(self.atoms.get_chemical_symbols()):
             if elem not in kinds.keys():
                 s = InputSection(name='KIND', params=elem)
@@ -565,12 +564,12 @@ class InputSection:
             output.append(k)
         for s in self.subsections:
             if s.params:
-                output.append('&%s %s' % (s.name, s.params))
+                output.append(f'&{s.name} {s.params}')
             else:
-                output.append('&%s' % s.name)
+                output.append(f'&{s.name}')
             for l in s.write():
-                output.append('   %s' % l)
-            output.append('&END %s' % s.name)
+                output.append(f'   {l}')
+            output.append(f'&END {s.name}')
         return output
 
     def add_keyword(self, path, line, unique=True):
@@ -582,14 +581,14 @@ class InputSection:
             self.subsections.append(s)
             candidates = [s]
         elif len(candidates) != 1:
-            raise Exception('Multiple %s sections found ' % parts[0])
+            raise Exception(f'Multiple {parts[0]} sections found ')
 
         key = line.split()[0].upper()
         if len(parts) > 1:
             candidates[0].add_keyword(parts[1], line, unique)
         elif key == '_SECTION_PARAMETERS_':
             if candidates[0].params is not None:
-                msg = 'Section parameter of section %s already set' % parts[0]
+                msg = f'Section parameter of section {parts[0]} already set'
                 raise Exception(msg)
             candidates[0].params = line.split(' ', 1)[1].strip()
         else:
@@ -604,7 +603,7 @@ class InputSection:
         parts = path.upper().split('/', 1)
         candidates = [s for s in self.subsections if s.name == parts[0]]
         if len(candidates) > 1:
-            raise Exception('Multiple %s sections found ' % parts[0])
+            raise Exception(f'Multiple {parts[0]} sections found ')
         if len(candidates) == 0:
             s = InputSection(name=parts[0])
             self.subsections.append(s)

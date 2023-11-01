@@ -203,7 +203,7 @@ def file_has_fileno(fd):
     try:
         fno = fd.fileno  # AttributeError?
         fno()  # IOError/OSError?  (Newer python: OSError is IOError)
-    except (AttributeError, IOError):
+    except (AttributeError, OSError):
         return False
     return True
 
@@ -249,7 +249,7 @@ class Writer:
                 a = np.array([VERSION, self.nitems, self.pos0], np.int64)
                 if not np.little_endian:
                     a.byteswap(True)
-                self.header = ('- of Ulm{0:16}'.format(tag).encode('ascii') +
+                self.header = (f'- of Ulm{tag:16}'.encode('ascii') +
                                a.tobytes() +
                                self.offsets.tobytes())
             else:
@@ -604,7 +604,7 @@ class Reader:
                 s = value.tostr(verbose, indent + '    ')
             else:
                 s = str(value).replace('\n', '\n  ' + ' ' * len(key) + indent)
-            strings.append('{}{}: {}'.format(indent, key, s))
+            strings.append(f'{indent}{key}: {s}')
         return '{\n' + ',\n'.join(strings) + '}'
 
     def __str__(self):
@@ -685,10 +685,10 @@ def print_ulm_info(filename, index=None, verbose=False):
         indices = range(len(b))
     else:
         indices = [index]
-    print('{0}  (tag: "{1}", {2})'.format(filename, b.get_tag(),
-                                          plural(len(b), 'item')))
+    print('{}  (tag: "{}", {})'.format(filename, b.get_tag(),
+                                       plural(len(b), 'item')))
     for i in indices:
-        print('item #{0}:'.format(i))
+        print(f'item #{i}:')
         print(b[i].tostr(verbose))
 
 

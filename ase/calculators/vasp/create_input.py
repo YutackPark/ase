@@ -29,6 +29,7 @@ import numpy as np
 import ase
 from ase.calculators.calculator import kpts2ndarray
 from ase.calculators.vasp.setups import get_default_setups
+from ase.config import cfg
 
 FLOAT_FORMAT = '5.6f'
 EXP_FORMAT = '5.2e'
@@ -1080,8 +1081,8 @@ class GenerateVaspInput:
             pass
         elif xc not in self.xc_defaults:
             xc_allowed = ', '.join(self.xc_defaults.keys())
-            raise ValueError('{0} is not supported for xc! Supported xc values'
-                             'are: {1}'.format(xc, xc_allowed))
+            raise ValueError('{} is not supported for xc! Supported xc values'
+                             'are: {}'.format(xc, xc_allowed))
         else:
             # XC defaults to PBE pseudopotentials
             if 'pp' not in self.xc_defaults[xc]:
@@ -1212,8 +1213,8 @@ class GenerateVaspInput:
         else:
             pp_folder = p['pp']
 
-        if self.VASP_PP_PATH in os.environ:
-            pppaths = os.environ[self.VASP_PP_PATH].split(':')
+        if self.VASP_PP_PATH in cfg:
+            pppaths = cfg[self.VASP_PP_PATH].split(':')
         else:
             pppaths = []
         ppp_list = []
@@ -1225,7 +1226,7 @@ class GenerateVaspInput:
             elif str(m) in setups:
                 special_setup_index = str(m)  # type: ignore[assignment]
             else:
-                raise Exception("Having trouble with special setup index {0}."
+                raise Exception("Having trouble with special setup index {}."
                                 " Please use an int.".format(m))
             potcar = join(pp_folder, setups[special_setup_index], 'POTCAR')
             for path in pppaths:
@@ -1426,8 +1427,8 @@ class GenerateVaspInput:
 
         if self.bool_params['luse_vdw']:
             src = None
-            if vdw_env in os.environ:
-                src = os.path.join(os.environ[vdw_env], kernel)
+            if vdw_env in cfg:
+                src = os.path.join(cfg[vdw_env], kernel)
 
             if not src or not isfile(src):
                 warnings.warn(
@@ -1560,7 +1561,6 @@ class GenerateVaspInput:
                     incar.write(' ispin = 2\n'.upper())
 
                 line = f' {key.upper()} = '
-                # incar.write(f' {key.upper()} = ')
                 magmom_written = True
                 # Work out compact a*x b*y notation and write in this form
                 # Assume 1 magmom per atom, ordered as our atoms object
@@ -1613,9 +1613,9 @@ class GenerateVaspInput:
                         llist += ' %i' % luj['L']
                         ulist += ' %.3f' % luj['U']
                         jlist += ' %.3f' % luj['J']
-                    incar.write(' LDAUL =%s\n' % llist)
-                    incar.write(' LDAUU =%s\n' % ulist)
-                    incar.write(' LDAUJ =%s\n' % jlist)
+                    incar.write(f' LDAUL ={llist}\n')
+                    incar.write(f' LDAUU ={ulist}\n')
+                    incar.write(f' LDAUJ ={jlist}\n')
 
         if (self.spinpol and not magmom_written
                 # We don't want to write magmoms if they are all 0.
@@ -1659,7 +1659,7 @@ class GenerateVaspInput:
             if self.float_params['kspacing'] > 0:
                 return
             else:
-                raise ValueError("KSPACING value {0} is not allowable. "
+                raise ValueError("KSPACING value {} is not allowable. "
                                  "Please use None or a positive number."
                                  "".format(self.float_params['kspacing']))
 
@@ -1700,7 +1700,7 @@ class GenerateVaspInput:
         Typically named INCAR."""
 
         self.spinpol = False
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             lines = fd.readlines()
 
         for line in lines:
@@ -1829,10 +1829,10 @@ class GenerateVaspInput:
                         else:
                             self.special_params[key] = data[2]
             except KeyError:
-                raise IOError('Keyword "%s" in INCAR is'
+                raise OSError('Keyword "%s" in INCAR is'
                               'not known by calculator.' % key)
             except IndexError:
-                raise IOError('Value missing for keyword "%s".' % key)
+                raise OSError(f'Value missing for keyword "{key}".')
 
     def read_kpoints(self, filename):
         """Read kpoints file, typically named KPOINTS."""
@@ -1841,7 +1841,7 @@ class GenerateVaspInput:
             # Don't update kpts array
             return
 
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             lines = fd.readlines()
 
         ktype = lines[2].split()[0].lower()[0]
@@ -1868,7 +1868,7 @@ class GenerateVaspInput:
 
         # Search for key 'LEXCH' in POTCAR
         xc_flag = None
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             for line in fd:
                 key = line.split()[0].upper()
                 if key == 'LEXCH':
@@ -1931,7 +1931,7 @@ def _from_vasp_bool(x):
     elif x.lower() == '.false.' or x.lower() == 'f':
         return False
     else:
-        raise ValueError('Value "%s" not recognized as bool' % x)
+        raise ValueError(f'Value "{x}" not recognized as bool')
 
 
 def _to_vasp_bool(x):
@@ -1960,11 +1960,11 @@ def open_potcar(filename):
     """
     import gzip
     if filename.endswith('R'):
-        return open(filename, 'r')
+        return open(filename)
     elif filename.endswith('.Z'):
         return gzip.open(filename)
     else:
-        raise ValueError('Invalid POTCAR filename: "%s"' % filename)
+        raise ValueError(f'Invalid POTCAR filename: "{filename}"')
 
 
 def read_potcar_numbers_of_electrons(file_obj):

@@ -35,7 +35,7 @@ pw_input_text = """
 nat              = 8,   ntyp             = 2,  occupations      = 'smearing',
 smearing         = 'marzari-vanderbilt',
 degauss          = 0.01,   nspin            = 2,  !  nosym     = .true. ,
-    starting_magnetization(2) = 0.32 /
+    starting_magnetization(2) = 5.12 /
 &ELECTRONS
    electron_maxstep = 300
    mixing_beta      = 0.1
@@ -287,7 +287,7 @@ def test_get_atomic_species():
 
     with open('pw_input.pwi', 'w') as pw_input_f:
         pw_input_f.write(pw_input_text)
-    with open('pw_input.pwi', 'r') as pw_input_f:
+    with open('pw_input.pwi') as pw_input_f:
         data, card_lines = read_fortran_namelist(pw_input_f)
         species_card = get_atomic_species(card_lines,
                                           n_species=data['system']['ntyp'])

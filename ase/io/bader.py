@@ -40,7 +40,7 @@ def attach_charges(atoms, fileobj='ACF.dat', displacement=1e-4):
             words = line.split()
             if assume6columns is True:
                 if len(words) != 6:
-                    raise IOError('Number of columns in ACF file incorrect!\n'
+                    raise OSError('Number of columns in ACF file incorrect!\n'
                                   'Check that Bader program version >= 0.25')
 
             atom = atoms[int(words[0]) - 1]

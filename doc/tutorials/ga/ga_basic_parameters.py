@@ -22,12 +22,12 @@ def jtg(job_name, traj_file):
     s = '#!/bin/sh\n'
     s += '#PBS -l nodes=1:ppn=16\n'
     s += '#PBS -l walltime=100:00:00\n'
-    s += '#PBS -N {0}\n'.format(job_name)
+    s += f'#PBS -N {job_name}\n'
     s += '#PBS -q q16\n'
     s += 'cd $PBS_O_WORKDIR\n'
     s += 'NPROCS==`wc -l < $PBS_NODEFILE`\n'
     s += 'mpirun --mca mpi_warn_on_fork 0 -np $NPROCS '
-    s += 'gpaw-python calc_gpaw.py {0}\n'.format(traj_file)
+    s += f'gpaw-python calc_gpaw.py {traj_file}\n'
     return s
 
 

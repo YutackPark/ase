@@ -26,7 +26,7 @@ def download(uri):
     httpsuri = nmd2https(uri)
     response = urlopen(httpsuri)
     txt = response.read().decode('utf8')
-    return json.loads(txt, object_hook=lambda dct: NomadEntry(dct))
+    return json.loads(txt, object_hook=NomadEntry)
 
 
 def read(fd, _includekeys=lambda key: True):

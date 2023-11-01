@@ -11,10 +11,10 @@ _image_footer = 'end\nend\n'
 
 
 def _get_atom_str(an, xyz):
-    s = '{:<5}'.format(an)
-    s += '{:>15.9f}{:>15.9f}{:>15.9f}'.format(xyz[0], xyz[1], xyz[2])
+    s = f'{an:<5}'
+    s += f'{xyz[0]:>15.9f}{xyz[1]:>15.9f}{xyz[2]:>15.9f}'
     s += ' XXXX 1      xx      '
-    s += '{:<2}'.format(an)
+    s += f'{an:<2}'
     s += '  0.000\n'
     return s
 
@@ -38,7 +38,7 @@ def write_xtd(filename, images, connectivity=None, moviespeed=10):
     ATR.attrib['NumChildren'] = '2'
     natoms = len(images[0])
 
-    bonds = list()
+    bonds = []
     if connectivity is not None:
         for i in range(connectivity.shape[0]):
             for j in range(i + 1, connectivity.shape[0]):
@@ -86,7 +86,7 @@ def write_xtd(filename, images, connectivity=None, moviespeed=10):
             s += _image_header
             s += 'PBC'
             vec = image.cell.lengths()
-            s += '{:>10.4f}{:>10.4f}{:>10.4f}'.format(vec[0], vec[1], vec[2])
+            s += f'{vec[0]:>10.4f}{vec[1]:>10.4f}{vec[2]:>10.4f}'
             angles = image.cell.angles()
             s += '{:>10.4f}{:>10.4f}{:>10.4f}'.format(*angles)
             s += '\n'
@@ -150,7 +150,7 @@ def read_xtd(filename, index=-1):
 
     # This trick with opening a totally different file is a gross violation of
     # common sense.
-    with open(arcfilename, 'r') as fd:
+    with open(arcfilename) as fd:
         return read_arcfile(fd, index)
 
 

@@ -1,8 +1,8 @@
 import importlib.util
-import os
 import shutil
 
 from ase.calculators.calculator import names
+from ase.config import cfg
 
 builtins = {'eam', 'emt', 'ff', 'lj', 'morse', 'tip3p', 'tip4p'}
 
@@ -34,7 +34,7 @@ python_modules = {'gpaw': 'gpaw',
 
 
 def get_executable_env_var(name):
-    return 'ASE_{}_COMMAND'.format(name.upper())
+    return f'ASE_{name.upper()}_COMMAND'
 
 
 def detect(name):
@@ -54,8 +54,8 @@ def detect(name):
             return d
 
     envvar = get_executable_env_var(name)
-    if envvar in os.environ:
-        d['command'] = os.environ[envvar]
+    if envvar in cfg:
+        d['command'] = cfg[envvar]
         d['envvar'] = envvar
         d['type'] = 'environment'
         return d
@@ -100,5 +100,5 @@ def format_configs(configs):
 
             state = state.format(**config)
 
-        messages.append('{:<10s} {}'.format(name, state))
+        messages.append(f'{name:<10s} {state}')
     return messages

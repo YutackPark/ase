@@ -59,6 +59,7 @@ def run_optimize(atoms):
     opt.run(fmax=1e-9)
 
 
+@pytest.mark.optimize
 def test_cartesians():
     """In Cartesian coordinates the first 6 trash eigenvalues (translations and
     rotations) can be slightly different from zero; hence set them to zero
@@ -84,6 +85,7 @@ def test_cartesians():
         assert_water_is_relaxed(atoms)  # not rotationally invariant.
 
 
+@pytest.mark.optimize
 def test_constraints_with_cartesians():
     """Project out forces along x-component of H-atom (index 0 in the q-vector
     with the Cartesian coordinates (here: x=q)). A change in the x-component of
@@ -170,6 +172,7 @@ def test_raise_Errors():
         setup_water(calc)
 
 
+@pytest.mark.optimize
 def test_internals():
     parameters = {'ref_atoms': ref_atoms, 'ref_energy': ref_energy,
                   'hessian_x': hessian_x, 'get_q_from_x': water_get_q_from_x,
@@ -197,6 +200,7 @@ def test_internals():
     assert_water_is_relaxed(atoms)  # relaxation succeeded despite rotation
 
 
+@pytest.mark.optimize
 def test_compatible_with_ase_vibrations():
     atoms = ref_atoms.copy()
     atoms.calc = EMT()

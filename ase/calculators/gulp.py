@@ -94,8 +94,8 @@ class GULP(FileIOCalculator):
         if all(self.atoms.pbc):
             cell_params = self.atoms.cell.cellpar()
             # Formating is necessary since Gulp max-line-length restriction
-            s += 'cell\n{0:9.6f} {1:9.6f} {2:9.6f} ' \
-                 '{3:8.5f} {4:8.5f} {5:8.5f}\n'.format(*cell_params)
+            s += 'cell\n{:9.6f} {:9.6f} {:9.6f} ' \
+                 '{:8.5f} {:8.5f} {:8.5f}\n'.format(*cell_params)
             s += 'frac\n'
             coords = self.atoms.get_scaled_positions()
         else:
@@ -110,18 +110,18 @@ class GULP(FileIOCalculator):
             labels = self.atoms.get_chemical_symbols()
 
         for xyz, symbol in zip(coords, labels):
-            s += ' {0:2} core' \
-                 ' {1:10.7f}  {2:10.7f}  {3:10.7f}\n' .format(symbol, *xyz)
+            s += ' {:2} core' \
+                 ' {:10.7f}  {:10.7f}  {:10.7f}\n' .format(symbol, *xyz)
             if symbol in p.shel:
-                s += ' {0:2} shel' \
-                     ' {1:10.7f}  {2:10.7f}  {3:10.7f}\n' .format(symbol, *xyz)
+                s += ' {:2} shel' \
+                     ' {:10.7f}  {:10.7f}  {:10.7f}\n' .format(symbol, *xyz)
 
         if p.library:
-            s += '\nlibrary {0}\n'.format(p.library)
+            s += f'\nlibrary {p.library}\n'
 
         if p.options:
             for t in p.options:
-                s += '%s\n' % t
+                s += f'{t}\n'
         with open(self.prefix + '.gin', 'w') as fd:
             fd.write(s)
 
@@ -270,7 +270,7 @@ class GULP(FileIOCalculator):
 
     def library_check(self):
         if self.parameters['library'] is not None:
-            if 'GULP_LIB' not in os.environ:
+            if 'GULP_LIB' not in self.cfg:
                 raise RuntimeError("Be sure to have set correctly $GULP_LIB "
                                    "or to have the force field library.")
 

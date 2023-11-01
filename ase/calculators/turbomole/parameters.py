@@ -755,7 +755,7 @@ class TurbomoleParameters(dict):
         # non-group or non-key parameters
 
         # per-element and per-atom basis sets not implemented in calculator
-        basis_sets = set([bs['nickname'] for bs in results['basis set']])
+        basis_sets = {bs['nickname'] for bs in results['basis set']}
         assert len(basis_sets) == 1
         params['basis set name'] = list(basis_sets)[0]
         params['basis set definition'] = results['basis set']
@@ -790,7 +790,7 @@ class TurbomoleParameters(dict):
 
         # task-related parameters
         if os.path.exists('job.start'):
-            with open('job.start', 'r') as log:
+            with open('job.start') as log:
                 lines = log.readlines()
             for line in lines:
                 if 'CRITERION FOR TOTAL SCF-ENERGY' in line:

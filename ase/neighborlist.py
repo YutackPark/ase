@@ -928,7 +928,7 @@ class PrimitiveNeighborList:
         self.coordinates = coordinates = np.array(coordinates, copy=True)
 
         if len(self.cutoffs) != len(coordinates):
-            raise ValueError('Wrong number of cutoff radii: {0} != {1}'
+            raise ValueError('Wrong number of cutoff radii: {} != {}'
                              .format(len(self.cutoffs), len(coordinates)))
 
         if len(self.cutoffs) > 0:

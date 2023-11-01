@@ -61,7 +61,7 @@ class QChem(FileIOCalculator):
             self.command += '-nt %d ' % nt
         self.command += 'PREFIX.inp PREFIX.out'
         if scratch is not None:
-            self.command += ' %s' % scratch
+            self.command += f' {scratch}'
 
         self.basisfile = basisfile
         self.ecpfile = ecpfile
@@ -72,7 +72,7 @@ class QChem(FileIOCalculator):
     def read_results(self):
         filename = self.label + '.out'
 
-        with open(filename, 'r') as fileobj:
+        with open(filename) as fileobj:
             lineiter = iter(fileobj)
             for line in lineiter:
                 if 'SCF failed to converge' in line:
@@ -147,19 +147,19 @@ class QChem(FileIOCalculator):
             # Default charge of 0 is defined in default_parameters
             fileobj.write('   %d %d\n' % (self.parameters['charge'], mult))
             for a in atoms:
-                fileobj.write('   %s  %f  %f  %f\n' % (a.symbol,
-                                                       a.x, a.y, a.z))
+                fileobj.write('   {}  {:f}  {:f}  {:f}\n'.format(a.symbol,
+                                                                 a.x, a.y, a.z))
             fileobj.write('$end\n\n')
 
             if self.basisfile is not None:
-                with open(self.basisfile, 'r') as f_in:
+                with open(self.basisfile) as f_in:
                     basis = f_in.readlines()
                 fileobj.write('$basis\n')
                 fileobj.writelines(basis)
                 fileobj.write('$end\n\n')
 
             if self.ecpfile is not None:
-                with open(self.ecpfile, 'r') as f_in:
+                with open(self.ecpfile) as f_in:
                     ecp = f_in.readlines()
                 fileobj.write('$ecp\n')
                 fileobj.writelines(ecp)

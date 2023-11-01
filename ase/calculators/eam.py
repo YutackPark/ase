@@ -265,8 +265,8 @@ End EAM Interface Documentation
             if arg in valid_args:
                 setattr(self, arg, val)
             else:
-                raise RuntimeError('unknown keyword arg "%s" : not in %s'
-                                   % (arg, valid_args))
+                raise RuntimeError(
+                    f'unknown keyword arg "{arg}" : not in {valid_args}')
 
     def set_form(self, name):
         """set the form variable based on the file name suffix"""
@@ -281,7 +281,7 @@ End EAM Interface Documentation
         elif extension == '.fs':
             self.form = 'fs'
         else:
-            raise RuntimeError('unknown file extension type: %s' % extension)
+            raise RuntimeError(f'unknown file extension type: {extension}')
 
     def read_potential(self, filename):
         """Reads a LAMMPS EAM file in alloy or adp format
@@ -428,9 +428,9 @@ End EAM Interface Documentation
                     data[d:(d + self.nrho)])
                 d += self.nrho
                 self.density_data[elem, :, :] = np.float_(
-                    data[d:(d + self.nr*self.Nelements)]).reshape([
+                    data[d:(d + self.nr * self.Nelements)]).reshape([
                         self.Nelements, self.nr])
-                d += self.nr*self.Nelements
+                d += self.nr * self.Nelements
 
             # reads in the r*phi data for each interaction between elements
             self.rphi_data = np.zeros([self.Nelements, self.Nelements,
@@ -573,7 +573,7 @@ End EAM Interface Documentation
         for line in self.header:
             fd.write(line)
 
-        fd.write('{0} '.format(self.Nelements).encode())
+        fd.write(f'{self.Nelements} '.encode())
         fd.write(' '.join(self.elements).encode() + b'\n')
 
         fd.write(('%d %f %d %f %f \n' %
@@ -635,8 +635,8 @@ End EAM Interface Documentation
             np.array([item in self.elements for item in elements]))
 
         if np.any(unavailable):
-            raise RuntimeError('These elements are not in the potential: %s' %
-                               elements[unavailable])
+            raise RuntimeError(
+                f'These elements are not in the potential: {elements[unavailable]}')
 
         # cutoffs need to be a vector for NeighborList
         cutoffs = self.cutoff * np.ones(len(atoms))
@@ -773,7 +773,7 @@ End EAM Interface Documentation
         self.cell = atoms.get_cell().copy()
 
         energy = 0.0
-        for i in components.keys():
+        for i in components:
             energy += components[i]
 
         self.energy_free = energy
@@ -907,7 +907,7 @@ End EAM Interface Documentation
         elif self.form == 'adp':
             nrow = 3
         else:
-            raise RuntimeError('Unknown form of potential: %s' % self.form)
+            raise RuntimeError(f'Unknown form of potential: {self.form}')
 
         if hasattr(self, 'r'):
             r = self.r

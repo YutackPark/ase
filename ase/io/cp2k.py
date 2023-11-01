@@ -255,7 +255,7 @@ def read_cp2k_restart(fileobj):
                 found = True
                 break
         if not found:
-            raise RuntimeError("No {:} section found!".format(section_header))
+            raise RuntimeError(f"No {section_header} section found!")
 
     def _read_cell(data):
         """Helper to read cell data, returns cell and pbc"""
@@ -271,7 +271,7 @@ def read_cp2k_restart(fileobj):
                     idx = char2idx[line[:2]]
                     cell[idx] = [float(x) for x in line.split()[1:]]
                     pbc[idx] = True
-            if not set([len(v) for v in cell]) == {3}:
+            if not {len(v) for v in cell} == {3}:
                 raise RuntimeError("Bad Cell Definition found.")
         return cell, pbc
 

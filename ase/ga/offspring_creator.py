@@ -109,7 +109,7 @@ class CombinationMutation(OffspringCreator):
     """
 
     def __init__(self, *mutations, verbose=False):
-        super(CombinationMutation, self).__init__(verbose=verbose)
+        super().__init__(verbose=verbose)
         self.descriptor = 'CombinationMutation'
 
         # Check that a combination mutation makes sense
@@ -123,13 +123,13 @@ class CombinationMutation(OffspringCreator):
 
         indi = self.mutate(f)
         if indi is None:
-            return indi, 'mutation: {}'.format(self.descriptor)
+            return indi, f'mutation: {self.descriptor}'
 
         indi = self.initialize_individual(f, indi)
         indi.info['data']['parents'] = [f.info['confid']]
 
         return (self.finalize_individual(indi),
-                'mutation: {}'.format(self.descriptor))
+                f'mutation: {self.descriptor}')
 
     def mutate(self, atoms):
         """Perform the mutations one at a time."""

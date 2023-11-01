@@ -37,6 +37,7 @@ import ase.units as units
 from ase.calculators.calculator import (PropertyNotImplementedError,
                                         compare_atoms, kpts2sizeandoffsets)
 from ase.calculators.general import Calculator
+from ase.config import cfg
 from ase.constraints import FixCartesian
 from ase.dft.kpoints import BandPath
 from ase.io.castep import read_bands, read_param
@@ -97,7 +98,7 @@ def _parse_tss_block(value, scaled=False):
                      value.get_positions())
         symbols = value.get_chemical_symbols()
         for s, p in zip(symbols, positions):
-            text_block += '    {0} {1:.3f} {2:.3f} {3:.3f}\n'.format(s, *p)
+            text_block += '    {} {:.3f} {:.3f} {:.3f}\n'.format(s, *p)
 
         return text_block
 
@@ -648,7 +649,7 @@ End CASTEP Interface Documentation
             bandfile = os.path.join(self._directory, self._seed) + '.bands'
 
         if not os.path.exists(bandfile):
-            raise ValueError('Cannot find band file "{}".'.format(bandfile))
+            raise ValueError(f'Cannot find band file "{bandfile}".')
 
         kpts, weights, eigenvalues, efermi = read_bands(bandfile)
 
@@ -736,7 +737,6 @@ End CASTEP Interface Documentation
         # Case 1: Clear parameters with set_kpts(None)
         if kpts is None:
             clear_mp_keywords()
-            pass
 
         # Case 2: list of explicit k-points with weights
         # e.g. [[ 0,    0,   0,    0.125],
@@ -790,7 +790,7 @@ End CASTEP Interface Documentation
                 if kpts.get('spacing') is not None:
                     kpts = kpts.copy()
                     spacing = kpts.pop('spacing')
-                    kpts['density'] = 1 / (np.pi * spacing)
+                    kpts['density'] = 1 / (2 * np.pi * spacing)
 
                 clear_mp_keywords()
                 size, offsets = kpts2sizeandoffsets(atoms=self.atoms, **kpts)
@@ -919,7 +919,7 @@ End CASTEP Interface Documentation
         if self._seed is None:
             self._seed = os.path.splitext(os.path.basename(castep_file))[0]
 
-        err_file = '%s.0001.err' % self._seed
+        err_file = f'{self._seed}.0001.err'
         if os.path.exists(err_file):
             err_file = paropen(err_file)
             self._error = err_file.read()
@@ -932,8 +932,8 @@ End CASTEP Interface Documentation
         record_start, record_end, end_found, _\
             = self._castep_find_last_record(out)
         if not end_found:
-            warnings.warn('No regular end found in %s file. %s' %
-                          (castep_file, self._error))
+            warnings.warn(
+                f'No regular end found in {castep_file} file. {self._error}')
             if _close:
                 out.close()
             return
@@ -1476,7 +1476,7 @@ End CASTEP Interface Documentation
         self._hirshfeld_charges = hirshfeld_charges_atoms
 
         if self._warnings:
-            warnings.warn('WARNING: %s contains warnings' % castep_file)
+            warnings.warn(f'WARNING: {castep_file} contains warnings')
             for warning in self._warnings:
                 warnings.warn(warning)
         # reset
@@ -1574,7 +1574,7 @@ End CASTEP Interface Documentation
                 continue
             if notelems is not None and elem in notelems:
                 continue
-            self.cell.species_pot = (elem, '%s_%s.%s' % (elem, pspot, suffix))
+            self.cell.species_pot = (elem, f'{elem}_{pspot}.{suffix}')
 
     def find_pspots(self, pspot='.+', elems=None,
                     notelems=None, clear=True, suffix='(usp|UPF|recpot)'):
@@ -1650,7 +1650,7 @@ End CASTEP Interface Documentation
                     .format(elem)
                     + 'Found the following files in {}\n'
                     .format(self._castep_pp_path)
-                    + '\n'.join(['    {}'.format(pp) for pp in pps]) +
+                    + '\n'.join([f'    {pp}' for pp in pps]) +
                     '\nConsider a stricter search pattern in `find_pspots()`.')
             else:
                 self.cell.species_pot = (elem, pps[0])
@@ -1910,12 +1910,12 @@ End CASTEP Interface Documentation
             elif os.path.exists(self._abs_path(self._castep_bin_file)):
                 self.param.reuse = self._castep_bin_file
         self._seed = self._build_castep_seed()
-        self._check_file = '%s.check' % self._seed
-        self._castep_bin_file = '%s.castep_bin' % self._seed
-        self._castep_file = self._abs_path('%s.castep' % self._seed)
+        self._check_file = f'{self._seed}.check'
+        self._castep_bin_file = f'{self._seed}.castep_bin'
+        self._castep_file = self._abs_path(f'{self._seed}.castep')
 
         # write out the input file
-        self._write_cell(self._abs_path('%s.cell' % self._seed),
+        self._write_cell(self._abs_path(f'{self._seed}.cell'),
                          self.atoms, castep_cell=self.cell,
                          force_write=force_write)
 
@@ -1923,7 +1923,7 @@ End CASTEP Interface Documentation
             interface_options = self._opt
         else:
             interface_options = None
-        write_param(self._abs_path('%s.param' % self._seed), self.param,
+        write_param(self._abs_path(f'{self._seed}.param'), self.param,
                     check_checkfile=self._check_checkfile,
                     force_write=force_write,
                     interface_options=interface_options,)
@@ -1935,7 +1935,7 @@ End CASTEP Interface Documentation
         if self._track_output:
             return '%s-%06d' % (self._label, self._calls)
         else:
-            return '%s' % (self._label)
+            return f'{(self._label)}'
 
     def _abs_path(self, path):
         # Create an absolute path for a file to put in the working directory
@@ -1949,19 +1949,19 @@ End CASTEP Interface Documentation
         self._calls += 1
 
         # run castep itself
-        stdout, stderr = shell_stdouterr('%s %s' % (self._castep_command,
-                                                    self._seed),
+        stdout, stderr = shell_stdouterr('{} {}'.format(self._castep_command,
+                                                        self._seed),
                                          cwd=self._directory)
         if stdout:
-            print('castep call stdout:\n%s' % stdout)
+            print(f'castep call stdout:\n{stdout}')
         if stderr:
-            print('castep call stderr:\n%s' % stderr)
+            print(f'castep call stderr:\n{stderr}')
 
         # shouldn't it be called after read()???
         # self.push_oldstate()
 
         # check for non-empty error files
-        err_file = self._abs_path('%s.0001.err' % self._seed)
+        err_file = self._abs_path(f'{self._seed}.0001.err')
         if os.path.exists(err_file):
             err_file = open(err_file)
             self._error = err_file.read()
@@ -2000,7 +2000,7 @@ End CASTEP Interface Documentation
         if attr in ['__repr__', '__str__']:
             raise AttributeError
         elif attr not in self.__dict__:
-            raise AttributeError('Attribute {0} not found'.format(attr))
+            raise AttributeError(f'Attribute {attr} not found')
         else:
             return self.__dict__[attr]
 
@@ -2018,8 +2018,8 @@ End CASTEP Interface Documentation
                                                  cutoff=0.9)
             if attr not in self.internal_keys and similars:
                 warnings.warn(
-                    'Warning: You probably tried one of: %s but typed %s' %
-                    (similars, attr))
+                    'Warning: You probably tried one of: '
+                    f'{similars} but typed {attr}')
             if attr in self.internal_keys:
                 self._opt[attr] = value
                 if attr == '_track_output':
@@ -2044,13 +2044,13 @@ End CASTEP Interface Documentation
             if value is not None:
                 if attr == 'atoms' and not isinstance(value, ase.atoms.Atoms):
                     raise TypeError(
-                        '%s is not an instance of ase.atoms.Atoms.' % value)
+                        f'{value} is not an instance of ase.atoms.Atoms.')
                 elif attr == 'cell' and not isinstance(value, CastepCell):
-                    raise TypeError('%s is not an instance of CastepCell.' %
-                                    value)
+                    raise TypeError(
+                        f'{value} is not an instance of CastepCell.')
                 elif attr == 'param' and not isinstance(value, CastepParam):
-                    raise TypeError('%s is not an instance of CastepParam.' %
-                                    value)
+                    raise TypeError(
+                        f'{value} is not an instance of CastepParam.')
             # These 3 are accepted right-away, no matter what
             self.__dict__[attr] = value
             return
@@ -2077,10 +2077,10 @@ End CASTEP Interface Documentation
                     attr,
                     self.cell._options.keys() + self.param._options.keys())
                 if similars:
-                    raise UserWarning('Option "%s" not known! You mean "%s"?' %
-                                      (attr, similars[0]))
+                    raise UserWarning(
+                        f'Option "{attr}" not known! You mean "{similars[0]}"?')
                 else:
-                    raise UserWarning('Option "%s" is not known!' % attr)
+                    raise UserWarning(f'Option "{attr}" is not known!')
             else:
                 warnings.warn('Option "%s" is not known - please set any new'
                               ' options directly in the .cell or .param '
@@ -2108,7 +2108,7 @@ End CASTEP Interface Documentation
             return
 
         elif isinstance(param, str):
-            param_file = open(param, 'r')
+            param_file = open(param)
             _close = True
 
         else:
@@ -2153,25 +2153,26 @@ End CASTEP Interface Documentation
         self._fetch_pspots(temp_dir)
         seed = 'dryrun'
 
-        self._write_cell(os.path.join(temp_dir, '%s.cell' % seed),
+        self._write_cell(os.path.join(temp_dir, f'{seed}.cell'),
                          self.atoms, castep_cell=self.cell)
         # This part needs to be modified now that we rely on the new formats.py
         # interface
-        if not os.path.isfile(os.path.join(temp_dir, '%s.cell' % seed)):
-            warnings.warn('%s.cell not written - aborting dryrun' % seed)
+        if not os.path.isfile(os.path.join(temp_dir, f'{seed}.cell')):
+            warnings.warn(f'{seed}.cell not written - aborting dryrun')
             return
-        write_param(os.path.join(temp_dir, '%s.param' % seed), self.param, )
+        write_param(os.path.join(temp_dir, f'{seed}.param'), self.param, )
 
-        stdout, stderr = shell_stdouterr(('%s %s %s' % (self._castep_command,
-                                                        seed,
-                                                        dryrun_flag)),
-                                         cwd=temp_dir)
+        stdout, stderr = shell_stdouterr(('{} {} {}'.format(
+            self._castep_command,
+            seed,
+            dryrun_flag)),
+            cwd=temp_dir)
 
         if stdout:
             print(stdout)
         if stderr:
             print(stderr)
-        result_file = open(os.path.join(temp_dir, '%s.castep' % seed))
+        result_file = open(os.path.join(temp_dir, f'{seed}.castep'))
 
         txt = result_file.read()
         ok_string = r'.*DRYRUN finished.*No problems found with input files.*'
@@ -2184,7 +2185,7 @@ End CASTEP Interface Documentation
             warnings.warn(
                 'Couldn\'t fetch number of kpoints from dryrun CASTEP file')
 
-        err_file = os.path.join(temp_dir, '%s.0001.err' % seed)
+        err_file = os.path.join(temp_dir, f'{seed}.0001.err')
         if match is None and os.path.exists(err_file):
             err_file = open(err_file)
             self._error = err_file.read()
@@ -2201,7 +2202,7 @@ End CASTEP Interface Documentation
         """
         # should be a '==' right? Otherwise setting _castep_pp_path is not
         # honored.
-        if (not os.environ.get('PSPOT_DIR', None)
+        if (not cfg.get('PSPOT_DIR', None)
                 and self._castep_pp_path == os.path.abspath('.')):
             # By default CASTEP consults the environment variable
             # PSPOT_DIR. If this contains a list of colon separated
@@ -2217,7 +2218,7 @@ End CASTEP Interface Documentation
         if directory is None:
             directory = self._directory
         if not os.path.isdir(self._castep_pp_path):
-            warnings.warn('PSPs directory %s not found' % self._castep_pp_path)
+            warnings.warn(f'PSPs directory {self._castep_pp_path} not found')
         pspots = {}
         if self._find_pspots:
             self.find_pspots()
@@ -2238,8 +2239,7 @@ End CASTEP Interface Documentation
                             'this is discouraged.' % species)
                 else:
                     raise RuntimeError(
-                        'Warning: you have no PP specified for %s.' %
-                        species)
+                        f'Warning: you have no PP specified for {species}.')
         if self.cell.species_pot.value:
             for (species, pspot) in pspots.items():
                 orig_pspot_file = os.path.join(self._castep_pp_path, pspot)
@@ -2302,7 +2302,7 @@ def _get_castep_version(castep_command, temp_dir):
         output_txt = stdout.split('\n')
         version_re = re.compile(r'CASTEP version:\s*([0-9\.]*)')
     else:
-        output = open(os.path.join(temp_dir, '%s.castep' % jname))
+        output = open(os.path.join(temp_dir, f'{jname}.castep'))
         output_txt = output.readlines()
         output.close()
         version_re = re.compile(r'(?<=CASTEP version )[0-9.]*')
@@ -2342,7 +2342,7 @@ def create_castep_keywords(castep_command, filename='castep_keywords.json',
 
     castep_version = get_castep_version(castep_command)
 
-    help_all, _ = shell_stdouterr('%s -help all' % castep_command)
+    help_all, _ = shell_stdouterr(f'{castep_command} -help all')
 
     # Filter out proper keywords
     try:
@@ -2356,7 +2356,7 @@ def create_castep_keywords(castep_command, filename='castep_keywords.json',
 
         raw_options = re.findall(pattern, help_all, re.MULTILINE)
     except Exception:
-        warnings.warn('Problem parsing: %s' % help_all)
+        warnings.warn(f'Problem parsing: {help_all}')
         raise
 
     types = set()
@@ -2368,7 +2368,7 @@ def create_castep_keywords(castep_command, filename='castep_keywords.json',
     processed_options = {sf: {} for sf in suffixes}
 
     for o_i, option in enumerate(raw_options[:fetch_only]):
-        doc, _ = shell_stdouterr('%s -help %s' % (castep_command, option))
+        doc, _ = shell_stdouterr(f'{castep_command} -help {option}')
 
         # Stand Back! I know regular expressions (http://xkcd.com/208/) :-)
         match = re.match(r'(?P<before_type>.*)Type: (?P<type>.+?)\s+'
@@ -2397,13 +2397,13 @@ def create_castep_keywords(castep_command, filename='castep_keywords.json',
             mdoc = match.get('doc', None)
 
             if mtyp is None:
-                warnings.warn('Found no type for %s' % option)
+                warnings.warn(f'Found no type for {option}')
                 continue
             if mlvl is None:
-                warnings.warn('Found no level for %s' % option)
+                warnings.warn(f'Found no level for {option}')
                 continue
             if mdoc is None:
-                warnings.warn('Found no doc string for %s' % option)
+                warnings.warn(f'Found no doc string for {option}')
                 continue
 
             types = types.union([mtyp])
@@ -2419,15 +2419,14 @@ def create_castep_keywords(castep_command, filename='castep_keywords.json',
             processed_n += 1
 
             frac = (o_i + 1.0) / to_process
-            sys.stdout.write('\rProcessed: [{0}] {1:>3.0f}%'.format(
+            sys.stdout.write('\rProcessed: [{}] {:>3.0f}%'.format(
                              '#' * int(frac * 20) + ' '
                              * (20 - int(frac * 20)),
                              100 * frac))
             sys.stdout.flush()
 
         else:
-            warnings.warn('create_castep_keywords: Could not process %s'
-                          % option)
+            warnings.warn(f'create_castep_keywords: Could not process {option}')
 
     sys.stdout.write('\n')
     sys.stdout.flush()
@@ -2438,8 +2437,7 @@ def create_castep_keywords(castep_command, filename='castep_keywords.json',
 
     json.dump(processed_options, open(filepath, 'w'), indent=4)
 
-    warnings.warn('CASTEP v%s, fetched %s keywords' %
-                  (castep_version, processed_n))
+    warnings.warn(f'CASTEP v{castep_version}, fetched {processed_n} keywords')
     return True
 
 
@@ -2492,7 +2490,7 @@ class CastepOption:
             return
 
         ctype = self.default_convert_types.get(self.type.lower(), 'str')
-        typeparse = '_parse_%s' % ctype
+        typeparse = f'_parse_{ctype}'
         try:
             self._value = getattr(self, typeparse)(val)
         except ValueError:
@@ -2661,7 +2659,7 @@ class CastepInputFile:
         if is_default:
             expr = 'Default\n'
 
-        expr += 'Keyword tolerance: {0}'.format(self._perm)
+        expr += f'Keyword tolerance: {self._perm}'
         return expr
 
     def __setattr__(self, attr, value):
@@ -2685,10 +2683,10 @@ class CastepInputFile:
                 similars = difflib.get_close_matches(attr,
                                                      self._options.keys())
                 if similars:
-                    raise UserWarning(('Option "%s" not known! You mean "%s"?')
-                                      % (attr, similars[0]))
+                    raise UserWarning(
+                        f'Option "{attr}" not known! You mean "{similars[0]}"?')
                 else:
-                    raise UserWarning('Option "%s" is not known!' % attr)
+                    raise UserWarning(f'Option "{attr}" is not known!')
             elif self._perm == 1:
                 warnings.warn(('Option "%s" is not known and will '
                                'be added as a %s') % (attr,
@@ -2707,7 +2705,7 @@ class CastepInputFile:
             value = value.replace(':', ' ')
 
         # If it is, use the appropriate parser, unless a custom one is defined
-        attrparse = '_parse_%s' % attr.lower()
+        attrparse = f'_parse_{attr.lower()}'
 
         # Check for any conflicts if the value is not None
         if value is not None:
@@ -2730,7 +2728,7 @@ class CastepInputFile:
             raise AttributeError()
 
         if self._perm == 1:
-            warnings.warn('Option %s is not known, returning None' % (name))
+            warnings.warn(f'Option {(name)} is not known, returning None')
 
         return CastepOption(keyword='none', level='Unknown',
                             option_type='string', value=None)
@@ -2873,7 +2871,7 @@ class CastepCell(CastepInputFile):
         text_block = text_block if text_block else ''
         # Remove any duplicates
         for pp in pspots:
-            text_block = re.sub(r'\n?\s*%s\s+.*' % pp[0], '', text_block)
+            text_block = re.sub(fr'\n?\s*{pp[0]}\s+.*', '', text_block)
             if pp[1]:
                 text_block += '\n%s %s' % pp
 
@@ -2942,7 +2940,6 @@ def make_param_dict(data=None):
 
 class CastepVersionError(Exception):
     """No special behaviour, works to signal when Castep can not be found"""
-    pass
 
 
 class ConversionError(Exception):
@@ -2957,22 +2954,22 @@ class ConversionError(Exception):
         self.attr = attr
 
     def __str__(self):
-        return 'Could not convert %s = %s to %s\n' \
-            % (self.attr, self.value, self.key_type) \
+        return f'Could not convert {self.attr} = {self.value} '\
+            + 'to {self.key_type}\n' \
             + 'This means you either tried to set a value of the wrong\n'\
             + 'type or this keyword needs some special care. Please feel\n'\
             + 'to add it to the corresponding __setattr__ method and send\n'\
-            + 'the patch to %s, so we can all benefit.' % (contact_email)
+            + f'the patch to {(contact_email)}, so we can all benefit.'
 
 
 def get_castep_pp_path(castep_pp_path=''):
     """Abstract the quest for a CASTEP PSP directory."""
     if castep_pp_path:
         return os.path.abspath(os.path.expanduser(castep_pp_path))
-    elif 'PSPOT_DIR' in os.environ:
-        return os.environ['PSPOT_DIR']
-    elif 'CASTEP_PP_PATH' in os.environ:
-        return os.environ['CASTEP_PP_PATH']
+    elif 'PSPOT_DIR' in cfg:
+        return cfg['PSPOT_DIR']
+    elif 'CASTEP_PP_PATH' in cfg:
+        return cfg['CASTEP_PP_PATH']
     else:
         return os.path.abspath('.')
 
@@ -2981,8 +2978,8 @@ def get_castep_command(castep_command=''):
     """Abstract the quest for a castep_command string."""
     if castep_command:
         return castep_command
-    elif 'CASTEP_COMMAND' in os.environ:
-        return os.environ['CASTEP_COMMAND']
+    elif 'CASTEP_COMMAND' in cfg:
+        return cfg['CASTEP_COMMAND']
     else:
         return 'castep'
 
@@ -3075,6 +3072,6 @@ if __name__ == '__main__':
                 json.load(fd)
         except Exception as e:
             warnings.warn(
-                '%s Ooops, something went wrong with the CASTEP keywords' % e)
+                f'{e} Ooops, something went wrong with the CASTEP keywords')
         else:
             warnings.warn('Import works. Looking good!')

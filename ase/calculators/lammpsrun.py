@@ -209,7 +209,7 @@ class LAMMPS(Calculator):
     def get_lammps_command(self):
         cmd = self.parameters.get('command')
         if cmd is None:
-            envvar = 'ASE_{}_COMMAND'.format(self.name.upper())
+            envvar = f'ASE_{self.name.upper()}_COMMAND'
             cmd = os.environ.get(envvar)
 
         if cmd is None:
@@ -218,7 +218,7 @@ class LAMMPS(Calculator):
         opts = self.parameters.get('lammps_options')
 
         if opts is not None:
-            cmd = '{} {}'.format(cmd, opts)
+            cmd = f'{cmd} {opts}'
 
         return cmd
 
@@ -281,7 +281,7 @@ class LAMMPS(Calculator):
             for type_id, specie in enumerate(self.parameters['specorder']):
                 mass = atomic_masses[chemical_symbols.index(specie)]
                 self.parameters['masses'] += [
-                    "{0:d} {1:f}".format(type_id + 1, mass)
+                    f"{type_id + 1:d} {mass:f}"
                 ]
 
         # set boundary condtions
@@ -316,7 +316,7 @@ class LAMMPS(Calculator):
         tempdir = self.parameters['tmp_dir']
 
         # setup file names for LAMMPS calculation
-        label = "{0}{1:>06}".format(self.label, self.calls)
+        label = f"{self.label}{self.calls:>06}"
         lammps_in = uns_mktemp(
             prefix="in_" + label, dir=tempdir
         )
@@ -455,9 +455,7 @@ class LAMMPS(Calculator):
         stress_tensor = np.array([[xx, xy, xz],
                                   [xy, yy, yz],
                                   [xz, yz, zz]])
-        R = self.prism.rot_mat
-        stress_atoms = np.dot(R, stress_tensor)
-        stress_atoms = np.dot(stress_atoms, R.T)
+        stress_atoms = self.prism.tensor2_to_ase(stress_tensor)
         stress_atoms = stress_atoms[[0, 1, 2, 1, 0, 0],
                                     [0, 1, 2, 2, 2, 1]]
         stress = stress_atoms

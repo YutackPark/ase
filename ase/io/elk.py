@@ -166,11 +166,11 @@ def write_elk_in(fd, atoms, parameters=None):
 
     # write all keys
     for key, value in inp.items():
-        fd.write('%s\n' % key)
+        fd.write(f'{key}\n')
         if isinstance(value, bool):
-            fd.write('.%s.\n\n' % ('false', 'true')[value])
+            fd.write(f'.{("false", "true")[value]}.\n\n')
         elif isinstance(value, (int, float)):
-            fd.write('%s\n\n' % value)
+            fd.write(f'{value}\n\n')
         else:
             fd.write('%s\n\n' % ' '.join([str(x) for x in value]))
 
@@ -195,7 +195,7 @@ def write_elk_in(fd, atoms, parameters=None):
     # scaled = atoms.get_scaled_positions(wrap=False)
     scaled = np.linalg.solve(atoms.cell.T, atoms.positions.T).T
     for symbol in symbols:
-        fd.write("'%s.in' : spfname\n" % symbol)
+        fd.write(f"'{symbol}.in' : spfname\n")
         fd.write('%d\n' % len(species[symbol]))
         for a, m in species[symbol]:
             fd.write('%.14f %.14f %.14f 0.0 0.0 %.14f\n' %

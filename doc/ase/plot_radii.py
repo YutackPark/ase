@@ -16,6 +16,6 @@ plt.plot(c1, marker='.', label='covalent_radii [ase.data]')
 nobles = [2, 10, 18, 36, 54, 86]
 plt.xticks(nobles, [chemical_symbols[Z] for Z in nobles])
 plt.xlabel('Z')
-plt.ylabel(u'radius [Å]')
+plt.ylabel('radius [Å]')
 plt.legend(loc='best')
 plt.savefig('atomic_radii.png')

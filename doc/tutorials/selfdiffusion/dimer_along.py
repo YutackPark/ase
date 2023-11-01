@@ -66,4 +66,4 @@ dim_rlx = MinModeTranslate(d_atoms,
 dim_rlx.run(fmax=0.001)
 
 diff = initial.get_potential_energy() - e0
-print(('The energy barrier is %f eV.' % diff))
+print('The energy barrier is %f eV.' % diff)

@@ -214,6 +214,7 @@ class FixAtoms(IndexedConstraint):
 
 class FixCom(FixConstraint):
     """Constraint class for fixing the center of mass."""
+
     def get_removed_dof(self, atoms):
         return 3
 
@@ -650,7 +651,7 @@ class FixedMode(FixConstraint):
                 'kwargs': {'mode': self.mode.tolist()}}
 
     def __repr__(self):
-        return 'FixedMode(%s)' % self.mode.tolist()
+        return f'FixedMode({self.mode.tolist()})'
 
 
 def _normalize(direction):
@@ -846,7 +847,7 @@ class FixScaled(IndexedConstraint):
                            'mask': self.mask.tolist()}}
 
     def __repr__(self):
-        return 'FixScaled({}, {})'.format(self.index.tolist(), self.mask)
+        return f'FixScaled({self.index.tolist()}, {self.mask})'
 
 
 # TODO: Better interface might be to use dictionaries in place of very
@@ -1056,8 +1057,8 @@ class FixInternals(FixConstraint):
             if maxerr < self.epsilon:
                 return
         msg = 'FixInternals.adjust_positions did not converge.'
-        if any([constr.targetvalue > 175. or constr.targetvalue < 5. for constr
-                in self.constraints if isinstance(constr, self.FixAngle)]):
+        if any(constr.targetvalue > 175. or constr.targetvalue < 5. for constr
+                in self.constraints if isinstance(constr, self.FixAngle)):
             msg += (' This may be caused by an almost planar angle.'
                     ' Support for planar angles would require the'
                     ' implementation of ghost, i.e. dummy, atoms.'
@@ -1461,8 +1462,8 @@ class FixParametricRelations(FixConstraint):
             int_fmt_str = "{:0" + \
                 str(int(np.ceil(np.log10(len(params) + 1)))) + "d}"
 
-            param_dct = dict()
-            param_map = dict()
+            param_dct = {}
+            param_map = {}
 
             # Construct a standardized param template for A/B filling
             for param_ind, param in enumerate(params):
@@ -1547,7 +1548,7 @@ class FixParametricRelations(FixConstraint):
                     param_exp += "-"
 
                 if np.abs(abs_jacob_val - 1.0) <= self.eps:
-                    param_exp += "{:s}".format(param)
+                    param_exp += f"{param:s}"
                 else:
                     param_exp += (fmt_str +
                                   "*{:s}").format(abs_jacob_val, param)
@@ -1577,13 +1578,13 @@ class FixParametricRelations(FixConstraint):
             indices_str = "[{:d}, ..., {:d}]".format(
                 self.indices[0], self.indices[-1])
         else:
-            indices_str = "[{:d}]".format(self.indices[0])
+            indices_str = f"[{self.indices[0]:d}]"
 
         if len(self.params) > 1:
             params_str = "[{:s}, ..., {:s}]".format(
                 self.params[0], self.params[-1])
         elif len(self.params) == 1:
-            params_str = "[{:s}]".format(self.params[0])
+            params_str = f"[{self.params[0]:s}]"
         else:
             params_str = "[]"
 
@@ -1609,7 +1610,7 @@ class FixScaledParametricRelations(FixParametricRelations):
 
         All arguments are the same, but since this is for fractional
         coordinates use_cell is false"""
-        super(FixScaledParametricRelations, self).__init__(
+        super().__init__(
             indices,
             Jacobian,
             const_shift,
@@ -1670,7 +1671,7 @@ class FixScaledParametricRelations(FixParametricRelations):
 
     def todict(self):
         """Create a dictionary representation of the constraint"""
-        dct = super(FixScaledParametricRelations, self).todict()
+        dct = super().todict()
         del dct["kwargs"]["use_cell"]
         return dct
 
@@ -1687,7 +1688,7 @@ class FixCartesianParametricRelations(FixParametricRelations):
         use_cell=False,
     ):
         """The Cartesian coordinate version of FixParametricRelations"""
-        super(FixCartesianParametricRelations, self).__init__(
+        super().__init__(
             indices,
             Jacobian,
             const_shift,
@@ -1824,7 +1825,7 @@ class Hookean(FixConstraint):
             dct['kwargs']['a1'] = self.index
             dct['kwargs']['a2'] = self.plane
         else:
-            raise NotImplementedError('Bad type: %s' % self._type)
+            raise NotImplementedError(f'Bad type: {self._type}')
         return dct
 
     def adjust_positions(self, atoms, newpositions):

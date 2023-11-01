@@ -195,7 +195,7 @@ class Aims(GenericFileIOCalculator):
         if profile is None:
             profile = AimsProfile(
                 kwargs.pop(
-                    "aims_command", os.getenv("ASE_AIMS_COMMAND", "aims.x")
+                    "aims_command", self.cfg.get("ASE_AIMS_COMMAND", "aims.x")
                 )
             )
 
@@ -215,7 +215,7 @@ class AimsCube:
         origin=(0, 0, 0),
         edges=[(0.1, 0.0, 0.0), (0.0, 0.1, 0.0), (0.0, 0.0, 0.1)],
         points=(50, 50, 50),
-        plots=tuple(),
+        plots=(),
     ):
         """parameters:
 

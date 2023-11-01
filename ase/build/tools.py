@@ -187,7 +187,6 @@ def cut(atoms, a=(1, 0, 0), b=(0, 1, 0), c=None, clength=None,
 class IncompatibleCellError(ValueError):
     """Exception raised if stacking fails due to incompatible cells
     between *atoms1* and *atoms2*."""
-    pass
 
 
 def stack(atoms1, atoms2, axis=2, cell=None, fix=0.5,
