@@ -111,7 +111,7 @@ main:
       coverage_report:
         coverage_format: cobertura
         path: coverage.xml
-      junit: report.xml
+      junit: ase/test/report.xml
     expire_in: 1 week
 
 # Calculator integration tests which always run.
@@ -137,7 +137,7 @@ calculators-lite:
       coverage_report:
         coverage_format: cobertura
         path: coverage.xml
-      junit: report.xml
+      junit: ase/test/report.xml
     expire_in: 1 week
 
 # Plan: Test as many calculators as possible as well as possible.
