@@ -85,7 +85,7 @@ class Config(Mapping):
 
             fullname = name
             try:
-                codeconfig = self.parser[name]
+                codeconfig = self.__getitem__(name)
             except KeyError:
                 codeconfig = None
                 version = None

@@ -16,6 +16,7 @@ from ase.calculators.genericfileio import (
     CalculatorTemplate,
     GenericFileIOCalculator,
     BaseProfile,
+    read_stdout,
 )
 from ase.io.aims import write_aims, write_control
 
@@ -35,7 +36,7 @@ class AimsProfile(BaseProfile):
         return [self.binary]
 
     def version(self):
-        return None
+        return get_aims_version(read_stdout(self.binary))
 
 
 class AimsTemplate(CalculatorTemplate):
