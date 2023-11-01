@@ -1264,6 +1264,14 @@ class GenerateVaspInput:
             resrt[srt[n]] = n
         return srt, resrt
 
+    def _set_spinpol(self, atoms):
+        if self.int_params['ispin'] is None:
+            self.spinpol = atoms.get_initial_magnetic_moments().any()
+        else:
+            # VASP runs non-spin-polarized calculations when `ispin=1`,
+            # regardless if `magmom` is specified or not.
+            self.spinpol = (self.int_params['ispin'] == 2)
+
     def _build_pp_list(self,
                        atoms,
                        setups=None,
