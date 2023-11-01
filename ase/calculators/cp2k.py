@@ -117,9 +117,10 @@ class CP2K(Calculator):
     max_scf: int
         Maximum number of SCF iteration to be performed for
         one optimization. Default is ``50``.
-    multiplicity: int
+    multiplicity: int, default=None
         Select the multiplicity of the system
         (two times the total spin plus one).
+        If None, multiplicity is not explicitly given in the input file.
     poisson_solver: str
         The poisson solver to be used. Currently, the only supported
         values are ``auto`` and ``None``. Default is ``auto``.
@@ -167,7 +168,7 @@ class CP2K(Calculator):
         force_eval_method="Quickstep",
         inp='',
         max_scf=50,
-        multiplicity=1,
+        multiplicity=None,
         potential_file='POTENTIAL',
         pseudo_potential='auto',
         stress_tensor=True,
