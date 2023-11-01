@@ -190,7 +190,7 @@ def test_exciting_profile_init(excitingtools):
     # method tries to query what exciting version is present.
     with pytest.raises(FileNotFoundError):
         ase.calculators.exciting.exciting.ExcitingProfile(
-            exciting_root=exciting_root, species_path=species_path)
+            exciting_root=exciting_root, species_path=species_path) 
 
 
 def test_ground_state_template_init(excitingtools):

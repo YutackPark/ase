@@ -21,13 +21,17 @@ from ase.calculators.exciting.runner import (
     SimpleBinaryRunner,
     SubprocessRunResults,
 )
+
+import ase.calculators.exciting.runner
+
 from ase.calculators.genericfileio import (
+    BaseProfile,
     CalculatorTemplate,
     GenericFileIOCalculator,
 )
 
 
-class ExcitingProfile:
+class ExcitingProfile(BaseProfile):
     """Defines all quantities that are configurable for a given machine.
 
     Follows the generic pattern BUT currently not used by our calculator as:
@@ -36,14 +40,36 @@ class ExcitingProfile:
          method, which is part of the BinaryRunner class.
     """
 
-    def __init__(self, exciting_root=None, species_path=None):
+    def __init__(
+                self, exciting_root=None, species_path=None,
+                binary=None, **kwargs):
         from excitingtools.input.base_class import query_exciting_version
+
+        super().__init__(**kwargs)
 
         if exciting_root is not None:
             self.version = query_exciting_version(exciting_root)
         else:
             self.version = None
         self.species_path = species_path
+        self.binary = binary
+
+    def version(self):
+        """Return exciting version."""
+        return self.version
+    
+    # Machine specific config files in the config
+    # species_file goes in the config
+    # binary file in the config.
+    # options for that, parallel info dictionary.
+    # Number of threads and stuff like that.
+
+    def get_calculator_command(self, input_file):
+        """Returns command to run binary as a list of strings."""
+        # input_file unused for exciting, it looks for input.xml in run
+        # directory.
+        del input_file
+        return [self.binary]
 
 
 class ExcitingGroundStateTemplate(CalculatorTemplate):
@@ -159,9 +185,13 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
             results.update(result)
         return results
 
-    def load_profile(self, cfg):
-        """Loads a profile"""
-        return ExcitingProfile()
+    def load_profile(self, cfg, **kwargs):
+        """ExcitingProfile can be created via a config file.
+        
+        Alternative to this method the profile can be created with it's
+        init method. This method allows for more settings to be passed.
+        """
+        return ExcitingProfile.from_config(cfg, self.name, **kwargs)
 
 
 class ExcitingGroundStateResults:
@@ -235,6 +265,8 @@ class ExcitingGroundStateCalculator(GenericFileIOCalculator):
         directory='./',
         species_path='./',
         title='ASE-generated input',
+        parallel=None,
+        parallel_info=None,
     ):
         self.runner = runner
         # Package data to be passed to
@@ -258,6 +290,8 @@ class ExcitingGroundStateCalculator(GenericFileIOCalculator):
         super().__init__(
             profile=runner,
             template=ExcitingGroundStateTemplate(),
-            parameters=self.exciting_inputs,
             directory=directory,
+            parameters=self.exciting_inputs,
+            parallel_info=parallel_info,
+            parallel=parallel,
         )
