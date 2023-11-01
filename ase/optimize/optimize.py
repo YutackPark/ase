@@ -12,6 +12,9 @@ from ase.utils import IOContext
 from ase.utils.abc import Optimizable
 
 
+DEFAULT_MAX_STEPS = 100_000_000
+
+
 class RestartError(RuntimeError):
     pass
 
@@ -90,8 +93,7 @@ class Dynamics(IOContext):
         self.logfile = self.openfile(logfile, mode='a', comm=world)
         self.observers: List[Callable] = []
         self.nsteps = 0
-        # maximum number of steps placeholder with maxint
-        self.max_steps = 100000000
+        self.max_steps = 0  # to be updated in run or irun
 
         if trajectory is not None:
             if isinstance(trajectory, str):
@@ -172,16 +174,32 @@ class Dynamics(IOContext):
             if call:
                 function(*args, **kwargs)
 
-    def irun(self):
-        """Run dynamics algorithm as generator. This allows, e.g.,
-        to easily run two optimizers or MD thermostats at the same time.
+    def irun(self, steps=DEFAULT_MAX_STEPS):
+        """Run dynamics algorithm as generator.
 
-        Examples:
+        Parameters
+        ----------
+        steps : int, default=DEFAULT_MAX_STEPS
+            Number of dynamics steps to be run.
+
+        Yields
+        ------
+        converged : bool
+            True if the forces on atoms are converged.
+
+        Examples
+        --------
+        This method allows, e.g., to run two optimizers or MD thermostats at
+        the same time.
         >>> opt1 = BFGS(atoms)
         >>> opt2 = BFGS(StrainFilter(atoms)).irun()
         >>> for _ in opt2:
-        >>>     opt1.run()
+        ...     opt1.run()
         """
+
+        # update the maximum number of steps
+        self.max_steps = self.nsteps + steps
+
         # compute the initial step
         self.optimizable.get_forces()
 
@@ -208,14 +226,25 @@ class Dynamics(IOContext):
             is_converged = self.converged()
             yield is_converged
 
-    def run(self):
+    def run(self, steps=DEFAULT_MAX_STEPS):
         """Run dynamics algorithm.
 
         This method will return when the forces on all individual
         atoms are less than *fmax* or when the number of steps exceeds
-        *steps*."""
+        *steps*.
 
-        for converged in Dynamics.irun(self):
+        Parameters
+        ----------
+        steps : int, default=DEFAULT_MAX_STEPS
+            Number of dynamics steps to be run.
+
+        Returns
+        -------
+        converged : bool
+            True if the forces on atoms are converged.
+        """
+
+        for converged in Dynamics.irun(self, steps=steps):
             pass
         return converged
 
@@ -323,19 +352,41 @@ class Optimizer(Dynamics):
     def initialize(self):
         pass
 
-    def irun(self, fmax=0.05, steps=None):
-        """ call Dynamics.irun and keep track of fmax"""
-        self.fmax = fmax
-        if steps is not None:
-            self.max_steps = steps
-        return Dynamics.irun(self)
+    def irun(self, fmax=0.05, steps=DEFAULT_MAX_STEPS):
+        """Run optimizer as generator.
 
-    def run(self, fmax=0.05, steps=None):
-        """ call Dynamics.run and keep track of fmax"""
+        Parameters
+        ----------
+        fmax : float
+            Convergence criterion of the forces on atoms.
+        steps : int, default=DEFAULT_MAX_STEPS
+            Number of optimizer steps to be run.
+
+        Yields
+        ------
+        converged : bool
+            True if the forces on atoms are converged.
+        """
         self.fmax = fmax
-        if steps is not None:
-            self.max_steps = steps
-        return Dynamics.run(self)
+        return Dynamics.irun(self, steps=steps)
+
+    def run(self, fmax=0.05, steps=DEFAULT_MAX_STEPS):
+        """Run optimizer.
+
+        Parameters
+        ----------
+        fmax : float
+            Convergence criterion of the forces on atoms.
+        steps : int, default=DEFAULT_MAX_STEPS
+            Number of optimizer steps to be run.
+
+        Returns
+        -------
+        converged : bool
+            True if the forces on atoms are converged.
+        """
+        self.fmax = fmax
+        return Dynamics.run(self, steps=steps)
 
     def converged(self, forces=None):
         """Did the optimization converge?"""

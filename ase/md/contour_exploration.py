@@ -208,8 +208,7 @@ class ContourExploration(Dynamics):
 
     def run(self, steps=50):
         """ Call Dynamics.run and adjust max_steps """
-        self.max_steps = steps + self.nsteps
-        return Dynamics.run(self)
+        return Dynamics.run(self, steps=steps)
 
     def log(self):
         if self.logfile is not None:
