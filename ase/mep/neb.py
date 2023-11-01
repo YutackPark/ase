@@ -15,7 +15,7 @@ from ase.calculators.singlepoint import SinglePointCalculator
 from ase.geometry import find_mic
 from ase.optimize import MDMin
 from ase.optimize.ode import ode12r
-from ase.optimize.optimize import Optimizer
+from ase.optimize.optimize import DEFAULT_MAX_STEPS, Optimizer
 from ase.optimize.precon import Precon, PreconImages
 from ase.optimize.sciopt import OptimizerConvergenceError
 from ase.utils import deprecated, lazyproperty
@@ -937,7 +937,7 @@ class NEBOptimizer(Optimizer):
             self.callback(X)
         return False
 
-    def run(self, fmax=0.05, steps=None, method=None):
+    def run(self, fmax=0.05, steps=DEFAULT_MAX_STEPS, method=None):
         """
         Optimize images to obtain the minimum energy path
 
@@ -946,8 +946,7 @@ class NEBOptimizer(Optimizer):
         fmax - desired force tolerance
         steps - maximum number of steps
         """
-        if steps:
-            self.max_steps = steps
+        self.max_steps = steps
         if method is None:
             method = self.method
         if method == 'ode':

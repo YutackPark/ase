@@ -35,7 +35,7 @@ pw_input_text = """
 nat              = 8,   ntyp             = 2,  occupations      = 'smearing',
 smearing         = 'marzari-vanderbilt',
 degauss          = 0.01,   nspin            = 2,  !  nosym     = .true. ,
-    starting_magnetization(2) = 0.32 /
+    starting_magnetization(2) = 5.12 /
 &ELECTRONS
    electron_maxstep = 300
    mixing_beta      = 0.1
