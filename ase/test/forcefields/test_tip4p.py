@@ -3,7 +3,7 @@ def test_tip4p():
     from math import cos, sin
 
     from ase import Atoms
-    from ase.calculators.tip4p import TIP4P, rOH, angleHOH
+    from ase.calculators.tip4p import TIP4P, angleHOH, rOH
 
     r = rOH
     a = angleHOH

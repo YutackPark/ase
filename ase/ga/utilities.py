@@ -1,14 +1,16 @@
 """Various utility methods used troughout the GA."""
+import itertools
 import os
 import time
-import itertools
+
 import numpy as np
 from scipy.spatial.distance import cdist
-from ase.io import write, read
-from ase.geometry.cell import cell_to_cellpar
-from ase.geometry.rdf import get_rdf
+
 from ase.data import covalent_radii
 from ase.ga import get_neighbor_list
+from ase.geometry.cell import cell_to_cellpar
+from ase.geometry.rdf import get_rdf
+from ase.io import read, write
 
 
 def closest_distances_generator(atom_numbers, ratio_of_covalent_radii):
@@ -18,13 +20,13 @@ def closest_distances_generator(atom_numbers, ratio_of_covalent_radii):
     cr = covalent_radii
     ratio = ratio_of_covalent_radii
 
-    blmin = dict()
+    blmin = {}
     for i in atom_numbers:
         blmin[(i, i)] = cr[i] * 2 * ratio
         for j in atom_numbers:
             if i == j:
                 continue
-            if (i, j) in blmin.keys():
+            if (i, j) in blmin:
                 continue
             blmin[(i, j)] = blmin[(j, i)] = ratio * (cr[i] + cr[j])
     return blmin
@@ -61,15 +63,13 @@ def db_call_with_error_tol(db_cursor, expression, args=[]):
     employed.
     """
     import sqlite3
-    i = 0
-    while i < 10:
+    for i in range(10):
         try:
             db_cursor.execute(expression, args)
             return
         except sqlite3.OperationalError as e:
             print(e)
             time.sleep(2.)
-        i += 1
     raise sqlite3.OperationalError(
         'Database still locked after 10 attempts (20 s)')
 
@@ -89,7 +89,7 @@ def get_trajectory(fname):
     fname = str(fname)
     try:
         t = read(fname)
-    except IOError as e:
+    except OSError as e:
         print('get_trajectory error ' + e)
     return t
 

@@ -6,12 +6,13 @@ import ctypes
 import numpy as np
 from numpy.linalg import norm
 
+from ase import Atoms
 from ase.calculators.calculator import Calculator
-from ase.data import (atomic_numbers as ase_atomic_numbers,
-                      chemical_symbols as ase_chemical_symbols,
-                      atomic_masses as ase_atomic_masses)
-from ase.calculators.lammps import convert
-from ase.geometry import wrap_positions
+from ase.calculators.lammps import Prism, convert
+from ase.data import atomic_masses as ase_atomic_masses
+from ase.data import atomic_numbers as ase_atomic_numbers
+from ase.data import chemical_symbols as ase_chemical_symbols
+from ase.utils import deprecated
 
 # TODO
 # 1. should we make a new lammps object each time ?
@@ -22,11 +23,10 @@ from ase.geometry import wrap_positions
 #   into a python function that can be called
 # 8. make matscipy as fallback
 # 9. keep_alive not needed with no system changes
-# 10. it may be a good idea to unify the cell handling with the one found in
-#    lammpsrun.py
 
 
 # this one may be moved to some more generic place
+@deprecated("Please use the technique in https://stackoverflow.com/a/26912166")
 def is_upper_triangular(arr, atol=1e-8):
     """test for upper triangular matrix based on numpy"""
     # must be (n x n) matrix
@@ -36,6 +36,12 @@ def is_upper_triangular(arr, atol=1e-8):
         np.all(np.diag(arr) >= 0.0)
 
 
+@deprecated(
+    "Please use "
+    "`ase.calculators.lammps.coordinatetransform.calc_rotated_cell`. "
+    "Note that the new function returns the ASE lower trianglar cell and does "
+    "not return the conversion matrix."
+)
 def convert_cell(ase_cell):
     """
     Convert a parallelepiped (forming right hand basis)
@@ -134,7 +140,7 @@ Keyword                                  Description
 
 ``keep_alive``           Boolean
                          whether to keep the lammps routine alive for more
-                         commands
+                         commands. Default is True.
 
 =======================  ======================================================
 
@@ -260,7 +266,7 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
         atom_type_masses=None,
         log_file=None,
         lammps_name='',
-        keep_alive=False,
+        keep_alive=True,
         lammps_header=['units metal',
                        'atom_style atomic',
                        'atom_modify map array sort 0 0'],
@@ -276,17 +282,23 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
         Calculator.__init__(self, *args, **kwargs)
         self.lmp = None
 
-    def __del__(self):
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.clean()
+
+    def clean(self):
         if self.started:
             self.lmp.close()
             self.started = False
+            self.initialized = False
             self.lmp = None
 
-    def set_cell(self, atoms, change=False):
-        lammps_cell, self.coord_transform = convert_cell(atoms.get_cell())
-
-        xhi, xy, xz, _, yhi, yz, _, _, zhi = convert(
-            lammps_cell.flatten(order='C'), "distance", "ASE", self.units)
+    def set_cell(self, atoms: Atoms, change: bool = False):
+        self.prism = Prism(atoms.cell, atoms.pbc)
+        _ = self.prism.get_lammps_prism()
+        xhi, yhi, zhi, xy, xz, yz = convert(_, "distance", "ASE", self.units)
         box_hi = [xhi, yhi, zhi]
 
         if change:
@@ -310,10 +322,7 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
             # atoms to avoid losing any
             lammps_boundary_conditions = self.lammpsbc(atoms).split()
             if 's' in lammps_boundary_conditions:
-                pos = atoms.get_positions()
-                if self.coord_transform is not None:
-                    pos = np.dot(self.coord_transform, pos.transpose())
-                    pos = pos.transpose()
+                pos = self.prism.vector_to_lammps(atoms.positions)
                 posmin = np.amin(pos, axis=0)
                 posmax = np.amax(pos, axis=0)
 
@@ -328,20 +337,14 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
 
         self.lmp.command(cell_cmd)
 
-    def set_lammps_pos(self, atoms):
+    def set_lammps_pos(self, atoms: Atoms):
         # Create local copy of positions that are wrapped along any periodic
         # directions
-        cell = convert(atoms.cell, "distance", "ASE", self.units)
         pos = convert(atoms.positions, "distance", "ASE", self.units)
-
-        # If necessary, transform the positions to new coordinate system
-        if self.coord_transform is not None:
-            pos = np.dot(pos, self.coord_transform.T)
-            cell = np.dot(cell, self.coord_transform.T)
 
         # wrap only after scaling and rotating to reduce chances of
         # lammps neighbor list bugs.
-        pos = wrap_positions(pos, cell, atoms.get_pbc())
+        pos = self.prism.vector_to_lammps(pos, wrap=True)
 
         # Convert ase position matrix to lammps-style position array
         # contiguous in memory
@@ -371,8 +374,6 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
         """
         if len(system_changes) == 0:
             return
-
-        self.coord_transform = None
 
         if not self.started:
             self.start_lammps()
@@ -441,9 +442,8 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
                 # here?
                 vel = atoms.arrays[velocity_field]
 
-            # If necessary, transform the velocities to new coordinate system
-            if self.coord_transform is not None:
-                vel = np.dot(self.coord_transform, vel.T).T
+            # Transform the velocities to new coordinate system
+            vel = self.prism.vector_to_lammps(vel)
 
             # Convert ase velocities matrix to lammps-style velocities array
             lmp_velocities = list(vel.ravel())
@@ -466,8 +466,7 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
             # TODO this must be slower than native copy, but why is it broken?
             pos = np.array(
                 [x for x in self.lmp.gather_atoms("x", 1, 3)]).reshape(-1, 3)
-            if self.coord_transform is not None:
-                pos = np.dot(pos, self.coord_transform)
+            pos = self.prism.vector_to_ase(pos)
 
             # Convert from LAMMPS units to ASE units
             pos = convert(pos, "distance", self.units, "ASE")
@@ -476,8 +475,7 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
 
             vel = np.array(
                 [v for v in self.lmp.gather_atoms("v", 1, 3)]).reshape(-1, 3)
-            if self.coord_transform is not None:
-                vel = np.dot(vel, self.coord_transform)
+            vel = self.prism.vector_to_lammps(vel)
             if velocity_field is None:
                 atoms.set_velocities(convert(vel, 'velocity', self.units,
                                              'ASE'))
@@ -517,9 +515,9 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
         stress_mat[2, 0] = stress[4]
         stress_mat[0, 1] = stress[5]
         stress_mat[1, 0] = stress[5]
-        if self.coord_transform is not None:
-            stress_mat = np.dot(self.coord_transform.T,
-                                np.dot(stress_mat, self.coord_transform))
+
+        stress_mat = self.prism.tensor2_to_ase(stress_mat)
+
         stress[0] = stress_mat[0, 0]
         stress[1] = stress_mat[1, 1]
         stress[2] = stress_mat[2, 2]
@@ -532,17 +530,13 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
         # definitely yields atom-id ordered force array
         f = convert(np.array(self.lmp.gather_atoms("f", 1, 3)).reshape(-1, 3),
                     "force", self.units, "ASE")
-
-        if self.coord_transform is not None:
-            self.results['forces'] = np.dot(f, self.coord_transform)
-        else:
-            self.results['forces'] = f.copy()
+        self.results['forces'] = self.prism.vector_to_ase(f)
 
         # otherwise check_state will always trigger a new calculation
         self.atoms = atoms.copy()
 
-        if not self.parameters.keep_alive:
-            self.lmp.close()
+        if not self.parameters["keep_alive"]:
+            self.clean()
 
     def lammpsbc(self, atoms):
         """Determine LAMMPS boundary types based on ASE pbc settings. For
@@ -576,7 +570,7 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
             n_diff = len(atoms.numbers)
 
         if n_diff > 0:
-            if any([("reax/c" in cmd) for cmd in self.parameters.lmpcmds]):
+            if any(("reax/c" in cmd) for cmd in self.parameters.lmpcmds):
                 self.lmp.command("pair_style lj/cut 2.5")
                 self.lmp.command("pair_coeff * * 1 1")
 
@@ -585,7 +579,7 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
                             ("qeq/reax" in cmd)):
                         self.lmp.command(cmd)
 
-            cmd = "create_atoms 1 random {} 1 NULL".format(n_diff)
+            cmd = f"create_atoms 1 random {n_diff} 1 NULL"
             self.lmp.command(cmd)
         elif n_diff < 0:
             cmd = "group delatoms id {}:{}".format(
@@ -597,19 +591,19 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
         self.redo_atom_types(atoms)
 
     def redo_atom_types(self, atoms):
-        current_types = set(
+        current_types = {
             (i + 1, self.parameters.atom_types[sym]) for i, sym
-            in enumerate(atoms.get_chemical_symbols()))
+            in enumerate(atoms.get_chemical_symbols())}
 
         try:
-            previous_types = set(
+            previous_types = {
                 (i + 1, self.parameters.atom_types[ase_chemical_symbols[Z]])
-                for i, Z in enumerate(self.previous_atoms_numbers))
+                for i, Z in enumerate(self.previous_atoms_numbers)}
         except Exception:  # XXX which kind of exception?
             previous_types = set()
 
         for (i, i_type) in current_types - previous_types:
-            cmd = "set atom {} type {}".format(i, i_type)
+            cmd = f"set atom {i} type {i_type}"
             self.lmp.command(cmd)
 
         self.previous_atoms_numbers = atoms.numbers.copy()
@@ -628,7 +622,7 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
         # Only import lammps when running a calculation
         # so it is not required to use other parts of the
         # module
-        from lammps import lammps, LMP_STYLE_ATOM, LMP_TYPE_VECTOR
+        from lammps import LMP_STYLE_ATOM, LMP_TYPE_VECTOR, lammps
 
         self.LMP_STYLE_ATOM = LMP_STYLE_ATOM
         self.LMP_TYPE_VECTOR = LMP_TYPE_VECTOR
@@ -687,7 +681,7 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
         if self.parameters.create_box:
             # count number of known types
             n_types = len(self.parameters.atom_types)
-            create_box_command = 'create_box {} cell'.format(n_types)
+            create_box_command = f'create_box {n_types} cell'
             self.lmp.command(create_box_command)
 
         # Initialize the atoms with their types

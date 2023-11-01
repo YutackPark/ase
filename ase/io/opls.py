@@ -1,12 +1,13 @@
 import time
+
 import numpy as np
 
 from ase.atom import Atom
 from ase.atoms import Atoms
 from ase.calculators.lammpsrun import Prism
-from ase.neighborlist import NeighborList
 from ase.data import atomic_masses, chemical_symbols
 from ase.io import read
+from ase.neighborlist import NeighborList
 
 
 def twochar(name):
@@ -203,9 +204,9 @@ minimize        1.0e-14 1.0e-5 100000 100000
         # cell
         p = Prism(atoms.get_cell())
         xhi, yhi, zhi, xy, xz, yz = p.get_lammps_prism()
-        fileobj.write('\n0.0 %s  xlo xhi\n' % xhi)
-        fileobj.write('0.0 %s  ylo yhi\n' % yhi)
-        fileobj.write('0.0 %s  zlo zhi\n' % zhi)
+        fileobj.write(f'\n0.0 {xhi}  xlo xhi\n')
+        fileobj.write(f'0.0 {yhi}  ylo yhi\n')
+        fileobj.write(f'0.0 {zhi}  zlo zhi\n')
 
         if p.is_skewed():
             fileobj.write(f"{xy} {xz} {yz}  xy xz yz\n")
@@ -307,8 +308,7 @@ minimize        1.0e-14 1.0e-5 100000 100000
                 cut = cutoffs.value(iname, jname)
                 if cut is None:
                     if self.warnings > 1:
-                        print('Warning: cutoff %s-%s not found'
-                              % (iname, jname))
+                        print(f'Warning: cutoff {iname}-{jname} not found')
                     continue  # don't have it
                 dist = np.linalg.norm(atom.position - atoms[j].position -
                                       np.dot(offset, cell))
@@ -317,8 +317,7 @@ minimize        1.0e-14 1.0e-5 100000 100000
                 name, val = self.bonds.name_value(iname, jname)
                 if name is None:
                     if self.warnings:
-                        print('Warning: potential %s-%s not found'
-                              % (iname, jname))
+                        print(f'Warning: potential {iname}-{jname} not found')
                     continue  # don't have it
                 if name not in bond_types:
                     bond_types.append(name)
@@ -371,8 +370,10 @@ minimize        1.0e-14 1.0e-5 100000 100000
                                                        kname)
                     if name is None:
                         if self.warnings > 1:
-                            print('Warning: angles %s-%s-%s not found'
-                                  % (jname, iname, kname))
+                            print(
+                                f'Warning: angles {jname}-{iname}-{kname} not '
+                                'found'
+                            )
                         continue  # don't have it
                     if name not in ang_types:
                         ang_types.append(name)
@@ -661,7 +662,7 @@ class OPLSStructure(Atoms):
 
         if key == 'Masses':
             ntypes = len(self.types)
-            masses = np.empty((ntypes))
+            masses = np.empty(ntypes)
             for i in range(ntypes):
                 w = lines.pop(0).split()
                 assert int(w[0]) == (i + 1)

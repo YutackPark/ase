@@ -1,17 +1,21 @@
+import logging
 import re
 import warnings
 from collections.abc import Iterable
 from copy import deepcopy
 
 import numpy as np
+
 from ase import Atoms
-from ase.calculators.calculator import InputError, Calculator
+from ase.calculators.calculator import Calculator, InputError
 from ase.calculators.gaussian import Gaussian
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.data import atomic_masses_iupac2016, chemical_symbols
 from ase.io import ParseError
 from ase.io.zmatrix import parse_zmatrix
 from ase.units import Bohr, Hartree
+
+logger = logging.getLogger(__name__)
 
 _link0_keys = [
     'mem',
@@ -128,7 +132,7 @@ def _format_output_type(output_type):
     if output_type is None or output_type == '' or 't' in output_type.lower():
         output_type = 'P'
 
-    return '#{}'.format(output_type)
+    return f'#{output_type}'
 
 
 def _check_problem_methods(method):
@@ -157,9 +161,9 @@ def _pop_link0_params(params):
             continue
         val = params.pop(key)
         if not val or (isinstance(val, str) and key.lower() == val.lower()):
-            out.append('%{}'.format(key))
+            out.append(f'%{key}')
         else:
-            out.append('%{}={}'.format(key, val))
+            out.append(f'%{key}={val}')
 
     # These link0 keywords have a slightly different syntax
     for key in _link0_special:
@@ -168,7 +172,7 @@ def _pop_link0_params(params):
         val = params.pop(key)
         if not isinstance(val, str) and isinstance(val, Iterable):
             val = ' '.join(val)
-        out.append('%{} L{}'.format(key, val))
+        out.append(f'%{key} L{val}')
 
     return params, out
 
@@ -182,10 +186,10 @@ def _format_method_basis(output_type, method, basis, fitting_basis):
         output_string = '{} {}/{} ! ASE formatted method and basis'.format(
             output_type, method, basis)
     else:
-        output_string = '{}'.format(output_type)
+        output_string = f'{output_type}'
         for value in [method, basis]:
             if value is not None:
-                output_string += ' {}'.format(value)
+                output_string += f' {value}'
     return output_string
 
 
@@ -202,7 +206,7 @@ def _format_route_params(params):
         elif not isinstance(val, str) and isinstance(val, Iterable):
             out.append('{}({})'.format(key, ','.join(val)))
         else:
-            out.append('{}({})'.format(key, val))
+            out.append(f'{key}({val})')
     return out
 
 
@@ -230,7 +234,7 @@ def _format_basis_set(basis, basisfile, basis_set):
         if basisfile[0] == '@':
             out.append(basisfile)
         else:
-            with open(basisfile, 'r') as fd:
+            with open(basisfile) as fd:
                 out.append(fd.read())
     elif basis_set is not None:
         out.append(basis_set)
@@ -395,7 +399,7 @@ def write_gaussian_in(fd, atoms, properties=['energy'],
 
     # header, charge, and mult
     out += ['', 'Gaussian input prepared by ASE', '',
-            '{:.0f} {:.0f}'.format(charge, mult)]
+            f'{charge:.0f} {mult:.0f}']
 
     # make dict of nuclear properties:
     nuclear_props = {'spin': spinlist, 'zeff': zefflist, 'qmom': qmomlist,
@@ -1224,11 +1228,13 @@ def _compare_merge_configs(configs, new):
 
 
 def read_gaussian_out(fd, index=-1):
+    """Reads a gaussian output file and returns an Atoms object."""
     configs = []
     atoms = None
     energy = None
     dipole = None
     forces = None
+    orientation = None  # Orientation of the coordinates stored in atoms
     for line in fd:
         line = line.strip()
         if line.startswith(r'1\1\GINC'):
@@ -1239,11 +1245,25 @@ def read_gaussian_out(fd, index=-1):
                 or line == 'Z-Matrix orientation:'
                 or line == "Standard orientation:"):
             if atoms is not None:
+                # Add configuration to the currently-parsed list
+                #  only after an energy or force has been parsed
+                #  (we assume these are in the output file)
+                if energy is None:
+                    continue
+                # "atoms" should store the first geometry encountered
+                #  in the input file which is often the input orientation,
+                #  which is the orientation for forces.
+                #  If there are forces and the orientation of atoms is not
+                #  the input coordinate system, warn the user
+                if orientation != "Input" and forces is not None:
+                    logger.warning('Configuration geometry is not in the input'
+                                   f'orientation. It is {orientation}')
                 atoms.calc = SinglePointCalculator(
                     atoms, energy=energy, dipole=dipole, forces=forces,
                 )
                 _compare_merge_configs(configs, atoms)
             atoms = None
+            orientation = line.split()[0]  # Store the orientation
             energy = None
             dipole = None
             forces = None
@@ -1285,6 +1305,10 @@ def read_gaussian_out(fd, index=-1):
             energy *= Hartree
         elif line.startswith('Wavefunction amplitudes converged. E(Corr)'):
             # "correlated method" energy, e.g. CCSD
+            energy = float(line.split('=')[-1].strip().replace('D', 'e'))
+            energy *= Hartree
+        elif line.startswith('CCSD(T)='):
+            # CCSD(T) energy
             energy = float(line.split('=')[-1].strip().replace('D', 'e'))
             energy *= Hartree
         elif _re_l716.match(line):

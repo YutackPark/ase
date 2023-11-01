@@ -1,5 +1,6 @@
 import pytest
-from ase.io.cif import CIFBlock, parse_loop, CIFLoop
+
+from ase.io.cif import CIFBlock, CIFLoop, parse_loop
 
 
 def test_parse_cifloop_simple():

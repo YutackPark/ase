@@ -1,6 +1,6 @@
 from ase.build import bulk
-from ase.io import read, write
 from ase.calculators.calculator import compare_atoms
+from ase.io import read, write
 
 
 def test_convert(tmp_path, cli):

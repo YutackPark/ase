@@ -1,12 +1,12 @@
 import warnings
 
-import pytest
 import numpy as np
+import pytest
 
 from ase import Atoms
-from ase.io import write, read, iread
-from ase.io.formats import all_formats, ioformats
 from ase.calculators.singlepoint import SinglePointCalculator
+from ase.io import iread, read, write
+from ase.io.formats import all_formats, ioformats
 
 try:
     import matplotlib
@@ -66,6 +66,7 @@ def catch_warnings():
 
 
 def all_tested_formats():
+    """Define all the ASE calculator formats to use in the tests."""
     skip = []
 
     # Someone should do something ...
@@ -89,6 +90,12 @@ def all_tested_formats():
     if not netCDF4:
         skip += ['netcdftrajectory']
 
+    # Check if excitingtools is installed, if not skip exciting tests.
+    try:
+        __import__('excitingtools')
+    except ModuleNotFoundError:
+        skip += ['exciting']
+
     return sorted(set(all_formats) - set(skip))
 
 
@@ -105,13 +112,13 @@ def test_ioformat(format, atoms, catch_warnings):
     images = [atoms, atoms]
 
     io = ioformats[format]
-    print('{0:20}{1}{2}{3}{4}'.format(format,
-                                      ' R'[io.can_read],
-                                      ' W'[io.can_write],
-                                      '+1'[io.single],
-                                      'SF'[io.acceptsfd]))
-    fname1 = 'io-test.1.{}'.format(format)
-    fname2 = 'io-test.2.{}'.format(format)
+    print('{:20}{}{}{}{}'.format(format,
+                                 ' R'[io.can_read],
+                                 ' W'[io.can_write],
+                                 '+1'[io.single],
+                                 'SF'[io.acceptsfd]))
+    fname1 = f'io-test.1.{format}'
+    fname2 = f'io-test.2.{format}'
     if io.can_write:
         write(fname1, atoms, format=format)
         if not io.single:

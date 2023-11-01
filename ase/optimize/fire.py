@@ -1,15 +1,34 @@
 import warnings
+from typing import IO, Callable, Optional, Union
+
 import numpy as np
 
+from ase import Atoms
 from ase.optimize.optimize import Optimizer
 
 
 class FIRE(Optimizer):
-    def __init__(self, atoms, restart=None, logfile='-', trajectory=None,
-                 dt=0.1, maxstep=None, maxmove=None, dtmax=1.0, Nmin=5,
-                 finc=1.1, fdec=0.5,
-                 astart=0.1, fa=0.99, a=0.1, master=None, downhill_check=False,
-                 position_reset_callback=None, force_consistent=None):
+    def __init__(
+        self,
+        atoms: Atoms,
+        restart: Optional[str] = None,
+        logfile: Union[IO, str] = '-',
+        trajectory: Optional[str] = None,
+        dt: float = 0.1,
+        maxstep: Optional[float] = None,
+        maxmove: Optional[float] = None,
+        dtmax: float = 1.0,
+        Nmin: int = 5,
+        finc: float = 1.1,
+        fdec: float = 0.5,
+        astart: float = 0.1,
+        fa: float = 0.99,
+        a: float = 0.1,
+        master: Optional[bool] = None,
+        downhill_check: bool = False,
+        position_reset_callback: Optional[Callable] = None,
+        force_consistent: Optional[bool] = None,
+    ):
         """Parameters:
 
         atoms: Atoms object
@@ -84,34 +103,35 @@ class FIRE(Optimizer):
         self.v, self.dt = self.load()
 
     def step(self, f=None):
-        atoms = self.atoms
+        optimizable = self.optimizable
 
         if f is None:
-            f = atoms.get_forces()
+            f = optimizable.get_forces()
 
         if self.v is None:
-            self.v = np.zeros((len(atoms), 3))
+            self.v = np.zeros((len(optimizable), 3))
             if self.downhill_check:
-                self.e_last = atoms.get_potential_energy(
+                self.e_last = optimizable.get_potential_energy(
                     force_consistent=self.force_consistent)
-                self.r_last = atoms.get_positions().copy()
+                self.r_last = optimizable.get_positions().copy()
                 self.v_last = self.v.copy()
         else:
             is_uphill = False
             if self.downhill_check:
-                e = atoms.get_potential_energy(
+                e = optimizable.get_potential_energy(
                     force_consistent=self.force_consistent)
                 # Check if the energy actually decreased
                 if e > self.e_last:
                     # If not, reset to old positions...
                     if self.position_reset_callback is not None:
-                        self.position_reset_callback(atoms, self.r_last, e,
-                                                     self.e_last)
-                    atoms.set_positions(self.r_last)
+                        self.position_reset_callback(
+                            optimizable, self.r_last, e,
+                            self.e_last)
+                    optimizable.set_positions(self.r_last)
                     is_uphill = True
-                self.e_last = atoms.get_potential_energy(
+                self.e_last = optimizable.get_potential_energy(
                     force_consistent=self.force_consistent)
-                self.r_last = atoms.get_positions().copy()
+                self.r_last = optimizable.get_positions().copy()
                 self.v_last = self.v.copy()
 
             vf = np.vdot(f, self.v)
@@ -133,6 +153,6 @@ class FIRE(Optimizer):
         normdr = np.sqrt(np.vdot(dr, dr))
         if normdr > self.maxstep:
             dr = self.maxstep * dr / normdr
-        r = atoms.get_positions()
-        atoms.set_positions(r + dr)
+        r = optimizable.get_positions()
+        optimizable.set_positions(r + dr)
         self.dump((self.v, self.dt))

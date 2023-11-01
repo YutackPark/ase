@@ -10,5 +10,6 @@ ignore =
 max-line-length = 80
 
 exclude =
-    build,
-    dist
+    ./build,
+    ./dist,
+    ./doc/build

@@ -1,8 +1,9 @@
 import pytest
-from ase.db import connect
-from ase.io.jsonio import read_json
-from ase.io import read
 from numpy.testing import assert_allclose
+
+from ase.db import connect
+from ase.io import read
+from ase.io.jsonio import read_json
 
 
 @pytest.mark.skip('CLI fixture lacks information about configured executables')
@@ -20,7 +21,7 @@ ase run nwchem O2.traj -o nwchem_cmdline.json""",
         id = d.id
         e1 = d.energy
         e2 = c.get_atoms(id).get_potential_energy()
-        e3 = read('{name}.nwo'.format(name=name)).get_potential_energy()
+        e3 = read(f'{name}.nwo').get_potential_energy()
         e4 = dct[id]['energy']
         assert e1 == e2 == e3 == e4
         print(e1)

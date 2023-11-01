@@ -5,14 +5,14 @@
 See http://theory.cm.utexas.edu/eon/index.html for a description of EON.
 """
 import os
-from warnings import warn
 from glob import glob
+from warnings import warn
 
 import numpy as np
 
 from ase.atoms import Atoms
 from ase.constraints import FixAtoms
-from ase.geometry import cellpar_to_cell, cell_to_cellpar
+from ase.geometry import cell_to_cellpar, cellpar_to_cell
 from ase.utils import writer
 
 
@@ -108,8 +108,8 @@ def write_eon(fileobj, images):
     out.append('0.0000 TIME')  # ??
 
     a, b, c, alpha, beta, gamma = cell_to_cellpar(atoms.cell)
-    out.append('%-10.6f  %-10.6f  %-10.6f' % (a, b, c))
-    out.append('%-10.6f  %-10.6f  %-10.6f' % (gamma, beta, alpha))
+    out.append(f'{a:<10.6f}  {b:<10.6f}  {c:<10.6f}')
+    out.append(f'{gamma:<10.6f}  {beta:<10.6f}  {alpha:<10.6f}')
 
     out.append('0 0')    # ??
     out.append('0 0 0')  # ??

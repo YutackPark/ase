@@ -22,6 +22,7 @@ dos = ph.get_dos(kpts=(20, 20, 20)).sample_grid(npts=100, width=1e-3)
 
 # Plot the band structure and DOS:
 import matplotlib.pyplot as plt  # noqa
+
 fig = plt.figure(1, figsize=(7, 4))
 ax = fig.add_axes([.12, .07, .67, .85])
 

@@ -1,6 +1,10 @@
+from typing import Any, List, Optional
+
 import numpy as np
-from ase.md.langevin import Langevin
+
+from ase import Atoms
 from ase.calculators.mixing import MixedCalculator
+from ase.md.langevin import Langevin
 
 
 class SwitchLangevin(Langevin):
@@ -38,9 +42,19 @@ class SwitchLangevin(Langevin):
         Number of switching steps
     """
 
-    def __init__(self, atoms, calc1, calc2, dt, T=None, friction=None,
-                 n_eq=None, n_switch=None, temperature_K=None,
-                 **langevin_kwargs):
+    def __init__(
+        self,
+        atoms: Atoms,
+        calc1,
+        calc2,
+        dt: float,
+        T: Optional[float] = None,
+        friction: Optional[float] = None,
+        n_eq: Optional[int] = None,
+        n_switch: Optional[int] = None,
+        temperature_K: Optional[float] = None,
+        **langevin_kwargs,
+    ):
         super().__init__(atoms, dt, temperature=T, temperature_K=temperature_K,
                          friction=friction, **langevin_kwargs)
         if friction is None:
@@ -55,7 +69,7 @@ class SwitchLangevin(Langevin):
         calc = MixedCalculator(calc1, calc2, weight1=1.0, weight2=0.0)
         self.atoms.calc = calc
 
-        self.path_data = []
+        self.path_data: List[Any] = []
 
     def run(self):
         """ Run the MD switching simulation """

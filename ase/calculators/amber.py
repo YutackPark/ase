@@ -7,11 +7,12 @@ Before usage, input files (infile, topologyfile, incoordfile)
 """
 
 import subprocess
-import numpy as np
 
-from ase.calculators.calculator import Calculator, FileIOCalculator
-import ase.units as units
+import numpy as np
 from scipy.io import netcdf
+
+import ase.units as units
+from ase.calculators.calculator import Calculator, FileIOCalculator
 
 
 class Amber(FileIOCalculator):
@@ -192,8 +193,9 @@ class Amber(FileIOCalculator):
         if filename == '':
             filename = self.outcoordfile
 
-        from scipy.io import netcdf
         import numpy as np
+        from scipy.io import netcdf
+
         import ase.units as units
 
         fin = netcdf.netcdf_file(filename, 'r')
@@ -239,7 +241,7 @@ class Amber(FileIOCalculator):
 
     def read_energy(self, filename='mden'):
         """ read total energy from amber file """
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             lines = fd.readlines()
         self.results['energy'] = \
             float(lines[16].split()[2]) * units.kcal / units.mol
@@ -273,7 +275,7 @@ class Amber(FileIOCalculator):
         subprocess.check_call(parmed_command, shell=True, cwd=self.directory)
 
     def get_virtual_charges(self, atoms):
-        with open(self.topologyfile, 'r') as fd:
+        with open(self.topologyfile) as fd:
             topology = fd.readlines()
         for n, line in enumerate(topology):
             if '%FLAG CHARGE' in line:

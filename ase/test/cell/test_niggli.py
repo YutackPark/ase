@@ -3,8 +3,8 @@
 # The tests and pre-computed values come from the program cctbx, in which
 # this algorithm was originally implemented.
 
-import pytest
 import numpy as np
+import pytest
 
 from ase import Atoms
 from ase.build import niggli_reduce
@@ -144,4 +144,4 @@ def test_niggli(i):
     cell = conf.get_cell()
     diff = np.linalg.norm(cell - cells_out[i])
     assert diff < 1e-5, \
-        'Difference between unit cells is too large! ({0})'.format(diff)
+        f'Difference between unit cells is too large! ({diff})'

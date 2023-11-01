@@ -1,4 +1,5 @@
 import pytest
+
 from ase.db import connect
 
 cmd = """
@@ -49,4 +50,4 @@ def test_db(dbtype, cli, testdir, get_db_name):
             count(6, sort='-' + key)
 
         con.delete([id])
-    cli.shell('ase -T gui --terminal -n 3 {}'.format(name))
+    cli.shell(f'ase -T gui --terminal -n 3 {name}')

@@ -1,14 +1,14 @@
 """Dimer: Diffusion along rows"""
-import numpy as np
-
 from math import sqrt
 
-from ase import Atoms, Atom
-from ase.io import Trajectory
-from ase.constraints import FixAtoms
-from ase.optimize import QuasiNewton
+import numpy as np
+
+from ase import Atom, Atoms
 from ase.calculators.emt import EMT
-from ase.dimer import DimerControl, MinModeAtoms, MinModeTranslate
+from ase.constraints import FixAtoms
+from ase.io import Trajectory
+from ase.mep import DimerControl, MinModeAtoms, MinModeTranslate
+from ase.optimize import QuasiNewton
 
 # Setting up the initial image:
 a = 4.0614
@@ -66,4 +66,4 @@ dim_rlx = MinModeTranslate(d_atoms,
 dim_rlx.run(fmax=0.001)
 
 diff = initial.get_potential_energy() - e0
-print(('The energy barrier is %f eV.' % diff))
+print('The energy barrier is %f eV.' % diff)

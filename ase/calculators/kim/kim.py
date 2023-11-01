@@ -13,13 +13,9 @@ on KIM, visit https://openkim.org.
 """
 
 from . import kimpy_wrappers
+from .calculators import (ASAPCalculator, KIMCalculator, LAMMPSLibCalculator,
+                          LAMMPSRunCalculator)
 from .exceptions import KIMCalculatorError
-from .calculators import (
-    KIMCalculator,
-    ASAPCalculator,
-    LAMMPSRunCalculator,
-    LAMMPSLibCalculator,
-)
 
 
 def KIM(model_name, simulator=None, options=None, debug=False):
@@ -110,7 +106,7 @@ def KIM(model_name, simulator=None, options=None, debug=False):
     """
 
     if options is None:
-        options = dict()
+        options = {}
 
     # If this is a KIM Portable Model (supports KIM API), return
     # support through a KIM-compliant simulator
@@ -192,12 +188,12 @@ def KIM(model_name, simulator=None, options=None, debug=False):
 
             else:
                 raise KIMCalculatorError(
-                    'Unknown LAMMPS calculator: "{}".'.format(simulator)
+                    f'Unknown LAMMPS calculator: "{simulator}".'
                 )
 
         else:
             raise KIMCalculatorError(
-                'Unsupported simulator: "{}".'.format(sm.simulator_name)
+                f'Unsupported simulator: "{sm.simulator_name}".'
             )
 
 

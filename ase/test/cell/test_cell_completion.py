@@ -1,5 +1,6 @@
 def test_cell_completion():
     import numpy as np
+
     from ase.geometry.cell import complete_cell
 
     eps = 1E-10

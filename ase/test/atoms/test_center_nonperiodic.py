@@ -1,5 +1,6 @@
 def test_center_nonperiodic():
     import numpy as np
+
     from ase import Atoms
 
     a = Atoms('H')

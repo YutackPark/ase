@@ -1,4 +1,4 @@
-from ase import Atoms, Atom
+from ase import Atom, Atoms
 from ase.calculators.vasp import Vasp
 
 a = [6.5, 6.5, 7.7]

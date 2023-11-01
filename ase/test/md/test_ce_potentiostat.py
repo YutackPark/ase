@@ -1,12 +1,12 @@
 '''These tests ensure that the potentiostat can keep a sysytem near the PEC'''
 
-import pytest
-from ase.build import bulk
-from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
-from ase.md.contour_exploration import ContourExploration
 import numpy as np
-from ase.calculators.emt import EMT
+import pytest
 
+from ase.build import bulk
+from ase.calculators.emt import EMT
+from ase.md.contour_exploration import ContourExploration
+from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
 
 from .test_ce_curvature import Al_atom_pair
 
@@ -57,7 +57,7 @@ def test_potentiostat(testdir):
             dyn.run(5)
             energy_error = (atoms.get_potential_energy() -
                             initial_energy) / len(atoms)
-            print('Potentiostat Error {: .4f} eV/atom'.format(energy_error))
+            print(f'Potentiostat Error {energy_error: .4f} eV/atom')
             assert 0 == pytest.approx(energy_error, abs=0.01)
 
 
@@ -86,5 +86,5 @@ def test_potentiostat_no_fs(testdir):
             dyn.run(10)
             energy_error = (atoms.get_potential_energy() -
                             initial_energy) / len(atoms)
-            print('Potentiostat Error {: .4f} eV/atom'.format(energy_error))
+            print(f'Potentiostat Error {energy_error: .4f} eV/atom')
             assert 0 == pytest.approx(energy_error, abs=0.01)

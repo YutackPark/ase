@@ -1,6 +1,7 @@
-from ase.neighborlist import natural_cutoffs
-from ase import Atoms
 import numpy as np
+
+from ase import Atoms
+from ase.neighborlist import natural_cutoffs
 
 
 def test_cutoffs():

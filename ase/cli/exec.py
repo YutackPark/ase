@@ -46,13 +46,14 @@ class CLICommand:
     @staticmethod
     def run(args, parser):
         import runpy
+
         from ase.io import read
 
         if not (args.exec_code or args.exec_file):
             parser.error("At least one of '-e' or '-E' must be provided")
 
         if args.read_args:
-            args.read_args = eval("dict({0})"
+            args.read_args = eval("dict({})"
                                   .format(', '.join(args.read_args)))
 
         configs = []

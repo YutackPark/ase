@@ -1,7 +1,8 @@
 import numpy as np
-from ase.neighborlist import NeighborList
-from ase.data import atomic_masses, chemical_symbols
+
 from ase import Atoms
+from ase.data import atomic_masses, chemical_symbols
+from ase.neighborlist import NeighborList
 
 
 def find_nearest_index(array, value):
@@ -114,8 +115,8 @@ def write_gpumd(fd, atoms, maximum_neighbors=None, cutoff=None,
             if symbol not in symbol_type_map:
                 symbol_type_map[symbol] = len(symbol_type_map)
     else:
-        if any([sym not in species
-               for sym in set(atoms.get_chemical_symbols())]):
+        if any(sym not in species
+               for sym in set(atoms.get_chemical_symbols())):
             raise ValueError('The species list does not contain all chemical '
                              'species that are present in the atoms object.')
         else:
@@ -131,7 +132,7 @@ def write_gpumd(fd, atoms, maximum_neighbors=None, cutoff=None,
             for grouping in groupings:
                 for i, group in enumerate(grouping):
                     if a in group:
-                        line += ' {}'.format(i)
+                        line += f' {i}'
                         break
         lines.append(line)
 

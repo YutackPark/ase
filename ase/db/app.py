@@ -28,8 +28,8 @@ from pathlib import Path
 
 from ase.db import connect
 from ase.db.core import Database
-from ase.db.web import Session
 from ase.db.project import DatabaseProject
+from ase.db.web import Session
 
 
 class DBApp:
@@ -144,6 +144,7 @@ def new_app(projects):
     def gui(id: int):
         """Pop ud ase gui window."""
         from ase.visualize import view
+
         # XXX so broken
         arbitrary_project = next(iter(projects))
         atoms = projects[arbitrary_project].database.get_atoms(id)

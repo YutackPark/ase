@@ -1,15 +1,14 @@
 import numpy as np
 import pytest
 
-from ase.optimize import FIRE, BFGS
-from ase.data import s22
+import ase.units as units
 from ase.calculators.tip3p import TIP3P
 from ase.constraints import FixBondLengths
-from ase.md.verlet import VelocityVerlet
-from ase.md.langevin import Langevin
+from ase.data import s22
 from ase.io import Trajectory
-import ase.units as units
-
+from ase.md.langevin import Langevin
+from ase.md.verlet import VelocityVerlet
+from ase.optimize import BFGS, FIRE
 
 md_cls_and_kwargs = [
     (VelocityVerlet, {}),
@@ -47,7 +46,7 @@ def test_optimization_log_and_trajectory_length(cls, testdir):
         opt.run(0.1)
 
     # Test number of lines in log file matches number of frames in trajectory
-    with open(logfile, 'rt') as lf:
+    with open(logfile) as lf:
         lines = [line for line in lf]
     loglines = len(lines)
     print("Number of lines in log file:", loglines)
@@ -77,7 +76,7 @@ def test_md_log_and_trajectory_length(cls, testdir, kwargs, loginterval):
         md.run(steps=5)
 
     # Test number of lines in log file matches number of frames in trajectory
-    with open(logfile, 'rt') as fd:
+    with open(logfile) as fd:
         lines = list(fd)
     loglines = len(lines)
     print("Number of lines in log file:", loglines)

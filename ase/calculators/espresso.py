@@ -5,10 +5,11 @@ Run pw.x jobs.
 
 
 import os
-from ase.calculators.genericfileio import (
-    GenericFileIOCalculator, CalculatorTemplate, read_stdout)
-from ase.io import read, write
 
+from ase.calculators.genericfileio import (CalculatorTemplate,
+                                           GenericFileIOCalculator,
+                                           read_stdout)
+from ase.io import read, write
 
 compatibility_msg = (
     'Espresso calculator is being restructured.  Please use e.g. '
@@ -39,25 +40,18 @@ class EspressoProfile:
         return self.parse_version(stdout)
 
     def run(self, directory, inputfile, outputfile):
-        from subprocess import check_call
         import os
+        from subprocess import check_call
         argv = list(self.argv) + ['-in', str(inputfile)]
         with open(directory / outputfile, 'wb') as fd:
             check_call(argv, cwd=directory, stdout=fd, env=os.environ)
-
-    def socketio_argv_unix(self, socket):
-        template = EspressoTemplate()
-        # It makes sense to know the template for this kind of choices,
-        # but is there a better way?
-        return list(self.argv) + ['--ipi', f'{socket}:UNIX', '-in',
-                                  template.inputname]
 
 
 class EspressoTemplate(CalculatorTemplate):
     def __init__(self):
         super().__init__(
             'espresso',
-            ['energy', 'free_energy', 'forces', 'stress', 'magmoms'])
+            ['energy', 'free_energy', 'forces', 'stress', 'magmoms', 'dipole'])
         self.inputname = 'espresso.pwi'
         self.outputname = 'espresso.pwo'
 
@@ -75,6 +69,16 @@ class EspressoTemplate(CalculatorTemplate):
         path = directory / self.outputname
         atoms = read(path, format='espresso-out')
         return dict(atoms.calc.properties())
+
+    def socketio_parameters(self, unixsocket, port):
+        return {}
+
+    def socketio_argv(self, profile, unixsocket, port):
+        if unixsocket:
+            ipi_arg = f'{unixsocket}:UNIX'
+        else:
+            ipi_arg = f'localhost:{port:d}'  # XXX should take host, too
+        return [*profile.argv, '-in', self.inputname, '--ipi', ipi_arg]
 
 
 class Espresso(GenericFileIOCalculator):

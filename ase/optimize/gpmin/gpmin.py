@@ -1,13 +1,14 @@
-import numpy as np
 import warnings
 
+import numpy as np
 from scipy.optimize import minimize
-from ase.parallel import world
+
 from ase.io.jsonio import write_json
-from ase.optimize.optimize import Optimizer
 from ase.optimize.gpmin.gp import GaussianProcess
 from ase.optimize.gpmin.kernel import SquaredExponential
 from ase.optimize.gpmin.prior import ConstantPrior
+from ase.optimize.optimize import Optimizer
+from ase.parallel import world
 
 
 class GPMin(Optimizer, GaussianProcess):
@@ -255,19 +256,19 @@ class GPMin(Optimizer, GaussianProcess):
         self.noise = ratio * self.kernel.weight
 
     def step(self, f=None):
-        atoms = self.atoms
+        optimizable = self.optimizable
         if f is None:
-            f = atoms.get_forces()
+            f = optimizable.get_forces()
 
         fc = self.force_consistent
-        r0 = atoms.get_positions().reshape(-1)
-        e0 = atoms.get_potential_energy(force_consistent=fc)
+        r0 = optimizable.get_positions().reshape(-1)
+        e0 = optimizable.get_potential_energy(force_consistent=fc)
         self.update(r0, e0, f)
 
         r1 = self.relax_model(r0)
-        self.atoms.set_positions(r1.reshape(-1, 3))
-        e1 = self.atoms.get_potential_energy(force_consistent=fc)
-        f1 = self.atoms.get_forces()
+        optimizable.set_positions(r1.reshape(-1, 3))
+        e1 = optimizable.get_potential_energy(force_consistent=fc)
+        f1 = optimizable.get_forces()
         self.function_calls += 1
         self.force_calls += 1
         count = 0
@@ -275,9 +276,9 @@ class GPMin(Optimizer, GaussianProcess):
             self.update(r1, e1, f1)
             r1 = self.relax_model(r0)
 
-            self.atoms.set_positions(r1.reshape(-1, 3))
-            e1 = self.atoms.get_potential_energy(force_consistent=fc)
-            f1 = self.atoms.get_forces()
+            optimizable.set_positions(r1.reshape(-1, 3))
+            e1 = optimizable.get_potential_energy(force_consistent=fc)
+            f1 = optimizable.get_forces()
             self.function_calls += 1
             self.force_calls += 1
             if self.converged(f1):

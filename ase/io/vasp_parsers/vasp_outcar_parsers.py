@@ -1,21 +1,21 @@
 """
 Module for parsing OUTCAR files.
 """
-from abc import ABC, abstractmethod
-from typing import (Dict, Any, Sequence, TextIO, Iterator, Optional, Union,
-                    List)
 import re
-from warnings import warn
+from abc import ABC, abstractmethod
 from pathlib import Path, PurePath
+from typing import Any, Dict, Iterator, List, Optional, Sequence, TextIO, Union
+from warnings import warn
 
 import numpy as np
+
 import ase
 from ase import Atoms
+from ase.calculators.singlepoint import (SinglePointDFTCalculator,
+                                         SinglePointKPoint)
 from ase.data import atomic_numbers
 from ase.io import ParseError, read
 from ase.io.utils import ImageChunk
-from ase.calculators.singlepoint import (SinglePointDFTCalculator,
-                                         SinglePointKPoint)
 
 # Denotes end of Ionic step for OUTCAR reading
 _OUTCAR_SCF_DELIM = 'FREE ENERGIE OF THE ION-ELECTRON SYSTEM'
@@ -85,7 +85,7 @@ def convert_vasp_outcar_stress(stress: Sequence):
     shape = stress_arr.shape
     if shape != (6, ):
         raise ValueError(
-            'Stress has the wrong shape. Expected (6,), got {}'.format(shape))
+            f'Stress has the wrong shape. Expected (6,), got {shape}')
     stress_arr = stress_arr[[0, 1, 2, 4, 5, 3]] * 1e-1 * ase.units.GPa
     return stress_arr
 
@@ -543,7 +543,7 @@ class DefaultParsersContainer:
     def make_parsers(self):
         """Return a copy of the internally stored parsers.
         Parsers are created upon request."""
-        return list(parser() for parser in self.parsers_dct.values())
+        return [parser() for parser in self.parsers_dct.values()]
 
     def remove_parser(self, name: str):
         """Remove a parser based on the name.

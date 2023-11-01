@@ -1,13 +1,15 @@
-from ase.calculators.calculator import ReadError
 import os.path as op
+
 import numpy as np
+
+from ase.calculators.calculator import ReadError
 from ase.units import Hartree
 
 
 def parse_xray(filename):
     # filename = self.label + '/deMon.xry'
     if op.isfile(filename):
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             lines = fd.readlines()
 
         mode = lines[0].split()[0]
@@ -32,5 +34,5 @@ def parse_xray(filename):
             E_trans) * Hartree, np.array(osc_strength), np.array(trans_dip)
 
     else:
-        raise ReadError('The file {0} does not exist'
+        raise ReadError('The file {} does not exist'
                         .format(filename))

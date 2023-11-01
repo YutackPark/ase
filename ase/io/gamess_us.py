@@ -1,14 +1,14 @@
 import os
 import re
-from subprocess import call, TimeoutExpired
 from copy import deepcopy
+from subprocess import TimeoutExpired, call
 
 import numpy as np
 
 from ase import Atoms
-from ase.utils import workdir
-from ase.units import Hartree, Bohr, Debye
 from ase.calculators.singlepoint import SinglePointCalculator
+from ase.units import Bohr, Debye, Hartree
+from ase.utils import workdir
 
 
 def _format_value(val):
@@ -18,9 +18,9 @@ def _format_value(val):
 
 
 def _write_block(name, args):
-    out = [' ${}'.format(name.upper())]
+    out = [f' ${name.upper()}']
     for key, val in args.items():
-        out.append('  {}={}'.format(key.upper(), _format_value(val)))
+        out.append(f'  {key.upper()}={_format_value(val)}')
     out.append(' $END')
     return '\n'.join(out)
 
@@ -66,7 +66,7 @@ def write_gamess_us_in(fd, atoms, properties=None, **params):
         properties = ['energy']
 
     # set RUNTYP from properties iff value not provided by the user
-    contrl = params.pop('contrl', dict())
+    contrl = params.pop('contrl', {})
     if 'runtyp' not in contrl:
         if 'forces' in properties:
             contrl['runtyp'] = 'gradient'

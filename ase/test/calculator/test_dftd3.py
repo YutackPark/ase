@@ -1,10 +1,10 @@
-import pytest
 import numpy as np
+import pytest
 
-from ase.data.s22 import create_s22_system
 from ase.build import bulk
 from ase.calculators.emt import EMT
-from ase.calculators.test import numeric_stress, numeric_forces
+from ase.calculators.test import numeric_forces, numeric_stress
+from ase.data.s22 import create_s22_system
 
 releps = 1e-6
 abseps = 1e-8
@@ -170,8 +170,8 @@ def test_free_energy_bug(factory):
     dftd3 = factory.calc(dft=EMT())
     atoms.calc = dftd3
 
-    e1, e2 = [atoms.get_potential_energy(force_consistent=x)
-              for x in [False, True]]
+    e1, e2 = (atoms.get_potential_energy(force_consistent=x)
+              for x in [False, True])
     assert e1 == pytest.approx(e2, abs=1e-14)
 
 

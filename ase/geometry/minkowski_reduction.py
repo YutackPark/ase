@@ -1,8 +1,9 @@
 import itertools
-import numpy as np
-from ase.utils import pbc2pbc
-from ase.cell import Cell
 
+import numpy as np
+
+from ase.cell import Cell
+from ase.utils import pbc2pbc
 
 TOL = 1E-12
 MAX_IT = 100000    # in practice this is not exceeded

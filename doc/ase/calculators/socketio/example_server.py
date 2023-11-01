@@ -1,9 +1,9 @@
 import sys
 
 from ase.build import molecule
+from ase.calculators.socketio import SocketIOCalculator
 from ase.io import write
 from ase.optimize import BFGS
-from ase.calculators.socketio import SocketIOCalculator
 
 unixsocket = 'ase_server_socket'
 

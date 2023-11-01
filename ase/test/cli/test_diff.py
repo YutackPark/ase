@@ -1,13 +1,14 @@
-from ase.build import fcc100, add_adsorbate
-from ase.constraints import FixAtoms, FixedPlane
-from ase.calculators.emt import EMT
-from ase.optimize import QuasiNewton
 import re
+
 import pytest
-from ase.cli.template import prec_round, slice_split, \
-    MapFormatter, sym2num, \
-    Table, TableFormat
+
+from ase.build import add_adsorbate, fcc100
+from ase.calculators.emt import EMT
+from ase.cli.template import (MapFormatter, Table, TableFormat, prec_round,
+                              slice_split, sym2num)
+from ase.constraints import FixAtoms, FixedPlane
 from ase.io import read
+from ase.optimize import QuasiNewton
 
 
 @pytest.fixture(scope="module")

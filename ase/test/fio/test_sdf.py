@@ -3,7 +3,7 @@ import io
 import pytest
 
 from ase import Atoms
-from ase.io.sdf import read_sdf, get_num_atoms_sdf_v2000
+from ase.io.sdf import get_num_atoms_sdf_v2000, read_sdf
 
 DIFFICULT_BUT_VALID_FIRST_LINE = '184192  0  0  0  0  0  0  0  0999 V2000'
 

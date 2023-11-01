@@ -14,9 +14,9 @@ import glob
 import re
 
 from ase.atoms import Atoms
-from ase.geometry import cellpar_to_cell, cell_to_cellpar
 from ase.calculators.calculator import Calculator
 from ase.calculators.singlepoint import SinglePointCalculator
+from ase.geometry import cell_to_cellpar, cellpar_to_cell
 
 __all__ = ['Res', 'read_res', 'write_res']
 
@@ -90,12 +90,12 @@ class Res:
         Returns:
             Res object.
         """
-        with open(filename, 'r') as fd:
+        with open(filename) as fd:
             return Res.from_string(fd.read())
 
     @staticmethod
     def parse_title(line):
-        info = dict()
+        info = {}
 
         tokens = line.split()
         num_tokens = len(tokens)
@@ -144,7 +144,7 @@ class Res:
         ang = []
         sp = []
         coords = []
-        info = dict()
+        info = {}
         coord_patt = re.compile(r"""(\w+)\s+
                                     ([0-9]+)\s+
                                     ([0-9\-\.]+)\s+
@@ -161,7 +161,7 @@ class Res:
                     try:
                         info = Res.parse_title(line)
                     except (ValueError, IndexError):
-                        info = dict()
+                        info = {}
                 elif tokens[0] == 'CELL' and len(tokens) == 8:
                     abc = [float(tok) for tok in tokens[2:5]]
                     ang = [float(tok) for tok in tokens[5:8]]
@@ -210,14 +210,14 @@ class Res:
                               'spacegroup', 'times_found']:
                 if getattr(self, attribute) and attribute not in info:
                     info[attribute] = getattr(self, attribute)
-            lines = ['TITL ' + ' '.join(['{0}={1}'.format(k, v)
+            lines = ['TITL ' + ' '.join([f'{k}={v}'
                                          for (k, v) in info.items()])]
         else:
             lines = ['TITL ' + self.print_title()]
 
         # Cell
         abc_ang = cell_to_cellpar(self.atoms.get_cell())
-        fmt = '{{0:.{0}f}}'.format(significant_figures)
+        fmt = f'{{0:.{significant_figures}f}}'
         cell = ' '.join([fmt.format(a) for a in abc_ang])
         lines.append('CELL 1.0 ' + cell)
 

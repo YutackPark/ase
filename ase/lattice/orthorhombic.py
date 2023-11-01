@@ -7,9 +7,10 @@ The following lattice creators are defined:
     FaceCenteredOrthorhombic
 """
 
-from ase.lattice.bravais import Bravais
 import numpy as np
+
 from ase.data import reference_states as _refstate
+from ase.lattice.bravais import Bravais
 
 
 class SimpleOrthorhombicFactory(Bravais):
@@ -77,7 +78,7 @@ class SimpleOrthorhombicFactory(Bravais):
         if self.bravais_basis is not None:
             vol2 /= len(self.bravais_basis)
         if abs(vol1 - vol2) > 1e-5:
-            print("WARNING: Got volume %f, expected %f" % (vol1, vol2))
+            print(f"WARNING: Got volume {vol1:f}, expected {vol2:f}")
 
 
 SimpleOrthorhombic = SimpleOrthorhombicFactory()
@@ -103,7 +104,7 @@ class BaseCenteredOrthorhombicFactory(SimpleOrthorhombicFactory):
         vol1 = abs(np.linalg.det(self.basis))
         vol2 = self.calc_num_atoms() * np.linalg.det(self.latticeconstant) / 2.0
         if abs(vol1 - vol2) > 1e-5:
-            print("WARNING: Got volume %f, expected %f" % (vol1, vol2))
+            print(f"WARNING: Got volume {vol1:f}, expected {vol2:f}")
 
 
 BaseCenteredOrthorhombic = BaseCenteredOrthorhombicFactory()
@@ -126,7 +127,7 @@ class BodyCenteredOrthorhombicFactory(SimpleOrthorhombicFactory):
         vol1 = abs(np.linalg.det(self.basis))
         vol2 = self.calc_num_atoms() * np.linalg.det(self.latticeconstant) / 2.0
         if abs(vol1 - vol2) > 1e-5:
-            print("WARNING: Got volume %f, expected %f" % (vol1, vol2))
+            print(f"WARNING: Got volume {vol1:f}, expected {vol2:f}")
 
 
 BodyCenteredOrthorhombic = BodyCenteredOrthorhombicFactory()
@@ -149,7 +150,7 @@ class FaceCenteredOrthorhombicFactory(SimpleOrthorhombicFactory):
         vol1 = abs(np.linalg.det(self.basis))
         vol2 = self.calc_num_atoms() * np.linalg.det(self.latticeconstant) / 4.0
         if abs(vol1 - vol2) > 1e-5:
-            print("WARNING: Got volume %f, expected %f" % (vol1, vol2))
+            print(f"WARNING: Got volume {vol1:f}, expected {vol2:f}")
 
 
 FaceCenteredOrthorhombic = FaceCenteredOrthorhombicFactory()

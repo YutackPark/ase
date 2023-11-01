@@ -1,11 +1,10 @@
 # type: ignore
 import numpy as np
 
+import ase.io.rmc6f as rmc6f
 from ase import Atoms
 from ase.io import read, write
-import ase.io.rmc6f as rmc6f
 from ase.lattice.compounds import TRI_Fe2O3
-
 
 rmc6f_input_text = """
 (Version 6f format configuration file)
@@ -186,7 +185,7 @@ def test_rmc6f_read_process_rmc6f_lines_to_pos_and_cell_padded_whitespace():
     """
     tol = 1e-5
     lines = rmc6f_input_text.split('\n')
-    lines[14] = "    {}    ".format(lines[14])  # intentional whitespace
+    lines[14] = f"    {lines[14]}    "  # intentional whitespace
     props, cell = rmc6f._read_process_rmc6f_lines_to_pos_and_cell(lines)
 
     target_cell = np.zeros((3, 3), float)

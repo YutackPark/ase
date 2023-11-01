@@ -1,8 +1,8 @@
-import pytest
 import numpy as np
+import pytest
 
-from ase.collections import g2
 from ase.build import bulk, graphene_nanoribbon
+from ase.collections import g2
 
 
 def calculate(factory, system, **kwargs):

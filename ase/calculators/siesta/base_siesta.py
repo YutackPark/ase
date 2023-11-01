@@ -1,6 +1,8 @@
 # File solely for gently deprecating this BaseSiesta class.
 import warnings
+
 import numpy as np
+
 from ase.calculators.siesta.siesta import Siesta
 
 

@@ -2,11 +2,11 @@
 read and write gromacs geometry files
 """
 
-from ase.atoms import Atoms
 import numpy as np
 
-from ase.data import atomic_numbers
 from ase import units
+from ase.atoms import Atoms
+from ase.data import atomic_numbers
 from ase.utils import reader, writer
 
 
@@ -183,8 +183,8 @@ def write_gromacs(fileobj, atoms):
         # THIS SHOULD BE THE CORRECT, PYTHON FORMATTING, EQUIVALENT TO THE
         # C FORMATTING GIVEN IN THE GROMACS DOCUMENTATION:
         # >>> %5d%-5s%5s%5d%8.3f%8.3f%8.3f%8.4f%8.4f%8.4f <<<
-        line = ("{0:>5d}{1:<5s}{2:>5s}{3:>5d}{4:>8.3f}{5:>8.3f}{6:>8.3f}"
-                "{7:>8.4f}{8:>8.4f}{9:>8.4f}\n"
+        line = ("{:>5d}{:<5s}{:>5s}{:>5d}{:>8.3f}{:>8.3f}{:>8.3f}"
+                "{:>8.4f}{:>8.4f}{:>8.4f}\n"
                 .format(resnb, resname, atomtype, count,
                         xyz[0], xyz[1], xyz[2], vxyz[0], vxyz[1], vxyz[2]))
 
@@ -201,7 +201,7 @@ def write_gromacs(fileobj, atoms):
         # cell[0,1] cell[0,2] cell[1,0] v1(y) v1(z) v2(x) fv1[0 1 2]
         # cell[1,2] cell[2,0] cell[2,1] v2(z) v3(x) v3(y) fv2[0 1 2]
         grocell = atoms.cell.flat[[0, 4, 8, 1, 2, 3, 5, 6, 7]] * 0.1
-        fileobj.write(''.join(['{:10.5f}'.format(x) for x in grocell]))
+        fileobj.write(''.join([f'{x:10.5f}' for x in grocell]))
     else:
         # When we do not have a cell, the cell is specified as an empty line
         fileobj.write("\n")

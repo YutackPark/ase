@@ -1,6 +1,6 @@
 """Test ase.io.ulm file stuff."""
-import pytest
 import numpy as np
+import pytest
 
 import ase.io.ulm as ulm
 

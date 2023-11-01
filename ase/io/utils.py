@@ -1,11 +1,13 @@
-import numpy as np
-from math import sqrt
 from itertools import islice
+from math import sqrt
+from typing import IO
 
+import numpy as np
+
+from ase.data import atomic_numbers, covalent_radii
+from ase.data.colors import jmol_colors
 from ase.io.formats import string2index
 from ase.utils import rotate
-from ase.data import covalent_radii, atomic_numbers
-from ase.data.colors import jmol_colors
 
 
 class PlottingVariables:
@@ -157,8 +159,8 @@ def cell_to_lines(writer, cell):
 
 
 def make_patch_list(writer):
-    from matplotlib.path import Path
     from matplotlib.patches import Circle, PathPatch, Wedge
+    from matplotlib.path import Path
 
     indices = writer.positions[:, 2].argsort()
     patch_list = []
@@ -218,7 +220,6 @@ class ImageChunk:
     def build(self, **kwargs):
         """Construct the atoms object from the stored information,
         and return it"""
-        pass
 
 
 class ImageIterator:
@@ -232,7 +233,7 @@ class ImageIterator:
     def __init__(self, ichunks):
         self.ichunks = ichunks
 
-    def __call__(self, fd, index=None, **kwargs):
+    def __call__(self, fd: IO, index=None, **kwargs):
         if isinstance(index, str):
             index = string2index(index)
 
@@ -245,7 +246,7 @@ class ImageIterator:
         for chunk in self._getslice(fd, index):
             yield chunk.build(**kwargs)
 
-    def _getslice(self, fd, indices):
+    def _getslice(self, fd: IO, indices: slice):
         try:
             iterator = islice(self.ichunks(fd),
                               indices.start, indices.stop,
@@ -254,12 +255,12 @@ class ImageIterator:
             # Negative indices.  Go through the whole thing to get the length,
             # which allows us to evaluate the slice, and then read it again
             if not hasattr(fd, 'seekable') or not fd.seekable():
-                raise ValueError(('Negative indices only supported for '
-                                  'seekable streams'))
+                raise ValueError('Negative indices only supported for '
+                                 'seekable streams')
 
             startpos = fd.tell()
             nchunks = 0
-            for chunk in self.ichunks(fd):
+            for _ in self.ichunks(fd):
                 nchunks += 1
             fd.seek(startpos)
             indices_tuple = indices.indices(nchunks)

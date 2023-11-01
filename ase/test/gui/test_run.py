@@ -1,17 +1,17 @@
 import os
 from pathlib import Path
 
-import pytest
 import numpy as np
+import pytest
 
-from ase import Atoms
-from ase.calculators.singlepoint import SinglePointCalculator
-from ase.build import molecule, bulk
 import ase.gui.ui as ui
-from ase.gui.i18n import _
+from ase import Atoms
+from ase.build import bulk, molecule
+from ase.calculators.singlepoint import SinglePointCalculator
 from ase.gui.gui import GUI
-from ase.gui.save import save_dialog
+from ase.gui.i18n import _
 from ase.gui.quickinfo import info
+from ase.gui.save import save_dialog
 
 
 class GUIError(Exception):
@@ -201,10 +201,10 @@ def test_povray(gui, testdir):
     assert ini.is_file()
     assert pov.is_file()
 
-    with open(ini, 'r') as _:
+    with open(ini) as _:
         _ = _.read()
         assert 'H2O' in _
-    with open(pov, 'r') as _:
+    with open(pov) as _:
         _ = _.read()
         assert 'atom' in _
 

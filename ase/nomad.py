@@ -1,10 +1,10 @@
 import json
+
 import numpy as np
 
 import ase.units as units
 from ase import Atoms
 from ase.data import chemical_symbols
-
 
 nomad_api_template = ('https://labdev-nomad.esc.rzg.mpg.de/'
                       'api/resolve/{hash}?format=recursiveJson')
@@ -26,7 +26,7 @@ def download(uri):
     httpsuri = nmd2https(uri)
     response = urlopen(httpsuri)
     txt = response.read().decode('utf8')
-    return json.loads(txt, object_hook=lambda dct: NomadEntry(dct))
+    return json.loads(txt, object_hook=NomadEntry)
 
 
 def read(fd, _includekeys=lambda key: True):

@@ -1,10 +1,10 @@
-from ase.gui.i18n import _
-from math import sqrt, pi, acos
+from math import acos, pi, sqrt
 
 import numpy as np
 
-from ase.data import chemical_symbols as symbols
 from ase.data import atomic_names as names
+from ase.data import chemical_symbols as symbols
+from ase.gui.i18n import _
 from ase.gui.utils import get_magmoms
 
 
@@ -45,17 +45,17 @@ class Status:  # Status is used as a mixin in GUI
 
         if n == 1:
             tag = atoms.get_tags()[indices[0]]
-            text = (u' #%d %s (%s): %.3f Å, %.3f Å, %.3f Å ' %
+            text = (' #%d %s (%s): %.3f Å, %.3f Å, %.3f Å ' %
                     ((indices[0], names[Z[0]], symbols[Z[0]]) + tuple(R[0])))
             text += _(' tag=%(tag)s') % dict(tag=tag)
             magmoms = get_magmoms(self.atoms)
             if magmoms.any():
                 # TRANSLATORS: mom refers to magnetic moment
-                text += _(' mom={0:1.2f}'.format(
+                text += _(' mom={:1.2f}'.format(
                     magmoms[indices][0]))
             charges = self.atoms.get_initial_charges()
             if charges.any():
-                text += _(' q={0:1.2f}'.format(
+                text += _(' q={:1.2f}'.format(
                     charges[indices][0]))
             haveit = ['numbers', 'positions', 'forces', 'momenta',
                       'initial_charges', 'initial_magmoms']
@@ -64,13 +64,13 @@ class Status:  # Status is used as a mixin in GUI
                     val = atoms.get_array(key)[indices[0]]
                     if val is not None:
                         if isinstance(val, int):
-                            text += ' {0}={1:g}'.format(key, val)
+                            text += f' {key}={val:g}'
                         else:
-                            text += ' {0}={1}'.format(key, val)
+                            text += f' {key}={val}'
         elif n == 2:
             D = R[0] - R[1]
             d = sqrt(np.dot(D, D))
-            text = u' %s-%s: %.3f Å' % (symbols[Z[0]], symbols[Z[1]], d)
+            text = f' {symbols[Z[0]]}-{symbols[Z[1]]}: {d:.3f} Å'
         elif n == 3:
             d = []
             for c in range(3):
@@ -88,11 +88,11 @@ class Status:  # Status is used as a mixin in GUI
                     else:
                         t3 = pi
                 a.append(t3 * 180 / pi)
-            text = (u' %s-%s-%s: %.1f°, %.1f°, %.1f°' %
+            text = (' %s-%s-%s: %.1f°, %.1f°, %.1f°' %
                     tuple([symbols[z] for z in Z] + a))
         elif len(ordered_indices) == 4:
             angle = self.atoms.get_dihedral(*ordered_indices, mic=True)
-            text = (u'%s %s → %s → %s → %s: %.1f°' %
+            text = ('%s %s → %s → %s → %s: %.1f°' %
                     tuple([_('dihedral')] + [symbols[z] for z in Z] + [angle]))
         else:
             text = ' ' + formula(Z)

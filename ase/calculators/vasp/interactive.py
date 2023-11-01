@@ -1,16 +1,16 @@
-from subprocess import Popen, PIPE
+import os
+import sys
+import time
+from subprocess import PIPE, Popen
 
 from ase.calculators.calculator import Calculator
+from ase.config import cfg
 from ase.io import read
 
 from .create_input import GenerateVaspInput
 
-import time
-import os
-import sys
 
-
-class VaspInteractive(GenerateVaspInput, Calculator):  # type: ignore
+class VaspInteractive(GenerateVaspInput, Calculator):  # type: ignore[misc]
     name = "VaspInteractive"
     implemented_properties = ['energy', 'forces', 'stress']
 
@@ -52,10 +52,10 @@ class VaspInteractive(GenerateVaspInput, Calculator):  # type: ignore
 
         if command is not None:
             self.command = command
-        elif 'VASP_COMMAND' in os.environ:
-            self.command = os.environ['VASP_COMMAND']
-        elif 'VASP_SCRIPT' in os.environ:
-            self.command = os.environ['VASP_SCRIPT']
+        elif 'VASP_COMMAND' in cfg:
+            self.command = cfg['VASP_COMMAND']
+        elif 'VASP_SCRIPT' in cfg:
+            self.command = cfg['VASP_SCRIPT']
         else:
             raise RuntimeError('Please set either command in calculator'
                                ' or VASP_COMMAND environment variable')

@@ -1,7 +1,7 @@
 from ase.build import bulk
-from ase.spectrum.band_structure import calculate_band_structure, BandStructure
-from ase.io.jsonio import read_json
 from ase.calculators.test import FreeElectrons
+from ase.io.jsonio import read_json
+from ase.spectrum.band_structure import BandStructure, calculate_band_structure
 
 
 def test_bandstructure_json(testdir):

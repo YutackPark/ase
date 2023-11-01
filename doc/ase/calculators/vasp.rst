@@ -233,8 +233,6 @@ Three base setups are provided:
         with the least electrons has been chosen.
     recommended:
         corresponds to the `table of recommended PAW setups <https://www.vasp.at/wiki/index.php/Available_PAW_potentials#Recommended_potentials_for_DFT_calculations>`_ supplied by the VASP developers.
-    materialsproject:
-        corresponds to the `Materials Project recommended PAW setups <https://wiki.materialsproject.org/Pseudopotentials_Choice>`_.
     gw:
         corresponds to the `table of recommended setups for GW <https://www.vasp.at/wiki/index.php/Available_PAW_potentials#Recommended_potentials_for_GW.2FRPA_calculations>`_ supplied by the VASP developers.
 

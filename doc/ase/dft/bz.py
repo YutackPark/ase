@@ -8,7 +8,6 @@
 
 from ase.lattice import all_variants
 
-
 header = """\
 
 Brillouin zone data
@@ -30,8 +29,8 @@ with open('bztable.rst', 'w') as fd:
     print(header, file=fd)
 
     for i, lat in enumerate(all_variants()):
-        id = '{:02d}.{}'.format(i, lat.variant)
-        imagefname = '{}.svg'.format(id)
+        id = f'{i:02d}.{lat.variant}'
+        imagefname = f'{id}.svg'
         txt = entry.format(name=lat.variant,
                            longname=lat.longname,
                            bandpath=lat.bandpath().path,

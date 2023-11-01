@@ -8,10 +8,12 @@ Quasi-Newton algorithm
 __docformat__ = 'reStructuredText'
 
 import time
+from typing import IO, Optional, Union
 
 import numpy as np
 from numpy.linalg import eigh
 
+from ase import Atoms
 from ase.optimize.optimize import Optimizer
 
 
@@ -97,12 +99,24 @@ def find_lamda(upperlimit, Gbar, b, radius):
 
 class GoodOldQuasiNewton(Optimizer):
 
-    def __init__(self, atoms, restart=None, logfile='-', trajectory=None,
-                 fmax=None, converged=None,
-                 hessianupdate='BFGS', hessian=None, forcemin=True,
-                 verbosity=None, maxradius=None,
-                 diagonal=20., radius=None,
-                 transitionstate=False, master=None):
+    def __init__(
+        self,
+        atoms: Atoms,
+        restart: Optional[str] = None,
+        logfile: Union[IO, str] = '-',
+        trajectory: Optional[str] = None,
+        fmax=None,
+        converged=None,
+        hessianupdate: str = 'BFGS',
+        hessian=None,
+        forcemin: bool = True,
+        verbosity: bool = False,
+        maxradius: Optional[float] = None,
+        diagonal: float = 20.0,
+        radius: Optional[float] = None,
+        transitionstate: bool = False,
+        master: Optional[bool] = None,
+    ):
         """Parameters:
 
         atoms: Atoms object
@@ -138,9 +152,7 @@ class GoodOldQuasiNewton(Optimizer):
         self.verbosity = verbosity
         self.diagonal = diagonal
 
-        self.atoms = atoms
-
-        n = len(self.atoms) * 3
+        n = len(self.optimizable) * 3
         if radius is None:
             self.radius = 0.05 * np.sqrt(n) / 10.0
         else:
@@ -156,8 +168,7 @@ class GoodOldQuasiNewton(Optimizer):
 
         self.transitionstate = transitionstate
 
-        # check if this is a nudged elastic band calculation
-        if hasattr(atoms, 'springconstant'):
+        if self.optimizable.is_neb():
             self.forcemin = False
 
         self.t0 = time.time()
@@ -180,7 +191,7 @@ class GoodOldQuasiNewton(Optimizer):
 
     def set_default_hessian(self):
         # set unit matrix
-        n = len(self.atoms) * 3
+        n = len(self.optimizable) * 3
         hessian = np.zeros((n, n))
         for i in range(n):
             hessian[i][i] = self.diagonal
@@ -271,11 +282,14 @@ class GoodOldQuasiNewton(Optimizer):
         """
 
         if forces is None:
-            forces = self.atoms.get_forces()
+            forces = self.optimizable.get_forces()
 
-        pos = self.atoms.get_positions().ravel()
-        G = -self.atoms.get_forces().ravel()
-        energy = self.atoms.get_potential_energy()
+        pos = self.optimizable.get_positions().ravel()
+        G = -self.optimizable.get_forces().ravel()
+        # XXX Next line forgets the "force_consistent" boolean!
+        energy = self.optimizable.get_potential_energy(
+            force_consistent=False)
+        # We should probably use self.force_consistent
 
         if hasattr(self, 'oldenergy'):
 
@@ -292,7 +306,7 @@ class GoodOldQuasiNewton(Optimizer):
 
             if (energy - self.oldenergy) > de:
                 self.write_log('reject step')
-                self.atoms.set_positions(self.oldpos.reshape((-1, 3)))
+                self.optimizable.set_positions(self.oldpos.reshape((-1, 3)))
                 G = self.oldG
                 energy = self.oldenergy
                 self.radius *= 0.5
@@ -338,11 +352,11 @@ class GoodOldQuasiNewton(Optimizer):
 
         D = -Gbar / (b - lamdas)
         n = len(D)
-        step = np.zeros((n))
+        step = np.zeros(n)
         for i in range(n):
             step += D[i] * V[i]
 
-        pos = self.atoms.get_positions().ravel()
+        pos = self.optimizable.get_positions().ravel()
         pos += step
 
         energy_estimate = self.get_energy_estimate(D, Gbar, b)
@@ -350,7 +364,7 @@ class GoodOldQuasiNewton(Optimizer):
         self.gbar_estimate = self.get_gbar_estimate(D, Gbar, b)
         self.old_gbar = Gbar
 
-        self.atoms.set_positions(pos.reshape((-1, 3)))
+        self.optimizable.set_positions(pos.reshape((-1, 3)))
 
     def get_energy_estimate(self, D, Gbar, b):
 
@@ -365,7 +379,7 @@ class GoodOldQuasiNewton(Optimizer):
         return gbar_est
 
     def get_lambdas(self, b, Gbar):
-        lamdas = np.zeros((len(b)))
+        lamdas = np.zeros(len(b))
 
         D = -Gbar / b
         absD = np.sqrt(np.dot(D, D))
@@ -405,9 +419,8 @@ class GoodOldQuasiNewton(Optimizer):
 
     def get_hessian_inertia(self, eigenvalues):
         # return number of negative modes
-        self.write_log("eigenvalues %2.2f %2.2f %2.2f " % (eigenvalues[0],
-                                                           eigenvalues[1],
-                                                           eigenvalues[2]))
+        self.write_log("eigenvalues {:2.2f} {:2.2f} {:2.2f} ".format(
+            eigenvalues[0], eigenvalues[1], eigenvalues[2]))
         n = 0
         while eigenvalues[n] < 0:
             n += 1

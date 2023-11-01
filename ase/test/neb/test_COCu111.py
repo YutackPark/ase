@@ -1,13 +1,16 @@
 from math import sqrt
 
-from ase import Atoms, Atom
+import pytest
+
+from ase import Atom, Atoms
 from ase.calculators.emt import EMT
 from ase.constraints import FixAtoms
 from ase.io import Trajectory
-from ase.neb import NEB
+from ase.mep import NEB
 from ase.optimize import BFGS, QuasiNewton
 
 
+@pytest.mark.optimize
 def test_COCu111(testdir):
     # Distance between Cu atoms on a (111) surface:
     a = 3.6

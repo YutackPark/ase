@@ -1,13 +1,12 @@
 import numpy as np
 
-from ase import Atoms
-from ase.calculators.acn import (ACN, m_me, r_cn, r_mec,
-                                 sigma_me, sigma_c, sigma_n,
-                                 epsilon_me, epsilon_c, epsilon_n)
-from ase.calculators.qmmm import SimpleQMMM, EIQMMM, LJInteractionsGeneral
-from ase.md.verlet import VelocityVerlet
-from ase.constraints import FixLinearTriatomic
 import ase.units as units
+from ase import Atoms
+from ase.calculators.acn import (ACN, epsilon_c, epsilon_me, epsilon_n, m_me,
+                                 r_cn, r_mec, sigma_c, sigma_me, sigma_n)
+from ase.calculators.qmmm import EIQMMM, LJInteractionsGeneral, SimpleQMMM
+from ase.constraints import FixLinearTriatomic
+from ase.md.verlet import VelocityVerlet
 
 
 def test_rattle_linear(testdir):

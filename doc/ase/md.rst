@@ -199,13 +199,20 @@ fluctuating force is stochastic in nature, so repeating the simulation
 will not give exactly the same trajectory.
 
 When the ``Langevin`` object is created, you must specify a time step,
-a temperature (in Kelvin) and a friction.  Typical values for
-the friction are 0.01-0.02 atomic units.
+a temperature (in Kelvin) and a friction coefficient.
+A typical range for the friction coefficient may be 0.001–0.1 fs\ :sup:`−1`
+(1–100 ps\ :sup:`−1`).
+For example, you can give a friction coefficient of 0.01 fs\ :sup:`−1`
+(10 ps\ :sup:`−1`) as
 
-::
+.. code-block:: python
 
-  # Room temperature simulation
-  dyn = Langevin(atoms, 5 * units.fs, 300, 0.002)
+  dyn = Langevin(
+      atoms,
+      timestep=5.0 * units.fs,
+      temperature_K=300.0,  # temperature in K
+      friction=0.01 / units.fs,
+  )
 
 Both the friction and the temperature can be replaced with arrays
 giving per-atom values.  This is mostly useful for the friction, where
@@ -329,7 +336,7 @@ the gromacs manual at www.gromacs.org. or amber at ambermd.org
   # Room temperature simulation (300K, 0.1 fs time step, atmospheric pressure)
   dyn = NPTBerendsen(atoms, timestep=0.1 * units.fs, temperature_K=300,
                      taut=100 * units.fs, pressure_au=1.01325 * units.bar,
-                     taup=1000 * units.fs, compressibility=4.57e-5 / units.bar)
+                     taup=1000 * units.fs, compressibility_au=4.57e-5 / units.bar)
 
 
 Contour Exploration

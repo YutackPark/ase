@@ -1,193 +1,100 @@
-import os
 import re
 
-import numpy as np
-
-from ase.units import Hartree, Bohr
-from ase.io.orca import write_orca
-from ase.calculators.calculator import FileIOCalculator, Parameters, ReadError
+import ase.io.orca as io
+from ase.calculators.genericfileio import (CalculatorTemplate,
+                                           GenericFileIOCalculator)
 
 
-class ORCA(FileIOCalculator):
-    implemented_properties = ['energy', 'forces']
+def get_version_from_orca_header(orca_header):
+    match = re.search(r'Program Version (\S+)', orca_header, re.M)
+    return match.group(1)
 
-    if 'ORCA_COMMAND' in os.environ:
-        command = os.environ['ORCA_COMMAND'] + ' PREFIX.inp > PREFIX.out'
-    else:
-        command = 'orca PREFIX.inp > PREFIX.out'
 
-    default_parameters = dict(
-        charge=0, mult=1,
-        task='gradient',
-        orcasimpleinput='engrad tightscf PBE def2-SVP',
-        orcablocks='%scf maxiter 200 end')
+class OrcaProfile:
+    def __init__(self, argv):
+        self.argv = argv
 
-    def __init__(self, restart=None,
-                 ignore_bad_restart_file=FileIOCalculator._deprecated,
-                 label='orca', atoms=None, **kwargs):
-        """ ASE interface to ORCA 4
-        by Ragnar Bjornsson, Based on NWchem interface but simplified.
-        Only supports energies and gradients (no dipole moments,
-        orbital energies etc.) for now.
+    def version(self):
+        # XXX Allow MPI in argv; the version call should not be parallel.
+        from ase.calculators.genericfileio import read_stdout
+        stdout = read_stdout([*self.argv, "does_not_exist"])
+        return get_version_from_orca_header(stdout)
 
-        For more ORCA-keyword flexibility, method/xc/basis etc.
-        keywords are not used. Instead, two keywords:
+    def run(self, directory, inputfile, outputfile):
+        from subprocess import check_call
+        with open(outputfile, 'w') as fd:
+            check_call(self.argv + [str(inputfile)], stdout=fd, cwd=directory)
 
-            orcasimpleinput: str
-                What you'd put after the "!" in an orca input file.
-                Should in most cases contain "engrad" or method that
-                writes the engrad file. If not (single point only),
-                set the "task" parameter manually.
-                Default is ``engrad tightscf PBE def2-SVP``.
 
-            orcablocks: str
-                What you'd put in the "% ... end"-blocks.
-                Default is ``%scf maxiter 200 end``.
+class OrcaTemplate(CalculatorTemplate):
+    _label = 'orca'
 
-        are used to define the ORCA simple-inputline and the ORCA-block input.
-        This allows for more flexible use of any ORCA method or keyword
-        available in ORCA instead of hardcoding stuff.
+    def __init__(self):
+        super().__init__(name='orca',
+                         implemented_properties=['energy', 'free_energy',
+                                                 'forces'])
 
-        Default parameters are:
+        self.input_file = f'{self._label}.inp'
+        self.output_file = f'{self._label}.out'
 
-            charge: 0
+    def execute(self, directory, profile) -> None:
+        profile.run(directory, self.input_file, self.output_file)
 
-            mult: 1
+    def write_input(self, directory, atoms, parameters, properties):
+        parameters = dict(parameters)
 
-            task: 'gradient'
+        kw = dict(charge=0, mult=1, orcasimpleinput='B3LYP def2-TZVP',
+                  orcablocks='%pal nprocs 1 end')
+        kw.update(parameters)
 
-        Point Charge IO functionality added by A. Dohn.
+        io.write_orca(directory / self.input_file, atoms, kw)
+
+    def read_results(self, directory):
+        return io.read_orca_outputs(directory, directory / self.output_file)
+
+
+class ORCA(GenericFileIOCalculator):
+    """Class for doing ORCA calculations.
+
+    Example:
+
+      calc = ORCA(charge=0, mult=1, orcasimpleinput='B3LYP def2-TZVP',
+        orcablocks='%pal nprocs 16 end')
+    """
+
+    def __init__(self, *, profile=None, directory='.', **kwargs):
+        """Construct ORCA-calculator object.
+
+        Parameters
+        ==========
+        charge: int
+
+        mult: int
+
+        orcasimpleinput : str
+
+        orcablocks: str
+
+
+        Examples
+        ========
+        Use default values:
+
+        >>> from ase.calculators.orca import ORCA
+        >>> h = Atoms(
+        ...     'H',
+        ...     calculator=ORCA(
+        ...         charge=0,
+        ...         mult=1,
+        ...         directory='water',
+        ...         orcasimpleinput='B3LYP def2-TZVP',
+        ...         orcablocks='%pal nprocs 16 end'))
+
         """
-        FileIOCalculator.__init__(self, restart, ignore_bad_restart_file,
-                                  label, atoms, **kwargs)
 
-        self.pcpot = None
+        if profile is None:
+            profile = OrcaProfile(['orca'])
 
-    def set(self, **kwargs):
-        changed_parameters = FileIOCalculator.set(self, **kwargs)
-        if changed_parameters:
-            self.reset()
-
-    def write_input(self, atoms, properties=None, system_changes=None):
-        FileIOCalculator.write_input(self, atoms, properties, system_changes)
-        p = self.parameters
-        p.write(self.label + '.ase')
-        p['label'] = self.label
-        if self.pcpot:  # also write point charge file and add things to input
-            p['pcpot'] = self.pcpot
-
-        write_orca(atoms, **p)
-
-    def read(self, label):
-        FileIOCalculator.read(self, label)
-        if not os.path.isfile(self.label + '.out'):
-            raise ReadError
-
-        with open(self.label + '.inp') as fd:
-            for line in fd:
-                if line.startswith('geometry'):
-                    break
-            symbols = []
-            positions = []
-            for line in fd:
-                if line.startswith('end'):
-                    break
-                words = line.split()
-                symbols.append(words[0])
-                positions.append([float(word) for word in words[1:]])
-
-        self.parameters = Parameters.read(self.label + '.ase')
-        self.read_results()
-
-    def read_results(self):
-        self.read_energy()
-        if self.parameters.task.find('gradient') > -1:
-            self.read_forces()
-
-    def read_energy(self):
-        """Read Energy from ORCA output file."""
-        with open(self.label + '.out', mode='r', encoding='utf-8') as fd:
-            text = fd.read()
-        # Energy:
-        re_energy = re.compile(r"FINAL SINGLE POINT ENERGY.*\n")
-        re_not_converged = re.compile(r"Wavefunction not fully converged")
-        found_line = re_energy.finditer(text)
-        for match in found_line:
-            if not re_not_converged.search(match.group()):
-                self.results['energy'] = float(
-                    match.group().split()[-1]) * Hartree
-
-    def read_forces(self):
-        """Read Forces from ORCA output file."""
-        if not os.path.isfile(self.label + '.engrad'):
-            raise ReadError("Engrad file missing.")
-        with open(f'{self.label}.engrad', 'r') as fd:
-            lines = fd.readlines()
-        getgrad = False
-        gradients = []
-        tempgrad = []
-        for i, line in enumerate(lines):
-            if line.find('# The current gradient') >= 0:
-                getgrad = True
-                gradients = []
-                tempgrad = []
-                continue
-            if getgrad and "#" not in line:
-                grad = line.split()[-1]
-                tempgrad.append(float(grad))
-                if len(tempgrad) == 3:
-                    gradients.append(tempgrad)
-                    tempgrad = []
-            if '# The at' in line:
-                getgrad = False
-        self.results['forces'] = -np.array(gradients) * Hartree / Bohr
-
-    def embed(self, mmcharges=None, **parameters):
-        """Embed atoms in point-charges (mmcharges)
-        """
-        self.pcpot = PointChargePotential(mmcharges, label=self.label)
-        return self.pcpot
-
-
-class PointChargePotential:
-    def __init__(self, mmcharges, label=None, positions=None, directory=None):
-        """ Point Charge Potential Interface to ORCA """
-        if positions is not None:
-            self.set_positions(positions)
-        if directory is None:
-            directory = os.getcwd()
-
-        self.directory = directory + os.sep
-        self.mmcharges = mmcharges
-        self.label = label
-
-    def set_positions(self, positions):
-        self.positions = positions
-
-    def set_charges(self, mmcharges):
-        self.q_p = mmcharges
-
-    def write_mmcharges(self, filename):
-        pc_file = open(os.path.join(self.directory,
-                                    filename + '.pc'), 'w')
-
-        pc_file.write('{0:d}\n'.format(len(self.mmcharges)))
-        for [pos, pc] in zip(self.positions, self.mmcharges):
-            [x, y, z] = pos
-            pc_file.write('{0:12.6f} {1:12.6f} {2:12.6f} {3:12.6f}\n'
-                          .format(pc, x, y, z))
-
-        pc_file.close()
-
-    def get_forces(self, calc):
-        ''' reads forces on point charges from .pcgrad file '''
-        with open(os.path.join(self.directory, self.label + '.pcgrad'),
-                  'r', encoding='utf-8') as fd:
-            lines = fd.readlines()
-        numpc = int(lines[0])
-        forces = np.zeros((numpc, 3))
-        for i in range(numpc):
-            [fx, fy, fz] = [float(f) for f in lines[i + 1].split()]
-            forces[i, :] = fx, fy, fz
-
-        return -forces * Hartree / Bohr
+        super().__init__(template=OrcaTemplate(),
+                         profile=profile, directory=directory,
+                         parameters=kwargs)

@@ -1,26 +1,25 @@
 from random import random
-from ase.io import write
+
+from ase.ga.cutandsplicepairing import CutAndSplicePairing
 from ase.ga.data import DataConnection
+from ase.ga.offspring_creator import OperationSelector
+from ase.ga.pbs_queue_run import PBSQueueRun
 from ase.ga.population import Population
 from ase.ga.standard_comparators import InteratomicDistanceComparator
-from ase.ga.cutandsplicepairing import CutAndSplicePairing
-from ase.ga.offspring_creator import OperationSelector
-from ase.ga.standardmutations import MirrorMutation
-from ase.ga.standardmutations import RattleMutation
-from ase.ga.standardmutations import PermutationMutation
-from ase.ga.utilities import closest_distances_generator
-from ase.ga.utilities import get_all_atom_types
-from ase.ga.pbs_queue_run import PBSQueueRun
+from ase.ga.standardmutations import (MirrorMutation, PermutationMutation,
+                                      RattleMutation)
+from ase.ga.utilities import closest_distances_generator, get_all_atom_types
+from ase.io import write
 
 
 def jtg(job_name, traj_file):
     s = '#!/bin/sh\n'
     s += '#PBS -l nodes=1:ppn=12\n'
     s += '#PBS -l walltime=48:00:00\n'
-    s += '#PBS -N {0}\n'.format(job_name)
+    s += f'#PBS -N {job_name}\n'
     s += '#PBS -q q12\n'
     s += 'cd $PBS_O_WORKDIR\n'
-    s += 'python calc.py {0}\n'.format(traj_file)
+    s += f'python calc.py {traj_file}\n'
     return s
 
 

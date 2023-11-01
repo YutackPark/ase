@@ -1,6 +1,7 @@
 def test_distmom():
-    from ase.dft import get_distribution_moment
     import numpy as np
+
+    from ase.dft import get_distribution_moment
 
     precision = 1E-8
 

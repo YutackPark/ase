@@ -1,6 +1,5 @@
 from ase.lattice import bravais_classes
 
-
 _crystal_family = ('Øaammmmmmmmmmmmmoooooooooooooooooooooooooooooooooooooooooo'
                    'ooooooooooooooooottttttttttttttttttttttttttttttttttttttttt'
                    'ttttttttttttttttttttttttttthhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh'
@@ -57,7 +56,7 @@ for i, (start, pg) in enumerate(_point_group_ranges[:-1]):
 def validate_space_group(sg):
     sg = int(sg)
     if sg < 1:
-        raise ValueError('Spacegroup must be positive, but is {}'.format(sg))
+        raise ValueError(f'Spacegroup must be positive, but is {sg}')
     if sg > 230:
         raise ValueError('Bad spacegroup', sg)
     return sg

@@ -2,8 +2,8 @@
 # Please see the accompanying LICENSE file for further information.
 
 
-import inspect
 import functools
+import inspect
 import sys
 import time
 
@@ -46,7 +46,6 @@ class Timer:
 
     def print_info(self, calc):
         """Override to get to write info during calculator's initialize()."""
-        pass
 
     def start(self, name):
         names = tuple(self.running + [name])
@@ -162,6 +161,7 @@ class timer:
                 return x + y
 
         """
+
     def __init__(self, name):
         self.name = name
 

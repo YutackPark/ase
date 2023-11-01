@@ -1,18 +1,20 @@
+"""Trajectory"""
+import contextlib
+import io
 import warnings
 from typing import Tuple
 
 import numpy as np
 
 from ase import __version__
-from ase.calculators.singlepoint import SinglePointCalculator, all_properties
-from ase.constraints import dict2constraint
-from ase.calculators.calculator import PropertyNotImplementedError
 from ase.atoms import Atoms
-from ase.io.jsonio import encode, decode
+from ase.calculators.calculator import PropertyNotImplementedError
+from ase.calculators.singlepoint import SinglePointCalculator, all_properties
+from ase.io.formats import is_compressed
+from ase.io.jsonio import decode, encode
 from ase.io.pickletrajectory import PickleTrajectory
 from ase.parallel import world
 from ase.utils import tokenize_version
-
 
 __all__ = ['Trajectory', 'PickleTrajectory']
 
@@ -84,9 +86,11 @@ class TrajectoryWriter:
         """
         if master is None:
             master = (world.rank == 0)
-        self.master = master
+        self.filename = filename
+        self.mode = mode
         self.atoms = atoms
         self.properties = properties
+        self.master = master
 
         self.description = {}
         self.header_data = None
@@ -195,7 +199,7 @@ class TrajectoryWriter:
             try:
                 encode(value)
             except TypeError:
-                warnings.warn('Skipping "{0}" info.'.format(key))
+                warnings.warn(f'Skipping "{key}" info.')
             else:
                 info[key] = value
         if info:
@@ -219,7 +223,7 @@ class TrajectoryReader:
 
         The filename traditionally ends in .traj.
         """
-
+        self.filename = filename
         self.numbers = None
         self.pbc = None
         self.masses = None
@@ -240,7 +244,7 @@ class TrajectoryReader:
     def _read_header(self):
         b = self.backend
         if b.get_tag() != 'ASE-Trajectory':
-            raise IOError('This is not a trajectory file!')
+            raise OSError('This is not a trajectory file!')
 
         if len(b) > 0:
             self.pbc = b.pbc
@@ -338,6 +342,7 @@ def read_atoms(backend,
                header: Tuple = None,
                traj: TrajectoryReader = None,
                _try_except: bool = True) -> Atoms:
+    from ase.constraints import dict2constraint
 
     if _try_except:
         try:
@@ -408,13 +413,34 @@ def read_traj(fd, index):
         yield trj[i]
 
 
+@contextlib.contextmanager
+def defer_compression(fd):
+    """Defer the file compression until all the configurations are read."""
+    # We do this because the trajectory and compressed-file
+    # internals do not play well together.
+    # Be advised not to defer compression of very long trajectories
+    # as they use a lot of memory.
+    if is_compressed(fd):
+        with io.BytesIO() as bytes_io:
+            try:
+                # write the uncompressed data to the buffer
+                yield bytes_io
+            finally:
+                # write the buffered data to the compressed file
+                bytes_io.seek(0)
+                fd.write(bytes_io.read())
+    else:
+        yield fd
+
+
 def write_traj(fd, images):
     """Write image(s) to trajectory."""
-    trj = TrajectoryWriter(fd)
     if isinstance(images, Atoms):
         images = [images]
-    for atoms in images:
-        trj.write(atoms)
+    with defer_compression(fd) as fd_uncompressed:
+        trj = TrajectoryWriter(fd_uncompressed)
+        for atoms in images:
+            trj.write(atoms)
 
 
 class OldCalculatorWrapper:

@@ -8,11 +8,13 @@ different orientations.
 """
 
 import itertools
+
 import numpy as np
+
+from ase.cell import Cell
 from ase.geometry import complete_cell
 from ase.geometry.minkowski_reduction import minkowski_reduce
 from ase.utils import pbc2pbc
-from ase.cell import Cell
 
 
 def translate_pretty(fractional, pbc):
@@ -120,9 +122,12 @@ def get_layers(atoms, miller, tolerance=0.001):
     Example:
 
     >>> import numpy as np
+
     >>> from ase.spacegroup import crystal
+    >>> from ase.geometry.geometry import get_layers
+
     >>> atoms = crystal('Al', [(0,0,0)], spacegroup=225, cellpar=4.05)
-    >>> np.round(atoms.positions, decimals=5)
+    >>> np.round(atoms.positions, decimals=5)  # doctest: +NORMALIZE_WHITESPACE
     array([[ 0.   ,  0.   ,  0.   ],
            [ 0.   ,  2.025,  2.025],
            [ 2.025,  0.   ,  2.025],

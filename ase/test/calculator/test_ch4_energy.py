@@ -1,4 +1,5 @@
 import pytest
+
 from ase.build import molecule
 from ase.calculators.calculator import get_calculator_class
 from ase.units import Ry
@@ -30,7 +31,7 @@ def inputs(name, **parameters):
 def _calculate(code, name):
     atoms = molecule(name)
     atoms.center(vacuum=3.5)
-    with workdir('test-{}'.format(name), mkdir=True):
+    with workdir(f'test-{name}', mkdir=True):
         atoms.calc = code.calc()
         return atoms.get_potential_energy()
 
@@ -69,7 +70,7 @@ filterwarnings = pytest.mark.filterwarnings
              filterwarnings('ignore:convert_string_to_fd')])
 @calc('nwchem')
 @calc('octopus', Spacing='0.25 * angstrom', BoxShape='minimum',
-      convreldens=1e-3)
+      convreldens=1e-3, Radius='3.5 * angstrom')
 @calc('openmx')
 @calc('siesta', marks=pytest.mark.xfail)
 def test_ch4_reaction(factory):

@@ -1,16 +1,16 @@
 """
 Test Placzek type resonant Raman implementations
 """
-import pytest
 from pathlib import Path
 
-from ase.parallel import parprint, world
-from ase.vibrations.vibrations import Vibrations
-from ase.vibrations.resonant_raman import ResonantRamanCalculator
-from ase.vibrations.placzek import Placzek, Profeta
-from ase.calculators.h2morse import (H2Morse,
-                                     H2MorseExcitedStates,
+import pytest
+
+from ase.calculators.h2morse import (H2Morse, H2MorseExcitedStates,
                                      H2MorseExcitedStatesCalculator)
+from ase.parallel import parprint, world
+from ase.vibrations.placzek import Placzek, Profeta
+from ase.vibrations.resonant_raman import ResonantRamanCalculator
+from ase.vibrations.vibrations import Vibrations
 
 
 def test_summary(testdir):

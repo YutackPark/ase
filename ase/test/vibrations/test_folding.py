@@ -1,8 +1,8 @@
 import pytest
 
 from ase.build import molecule
-from ase.vibrations import Infrared
 from ase.test.utils import RandomCalculator
+from ase.vibrations import Infrared
 
 
 def test_folding(testdir):

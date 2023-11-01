@@ -1,5 +1,8 @@
+from typing import IO, Optional, Union
+
 import numpy as np
 
+from ase import Atoms
 from ase.optimize.optimize import Optimizer
 from ase.utils.linesearch import LineSearch
 
@@ -13,10 +16,20 @@ class LBFGS(Optimizer):
 
     """
 
-    def __init__(self, atoms, restart=None, logfile='-', trajectory=None,
-                 maxstep=None, memory=100, damping=1.0, alpha=70.0,
-                 use_line_search=False, master=None,
-                 force_consistent=None):
+    def __init__(
+        self,
+        atoms: Atoms,
+        restart: Optional[str] = None,
+        logfile: Union[IO, str] = '-',
+        trajectory: Optional[str] = None,
+        maxstep: Optional[float] = None,
+        memory: int = 100,
+        damping: float = 1.0,
+        alpha: float = 70.0,
+        use_line_search: bool = False,
+        master: Optional[bool] = None,
+        force_consistent: Optional[bool] = None,
+    ):
         """Parameters:
 
         atoms: Atoms object
@@ -74,7 +87,7 @@ class LBFGS(Optimizer):
         if self.maxstep > 1.0:
             raise ValueError('You are using a much too large value for ' +
                              'the maximum step size: %.1f Angstrom' %
-                             maxstep)
+                             self.maxstep)
 
         self.memory = memory
         # Initial approximation of inverse Hessian 1./70. is to emulate the
@@ -114,9 +127,9 @@ class LBFGS(Optimizer):
         then take it"""
 
         if forces is None:
-            forces = self.atoms.get_forces()
+            forces = self.optimizable.get_forces()
 
-        pos = self.atoms.get_positions()
+        pos = self.optimizable.get_positions()
 
         self.update(pos, forces, self.r0, self.f0)
 
@@ -146,12 +159,12 @@ class LBFGS(Optimizer):
         if self.use_line_search is True:
             e = self.func(pos)
             self.line_search(pos, g, e)
-            dr = (self.alpha_k * self.p).reshape(len(self.atoms), -1)
+            dr = (self.alpha_k * self.p).reshape(len(self.optimizable), -1)
         else:
             self.force_calls += 1
             self.function_calls += 1
             dr = self.determine_step(self.p) * self.damping
-        self.atoms.set_positions(pos + dr)
+        self.optimizable.set_positions(pos + dr)
 
         self.iteration += 1
         self.r0 = pos
@@ -214,23 +227,23 @@ class LBFGS(Optimizer):
 
     def func(self, x):
         """Objective function for use of the optimizers"""
-        self.atoms.set_positions(x.reshape(-1, 3))
+        self.optimizable.set_positions(x.reshape(-1, 3))
         self.function_calls += 1
-        return self.atoms.get_potential_energy(
+        return self.optimizable.get_potential_energy(
             force_consistent=self.force_consistent)
 
     def fprime(self, x):
         """Gradient of the objective function for use of the optimizers"""
-        self.atoms.set_positions(x.reshape(-1, 3))
+        self.optimizable.set_positions(x.reshape(-1, 3))
         self.force_calls += 1
         # Remember that forces are minus the gradient!
-        return - self.atoms.get_forces().reshape(-1)
+        return - self.optimizable.get_forces().reshape(-1)
 
     def line_search(self, r, g, e):
         self.p = self.p.ravel()
         p_size = np.sqrt((self.p**2).sum())
-        if p_size <= np.sqrt(len(self.atoms) * 1e-10):
-            self.p /= (p_size / np.sqrt(len(self.atoms) * 1e-10))
+        if p_size <= np.sqrt(len(self.optimizable) * 1e-10):
+            self.p /= (p_size / np.sqrt(len(self.optimizable) * 1e-10))
         g = g.ravel()
         r = r.ravel()
         ls = LineSearch()
