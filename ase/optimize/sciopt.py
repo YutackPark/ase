@@ -29,7 +29,7 @@ class SciPyOptimizer(Optimizer):
         callback_always: bool = False,
         alpha: float = 70.0,
         master: Optional[bool] = None,
-        force_consistent: Optional[bool] = Optimizer._deprecated,
+        force_consistent=Optimizer._deprecated,
     ):
         """Initialize object
 

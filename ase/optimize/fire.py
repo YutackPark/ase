@@ -27,7 +27,7 @@ class FIRE(Optimizer):
         master: Optional[bool] = None,
         downhill_check: bool = False,
         position_reset_callback: Optional[Callable] = None,
-        force_consistent: Optional[bool] = Optimizer._deprecated,
+        force_consistent=Optimizer._deprecated,
     ):
         """Parameters:
 

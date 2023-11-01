@@ -28,7 +28,7 @@ class LBFGS(Optimizer):
         alpha: float = 70.0,
         use_line_search: bool = False,
         master: Optional[bool] = None,
-        force_consistent: Optional[bool] = Optimizer._deprecated,
+        force_consistent=Optimizer._deprecated,
     ):
         """Parameters:
 

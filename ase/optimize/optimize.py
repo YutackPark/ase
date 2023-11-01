@@ -269,7 +269,7 @@ class Optimizer(Dynamics):
         trajectory: Optional[str] = None,
         master: Optional[bool] = None,
         append_trajectory: bool = False,
-        force_consistent: Optional[bool] = _deprecated,
+        force_consistent=_deprecated,
     ):
         """Structure optimizer object.
 

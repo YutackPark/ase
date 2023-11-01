@@ -38,7 +38,7 @@ class BFGSLineSearch(Optimizer):
         alpha: float = 10.0,
         stpmax: float = 50.0,
         master: Optional[bool] = None,
-        force_consistent: Optional[bool] = Optimizer._deprecated,
+        force_consistent=Optimizer._deprecated,
     ):
         """Optimize atomic positions in the BFGSLineSearch algorithm, which
         uses both forces and potential energy information.
