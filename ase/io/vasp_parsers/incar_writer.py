@@ -2,12 +2,12 @@ from collections.abc import Iterable
 
 
 def write_incar(directory, parameters):
-    incar_string = generate_incar_file(parameters)
+    incar_string = generate_incar_lines(parameters)
     with open(f"{directory}/INCAR", "w") as incar:
         incar.write(incar_string)
 
 
-def generate_incar_file(parameters):
+def generate_incar_lines(parameters):
     if isinstance(parameters, str):
         return parameters
     elif parameters is None:

@@ -31,6 +31,8 @@ from ase.calculators.calculator import kpts2ndarray
 from ase.calculators.vasp.setups import get_default_setups
 from ase.config import cfg
 
+from ase.io.vasp_parsers.incar_writer import generate_incar_lines
+
 FLOAT_FORMAT = '5.6f'
 EXP_FORMAT = '5.2e'
 
@@ -1504,9 +1506,15 @@ class GenerateVaspInput:
         for key, val in self.exp_params.items():
             if val is not None:
                 incar.write(f' {key.upper()} = {val:{EXP_FORMAT}}\n')
-        for key, val in self.string_params.items():
-            if val is not None:
-                incar.write(f' {key.upper()} = {val}\n')
+                
+        # string_params
+        string_dct = dict((key, val) for key, val in self.string_params.items()
+                          if val is not None)
+        incar.write(generate_incar_lines(string_dct))
+        
+        # for key, val in self.string_params.items():
+        #     if val is not None:
+        #         incar.write(f' {key.upper()} = {val}\n')
         for key, val in self.int_params.items():
             if val is not None:
                 incar.write(f' {key.upper()} = {val}\n')
