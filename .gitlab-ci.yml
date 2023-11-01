@@ -97,6 +97,7 @@ main:
       ase test
       --calculators asap,ff,lj,morse,tip3p,tip4p
       --coverage --pytest --color=yes --durations 20 -v -r s
+      --junit-xml=report.xml
       -W "ignore:The --rsyncdir command line argument"
       -W "ignore:NumPy will stop allowing conversion of out-of-bound Python integers"
     - mv ase/test/coverage-html coverage-main
@@ -110,6 +111,7 @@ main:
       coverage_report:
         coverage_format: cobertura
         path: coverage.xml
+      junit: report.xml
     expire_in: 1 week
 
 # Calculator integration tests which always run.
@@ -122,6 +124,7 @@ calculators-lite:
     - >
       ase test calculator --calculators=auto --coverage
       --pytest -m calculator_lite --color=yes --durations=20 -v
+      --junit-xml=report.xml
       -W "ignore:The --rsyncdir command line argument"
     - cp ase/test/.coverage .
     - coverage xml
@@ -134,6 +137,7 @@ calculators-lite:
       coverage_report:
         coverage_format: cobertura
         path: coverage.xml
+      junit: report.xml
     expire_in: 1 week
 
 # Plan: Test as many calculators as possible as well as possible.
