@@ -22,7 +22,7 @@ import os
 import shutil
 import warnings
 from os.path import isfile, islink, join
-from typing import List, Sequence, Tuple
+from typing import List, Sequence, Tuple, Union
 
 import numpy as np
 
@@ -32,7 +32,7 @@ from ase.calculators.vasp.setups import get_default_setups
 from ase.config import cfg
 
 
-def get_pp_setup(setup) -> Tuple[dict, Sequence[int]]:
+def get_pp_setup(setup: Union[str, dict[Union[int, str], str]]) -> Tuple[dict, Sequence[int]]:
     """
     Get the pseudopotential mapping based on the "setpus" input.
 
@@ -1068,6 +1068,7 @@ class GenerateVaspInput:
     # environment variable for PP paths
     VASP_PP_PATH = 'VASP_PP_PATH'
 
+
     def __init__(self, restart=None):
         self.float_params = {}
         self.exp_params = {}
@@ -1126,6 +1127,15 @@ class GenerateVaspInput:
             # Custom key-value pairs, written to INCAR with *no* type checking
             'custom': {},
         }
+        # warning message for pw91
+        self.pw91_warning_msg = "The PW91 (potpaw_GGA) pseudopotential set is " \
+                           "from 2006 and not recommended for use.\nWe will " \
+                           "remove support for it in a future release, " \
+                           "and use the current PBE (potpaw_PBE) set instead.\n" \
+                           "Note that this still allows for PW91 calculations, " \
+                           "since VASP recalculates the exchange-correlation\n" \
+                           "energy inside the PAW sphere and corrects the atomic " \
+                           "energies given by the POTCAR file."
 
     def set_xc_params(self, xc):
         """Set parameters corresponding to XC functional"""
@@ -1140,14 +1150,7 @@ class GenerateVaspInput:
             # print future warning in case pw91 is selected:
             if xc == 'pw91':
                 warnings.warn(
-                    "The PW91 (potpaw_GGA) pseudopotential set is "
-                    "from 2006 and not recommended for use.\nWe will "
-                    "remove support for it in a future release, "
-                    "and use the current PBE (potpaw_PBE) set instead.\n"
-                    "Note that this still allows for PW91 calculations, "
-                    "since VASP recalculates the exchange-correlation\n"
-                    "energy inside the PAW sphere and corrects the atomic "
-                    "energies given by the POTCAR file.", FutureWarning
+                    self.pw91_warning_msg, FutureWarning
                 )
             # XC defaults to PBE pseudopotentials
             if 'pp' not in self.xc_defaults[xc]:
@@ -1213,14 +1216,7 @@ class GenerateVaspInput:
             elif self.string_params['gga'] == '91':
                 p.update({'pp': 'pw91'})
                 warnings.warn(
-                    "The PW91 (potpaw_GGA) pseudopotential set is "
-                    "from 2006 and not recommended for use.\nWe will "
-                    "remove support for it in a future release, "
-                    "and use the current PBE (potpaw_PBE) set instead.\n"
-                    "Note that this still allows for PW91 calculations, "
-                    "since VASP recalculates the exchange-correlation\n"
-                    "energy inside the PAW sphere and corrects the atomic "
-                    "energies given by the POTCAR file.", FutureWarning
+                    self.pw91_warning_msg, FutureWarning
                 )
 
             elif self.string_params['gga'] == 'PE':
