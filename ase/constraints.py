@@ -805,7 +805,15 @@ class FixedLine(IndexedConstraint):
 
 
 class FixCartesian(IndexedConstraint):
-    'Fix an atom index *a* in the directions of the cartesian coordinates.'
+    """Fix atoms in the directions of the cartesian coordinates.
+
+    Parameters
+    ----------
+    a : Sequence[int]
+        Indices of atoms to be fixed.
+    mask : tuple[int, int, int]
+        Cartesian directions to be fixed. (0: unfixed, 1: fixed)
+    """
 
     def __init__(self, a, mask=(1, 1, 1)):
         super().__init__(indices=a)
@@ -835,7 +843,15 @@ class FixCartesian(IndexedConstraint):
 
 
 class FixScaled(IndexedConstraint):
-    'Fix an atom index *a* in the directions of the unit vectors.'
+    """Fix atoms in the directions of the unit vectors.
+
+    Parameters
+    ----------
+    a : Sequence[int]
+        Indices of atoms to be fixed.
+    mask : tuple[int, int, int]
+        Cell directions to be fixed. (0: unfixed, 1: fixed)
+    """
 
     def __init__(self, a, mask=(1, 1, 1), cell=None):
         # XXX The unused cell keyword is there for compatibility
