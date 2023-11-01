@@ -141,7 +141,11 @@ calculators:
       -W "ignore:The --rsyncdir command line argument"
     - mv ase/test/coverage-html coverage-calculators
     - mv ase/test/.coverage coverage-calculators/coverage.dat
-  when: manual
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+      when: manual
+      allow_failure: true
+    - if: $CI_PIPELINE_SOURCE == "schedule"
   artifacts:
     paths:
       - coverage-calculators/
@@ -253,4 +257,7 @@ windows_test:
       -W "ignore:The --rsyncdir command line argument"
       -W "ignore:NumPy will stop allowing conversion of out-of-bound Python integers"
   rules:
+    - if: $CI_PIPELINE_SOURCE == "push"
+      when: manual
+      allow_failure: true
     - if: $CI_PIPELINE_SOURCE == "schedule"
