@@ -302,6 +302,11 @@ binary = /home/ase/calculators/dftd3/bin/dftd3
 [elk]
 binary = /usr/bin/elk-lapw
 
+[espresso]
+binary = /home/ase/calculators/espresso/bin/pw.x
+pseudo_path = /home/ase/.local/lib/python3.10/site-packages/asetest/\
+datafiles/espresso/gbrv-lda-espresso
+
 [exciting]
 binary = /home/ase/calculators/exciting/bin/exciting
 
@@ -326,15 +331,6 @@ binary = /home/ase/calculators/octopus/bin/octopus
 [siesta]
 binary = /home/ase/calculators/siesta/bin/siesta
 """
-    dummy_config += "\n".join(
-        [
-            "",
-            "[espresso]",
-            "binary = /home/ase/calculators/espresso/bin/pw.x",
-            "pseudo_path = /home/ase/.local/lib/python3.10/site-packages/"
-            "asetest/datafiles/espresso/gbrv-lda-espresso",
-        ]
-    )
     from ase.config import Config
 
     config_file_name = tmp_path / "ase.conf"
