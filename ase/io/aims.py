@@ -328,7 +328,7 @@ def write_aims(
             if isinstance(constr, FixAtoms):
                 fix_cart[constr.index] = [1, 1, 1]
             elif isinstance(constr, FixCartesian):
-                fix_cart[constr.index] = -constr.mask.astype(int) + 1
+                fix_cart[constr.index] = constr.mask.astype(int)
 
     if ghosts is None:
         ghosts = np.zeros(len(atoms))
@@ -912,7 +912,7 @@ class AimsOutHeaderChunk(AimsOutChunk):
                 if keep:
                     fix_cart.append(FixCartesian(ind, xyz))
                 else:
-                    fix_cart[n].mask[xyz.index(1)] = 0
+                    fix_cart[n].mask[xyz.index(1)] = 1
         if len(fix) > 0:
             fix_cart.append(FixAtoms(indices=fix))
 
