@@ -20,12 +20,12 @@ class OctopusIOError(IOError):
 
 
 class OctopusProfile(BaseProfile):
-    def __init__(self, exc, **kwargs):
+    def __init__(self, binary, **kwargs):
         super().__init__(**kwargs)
-        self.exc = exc
+        self.binary = binary
 
     def get_calculator_command(self, inputfile):
-        return [self.exc]
+        return [self.binary]
 
     def version(self):
         import re

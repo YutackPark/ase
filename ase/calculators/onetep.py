@@ -25,20 +25,20 @@ from ase.io import read, write
 
 
 class OnetepProfile(BaseProfile):
-    def __init__(self, exc, **kwargs):
+    def __init__(self, binary, **kwargs):
         super().__init__(**kwargs)
-        self.exc = exc
+        self.binary = binary
 
     def version(self):
         # onetep_exec = find_onetep_command(self.argv)
-        lines = read_stdout(self.exc)
+        lines = read_stdout(self.binary)
         return self.parse_version(lines)
 
     def parse_version(lines):
         return '1.0.0'
 
     def get_calculator_command(self, inputfile):
-        return [self.exc, str(inputfile)]
+        return [self.binary, str(inputfile)]
 
 
 class OnetepTemplate(CalculatorTemplate):
