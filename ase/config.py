@@ -2,9 +2,12 @@ import os
 import configparser
 from collections.abc import Mapping
 from pathlib import Path
+import shlex
+import warnings
 
 from ase.utils import lazymethod
-import shlex
+from ase.calculators.names import names, builtin, templates
+
 
 ASE_CONFIG_FILE = Path.home() / ".config/ase/ase.conf"
 
@@ -35,7 +38,7 @@ class Config(Mapping):
             raise KeyError
 
     def __len__(self):
-        return len(self._dct)
+        return len(self._dct) + len(self.parser)
 
     def __contains__(self, item):
         return item in self._dct or item in self.parser
@@ -52,6 +55,10 @@ class Config(Mapping):
         else:
             paths = [ASE_CONFIG_FILE, ]
         loaded_paths = parser.read(paths)
+        # add sections for builtin calculators
+        for name in builtin:
+            parser.add_section(name)
+            parser[name]["builtin"] = "True"
         return loaded_paths, parser
 
     @property
@@ -63,7 +70,6 @@ class Config(Mapping):
         return self._paths_and_parser()[1]
 
     def check_calculators(self):
-        from ase.calculators.names import names, templates
 
         print("Calculators")
         print("===========")
@@ -91,13 +97,19 @@ class Config(Mapping):
                 version = None
             else:
                 if template is None:
-                    codeconfig = None  # XXX we should not be executing this
-                    version = None
+                    # XXX we should not be executing this
+                    if codeconfig is not None and "builtin" in codeconfig:
+                        # builtin calculators
+                        version = "builtin"
+                    else:
+                        version = None
                 else:
                     profile = template.load_profile(codeconfig)
                     # XXX should be made robust to failure here:
-                    version = profile.version()
-                    fullname = f"{name}-{version}"
+                    with warnings.catch_warnings():
+                        warnings.simplefilter("ignore")
+                        version = profile.version()
+                fullname = f"{name}-{version}" if version is not None else f"{name}"
 
             def tickmark(thing):
                 return "[ ]" if thing is None else "[x]"

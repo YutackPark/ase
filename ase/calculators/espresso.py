@@ -49,7 +49,7 @@ class EspressoProfile(BaseProfile):
             return self.parse_version(stdout)
         except FileNotFoundError:
             warnings.warn(
-                f'The executable {self.binary} ' 'is not found on the path'
+                f'The executable {self.binary} is not found on the path'
             )
             return None
 

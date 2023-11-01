@@ -8,7 +8,8 @@ from typing import Mapping
 import pytest
 
 from ase.calculators.calculator import get_calculator_class
-from ase.calculators.calculator import names as calculator_names
+from ase.calculators.names import (names as calculator_names,
+                                   builtin as builtin_calculators)
 from ase.calculators.genericfileio import read_stdout
 
 
@@ -732,7 +733,6 @@ class NoSuchCalculator(Exception):
 
 class Factories:
     all_calculators = set(calculator_names)
-    builtin_calculators = {'eam', 'emt', 'ff', 'lj', 'morse', 'tip3p', 'tip4p'}
     autoenabled_calculators = {'asap'} | builtin_calculators
 
     # TODO: Port calculators to use factories.  As we do so, remove names
