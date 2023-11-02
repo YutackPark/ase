@@ -11,6 +11,9 @@ from ase.calculators.names import names, builtin, templates
 
 ASE_CONFIG_FILE = Path.home() / ".config/ase/ase.conf"
 
+class ASEEnvDeprecationWarning(DeprecationWarning):
+    def __init__(self, message):
+        self.message = message
 
 class Config(Mapping):
     def _env(self):
@@ -23,8 +26,6 @@ class Config(Mapping):
         yield from self._env()
 
     def __getitem__(self, item):
-        # TARP: Frist check the config file for an item and then check the
-        #       environment variables.
         env = self._env()
         try:
             return env[item]
@@ -32,8 +33,9 @@ class Config(Mapping):
             pass
 
         value = os.environ[item]
-        warnings.warn(f'Loaded {item} from environment.  '
-                      'Please use configfile.')
+        warnings.warn(f'Loaded {item} from environment. '
+                      'Please use configfile.',
+                      ASEEnvDeprecationWarning)
         env[item] = value
         return value
 

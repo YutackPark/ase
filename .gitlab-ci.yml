@@ -117,6 +117,8 @@ calculators-lite:
       ase test calculator --calculators=auto --coverage
       --pytest -m calculator_lite --color=yes --durations=20 -v
       -W "ignore:The --rsyncdir command line argument"
+      -W "ignore:  Loaded VASP_COMMAND from environment. Please use configfile."
+      -W "ignore:  Loaded ASE_VASP_COMMAND from environment. Please use configfile."
     - mv ase/test/coverage-html coverage-calculators-lite
     - mv ase/test/.coverage coverage-calculators-lite/coverage.dat
   artifacts:
