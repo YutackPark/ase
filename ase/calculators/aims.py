@@ -166,7 +166,7 @@ class AimsTemplate(CalculatorTemplate):
         return AimsProfile.from_config(cfg, self.name, **kwargs)
 
     def socketio_argv(self, profile, unixsocket, port):
-        return [profile.exc]
+        return [profile.binary]
 
     def socketio_parameters(self, unixsocket, port):
         if port:
@@ -209,13 +209,6 @@ class Aims(GenericFileIOCalculator):
             Any of the base class arguments.
 
         """
-
-        if profile is None:
-            profile = AimsProfile(
-                kwargs.pop(
-                    'aims_command', self.cfg.get('ASE_AIMS_COMMAND', 'aims.x')
-                )
-            )
 
         super().__init__(
             template=AimsTemplate(),
