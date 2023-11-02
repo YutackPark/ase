@@ -531,7 +531,7 @@ def write_control(fd, atoms, parameters, verbose_header=False):
                     "k_offset",
                     tuple(dk),
                     "%f %f %f"))
-        elif key == "species_dir":
+        elif key in ("species_dir", "tier"):
             continue
         elif key == "plus_u":
             continue
@@ -578,7 +578,8 @@ def write_control(fd, atoms, parameters, verbose_header=False):
 
     # Get the species directory
     species_dir = get_species_directory
-    species_array = np.array(list(set(atoms.symbols)))
+    # dicts are ordered as of python 3.7
+    species_array = np.array(list(dict.fromkeys(atoms.symbols)))
     # Grab the tier specification from the parameters. THis may either
     # be None, meaning the default should be used for all species, or a
     # list of integers/None values giving a specific basis set size
