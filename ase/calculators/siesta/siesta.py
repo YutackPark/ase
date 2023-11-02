@@ -646,9 +646,12 @@ class Siesta(FileIOCalculator):
     def _write_structure(self, fd, atoms):
         """Translate the Atoms object to fdf-format.
 
-        Parameters:
-            - f:     An open file object.
-            - atoms: An atoms object.
+        Parameters
+        ----------
+        fd : IO
+            An open file object.
+        atoms: Atoms
+            An atoms object.
         """
         cell = atoms.cell
         fd.write('\n')
@@ -696,14 +699,17 @@ class Siesta(FileIOCalculator):
             fd.write('%endblock DM.InitSpin\n')
             fd.write('\n')
 
-    def _write_atomic_coordinates(self, fd, atoms):
+    def _write_atomic_coordinates(self, fd, atoms: Atoms):
         """Write atomic coordinates.
 
-        Parameters:
-            - f:     An open file object.
-            - atoms: An atoms object.
+        Parameters
+        ----------
+        fd : IO
+            An open file object.
+        atoms : Atoms
+            An atoms object.
         """
-        af = self.parameters.atomic_coord_format.lower()
+        af = self.parameters["atomic_coord_format"].lower()
         if af == 'xyz':
             self._write_atomic_coordinates_xyz(fd, atoms)
         elif af == 'zmatrix':
@@ -711,12 +717,15 @@ class Siesta(FileIOCalculator):
         else:
             raise RuntimeError(f'Unknown atomic_coord_format: {af}')
 
-    def _write_atomic_coordinates_xyz(self, fd, atoms):
+    def _write_atomic_coordinates_xyz(self, fd, atoms: Atoms):
         """Write atomic coordinates.
 
-        Parameters:
-            - f:     An open file object.
-            - atoms: An atoms object.
+        Parameters
+        ----------
+        fd : IO
+            An open file object.
+        atoms : Atoms
+            An atoms object.
         """
         species, species_numbers = self.species(atoms)
         fd.write('\n')
@@ -739,12 +748,15 @@ class Siesta(FileIOCalculator):
             fd.write('%endblock AtomicCoordinatesOrigin\n')
             fd.write('\n')
 
-    def _write_atomic_coordinates_zmatrix(self, fd, atoms):
+    def _write_atomic_coordinates_zmatrix(self, fd, atoms: Atoms):
         """Write atomic coordinates in Z-matrix format.
 
-        Parameters:
-            - f:     An open file object.
-            - atoms: An atoms object.
+        Parameters
+        ----------
+        fd : IO
+            An open file object.
+        atoms : Atoms
+            An atoms object.
         """
         species, species_numbers = self.species(atoms)
         fd.write('\n')
