@@ -50,7 +50,7 @@ class BaseProfile(ABC):
                 translation_keys[trans_key] = value
         return translation_keys
 
-    def get_command(self, inputfile) -> Iterable[str]:
+    def get_command(self, inputfile, calc_command=None) -> Iterable[str]:
         """
         Get the command to run. This should be a list of strings.
 
@@ -84,7 +84,10 @@ class BaseProfile(ABC):
                 elif value:
                     command.append(f'{command_key}')
 
-        command.extend(self.get_calculator_command(inputfile))
+        if calc_command is None:
+            command.extend(self.get_calculator_command(inputfile))
+        else:
+            command.extend(calc_command)
         return command
 
     @abstractmethod
@@ -272,7 +275,7 @@ class CalculatorTemplate(ABC):
             )
 
         # XXX need socketio ABC or something
-        argv = self.socketio_argv(profile, unixsocket, port)
+        argv = profile.get_command(" ".join(self.socketio_argv(profile, unixsocket, port)))
         parameters = {
             **self.socketio_parameters(unixsocket, port),
             **parameters,
