@@ -6,7 +6,6 @@ from ase.filters import FrechetCellFilter
 from ase.optimize import BFGS
 from ase.units import Ry
 
-
 # XXX 2023-08-07: segfaults with ecutwfc=300 / Ry and espresso-7.0 (Ubuntu)
 @pytest.mark.calculator_lite
 @pytest.mark.calculator('espresso', ecutwfc=200 / Ry)
@@ -19,6 +18,10 @@ def test_socketio_espresso(factory):
             pytest.warns(UserWarning, match='Subprocess exited'), \
             factory.socketio(unixsocket=f'ase_test_socketio_{factory.name}',
                              kpts=[2, 2, 2]) as atoms.calc:
+        if (hasattr(atoms.calc, "profile") and
+            hasattr(atoms.calc.profile, "parallel")):
+            atoms.calc.profile.parallel = False
+            atoms.calc.profile.parallel_info = {}
 
         for _ in opt.irun(fmax=0.05):
             e = atoms.get_potential_energy()

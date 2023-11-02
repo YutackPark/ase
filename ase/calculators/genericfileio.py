@@ -57,6 +57,7 @@ class BaseProfile(ABC):
         Parameters
         ----------
         inputfile : str
+        calc_command: list[str]: calculator command (used for sockets)
 
         Returns
         -------
@@ -276,7 +277,8 @@ class CalculatorTemplate(ABC):
 
         # XXX need socketio ABC or something
         argv = profile.get_command(
-            " ".join(self.socketio_argv(profile, unixsocket, port))
+            inputfile=None,
+            calc_command=self.socketio_argv(profile, unixsocket, port)
         )
         parameters = {
             **self.socketio_parameters(unixsocket, port),
