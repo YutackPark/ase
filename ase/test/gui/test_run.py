@@ -12,6 +12,7 @@ from ase.gui.gui import GUI
 from ase.gui.i18n import _
 from ase.gui.quickinfo import info
 from ase.gui.save import save_dialog
+from ase.test.fio.test_cif import content
 
 
 class GUIError(Exception):
@@ -181,7 +182,6 @@ def test_export_graphics(gui, testdir, with_bulk_ti, monkeypatch, filename):
 
 
 def test_fracocc(gui, testdir):
-    from ase.test.fio.test_cif import content
     with open('./fracocc.cif', 'w') as fd:
         fd.write(content)
     gui.open(filename='fracocc.cif')

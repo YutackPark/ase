@@ -1,8 +1,10 @@
+from ase.atoms import Atoms
+from ase.calculators.gaussian import Gaussian
+from ase.io import read
+from ase.optimize.lbfgs import LBFGS
+
+
 def test_water():
-    from ase.atoms import Atoms
-    from ase.calculators.gaussian import Gaussian
-    from ase.io import read
-    from ase.optimize.lbfgs import LBFGS
 
     # First test to make sure Gaussian works
     calc = Gaussian(xc='pbe', chk='water.chk', label='water')

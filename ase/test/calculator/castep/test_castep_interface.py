@@ -4,10 +4,12 @@ import numpy as np
 import pytest
 
 import ase
-import ase.lattice.cubic
+from ase.dft.kpoints import BandPath
 from ase.calculators.castep import (Castep, CastepCell, CastepKeywords,
                                     CastepOption, CastepParam, make_cell_dict,
                                     make_param_dict)
+import ase.lattice.cubic
+
 
 calc = pytest.mark.calculator
 
@@ -334,8 +336,6 @@ def test_set_kpoints(testing_calculator):
 def test_band_structure_setup(testing_calculator):
 
     c = testing_calculator
-
-    from ase.dft.kpoints import BandPath
 
     atoms = ase.build.bulk('Ag')
     bp = BandPath(cell=atoms.cell,

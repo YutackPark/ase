@@ -2,7 +2,9 @@ import os
 import sys
 import zlib
 from pathlib import Path
+import shutil
 from subprocess import PIPE, Popen, check_output
+import tempfile
 
 import numpy as np
 import pytest
@@ -11,7 +13,8 @@ import ase
 from ase.dependencies import all_dependencies
 from ase.test.factories import (CalculatorInputs, NoSuchCalculator,
                                 factory_classes, get_factories,
-                                make_factory_fixture)
+                                make_factory_fixture,
+                                parametrize_calculator_tests)
 from ase.utils import get_python_package_path_description, seterr, workdir
 
 helpful_message = """\
@@ -138,7 +141,6 @@ def sessionlevel_testing_path():
     # disturb other pytest runs if we use the pytest tempdir factory.
     #
     # So we use the tempfile module for this temporary directory.
-    import tempfile
     with tempfile.TemporaryDirectory(prefix='ase-test-workdir-') as tempdir:
         path = Path(tempdir)
         path.chmod(0o555)
@@ -264,7 +266,6 @@ def factory(request, factories):
 
 
 def pytest_generate_tests(metafunc):
-    from ase.test.factories import parametrize_calculator_tests
     parametrize_calculator_tests(metafunc)
 
     if 'seed' in metafunc.fixturenames:
@@ -423,7 +424,6 @@ def arbitrarily_seed_rng(request):
 
 @pytest.fixture(scope='session')
 def povray_executable():
-    import shutil
     exe = shutil.which('povray')
     if exe is None:
         pytest.skip('povray not installed')

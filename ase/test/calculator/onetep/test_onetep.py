@@ -1,8 +1,10 @@
-def test_onetep(testdir):
-    from os.path import isfile, join
+from os.path import isfile, join
 
-    from ase.build import molecule
-    from ase.calculators.onetep import Onetep
+from ase.build import molecule
+from ase.calculators.onetep import Onetep
+
+
+def test_onetep(testdir):
 
     mol = molecule('H2O')
     mol.center(8)

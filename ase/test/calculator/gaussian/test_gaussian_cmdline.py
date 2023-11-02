@@ -1,7 +1,9 @@
+from ase.db import connect
+from ase.io import read
+from ase.io.jsonio import read_json
+
+
 def test_gaussian_cmdline(cli):
-    from ase.db import connect
-    from ase.io import read
-    from ase.io.jsonio import read_json
 
     cli.shell("""\
     ase build O O.xyz && ase run gaussian O.xyz -o gaussian_cmdline.json &&

@@ -9,7 +9,6 @@ def array_almost_equal(a1, a2, tol=np.finfo(float).eps):
 
 
 def test_atoms():
-    from ase import Atoms
     print(Atoms())
     print(Atoms('H2O'))
     # ...
