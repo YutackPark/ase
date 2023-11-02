@@ -1,6 +1,6 @@
 """Build crystalline systems"""
 from math import sqrt
-from typing import Any
+from typing import Any, Literal
 
 from ase.atoms import Atoms
 from ase.symbols import string2symbols
@@ -303,7 +303,10 @@ def _orthorhombic_bulk(name, crystalstructure, a, covera=None, u=None):
     return atoms
 
 
-def _cubic_bulk(name: str, crystalstructure: str, a: float) -> Atoms:
+def _cubic_bulk(name: str,
+                crystalstructure: Literal['fcc', 'diamond', 'zincblende',
+                                          'rocksalt', 'fluorite'],
+                a: float) -> Atoms:
     if crystalstructure == 'fcc':
         atoms = Atoms(4 * name, cell=(a, a, a), pbc=True,
                       scaled_positions=[(0, 0, 0), (0, 0.5, 0.5),
