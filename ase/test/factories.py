@@ -9,7 +9,7 @@ import pytest
 
 from ase.calculators.calculator import get_calculator_class
 from ase.calculators.names import (names as calculator_names,
-                                   builtin as builtin_calculators_from_names)
+                                   builtin)
 from ase.calculators.genericfileio import read_stdout
 
 
@@ -733,8 +733,8 @@ class NoSuchCalculator(Exception):
 
 class Factories:
     all_calculators = set(calculator_names)
-    autoenabled_calculators = {'asap'} | builtin_calculators_from_names
-    builtin_calculators = builtin_calculators_from_names
+    builtin_calculators = builtin
+    autoenabled_calculators = {'asap'} | builtin_calculators
 
     # TODO: Port calculators to use factories.  As we do so, remove names
     # from list of calculators that we monkeypatch:
