@@ -4,47 +4,41 @@ T. Demeyere, T.Demeyere@soton.ac.uk (2023)
 
 https://onetep.org"""
 
-from os import environ
 from pathlib import Path
-from subprocess import check_call
 
 from ase.calculators.genericfileio import (CalculatorTemplate,
                                            GenericFileIOCalculator,
-                                           read_stdout)
+                                           read_stdout,
+                                           BaseProfile)
 from ase.io import read, write
 
+# TARP: New setup exc should be the onetep binary itself
+# def find_onetep_command(cmd):
+#     exploded_cmd = cmd.split()
+#     n_cmd = len(exploded_cmd)
+#     if n_cmd == 1:
+#         return cmd
+#     for substring in exploded_cmd:
+#         if 'onetep' in substring:
+#             return substring
+#     return None
 
-def find_onetep_command(cmd):
-    exploded_cmd = cmd.split()
-    n_cmd = len(exploded_cmd)
-    if n_cmd == 1:
-        return cmd
-    for substring in exploded_cmd:
-        if 'onetep' in substring:
-            return substring
-    return None
 
-
-class OnetepProfile:
-    def __init__(self, argv):
-        self.argv = argv
+class OnetepProfile(BaseProfile):
+    def __init__(self, binary, **kwargs):
+        super().__init__(**kwargs)
+        self.binary = binary
 
     def version(self):
-        onetep_exec = find_onetep_command(self.argv)
-        lines = read_stdout(onetep_exec)
+        # onetep_exec = find_onetep_command(self.argv)
+        lines = read_stdout(self.binary)
         return self.parse_version(lines)
 
     def parse_version(lines):
         return '1.0.0'
 
-    def run(self, directory, inputfile, outputfile, errorfile, append):
-        mode = 'a' if append else 'w'
-        with open(directory / outputfile, mode) as fd, \
-                open(directory / errorfile, 'w') as fe:
-            check_call(self.argv.split() + [str(inputfile)], stdout=fd,
-                       stderr=fe,
-                       env=environ,
-                       cwd=directory)
+    def get_calculator_command(self, inputfile):
+        return [self.binary, str(inputfile)]
 
 
 class OnetepTemplate(CalculatorTemplate):
@@ -75,6 +69,9 @@ class OnetepTemplate(CalculatorTemplate):
         input_path = directory / self.input
         write(input_path, atoms, format='onetep-in',
               properties=properties, **parameters)
+
+    def load_profile(self, cfg, **kwargs):
+        return OnetepProfile.from_config(cfg, self.name, **kwargs)
 
 
 class Onetep(GenericFileIOCalculator):
@@ -138,7 +135,8 @@ class Onetep(GenericFileIOCalculator):
            via the keyword dictionary, it is the user responsibility that they
            are valid ONETEP keywords.
     """
-
+    # TARP: I thought GenericFileIO calculators no longer had  atoms attached
+    # to them
     def __init__(
             self,
             label='onetep',
@@ -147,27 +145,30 @@ class Onetep(GenericFileIOCalculator):
             append=False,
             autorestart=True,
             atoms=None,
+            parallel_info=None,
+            parallel=True,
             **kwargs):
-        if 'ASE_ONETEP_COMMAND' in environ:
-            self.cmd = environ['ASE_ONETEP_COMMAND']
-        else:
-            self.cmd = None
+
         self.directory = Path(directory)
         self.autorestart = autorestart
         self.label = label
         self.keywords = kwargs.get('keywords', None)
         self.append = append
         self.template = OnetepTemplate(label, append=self.append)
-        if profile is None:
-            profile = OnetepProfile(self.cmd)
+
         kwargs['autorestart'] = self.autorestart
         kwargs['directory'] = self.directory
         kwargs['label'] = self.label
         super().__init__(profile=profile, template=self.template,
                          directory=directory,
-                         parameters=kwargs)
+                         parameters=kwargs,
+                         parallel=parallel,
+                         parallel_info=parallel_info)
         # Copy is probably not needed, but just in case
         if atoms is not None:
             self.atoms = atoms.copy()
             if atoms.calc is not None:
+                # TARP: Does this make sense? Why append the previous
+                # calculators results to a new calculator. Especially
+                # without checking if the parameters are the same as well.
                 self.results = atoms.calc.results.copy()
