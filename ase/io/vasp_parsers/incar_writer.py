@@ -12,6 +12,9 @@ def generate_incar_lines(parameters):
         return parameters
     elif parameters is None:
         return ""
+    # check for empty dict
+    elif not parameters:
+        return ""
     else:
         incar_lines = []
         for item in parameters.items():

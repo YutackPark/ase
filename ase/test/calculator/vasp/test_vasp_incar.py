@@ -99,7 +99,7 @@ def test_special_key(vaspinput_factory):
 
 def test_list_float_key(vaspinput_factory):
     parameters = {"magmom": [0.5, 1.5]}
-    expected_output = ASE_header+" MAGMOM = 1*0.5000 1*1.5000\n"  # Writer uses :.4f
+    expected_output = ASE_header+" MAGMOM = 1*0.5000 1*1.5000\n ISPIN = 2\n"  # Writer uses :.4f
     check_last_call_to_write(parameters, expected_output, vaspinput_factory)
 
 

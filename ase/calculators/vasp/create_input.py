@@ -1493,7 +1493,8 @@ class GenerateVaspInput:
                                                  self.input_params['charge'],
                                                  self.default_nelect_from_ppp())
             float_dct['nelect'] = f'{nelect_val:{FLOAT_FORMAT}}'
-            incar_str += generate_incar_lines(float_dct)
+        incar_str += generate_incar_lines(float_dct)
+
         # exp params
         exp_dct = dict((key, f'{val:{EXP_FORMAT}}') for key, val in self.exp_params.items()
                         if val is not None)
