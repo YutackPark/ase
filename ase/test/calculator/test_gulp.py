@@ -1,9 +1,11 @@
+import numpy as np
+
+from ase import Atoms
+from ase.calculators.gulp import GULP, Conditions
+
+
 def test_gulp():
     # flake8: noqa
-    import numpy as np
-
-    from ase import Atoms
-    from ase.calculators.gulp import GULP, Conditions
 
     cluster = Atoms(symbols='O4SiOSiO2SiO2SiO2SiOSiO2SiO3SiO3H8',
                     pbc=np.array([False, False, False], dtype=bool),

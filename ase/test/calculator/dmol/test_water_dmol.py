@@ -1,6 +1,8 @@
+from ase.build import molecule
+from ase.calculators.dmol import DMol3
+
+
 def test_water_dmol():
-    from ase.build import molecule
-    from ase.calculators.dmol import DMol3
 
     atoms = molecule('H2O')
     calc = DMol3()

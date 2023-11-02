@@ -1,9 +1,9 @@
+from ase import io
 from ase.calculators.singlepoint import SinglePointDFTCalculator
 
 
 def test_read_gpaw_out(datadir):
     """Test reading of gpaw text output"""
-    from ase import io
 
     # read input
 

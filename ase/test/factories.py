@@ -2,9 +2,13 @@ import configparser
 import os
 import re
 from pathlib import Path
+import tempfile
 from typing import Mapping
 
+import importlib.util
 import pytest
+
+from ase import Atoms
 
 from ase.calculators.calculator import get_calculator_class
 from ase.calculators.calculator import names as calculator_names
@@ -334,21 +338,16 @@ class MOPACFactory:
         return cls(config.executables['mopac'])
 
     def version(self):
-        import tempfile
-        from os import chdir
-        from pathlib import Path
-
-        from ase import Atoms
 
         cwd = Path('.').absolute()
         with tempfile.TemporaryDirectory() as directory:
             try:
-                chdir(directory)
+                os.chdir(directory)
                 h = Atoms('H')
                 h.calc = self.calc()
                 _ = h.get_potential_energy()
             finally:
-                chdir(cwd)
+                os.chdir(cwd)
 
         return h.calc.results['version']
 
@@ -655,7 +654,6 @@ class PlumedFactory:
 
     @classmethod
     def fromconfig(cls, config):
-        import importlib.util
         spec = importlib.util.find_spec('plumed')
         # XXX should be made non-pytest dependent
         if spec is None:

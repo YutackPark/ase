@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from ase.build import bulk, molecule
+from ase.io.abinit import read_abinit_gsr
 from ase.units import Hartree
 
 calc = pytest.mark.calculator
@@ -58,7 +59,6 @@ def test_au(factory, pps):
     dict_abo = run(atoms)
 
     # test the read_abinit_gsr function
-    from ase.io.abinit import read_abinit_gsr
     dict_gsr = read_abinit_gsr(atoms.calc.directory / 'abinito_GSR.nc')
 
     atoms_gsr = dict_gsr["atoms"]

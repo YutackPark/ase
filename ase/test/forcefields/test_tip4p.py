@@ -1,9 +1,11 @@
+from math import cos, sin
+
+from ase import Atoms
+from ase.calculators.tip4p import TIP4P, angleHOH, rOH
+
+
 def test_tip4p():
     """Test TIP4P forces."""
-    from math import cos, sin
-
-    from ase import Atoms
-    from ase.calculators.tip4p import TIP4P, angleHOH, rOH
 
     r = rOH
     a = angleHOH

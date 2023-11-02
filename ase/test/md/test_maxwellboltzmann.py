@@ -1,9 +1,9 @@
+from ase.lattice.cubic import FaceCenteredCubic
+from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
 from ase.units import kB
 
 
 def test_maxwellboltzmann():
-    from ase.lattice.cubic import FaceCenteredCubic
-    from ase.md.velocitydistribution import MaxwellBoltzmannDistribution
 
     atoms = FaceCenteredCubic(size=(50, 50, 50), symbol="Cu", pbc=False)
     print("Number of atoms:", len(atoms))

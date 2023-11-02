@@ -7,6 +7,7 @@ import pytest
 from ase import Atoms
 from ase.build import molecule
 from ase.calculators.calculator import compare_atoms
+from ase.io.bytes import parse_atoms, to_bytes
 from ase.io.cif import (CIFLoop, NoStructureData, parse_cif, parse_loop,
                         read_cif, write_cif)
 
@@ -497,7 +498,6 @@ def atoms():
 
 
 def roundtrip(atoms):
-    from ase.io.bytes import parse_atoms, to_bytes
     buf = to_bytes(atoms, format='cif')
     return parse_atoms(buf, format='cif')
 
