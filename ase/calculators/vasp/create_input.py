@@ -32,7 +32,7 @@ from ase.calculators.vasp.setups import get_default_setups
 from ase.config import cfg
 
 
-def get_pp_setup(setup: Union[str, dict[Union[int, str], str]]) -> Tuple[dict, Sequence[int]]:
+def get_pp_setup(setup) -> Tuple[dict, Sequence[int]]:
     """
     Get the pseudopotential mapping based on the "setpus" input.
 
