@@ -48,16 +48,16 @@ def parse_output(info_out_file_path):
 
 
 def write_input_xml_file(
-        file_name, atoms: ase.Atoms, ground_state_parameters: Dict,
+        file_name, atoms: ase.Atoms, ground_state_input: Dict,
         species_path, title=None,
-        additional_parameters: Optional[Dict] = None):
+        properties_input: Optional[Dict] = None):
     """Write input xml file for exciting calculation.
 
     Args:
         file_name: where to save the input xml file.
         atoms: ASE Atoms object.
-        ground_state_parameters: ground state parameters for run.
-        additional_properties: optional additional parameters to run
+        ground_state_input: ground state parameters for run.
+        properties_input: optional additional parameters to run
             after performing the ground state calculation (e.g. bandstructure
             or DOS.)
     """
@@ -65,11 +65,11 @@ def write_input_xml_file(
                                ExcitingPropertiesInput, ExcitingStructure)
 
     # Convert ground state dictionary into expected input object.
-    ground_state = ExcitingGroundStateInput(**ground_state_parameters)
+    ground_state = ExcitingGroundStateInput(**ground_state_input)
     structure = ExcitingStructure(atoms, species_path=species_path)
     # If we are running futher calculations such as bandstructure/DOS.
-    if additional_parameters is not None:
-        properties_input = ExcitingPropertiesInput(**additional_parameters)
+    if properties_input is not None:
+        properties_input = ExcitingPropertiesInput(**properties_input)
     else:
         properties_input = ExcitingPropertiesInput()
     input_xml = ExcitingInputXML(structure=structure,

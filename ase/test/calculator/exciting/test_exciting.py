@@ -235,7 +235,7 @@ def test_ground_state_template_write_input(
                 "ngridk": [6, 6, 6],
                 'xctype': 'GGA_PBE_SOL',
                 'vkloff': [0, 0, 0]},
-            'additional_parameters': {
+            'properties_input': {
                 'bandstructure': band_structure_input_from_ase_atoms_obj(
                     nitrogen_trioxide_atoms, steps=bandstructure_steps)}})
     # Let's assert the file we just wrote exists.

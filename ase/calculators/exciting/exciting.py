@@ -99,7 +99,7 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
         parameters_dict = parameters
         assert set(parameters_dict.keys()) == {
             'title', 'species_path', 'ground_state_input',
-            'additional_parameters'}, \
+            'properties_input'}, \
             'Keys should be defined by ExcitingGroundState calculator'
         file_name = Path(directory) / 'input.xml'
         species_path = parameters_dict.pop('species_path')
@@ -108,14 +108,14 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
         # properties in the exciting input xml. We don't use this term
         # since ASE use properties to refer to results of a calculation
         # (e.g. force, energy).
-        if 'additional_parameters' not in parameters_dict:
-            parameters_dict['additional_parameters'] = None
+        if 'properties_input' not in parameters_dict:
+            parameters_dict['properties_input'] = None
 
         ase.io.exciting.write_input_xml_file(
             file_name=file_name, atoms=atoms,
-            ground_state_parameters=parameters_dict['ground_state_input'],
+            ground_state_input=parameters_dict['ground_state_input'],
             species_path=species_path, title=title,
-            additional_parameters=parameters_dict['additional_parameters'])
+            properties_input=parameters_dict['properties_input'])
 
     def execute(
             self, directory: PathLike,
