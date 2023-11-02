@@ -38,7 +38,7 @@ class BFGSLineSearch(Optimizer):
         alpha: float = 10.0,
         stpmax: float = 50.0,
         master: Optional[bool] = None,
-        force_consistent: Optional[bool] = None,
+        force_consistent=Optimizer._deprecated,
     ):
         """Optimize atomic positions in the BFGSLineSearch algorithm, which
         uses both forces and potential energy information.
@@ -68,11 +68,6 @@ class BFGSLineSearch(Optimizer):
             Defaults to None, which causes only rank 0 to save files.  If
             set to true,  this rank will save files.
 
-        force_consistent: boolean or None
-            Use force-consistent energy calls (as opposed to the energy
-            extrapolated to 0 K).  By default (force_consistent=None) uses
-            force-consistent energies if available in the calculator, but
-            falls back to force_consistent=False if not.
         """
         if maxstep is None:
             self.maxstep = self.defaults['maxstep']
@@ -182,8 +177,7 @@ class BFGSLineSearch(Optimizer):
         self.optimizable.set_positions(x.reshape(-1, 3))
         self.function_calls += 1
         # Scale the problem as SciPy uses I as initial Hessian.
-        return (self.optimizable.get_potential_energy(
-                force_consistent=self.force_consistent) / self.alpha)
+        return self.optimizable.get_potential_energy() / self.alpha
 
     def fprime(self, x):
         """Gradient of the objective function for use of the optimizers"""
@@ -222,19 +216,16 @@ class BFGSLineSearch(Optimizer):
         if forces is None:
             forces = self.optimizable.get_forces()
         fmax = sqrt((forces**2).sum(axis=1).max())
-        e = self.optimizable.get_potential_energy(
-            force_consistent=self.force_consistent)
+        e = self.optimizable.get_potential_energy()
         T = time.localtime()
         name = self.__class__.__name__
         w = self.logfile.write
         if self.nsteps == 0:
             w('%s  %4s[%3s] %8s %15s  %12s\n' %
               (' ' * len(name), 'Step', 'FC', 'Time', 'Energy', 'fmax'))
-            if self.force_consistent:
-                w('*Force-consistent energies used in optimization.\n')
-        w('%s:  %3d[%3d] %02d:%02d:%02d %15.6f%1s %12.4f\n'
+        w('%s:  %3d[%3d] %02d:%02d:%02d %15.6f %12.4f\n'
             % (name, self.nsteps, self.force_calls, T[3], T[4], T[5], e,
-               {1: '*', 0: ''}[self.force_consistent], fmax))
+               fmax))
         self.logfile.flush()
 
 

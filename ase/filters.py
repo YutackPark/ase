@@ -28,9 +28,8 @@ class OptimizableFilter(Optimizable):
     def get_forces(self):
         return self.filterobj.get_forces()
 
-    def get_potential_energy(self, force_consistent):
-        return self.filterobj.get_potential_energy(
-            force_consistent=force_consistent)
+    def get_potential_energy(self):
+        return self.filterobj.get_potential_energy(force_consistent=True)
 
     def __len__(self):
         return len(self.filterobj)

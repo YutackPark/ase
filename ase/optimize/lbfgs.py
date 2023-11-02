@@ -28,7 +28,7 @@ class LBFGS(Optimizer):
         alpha: float = 70.0,
         use_line_search: bool = False,
         master: Optional[bool] = None,
-        force_consistent: Optional[bool] = None,
+        force_consistent=Optimizer._deprecated,
     ):
         """Parameters:
 
@@ -70,11 +70,6 @@ class LBFGS(Optimizer):
             Defaults to None, which causes only rank 0 to save files.  If
             set to true,  this rank will save files.
 
-        force_consistent: boolean or None
-            Use force-consistent energy calls (as opposed to the energy
-            extrapolated to 0 K).  By default (force_consistent=None) uses
-            force-consistent energies if available in the calculator, but
-            falls back to force_consistent=False if not.
         """
         Optimizer.__init__(self, atoms, restart, logfile, trajectory, master,
                            force_consistent=force_consistent)
@@ -229,8 +224,7 @@ class LBFGS(Optimizer):
         """Objective function for use of the optimizers"""
         self.optimizable.set_positions(x.reshape(-1, 3))
         self.function_calls += 1
-        return self.optimizable.get_potential_energy(
-            force_consistent=self.force_consistent)
+        return self.optimizable.get_potential_energy()
 
     def fprime(self, x):
         """Gradient of the objective function for use of the optimizers"""

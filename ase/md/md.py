@@ -116,7 +116,6 @@ class MolecularDynamics(Dynamics):
         # we do not test /any/ kind of MD with any kind of Filter in ASE.
         self.atoms = atoms
         self.masses = self.atoms.get_masses()
-        self.max_steps = 0  # to be updated in run or irun
 
         if 0 in self.masses:
             warnings.warn('Zero mass encountered in atoms; this will '
@@ -149,14 +148,34 @@ class MolecularDynamics(Dynamics):
                 'timestep': self.dt}
 
     def irun(self, steps=50):
-        """ Call Dynamics.irun and adjust max_steps """
-        self.max_steps = steps + self.nsteps
-        return Dynamics.irun(self)
+        """Run molecular dynamics algorithm as a generator.
+
+        Parameters
+        ----------
+        steps : int, default=DEFAULT_MAX_STEPS
+            Number of molecular dynamics steps to be run.
+
+        Yields
+        ------
+        converged : bool
+            True if the maximum number of steps are reached.
+        """
+        return Dynamics.irun(self, steps=steps)
 
     def run(self, steps=50):
-        """ Call Dynamics.run and adjust max_steps """
-        self.max_steps = steps + self.nsteps
-        return Dynamics.run(self)
+        """Run molecular dynamics algorithm.
+
+        Parameters
+        ----------
+        steps : int, default=DEFAULT_MAX_STEPS
+            Number of molecular dynamics steps to be run.
+
+        Returns
+        -------
+        converged : bool
+            True if the maximum number of steps are reached.
+        """
+        return Dynamics.run(self, steps=steps)
 
     def get_time(self):
         return self.nsteps * self.dt
