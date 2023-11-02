@@ -1550,55 +1550,25 @@ class GenerateVaspInput:
             # note: we do not overwrite ispin if ispin=1
             if not self.int_params['ispin']:
                 self.spinpol = True
-                incar_str += ' ispin = 2\n'.upper()
+                # note that ispin is a int key, but for the INCAR it does not matter
+                float_dct['ispin'] = 2
 
-            line = f' {key.upper()} = '
             magmom_written = True
             # Work out compact a*x b*y notation and write in this form
             # Assume 1 magmom per atom, ordered as our atoms object
             val = np.array(float_dct['magmom'])
             val = val[self.sort]
-        for key, val in self.list_float_params.items():
-            if val is None:
-                pass
-            elif ((key in ('ldauu', 'ldauj'))
-                  and (self.dict_params['ldau_luj'] is not None)):
-                pass
-            elif key == 'magmom':
-                if not len(val) == len(atoms):
-                    msg = ('Expected length of magmom tag to be'
-                           ' {}, i.e. 1 value per atom, but got {}').format(
-                               len(atoms), len(val))
-                    raise ValueError(msg)
-
-                # Check if user remembered to specify ispin
-                # note: we do not overwrite ispin if ispin=1
-                if not self.int_params['ispin']:
-                    self.spinpol = True
-                    incar_str += ' ispin = 2\n'.upper()
-
-                line = f' {key.upper()} = '
-                magmom_written = True
-                # Work out compact a*x b*y notation and write in this form
-                # Assume 1 magmom per atom, ordered as our atoms object
-                val = np.array(val)
-                val = val[self.sort]  # Order in VASP format
-
-                # Compactify the magmom list to symbol order
-                lst = [[1, val[0]]]
-                for n in range(1, len(val)):
-                    if val[n] == val[n - 1]:
-                        lst[-1][0] += 1
-                    else:
-                        lst.append([1, val[n]])
-                line += ' '.join(['{:d}*{:.4f}'.format(mom[0], mom[1])
-                                  for mom in lst]) + '\n'
-                incar_str += line
-            else:
-                line = f' {key.upper()} = '
-                line += ' '.join([f'{x:.4f}' for x in val])
-                line += '\n'
-                incar_str += line
+            # Compactify the magmom list to symbol order
+            lst = [[1, val[0]]]
+            for n in range(1, len(val)):
+                if val[n] == val[n - 1]:
+                    lst[-1][0] += 1
+                else:
+                    lst.append([1, val[n]])
+            line = ' '.join(['{:d}*{:.4f}'.format(mom[0], mom[1])
+                                for mom in lst]) + '\n'
+            float_dct['magmom'] = line
+        incar_str += generate_incar_lines(float_dct)
 
         for key, val in self.bool_params.items():
             if val is not None:
