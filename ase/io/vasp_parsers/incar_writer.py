@@ -16,21 +16,21 @@ def generate_incar_lines(parameters):
         incar_lines = []
         for item in parameters.items():
             incar_lines += list(generate_line(*item))
-        return "\n".join(incar_lines)
+        return "\n".join(incar_lines) + "\n"
 
 
-def generate_line(key, value, num_spaces=0):
+def generate_line(key, value, num_spaces=1):
     indent = " " * num_spaces
     if isinstance(value, str):
         if value.find("\n") != -1:
             value = '"' + value + '"'
-        yield indent + f"{key} = {value}"
+        yield indent + f"{key.upper()} = {value}"
     elif isinstance(value, dict):
-        yield indent + f"{key} {{"
+        yield indent + f"{key.upper()} {{"
         for item in value.items():
             yield from generate_line(*item, num_spaces + 4)
         yield indent + "}"
     elif isinstance(value, Iterable):
-        yield indent + f"{key} = {' '.join(str(x) for x in value)}"
+        yield indent + f"{key.upper()} = {' '.join(str(x) for x in value)}"
     else:
-        yield indent + f"{key} = {value}"
+        yield indent + f"{key.upper()} = {value}"
