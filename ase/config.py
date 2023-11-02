@@ -13,35 +13,32 @@ ASE_CONFIG_FILE = Path.home() / ".config/ase/ase.conf"
 
 
 class Config(Mapping):
-
-    def __init__(self):
-        self._dct = os.environ
+    def _env(self):
+        if self.parser.has_section('environment'):
+            return self.parser['environment']
+        else:
+            return {}
 
     def __iter__(self):
-        # TARP: Iterate over the config file first and then over the
-        #       the environment
-        for x in iter(self.parser):
-            yield x
-        for x in iter(self._dct):
-            yield x
+        yield from self._env()
 
     def __getitem__(self, item):
         # TARP: Frist check the config file for an item and then check the
         #       environment variables.
-        if item in self.parser:
-            return self.parser[item]
-        elif item in self._dct:
-            # TARP: We may want to add a deprecation warning for this if we
-            #       want to no longer use the environment in the future
-            return self._dct[item]
-        else:
-            raise KeyError
+        env = self._env()
+        try:
+            return env[item]
+        except KeyError:
+            pass
+
+        value = os.environ[item]
+        warnings.warn(f'Loaded {item} from environment.  '
+                      'Please use configfile.')
+        env[item] = value
+        return value
 
     def __len__(self):
-        return len(self._dct) + len(self.parser)
-
-    def __contains__(self, item):
-        return item in self._dct or item in self.parser
+        return len(self._env())
 
     @lazymethod
     def _paths_and_parser(self):
