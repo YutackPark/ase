@@ -27,7 +27,7 @@ class FIRE(Optimizer):
         master: Optional[bool] = None,
         downhill_check: bool = False,
         position_reset_callback: Optional[Callable] = None,
-        force_consistent: Optional[bool] = None,
+        force_consistent=Optimizer._deprecated,
     ):
         """Parameters:
 
@@ -63,12 +63,6 @@ class FIRE(Optimizer):
             *r* that the optimizer will revert to, current energy *e* and
             energy of last step *e_last*. This is only called if e > e_last.
 
-        force_consistent: boolean or None
-            Use force-consistent energy calls (as opposed to the energy
-            extrapolated to 0 K).  By default (force_consistent=None) uses
-            force-consistent energies if available in the calculator, but
-            falls back to force_consistent=False if not.  Only meaningful
-            when downhill_check is True.
         """
         Optimizer.__init__(self, atoms, restart, logfile, trajectory,
                            master, force_consistent=force_consistent)
@@ -111,15 +105,13 @@ class FIRE(Optimizer):
         if self.v is None:
             self.v = np.zeros((len(optimizable), 3))
             if self.downhill_check:
-                self.e_last = optimizable.get_potential_energy(
-                    force_consistent=self.force_consistent)
+                self.e_last = optimizable.get_potential_energy()
                 self.r_last = optimizable.get_positions().copy()
                 self.v_last = self.v.copy()
         else:
             is_uphill = False
             if self.downhill_check:
-                e = optimizable.get_potential_energy(
-                    force_consistent=self.force_consistent)
+                e = optimizable.get_potential_energy()
                 # Check if the energy actually decreased
                 if e > self.e_last:
                     # If not, reset to old positions...
@@ -129,8 +121,7 @@ class FIRE(Optimizer):
                             self.e_last)
                     optimizable.set_positions(self.r_last)
                     is_uphill = True
-                self.e_last = optimizable.get_potential_energy(
-                    force_consistent=self.force_consistent)
+                self.e_last = optimizable.get_potential_energy()
                 self.r_last = optimizable.get_positions().copy()
                 self.v_last = self.v.copy()
 
