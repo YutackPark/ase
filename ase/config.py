@@ -109,7 +109,10 @@ class Config(Mapping):
                     with warnings.catch_warnings():
                         warnings.simplefilter("ignore")
                         version = profile.version()
-                fullname = f"{name}-{version}" if version is not None else f"{name}"
+
+                fullname = name
+                if version is not None:
+                    fullname += f"--{version}"
 
             def tickmark(thing):
                 return "[ ]" if thing is None else "[x]"

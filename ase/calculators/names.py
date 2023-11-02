@@ -15,6 +15,7 @@ names = ['abinit', 'ace', 'aims', 'amber', 'asap', 'castep', 'cp2k',
 
 builtin = {'eam', 'emt', 'ff', 'lj', 'morse', 'tip3p', 'tip4p'}
 
+
 class Templates(Mapping):
     def __init__(self, dct):
         self._dct = dct
