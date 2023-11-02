@@ -45,7 +45,7 @@ class BaseProfile(ABC):
         for key, value in self.parallel_info.items():
             if len(key) < 12:
                 continue
-            if key.endswith("_kwarg_trans"):
+            if key.endswith('_kwarg_trans'):
                 trans_key = key[:-12]
                 translation_keys[trans_key] = value
         return translation_keys
@@ -65,13 +65,13 @@ class BaseProfile(ABC):
         """
         command = []
         if self.parallel:
-            if "binary" in self.parallel_info:
-                command.append(self.parallel_info["binary"])
+            if 'binary' in self.parallel_info:
+                command.append(self.parallel_info['binary'])
 
             translation_keys = self.get_translation_keys()
 
             for key, value in self.parallel_info.items():
-                if key == "binary" or "_kwarg_trans" in key:
+                if key == 'binary' or '_kwarg_trans' in key:
                     continue
 
                 command_key = key
@@ -79,10 +79,10 @@ class BaseProfile(ABC):
                     command_key = translation_keys[key]
 
                 if type(value) is not bool:
-                    command.append(f"{command_key}")
-                    command.append(f"{value}")
+                    command.append(f'{command_key}')
+                    command.append(f'{value}')
                 elif value:
-                    command.append(f"{command_key}")
+                    command.append(f'{command_key}')
 
         command.extend(self.get_calculator_command(inputfile))
         return command
@@ -103,7 +103,9 @@ class BaseProfile(ABC):
         """
         ...
 
-    def run(self, directory, inputfile, outputfile, errorfile=None, append=False):
+    def run(
+        self, directory, inputfile, outputfile, errorfile=None, append=False
+    ):
         """
         Run the command in the given directory.
 
@@ -125,7 +127,7 @@ class BaseProfile(ABC):
         import os
 
         argv_command = self.get_command(inputfile)
-        mode = "wb" if not append else "ab"
+        mode = 'wb' if not append else 'ab'
 
         with ExitStack() as stack:
             fd_out = stack.enter_context(open(outputfile, mode))
@@ -171,7 +173,7 @@ class BaseProfile(ABC):
         BaseProfile
             The profile object.
         """
-        parallel_config = dict(cfg.parser["parallel"])
+        parallel_config = dict(cfg.parser['parallel'])
         parallel_info = parallel_info if parallel_info is not None else {}
         parallel_config.update(parallel_info)
 
@@ -202,7 +204,7 @@ def read_stdout(args, createfile=None):
             stderr=PIPE,
             stdin=PIPE,
             cwd=directory,
-            encoding="ascii",
+            encoding='ascii',
         )
         stdout, _ = proc.communicate()
         # Exit code will be != 0 because there isn't an input file
@@ -248,24 +250,25 @@ class CalculatorTemplate(ABC):
 
         if port and unixsocket:
             raise TypeError(
-                "For the socketio_calculator only a UNIX "
-                "(unixsocket) or INET (port) socket can be used"
-                " not both."
+                'For the socketio_calculator only a UNIX '
+                '(unixsocket) or INET (port) socket can be used'
+                ' not both.'
             )
 
         if not port and not unixsocket:
             raise TypeError(
-                "For the socketio_calculator either a "
-                "UNIX (unixsocket) or INET (port) socket "
-                "must be used"
+                'For the socketio_calculator either a '
+                'UNIX (unixsocket) or INET (port) socket '
+                'must be used'
             )
 
         if not (
-            hasattr(self, "socketio_argv") and hasattr(self, "socketio_parameters")
+            hasattr(self, 'socketio_argv')
+            and hasattr(self, 'socketio_parameters')
         ):
             raise TypeError(
-                f"Template {self} does not implement mandatory "
-                "socketio_argv() and socketio_parameters()"
+                f'Template {self} does not implement mandatory '
+                'socketio_argv() and socketio_parameters()'
             )
 
         # XXX need socketio ABC or something
@@ -288,7 +291,7 @@ class CalculatorTemplate(ABC):
                 directory=directory,
             )
 
-            with open(directory / self.outputname, "w") as out_fd:
+            with open(directory / self.outputname, 'w') as out_fd:
                 return Popen(argv, stdout=out_fd, cwd=directory, env=os.environ)
 
         return SocketIOCalculator(
@@ -312,7 +315,7 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
         self.template = template
         if profile is None:
             if template.name not in self.cfg.parser:
-                raise EnvironmentError(f"No configuration of {template.name}")
+                raise EnvironmentError(f'No configuration of {template.name}')
             try:
                 profile = template.load_profile(
                     self.cfg, parallel_info=parallel_info, parallel=parallel
@@ -320,8 +323,8 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
             except Exception as err:
                 configvars = self.cfg.as_dict()
                 raise EnvironmentError(
-                    f"Failed to load section [{template.name}] "
-                    f"from configuration: {configvars}"
+                    f'Failed to load section [{template.name}] '
+                    f'from configuration: {configvars}'
                 ) from err
 
         self.profile = profile
@@ -333,11 +336,12 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
 
     def set(self, *args, **kwargs):
         raise RuntimeError(
-            "No setting parameters for now, please.  " "Just create new calculators."
+            'No setting parameters for now, please.  '
+            'Just create new calculators.'
         )
 
     def __repr__(self):
-        return "{}({})".format(type(self).__name__, self.template.name)
+        return '{}({})'.format(type(self).__name__, self.template.name)
 
     @property
     def implemented_properties(self):

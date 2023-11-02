@@ -11,9 +11,11 @@ from ase.calculators.names import names, builtin, templates
 
 ASE_CONFIG_FILE = Path.home() / ".config/ase/ase.conf"
 
+
 class ASEEnvDeprecationWarning(DeprecationWarning):
     def __init__(self, message):
         self.message = message
+
 
 class Config(Mapping):
     def _env(self):
