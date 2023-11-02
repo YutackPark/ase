@@ -31,6 +31,9 @@ from ase.calculators.calculator import kpts2ndarray
 from ase.calculators.vasp.setups import get_default_setups
 from ase.config import cfg
 
+FLOAT_FORMAT = '5.6f'
+EXP_FORMAT = '5.2e'
+
 
 def format_kpoints(kpts, atoms, reciprocal=False, gamma=False):
     tokens = []
@@ -1492,21 +1495,21 @@ class GenerateVaspInput:
                     nelect_from_charge = default_nelect - charge
                     if val is not None and val != nelect_from_charge:
                         raise ValueError('incompatible input parameters: '
-                                         'nelect=%s, but charge=%s '
-                                         '(neutral nelect is %s)' %
-                                         (val, charge, default_nelect))
+                                         f'nelect={val}, but charge={charge} '
+                                         '(neutral nelect is '
+                                         f'{default_nelect})')
                     val = nelect_from_charge
             if val is not None:
-                incar.write(f' {key.upper()} = {val:5.6f}\n')
+                incar.write(f' {key.upper()} = {val:{FLOAT_FORMAT}}\n')
         for key, val in self.exp_params.items():
             if val is not None:
-                incar.write(f' {key.upper()} = {val:5.2e}\n')
+                incar.write(f' {key.upper()} = {val:{EXP_FORMAT}}\n')
         for key, val in self.string_params.items():
             if val is not None:
                 incar.write(f' {key.upper()} = {val}\n')
         for key, val in self.int_params.items():
             if val is not None:
-                incar.write(' %s = %d\n' % (key.upper(), val))
+                incar.write(f' {key.upper()} = {val}\n')
                 if key == 'ichain' and val > 0:
                     incar.write(' IBRION = 3\n POTIM = 0.0\n')
                     for key, val in self.int_params.items():
@@ -1522,9 +1525,11 @@ class GenerateVaspInput:
             if val is None:
                 pass
             else:
-                incar.write(f' {key.upper()} = ')
-                [incar.write(f'{_to_vasp_bool(x)} ') for x in val]
-                incar.write('\n')
+                line = f' {key.upper()} ='
+                for x in val:
+                    line += f' {_to_vasp_bool(x)}'
+                line += '\n'
+                incar.write(line)
 
         for key, val in self.list_int_params.items():
             if val is None:
@@ -1533,7 +1538,7 @@ class GenerateVaspInput:
                 pass
             else:
                 incar.write(f' {key.upper()} = ')
-                [incar.write('%d ' % x) for x in val]
+                [incar.write(f'{x} ') for x in val]
                 incar.write('\n')
 
         for key, val in self.list_float_params.items():
@@ -1555,7 +1560,7 @@ class GenerateVaspInput:
                     self.spinpol = True
                     incar.write(' ispin = 2\n'.upper())
 
-                incar.write(f' {key.upper()} = ')
+                line = f' {key.upper()} = '
                 magmom_written = True
                 # Work out compact a*x b*y notation and write in this form
                 # Assume 1 magmom per atom, ordered as our atoms object
@@ -1569,32 +1574,29 @@ class GenerateVaspInput:
                         lst[-1][0] += 1
                     else:
                         lst.append([1, val[n]])
-                incar.write(' '.join(
-                    [f'{mom[0]:d}*{mom[1]:.4f}' for mom in lst]))
-                incar.write('\n')
+                line += ' '.join(['{:d}*{:.4f}'.format(mom[0], mom[1])
+                                  for mom in lst]) + '\n'
+                incar.write(line)
             else:
-                incar.write(f' {key.upper()} = ')
-                [incar.write('%.4f ' % x) for x in val]
-                incar.write('\n')
+                line = f' {key.upper()} = '
+                line += ' '.join([f'{x:.4f}' for x in val])
+                line += '\n'
+                incar.write(line)
 
         for key, val in self.bool_params.items():
             if val is not None:
-                incar.write(f' {key.upper()} = ')
-                if val:
-                    incar.write('.TRUE.\n')
-                else:
-                    incar.write('.FALSE.\n')
+                incar.write(f' {key.upper()} = {_to_vasp_bool(val)}\n')
+
         for key, val in self.special_params.items():
             if val is not None:
-                incar.write(f' {key.upper()} = ')
+                line = f' {key.upper()} = '
                 if key == 'lreal':
                     if isinstance(val, str):
-                        incar.write(val + '\n')
+                        line += val + '\n'
                     elif isinstance(val, bool):
-                        if val:
-                            incar.write('.TRUE.\n')
-                        else:
-                            incar.write('.FALSE.\n')
+                        line += f'{_to_vasp_bool(val)}\n'
+                incar.write(line)
+
         for key, val in self.dict_params.items():
             if val is not None:
                 if key == 'ldau_luj':
