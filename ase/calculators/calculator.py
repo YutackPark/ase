@@ -1024,12 +1024,16 @@ class FileIOCalculator(Calculator):
             name = 'ASE_' + self.name.upper() + '_COMMAND'
             command = self.cfg.get(name)
 
-        profile = None
         if command is None:
             if self.name in self.cfg.parser:
                 section = self.cfg.parser[self.name]
                 # XXX getargv() returns None if missing!
                 profile = ArgvProfile(self.name, section.getargv('argv'))
+            else:
+                raise EnvironmentError(
+                    f'No configuration of {self.name}.  '
+                    f'Missing section [{self.name}] in configuration'
+                )
         else:
             profile = OldShellProfile(self.name, command, self.prefix)
 
