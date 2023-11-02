@@ -276,6 +276,74 @@ def pytest_generate_tests(metafunc):
         metafunc.parametrize('seed', seeds)
 
 
+@pytest.fixture
+def config_file(tmp_path, monkeypatch):
+    dummy_config = """\
+[parallel]
+runner = mpirun
+nprocs = -np
+stdout = --output-filename
+
+[abinit]
+binary = /home/ase/calculators/abinit/bin/abinit
+abipy_mrgddb = /home/ase/calculators/abinit/bin/mrgddb
+abipy_anaddb = /home/ase/calculators/abinit/bin/anaddb
+
+[cp2k]
+cp2k_shell = cp2k_shell
+binary = cp2k
+
+[dftb]
+binary = /home/ase/calculators/dftbplus/bin/dftb+
+
+[dftd3]
+binary = /home/ase/calculators/dftd3/bin/dftd3
+
+[elk]
+binary = /usr/bin/elk-lapw
+
+[espresso]
+binary = /home/ase/calculators/espresso/bin/pw.x
+pseudo_path = /home/ase/.local/lib/python3.10/site-packages/asetest/\
+datafiles/espresso/gbrv-lda-espresso
+
+[exciting]
+binary = /home/ase/calculators/exciting/bin/exciting
+
+[gromacs]
+binary = gmx
+
+[lammps]
+binary = /home/ase/calculators/lammps/bin/lammps
+
+[mopac]
+binary = /home/ase/calculators/mopac/bin/mopac
+
+[nwchem]
+binary = /home/ase/calculators/nwchem/bin/nwchem
+
+[octopus]
+binary = /home/ase/calculators/octopus/bin/octopus
+
+[openmx]
+# binary = /usr/bin/openmx
+
+[siesta]
+binary = /home/ase/calculators/siesta/bin/siesta
+"""
+    from ase.config import Config
+
+    config_file_name = tmp_path / "ase.conf"
+    with open(config_file_name, "w") as f:
+        f.write(dummy_config)
+    monkeypatch.setenv("ASE_CONFIG_PATH", config_file_name.as_posix())
+    cfg = Config()
+    monkeypatch.setattr(
+        "ase.calculators.genericfileio.GenericFileIOCalculator.cfg", cfg
+    )
+    monkeypatch.setattr("ase.calculators.calculator.FileIOCalculator.cfg", cfg)
+
+
 class CLI:
     def __init__(self, calculators):
         self.calculators = calculators

@@ -3,14 +3,16 @@
 http://www.abinit.org/
 """
 
-import os
 import re
 from pathlib import Path
-from subprocess import check_call, check_output
+from subprocess import check_output
 
 import ase.io.abinit as io
-from ase.calculators.genericfileio import (CalculatorTemplate,
-                                           GenericFileIOCalculator)
+from ase.calculators.genericfileio import (
+    CalculatorTemplate,
+    GenericFileIOCalculator,
+    BaseProfile,
+)
 
 
 def get_abinit_version(command):
@@ -18,23 +20,31 @@ def get_abinit_version(command):
     # This allows trailing stuff like betas, rc and so
     m = re.match(r'\s*(\d\.\d\.\d)', txt)
     if m is None:
-        raise RuntimeError('Cannot recognize abinit version. '
-                           'Start of output: {}'
-                           .format(txt[:40]))
+        raise RuntimeError(
+            'Cannot recognize abinit version. ' 'Start of output: {}'.format(
+                txt[:40]
+            )
+        )
     return m.group(1)
 
 
-class AbinitProfile:
-    def __init__(self, argv):
-        self.argv = argv
+class AbinitProfile(BaseProfile):
+    def __init__(self, binary, **kwargs):
+        super().__init__(**kwargs)
+        self.binary = binary
 
     def version(self):
-        return check_output(self.argv + ['--version'])
+        return check_output(
+            self.binary + ['--version'], encoding='ascii'
+        ).strip()
 
-    def run(self, directory, inputfile, outputfile):
-        argv = self.argv + [str(inputfile)]
-        with open(directory / outputfile, 'wb') as fd:
-            check_call(argv, stdout=fd, env=os.environ, cwd=directory)
+    def get_calculator_command(self, inputfile):
+        return [self.binary, str(inputfile)]
+
+    def socketio_argv_unix(self, socket):
+        # XXX clean up the passing of the inputfile
+        inputfile = AbinitTemplate().input_file
+        return [self.binary, inputfile, '--ipi', f'{socket}:UNIX']
 
 
 class AbinitTemplate(CalculatorTemplate):
@@ -43,8 +53,14 @@ class AbinitTemplate(CalculatorTemplate):
     def __init__(self):
         super().__init__(
             name='abinit',
-            implemented_properties=['energy', 'free_energy',
-                                    'forces', 'stress', 'magmom'])
+            implemented_properties=[
+                'energy',
+                'free_energy',
+                'forces',
+                'stress',
+                'magmom',
+            ],
+        )
 
         # XXX superclass should require inputname and outputname
 
@@ -54,27 +70,28 @@ class AbinitTemplate(CalculatorTemplate):
     def execute(self, directory, profile) -> None:
         profile.run(directory, self.inputname, self.outputname)
 
-    def write_input(self, directory, atoms, parameters, properties):
+    def write_input(self, profile, directory, atoms, parameters, properties):
         directory = Path(directory)
         parameters = dict(parameters)
         pp_paths = parameters.pop('pp_paths', None)
         assert pp_paths is not None
 
-        kw = dict(
-            xc='LDA',
-            smearing=None,
-            kpts=None,
-            raw=None,
-            pps='fhi')
+        kw = dict(xc='LDA', smearing=None, kpts=None, raw=None, pps='fhi')
         kw.update(parameters)
 
         io.prepare_abinit_input(
             directory=directory,
-            atoms=atoms, properties=properties, parameters=kw,
-            pp_paths=pp_paths)
+            atoms=atoms,
+            properties=properties,
+            parameters=kw,
+            pp_paths=pp_paths,
+        )
 
     def read_results(self, directory):
         return io.read_abinit_outputs(directory, self._label)
+
+    def load_profile(self, cfg, **kwargs):
+        return AbinitProfile.from_config(cfg, self.name, **kwargs)
 
     def socketio_argv(self, profile, unixsocket, port):
         # XXX This handling of --ipi argument is used by at least two
@@ -83,7 +100,11 @@ class AbinitTemplate(CalculatorTemplate):
             ipi_arg = f'{unixsocket}:UNIX'
         else:
             ipi_arg = f'localhost:{port:d}'
-        return [*profile.argv, self.inputname, '--ipi', ipi_arg]
+
+        return profile.get_calculator_command(self.inputname) + [
+            '--ipi',
+            ipi_arg,
+        ]
 
     def socketio_parameters(self, unixsocket, port):
         return dict(ionmov=28, expert_user=1, optcell=2)
@@ -98,7 +119,15 @@ class Abinit(GenericFileIOCalculator):
       calc = Abinit(label='abinit', xc='LDA', ecut=400, toldfe=1e-5)
     """
 
-    def __init__(self, *, profile=None, directory='.', **kwargs):
+    def __init__(
+        self,
+        *,
+        profile=None,
+        directory='.',
+        parallel_info=None,
+        parallel=True,
+        **kwargs,
+    ):
         """Construct ABINIT-calculator object.
 
         Parameters
@@ -117,10 +146,11 @@ class Abinit(GenericFileIOCalculator):
 
         """
 
-        if profile is None:
-            profile = AbinitProfile(['abinit'])
-
-        super().__init__(template=AbinitTemplate(),
-                         profile=profile,
-                         directory=directory,
-                         parameters=kwargs)
+        super().__init__(
+            template=AbinitTemplate(),
+            profile=profile,
+            directory=directory,
+            parallel_info=parallel_info,
+            parallel=parallel,
+            parameters=kwargs,
+        )
