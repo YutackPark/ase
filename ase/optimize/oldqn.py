@@ -286,13 +286,10 @@ class GoodOldQuasiNewton(Optimizer):
 
         pos = self.optimizable.get_positions().ravel()
         G = -self.optimizable.get_forces().ravel()
-        # XXX Next line forgets the "force_consistent" boolean!
-        energy = self.optimizable.get_potential_energy(
-            force_consistent=False)
-        # We should probably use self.force_consistent
+
+        energy = self.optimizable.get_potential_energy()
 
         if hasattr(self, 'oldenergy'):
-
             self.write_log('energies ' + str(energy) +
                            ' ' + str(self.oldenergy))
 

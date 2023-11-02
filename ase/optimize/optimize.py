@@ -4,12 +4,16 @@ from collections.abc import Callable
 from math import sqrt
 from os.path import isfile
 from typing import IO, Any, Dict, List, Optional, Union
+import warnings
 
 from ase import Atoms
 from ase.calculators.calculator import PropertyNotImplementedError
 from ase.parallel import barrier, world
-from ase.utils import IOContext
+from ase.utils import IOContext, lazyproperty
 from ase.utils.abc import Optimizable
+
+
+DEFAULT_MAX_STEPS = 100_000_000
 
 
 class RestartError(RuntimeError):
@@ -29,7 +33,26 @@ class OptimizableAtoms(Optimizable):
     def get_forces(self):
         return self.atoms.get_forces()
 
-    def get_potential_energy(self, force_consistent):
+    @lazyproperty
+    def _use_force_consistent_energy(self):
+        # This boolean is in principle invalidated if the
+        # calculator changes.  This can lead to weird things
+        # in multi-step optimizations.
+        try:
+            self.atoms.get_potential_energy(force_consistent=True)
+        except PropertyNotImplementedError:
+            # warnings.warn(
+            #     'Could not get force consistent energy (\'free_energy\').  '
+            #     'Please make sure calculator provides \'free_energy\', even '
+            #     'if equal to the ordinary energy.  '
+            #     'This will raise an error in future versions of ASE.',
+            #     FutureWarning)
+            return False
+        else:
+            return True
+
+    def get_potential_energy(self):
+        force_consistent = self._use_force_consistent_energy
         return self.atoms.get_potential_energy(
             force_consistent=force_consistent)
 
@@ -90,8 +113,7 @@ class Dynamics(IOContext):
         self.logfile = self.openfile(logfile, mode='a', comm=world)
         self.observers: List[Callable] = []
         self.nsteps = 0
-        # maximum number of steps placeholder with maxint
-        self.max_steps = 100000000
+        self.max_steps = 0  # to be updated in run or irun
 
         if trajectory is not None:
             if isinstance(trajectory, str):
@@ -172,16 +194,32 @@ class Dynamics(IOContext):
             if call:
                 function(*args, **kwargs)
 
-    def irun(self):
-        """Run dynamics algorithm as generator. This allows, e.g.,
-        to easily run two optimizers or MD thermostats at the same time.
+    def irun(self, steps=DEFAULT_MAX_STEPS):
+        """Run dynamics algorithm as generator.
 
-        Examples:
+        Parameters
+        ----------
+        steps : int, default=DEFAULT_MAX_STEPS
+            Number of dynamics steps to be run.
+
+        Yields
+        ------
+        converged : bool
+            True if the forces on atoms are converged.
+
+        Examples
+        --------
+        This method allows, e.g., to run two optimizers or MD thermostats at
+        the same time.
         >>> opt1 = BFGS(atoms)
         >>> opt2 = BFGS(StrainFilter(atoms)).irun()
         >>> for _ in opt2:
-        >>>     opt1.run()
+        ...     opt1.run()
         """
+
+        # update the maximum number of steps
+        self.max_steps = self.nsteps + steps
+
         # compute the initial step
         self.optimizable.get_forces()
 
@@ -208,14 +246,25 @@ class Dynamics(IOContext):
             is_converged = self.converged()
             yield is_converged
 
-    def run(self):
+    def run(self, steps=DEFAULT_MAX_STEPS):
         """Run dynamics algorithm.
 
         This method will return when the forces on all individual
         atoms are less than *fmax* or when the number of steps exceeds
-        *steps*."""
+        *steps*.
 
-        for converged in Dynamics.irun(self):
+        Parameters
+        ----------
+        steps : int, default=DEFAULT_MAX_STEPS
+            Number of dynamics steps to be run.
+
+        Returns
+        -------
+        converged : bool
+            True if the forces on atoms are converged.
+        """
+
+        for converged in Dynamics.irun(self, steps=steps):
             pass
         return converged
 
@@ -239,6 +288,7 @@ class Optimizer(Dynamics):
 
     # default maxstep for all optimizers
     defaults = {'maxstep': 0.2}
+    _deprecated = object()
 
     def __init__(
         self,
@@ -248,7 +298,7 @@ class Optimizer(Dynamics):
         trajectory: Optional[str] = None,
         master: Optional[bool] = None,
         append_trajectory: bool = False,
-        force_consistent: Optional[bool] = False,
+        force_consistent=_deprecated,
     ):
         """Structure optimizer object.
 
@@ -282,22 +332,17 @@ class Optimizer(Dynamics):
             force-consistent energies if available in the calculator, but
             falls back to force_consistent=False if not.
         """
-        Dynamics.__init__(
-            self,
+        self.check_deprecated(force_consistent)
+
+        super().__init__(
             atoms,
             logfile,
             trajectory,
             append_trajectory=append_trajectory,
-            master=master,
-        )
-
-        self.force_consistent = force_consistent
-        if self.force_consistent is None:
-            self.set_force_consistent()
+            master=master)
 
         self.restart = restart
 
-        # initialize attribute
         self.fmax = None
 
         if restart is None or not isfile(restart):
@@ -305,6 +350,17 @@ class Optimizer(Dynamics):
         else:
             self.read()
             barrier()
+
+    @classmethod
+    def check_deprecated(cls, force_consistent):
+        if force_consistent is cls._deprecated:
+            return False
+
+        warnings.warn(
+            'force_consistent keyword is deprecated and will '
+            'be ignored.  This will raise an error in future versions '
+            'of ASE.',
+            FutureWarning)
 
     def read(self):
         raise NotImplementedError
@@ -323,19 +379,41 @@ class Optimizer(Dynamics):
     def initialize(self):
         pass
 
-    def irun(self, fmax=0.05, steps=None):
-        """ call Dynamics.irun and keep track of fmax"""
-        self.fmax = fmax
-        if steps is not None:
-            self.max_steps = steps
-        return Dynamics.irun(self)
+    def irun(self, fmax=0.05, steps=DEFAULT_MAX_STEPS):
+        """Run optimizer as generator.
 
-    def run(self, fmax=0.05, steps=None):
-        """ call Dynamics.run and keep track of fmax"""
+        Parameters
+        ----------
+        fmax : float
+            Convergence criterion of the forces on atoms.
+        steps : int, default=DEFAULT_MAX_STEPS
+            Number of optimizer steps to be run.
+
+        Yields
+        ------
+        converged : bool
+            True if the forces on atoms are converged.
+        """
         self.fmax = fmax
-        if steps is not None:
-            self.max_steps = steps
-        return Dynamics.run(self)
+        return Dynamics.irun(self, steps=steps)
+
+    def run(self, fmax=0.05, steps=DEFAULT_MAX_STEPS):
+        """Run optimizer.
+
+        Parameters
+        ----------
+        fmax : float
+            Convergence criterion of the forces on atoms.
+        steps : int, default=DEFAULT_MAX_STEPS
+            Number of optimizer steps to be run.
+
+        Returns
+        -------
+        converged : bool
+            True if the forces on atoms are converged.
+        """
+        self.fmax = fmax
+        return Dynamics.run(self, steps=steps)
 
     def converged(self, forces=None):
         """Did the optimization converge?"""
@@ -347,9 +425,7 @@ class Optimizer(Dynamics):
         if forces is None:
             forces = self.optimizable.get_forces()
         fmax = sqrt((forces ** 2).sum(axis=1).max())
-        e = self.optimizable.get_potential_energy(
-            force_consistent=self.force_consistent
-        )
+        e = self.optimizable.get_potential_energy()
         T = time.localtime()
         if self.logfile is not None:
             name = self.__class__.__name__
@@ -358,19 +434,9 @@ class Optimizer(Dynamics):
                 msg = "%s  %4s %8s %15s  %12s\n" % args
                 self.logfile.write(msg)
 
-                # if self.force_consistent:
-                #     msg = "*Force-consistent energies used in optimization.\n"
-                #     self.logfile.write(msg)
-
-            # XXX The "force consistent" handling is really arbitrary.
-            # Let's disable the special printing for now.
-            #
-            # ast = {1: "*", 0: ""}[self.force_consistent]
-            ast = ''
-            args = (name, self.nsteps, T[3], T[4], T[5], e, ast, fmax)
-            msg = "%s:  %3d %02d:%02d:%02d %15.6f%1s %15.6f\n" % args
+            args = (name, self.nsteps, T[3], T[4], T[5], e, fmax)
+            msg = "%s:  %3d %02d:%02d:%02d %15.6f %15.6f\n" % args
             self.logfile.write(msg)
-
             self.logfile.flush()
 
     def dump(self, data):
@@ -389,13 +455,3 @@ class Optimizer(Dynamics):
                        'You may need to delete the restart file '
                        f'{self.restart}')
                 raise RestartError(msg) from ex
-
-    def set_force_consistent(self):
-        """Automatically sets force_consistent to True if force_consistent
-        energies are supported by calculator; else False."""
-        try:
-            self.optimizable.get_potential_energy(force_consistent=True)
-        except PropertyNotImplementedError:
-            self.force_consistent = False
-        else:
-            self.force_consistent = True

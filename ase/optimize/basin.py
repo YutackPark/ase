@@ -153,9 +153,6 @@ class BasinHopping(Dynamics):
             if self.lm_trajectory is not None:
                 self.lm_trajectory.write(self.optimizable)
 
-            # XXX This forgets about force_consistent!
-            # Now we set the variable to False explicitly because the
-            # Optimizable interface requires this choice.
-            self.energy = self.optimizable.get_potential_energy(False)
+            self.energy = self.optimizable.get_potential_energy()
 
         return self.energy

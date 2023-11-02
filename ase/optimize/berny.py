@@ -83,8 +83,8 @@ class Berny(Optimizer):
     def step(self, forces=None):
         if forces is None:
             forces = self.optimizable.get_forces()
-        # Should this use force_consistent? We just set it to False
-        energy = self.optimizable.get_potential_energy(force_consistent=False)
+
+        energy = self.optimizable.get_potential_energy()
         gradients = -forces
         debug = self._berny.send((energy / Ha, gradients / Ha * Bohr))
         self.dump(debug)
