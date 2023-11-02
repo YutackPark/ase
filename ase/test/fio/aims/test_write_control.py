@@ -271,7 +271,6 @@ def test_control_tier(
     parameters['tier'] = tier
 
     control_file_as_string = write_control_to_string(bulk_aucl, parameters)
-    print(control_file_as_string)
 
     assert contains(r"output_level\s+" + "", control_file_as_string)
     assert contains(expected_basis_set_re, control_file_as_string)
