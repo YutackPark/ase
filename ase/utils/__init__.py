@@ -48,17 +48,28 @@ basestring = str
 pickleload = functools.partial(pickle.load, encoding='bytes')
 
 
-def deprecated(msg, category=FutureWarning):
+def deprecated(msg,
+               category=FutureWarning,
+               condition=lambda *args, **kwargs: True):
     """Return a decorator deprecating a function.
 
-    Use like @deprecated('warning message and explanation')."""
+    Use like:
+
+    >>> from ase.utils import deprecated
+
+    >>> @deprecated('warning message and explanation',
+    ...             category=DeprecationWarning,
+    ...             condition=lambda *args, **kwargs: 'atoms' in kwargs)
+    >>> def no_atoms_function(atoms=None):...
+    """
     def deprecated_decorator(func):
         @functools.wraps(func)
         def deprecated_function(*args, **kwargs):
-            warning = msg
-            if not isinstance(warning, Warning):
-                warning = category(warning)
-            warnings.warn(warning)
+            if condition(*args, **kwargs):
+                warning = msg
+                if not isinstance(warning, Warning):
+                    warning = category(warning)
+                warnings.warn(warning)
             return func(*args, **kwargs)
         return deprecated_function
     return deprecated_decorator
