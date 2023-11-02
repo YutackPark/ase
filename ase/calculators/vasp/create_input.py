@@ -22,7 +22,7 @@ import os
 import shutil
 import warnings
 from os.path import isfile, islink, join
-from typing import List, Sequence, Tuple, Union
+from typing import List, Sequence, Tuple
 
 import numpy as np
 
@@ -1071,7 +1071,6 @@ class GenerateVaspInput:
     # environment variable for PP paths
     VASP_PP_PATH = 'VASP_PP_PATH'
 
-
     def __init__(self, restart=None):
         self.float_params = {}
         self.exp_params = {}
@@ -1131,14 +1130,15 @@ class GenerateVaspInput:
             'custom': {},
         }
         # warning message for pw91
-        self.pw91_warning_msg = "The PW91 (potpaw_GGA) pseudopotential set is " \
-                           "from 2006 and not recommended for use.\nWe will " \
-                           "remove support for it in a future release, " \
-                           "and use the current PBE (potpaw_PBE) set instead.\n" \
-                           "Note that this still allows for PW91 calculations, " \
-                           "since VASP recalculates the exchange-correlation\n" \
-                           "energy inside the PAW sphere and corrects the atomic " \
-                           "energies given by the POTCAR file."
+        self.pw91_warning_msg =\
+            "The PW91 (potpaw_GGA) pseudopotential set is " \
+            "from 2006 and not recommended for use.\nWe will " \
+            "remove support for it in a future release, " \
+            "and use the current PBE (potpaw_PBE) set instead.\n" \
+            "Note that this still allows for PW91 calculations, " \
+            "since VASP recalculates the exchange-correlation\n" \
+            "energy inside the PAW sphere and corrects the atomic " \
+            "energies given by the POTCAR file."
 
     def set_xc_params(self, xc):
         """Set parameters corresponding to XC functional"""
