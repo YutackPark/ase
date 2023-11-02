@@ -275,7 +275,9 @@ class CalculatorTemplate(ABC):
             )
 
         # XXX need socketio ABC or something
-        argv = profile.get_command(" ".join(self.socketio_argv(profile, unixsocket, port)))
+        argv = profile.get_command(
+            " ".join(self.socketio_argv(profile, unixsocket, port))
+        )
         parameters = {
             **self.socketio_parameters(unixsocket, port),
             **parameters,
