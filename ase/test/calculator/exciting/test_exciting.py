@@ -182,17 +182,6 @@ def nitrogen_trioxide_atoms():
                      pbc=True)
 
 
-def test_exciting_profile_init(excitingtools):
-    """Test initializing an ExcitingProfile object."""
-    exciting_root = 'testdir/nowhere/'
-    species_path = 'testdir/species/'
-    # A fake exciting root should cause a FileNotFoundError when the init
-    # method tries to query what exciting version is present.
-    with pytest.raises(FileNotFoundError):
-        ase.calculators.exciting.exciting.ExcitingProfile(
-            exciting_root=exciting_root, species_path=species_path)
-
-
 def test_ground_state_template_init(excitingtools):
     """Test initialization of the ExcitingGroundStateTemplate class."""
     gs_template_obj = (
@@ -221,11 +210,16 @@ def test_ground_state_template_write_input(
     # Expected number of points in the bandstructure.
     expected_number_of_special_points = 12
     bandstructure_steps = 100
+    binary_path = tmp_path / 'exciting_binary'
 
     gs_template_obj = (
         ase.calculators.exciting.exciting.ExcitingGroundStateTemplate())
+    exciting_profile = ase.calculators.exciting.exciting.ExcitingProfile(
+        binary=binary_path)
     gs_template_obj.write_input(
-        directory=tmp_path, atoms=nitrogen_trioxide_atoms,
+        profile=exciting_profile,
+        directory=tmp_path,
+        atoms=nitrogen_trioxide_atoms,
         parameters={
             'title': None,
             'species_path': tmp_path,

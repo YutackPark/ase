@@ -100,7 +100,7 @@ coordinates.forces>
 """
 
 
-def test_openmx_out():
+def test_openmx_out(config_file):
     with open('openmx_fio_test.out', 'w') as fd:
         fd.write(openmx_out_sample)
     atoms = read_openmx('openmx_fio_test')
