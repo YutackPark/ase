@@ -22,7 +22,7 @@ class Optimizable(collections.abc.Sized):
         ...
 
     @abstractmethod
-    def get_potential_energy(self, force_consistent):
+    def get_potential_energy(self):
         ...
 
     @abstractmethod
