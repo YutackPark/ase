@@ -303,7 +303,7 @@ def _orthorhombic_bulk(name, crystalstructure, a, covera=None, u=None):
     return atoms
 
 
-def _cubic_bulk(name, crystalstructure, a):
+def _cubic_bulk(name: str, crystalstructure: str, a: float) -> Atoms:
     if crystalstructure == 'fcc':
         atoms = Atoms(4 * name, cell=(a, a, a), pbc=True,
                       scaled_positions=[(0, 0, 0), (0, 0.5, 0.5),
