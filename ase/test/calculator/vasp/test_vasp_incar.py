@@ -1,5 +1,4 @@
 from os.path import join
-from unittest import mock
 from unittest.mock import mock_open, patch, MagicMock
 
 import pytest
@@ -14,11 +13,15 @@ def vaspinput_factory():
     pseudopotentials."""
 
     def _vaspinput_factory(**kwargs) -> GenerateVaspInput:
-        mocker = mock.Mock()
         inputs = GenerateVaspInput()
         inputs.set(**kwargs)
-        inputs._build_pp_list = mocker(  # type: ignore[method-assign]
-            return_value=None)
+
+        def mock_build_pp_list(atoms, setups=None, special_setups=None):
+            return ['hello' for _ in set(atoms.symbols)]
+
+        inputs._build_pp_list = mock_build_pp_list
+        inputs.default_nelect_from_ppp = lambda: 17
+
         return inputs
 
     return _vaspinput_factory
