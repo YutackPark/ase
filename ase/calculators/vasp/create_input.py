@@ -1567,43 +1567,47 @@ class GenerateVaspInput:
                 else:
                     lst.append([1, val[n]])
             line = ' '.join(['{:d}*{:.4f}'.format(mom[0], mom[1])
-                                for mom in lst]) + '\n'
+                                for mom in lst])
             float_dct['magmom'] = line
         incar_str += generate_incar_lines(float_dct)
 
-        for key, val in self.bool_params.items():
-            if val is not None:
-                incar_str += f' {key.upper()} = {_to_vasp_bool(val)}\n'
+        # bool params
+        bool_dct = dict((key, _to_vasp_bool(val)) for key, val in self.bool_params.items()
+                        if val is not None)
+        incar_str += generate_incar_lines(bool_dct)
 
-        for key, val in self.special_params.items():
-            if val is not None:
-                line = f' {key.upper()} = '
-                if key == 'lreal':
-                    if isinstance(val, str):
-                        line += val + '\n'
-                    elif isinstance(val, bool):
-                        line += f'{_to_vasp_bool(val)}\n'
-                incar_str += line
+        # special params
+        special_dct = dict((key, val) for key, val in self.special_params.items()
+                        if val is not None)
+        if 'lreal' in special_dct.keys():
+            if isinstance(special_dct['lreal'], bool):
+                special_dct['lreal'] = _to_vasp_bool(special_dct['lreal'])
+        incar_str += generate_incar_lines(special_dct)
 
-        for key, val in self.dict_params.items():
-            if val is not None:
-                if key == 'ldau_luj':
-                    # User didn't turn on LDAU tag.
-                    # Only turn on if ldau is unspecified
-                    if self.bool_params['ldau'] is None:
-                        self.bool_params['ldau'] = True
-                        # At this point we have already parsed our bool params
-                        incar_str += ' LDAU = .TRUE.\n'
-                    llist = ulist = jlist = ''
-                    for symbol in self.symbol_count:
-                        #  default: No +U
-                        luj = val.get(symbol[0], {'L': -1, 'U': 0.0, 'J': 0.0})
-                        llist += ' %i' % luj['L']
-                        ulist += ' %.3f' % luj['U']
-                        jlist += ' %.3f' % luj['J']
-                    incar_str += f' LDAUL ={llist}\n'
-                    incar_str += f' LDAUU ={ulist}\n'
-                    incar_str += f' LDAUJ ={jlist}\n'
+        # dict params
+        dict_dct = dict((key, val) for key, val in self.dict_params.items()
+                        if val is not None)
+        if 'ldau_luj' in dict_dct.keys():
+            if self.bool_params['ldau'] is None:
+                dict_dct['ldau'] = '.TRUE.'
+            llist = []
+            ulist = []
+            jlist = []
+            for symbol in self.symbol_count:
+                #  default: No +U
+                luj = dict_dct['ldau_luj'].get(symbol[0], {'L': -1, 'U': 0.0, 'J': 0.0})
+                llist.append(int(luj['L']))
+                ulist.append(f'{luj["U"]:{".3f"}}')
+                jlist.append(f'{luj["J"]:{".3f"}}')
+                #llist += ' %i' % luj['L']
+                #ulist += ' %.3f' % luj['U']
+                #jlist += ' %.3f' % luj['J']
+            dict_dct['ldaul'] = llist
+            dict_dct['ldauu'] = ulist
+            dict_dct['ldauj'] = jlist
+            del dict_dct['ldau_luj']
+        print(dict_dct)
+        incar_str += generate_incar_lines(dict_dct)
 
         if (self.spinpol and not magmom_written
                 # We don't want to write magmoms if they are all 0.
