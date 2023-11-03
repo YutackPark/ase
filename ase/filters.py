@@ -772,7 +772,7 @@ class ExpCellFilter(UnitCellFilter):
         warn(
             'Use FrechetCellFilter for better convergence wrt cell variables.',
             DeprecationWarning
-            )
+        )
         Filter.__init__(self, atoms, indices=range(len(atoms)))
         UnitCellFilter.__init__(self, atoms, mask, cell_factor,
                                 hydrostatic_strain,

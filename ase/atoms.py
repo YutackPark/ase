@@ -20,7 +20,7 @@ from ase.cell import Cell
 from ase.data import atomic_masses, atomic_masses_common
 from ase.stress import full_3x3_to_voigt_6_stress, voigt_6_to_full_3x3_stress
 from ase.symbols import Symbols, symbols2numbers
-from ase.utils import deprecated
+# from ase.utils import deprecated
 
 
 class Atoms:
@@ -422,7 +422,8 @@ class Atoms:
 
         in degrees.
         """
-        warnings.warn('Please use atoms.cell.cellpar() instead', DeprecationWarning)
+        warnings.warn('Please use atoms.cell.cellpar() instead',
+                      DeprecationWarning)
         return self.cell.cellpar()
 
     def get_reciprocal_cell(self):

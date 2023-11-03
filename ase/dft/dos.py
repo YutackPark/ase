@@ -247,4 +247,5 @@ def lti_dos1(e, w, energies, dos):
 
 
 def ltidos(*args, **kwargs):
-    warnings.warn('Please use linear_tetrahedron_integration().', DeprecationWarning)
+    warnings.warn('Please use linear_tetrahedron_integration().',
+                  DeprecationWarning)
