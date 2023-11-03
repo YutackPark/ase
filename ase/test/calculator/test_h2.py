@@ -1,7 +1,6 @@
 import pytest
 
 from ase.build import molecule
-from ase.test.factories import ObsoleteFactoryWrapper
 
 
 calc = pytest.mark.calculator

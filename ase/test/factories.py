@@ -439,7 +439,6 @@ class GromacsFactory:
 
 class BuiltinCalculatorFactory:
     def calc(self, **kwargs):
-        from ase.calculators.calculator import get_calculator_class
         cls = get_calculator_class(self.name)
         return cls(**kwargs)
 
@@ -641,7 +640,6 @@ def make_dummy_factory(name):
     @factory(name)
     class Factory:
         def calc(self, **kwargs):
-            from ase.calculators.calculator import get_calculator_class
             cls = get_calculator_class(name)
             return cls(**kwargs)
 
@@ -868,6 +866,5 @@ class ObsoleteFactoryWrapper:
         self.name = name
 
     def calc(self, **kwargs):
-        from ase.calculators.calculator import get_calculator_class
         cls = get_calculator_class(self.name)
         return cls(**kwargs)

@@ -10,15 +10,11 @@ calc = pytest.mark.calculator
 @calc('aims', sc_accuracy_rho=5.e-3, sc_accuracy_forces=1e-4, xc='LDA',
       kpts=(1, 1, 1))
 @calc('gpaw', mode='lcao', basis='sz(dzp)')
-# marks=pytest.mark.filterwarnings('ignore:The keyword')
-# Deprecated keyword, remove this once things are resolved
-# ^ Can this be removed now??
 @calc('abinit', 'cp2k', 'emt', 'psi4')
 @calc('vasp', xc='lda', prec='low')
 @calc('crystal', basis='sto-3g')
 @calc('gamess_us', label='test_traj')
 def test_h2_traj(factory, testdir):
-    name = factory.name
     h2 = molecule('H2')
     h2.center(vacuum=2.0)
     h2.pbc = True

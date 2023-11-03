@@ -265,6 +265,7 @@ dummy_factory_names = {
 
 def make_dummy_factory(name):
     from ase.test.factories import factory
+
     @factory(name)
     class Factory:
         def calc(self, **kwargs):
