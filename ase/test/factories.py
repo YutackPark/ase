@@ -623,7 +623,6 @@ dummy_factory_names = {
     'demonnano',
     'dftd3',
     'dmol',
-    'exciting',  # XXX remove?
     'gamess_us',
     'gaussian',
     'gulp',
