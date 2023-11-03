@@ -8,7 +8,7 @@ from ase.calculators.turbomole import Turbomole
 from ase.io import jsonio
 
 
-def test_turbomole_statpt():
+def test_turbomole_statpt(turbomole_factory):
     """test transition state optimization using the statpt module"""
     json_atoms = ('{"numbers": [6, 6, 6, 8, 1, 1, 1, 1], "positions": [[0.0, 0'
                   '.0, 0.0], [0.0, 0.0, 1.3399984079060756], [1.25573752066799'

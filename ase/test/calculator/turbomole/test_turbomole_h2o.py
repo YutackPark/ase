@@ -5,7 +5,7 @@ from ase.build import molecule
 from ase.calculators.turbomole import Turbomole
 
 
-def test_turbomole_h2o():
+def test_turbomole_h2o(turbomole_factory):
     mol = molecule('H2O')
 
     params = {
@@ -68,7 +68,7 @@ def test_turbomole_h2o():
     print(calc.todict(skip_default=False))
 
 
-def test_turbomole_h2o_parsing_issue():
+def test_turbomole_h2o_parsing_issue(turbomole_factory):
     """setting the damping in define causes a parsing issue during restart"""
     mol = molecule('H2O')
     params = {

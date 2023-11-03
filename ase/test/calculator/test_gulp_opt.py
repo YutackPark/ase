@@ -1,11 +1,12 @@
-def test_gulp_opt():
-    import numpy as np
+import numpy as np
 
-    from ase.build import bulk, molecule
-    from ase.calculators.gulp import GULP
-    from ase.filters import FrechetCellFilter
-    from ase.optimize import BFGS
+from ase.build import bulk, molecule
+from ase.calculators.gulp import GULP
+from ase.filters import FrechetCellFilter
+from ase.optimize import BFGS
 
+
+def test_gulp_opt(gulp_factory):
     # GULP optmization test
     atoms = molecule('H2O')
     atoms1 = atoms.copy()

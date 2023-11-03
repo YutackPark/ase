@@ -118,12 +118,6 @@ def calculators_header(config):
 
 
 @pytest.fixture(scope='session', autouse=True)
-def monkeypatch_disabled_calculators(request, factories):
-    # XXX Replace with another mechanism.
-    factories.monkeypatch_disabled_calculators()
-
-
-@pytest.fixture(scope='session', autouse=True)
 def sessionlevel_testing_path():
     # We cd into a tempdir so tests and fixtures won't create files
     # elsewhere (e.g. in the unsuspecting user's directory).
@@ -247,6 +241,48 @@ mopac_factory = make_factory_fixture('mopac')
 octopus_factory = make_factory_fixture('octopus')
 siesta_factory = make_factory_fixture('siesta')
 orca_factory = make_factory_fixture('orca')
+
+dummy_factory_names = {
+    'ace',
+    'aims',
+    'amber',
+    'crystal',
+    'demon',
+    'demonnano',
+    'dftd3',
+    'dmol',
+    'exciting',
+    'gamess_us',
+    'gaussian',
+    'gulp',
+    'hotbit',
+    'lammpslib',
+    'onetep',
+    'qchem',
+    'turbomole',
+}
+
+
+def make_dummy_factory(name):
+    from ase.test.factories import factory
+    @factory(name)
+    class Factory:
+        def calc(self, **kwargs):
+            from ase.calculators.calculator import get_calculator_class
+            cls = get_calculator_class(name)
+            return cls(**kwargs)
+
+        @classmethod
+        def fromconfig(cls, config):
+            return cls()
+
+    Factory.__name__ = f'{name.upper()}Factory'
+    globalvars = globals()
+    globalvars[f'{name}_factory'] = make_factory_fixture(name)
+
+
+for name in dummy_factory_names:
+    make_dummy_factory(name)
 
 
 @pytest.fixture

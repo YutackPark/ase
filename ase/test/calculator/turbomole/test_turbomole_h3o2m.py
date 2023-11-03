@@ -8,7 +8,7 @@ from ase.mep import NEB
 from ase.optimize import BFGS, QuasiNewton
 
 
-def test_turbomole_h3o2m():
+def test_turbomole_h3o2m(turbomole_factory):
     # http://jcp.aip.org/resource/1/jcpsa6/v97/i10/p7507_s1
     doo = 2.74
     doht = 0.957

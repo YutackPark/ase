@@ -1,10 +1,11 @@
-def test_qchem_calculator():
-    import numpy as np
+import numpy as np
 
-    from ase.build import molecule
-    from ase.calculators.qchem import QChem
-    from ase.optimize import LBFGS
+from ase.build import molecule
+from ase.calculators.qchem import QChem
+from ase.optimize import LBFGS
 
+
+def test_qchem_calculator(qchem_factory):
     mol = molecule('C2H6')
     calc = QChem(label='calc/ethane',
                  method='B3LYP',

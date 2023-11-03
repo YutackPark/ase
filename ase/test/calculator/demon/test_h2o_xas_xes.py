@@ -4,7 +4,7 @@ import ase.calculators.demon as demon
 from ase import Atoms
 
 
-def test_h2o_xas_xes():
+def test_h2o_xas_xes(demon_factory):
     # d = 0.9575
     d = 0.9775
     # t = np.pi / 180 * 104.51

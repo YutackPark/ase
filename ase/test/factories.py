@@ -713,10 +713,6 @@ class Factories:
     builtin_calculators = {'eam', 'emt', 'ff', 'lj', 'morse', 'tip3p', 'tip4p'}
     autoenabled_calculators = {'asap'} | builtin_calculators
 
-    # TODO: Port calculators to use factories.  As we do so, remove names
-    # from list of calculators that we monkeypatch:
-    monkeypatch_calculator_constructors = set()
-
     # Calculators requiring ase-datafiles.
     # TODO: So far hard-coded but should be automatically detected.
     datafile_calculators = {
@@ -799,32 +795,6 @@ class Factories:
 
     def __getitem__(self, name):
         return self.factories[name]
-
-    def monkeypatch_disabled_calculators(self):
-        test_calculator_names = (self.autoenabled_calculators
-                                 | self.builtin_calculators
-                                 | self.requested_calculators)
-        disable_names = (self.monkeypatch_calculator_constructors
-                         - test_calculator_names)
-
-        for name in disable_names:
-            try:
-                cls = get_calculator_class(name)
-            except ImportError:
-                pass
-            else:
-
-                def get_mock_init(name):
-                    def mock_init(obj, *args, **kwargs):
-                        pytest.skip(f'use --calculators={name} to enable')
-
-                    return mock_init
-
-                def mock_del(obj):
-                    pass
-
-                cls.__init__ = get_mock_init(name)
-                cls.__del__ = mock_del
 
 
 def get_factories(pytestconfig):

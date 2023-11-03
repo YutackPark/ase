@@ -4,25 +4,13 @@ from ase.build import molecule
 from ase.test.factories import ObsoleteFactoryWrapper
 
 
-@pytest.mark.parametrize('name', ['gamess_us', 'gaussian'])
-def test_h2dft_old(name):
-    factory = ObsoleteFactoryWrapper(name)
-    run(factory)
-
-
 calc = pytest.mark.calculator
 
 
-# @calc('abinit', ecut=200, toldfe=0.0001)
-# Doesn't work with abinit9.
-# We should replace the restart stuff anyway.
 @calc('cp2k', auto_write=True, uks=True)
-# @calc('gpaw', mode='lcao', basis='sz(dzp)')
+@calc('gamess_us')
+@calc('gaussian')
 def test_h2dft(factory):
-    run(factory)
-
-
-def run(factory):
     name = factory.name
     calc = factory.calc(label=name, xc='LDA')
     h2 = molecule('H2', calculator=calc)

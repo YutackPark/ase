@@ -13,7 +13,7 @@ def atoms():
     return Atoms('H2', positions=[(0, 0, 0), (0, 0, 1.1)])
 
 
-def test_turbomole_H2_rhf_singlet(atoms):
+def test_turbomole_H2_rhf_singlet(atoms, turbomole_factory):
     # Write all commands for the define command in a string
     define_str = '\n\na coord\n*\nno\nb all sto-3g hondo\n*\neht\n\n\n\n*'
 
@@ -23,7 +23,7 @@ def test_turbomole_H2_rhf_singlet(atoms):
     assert np.isclose(atoms.get_potential_energy(), -28.205659, atol=1e-5)
 
 
-def test_turbomole_H2_uhf_singlet(atoms):
+def test_turbomole_H2_uhf_singlet(atoms, turbomole_factory):
     atoms.calc = Turbomole(**{
         "multiplicity": 1, "uhf": True, "use dft": True
     })

@@ -76,7 +76,7 @@ ecp['Cl'] = """CL-ECP GEN    10    2
      15.3439560       2       3.1831000"""
 
 
-def test_gamess_us_basis_ecp():
+def test_gamess_us_basis_ecp(gamess_us_factory):
     atoms = molecule('NaCl')
     atoms.calc = GAMESSUS(basis=basis, ecp=ecp, label='NaCl')
     e = atoms.get_potential_energy()
