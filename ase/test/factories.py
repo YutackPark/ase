@@ -35,10 +35,8 @@ factory_classes = {}
 def factory(name):
     def decorator(cls):
         cls.name = name
-        print('NAME', name)
         assert name not in factory_classes, name
         factory_classes[name] = cls
-        print(sorted(factory_classes))
         return cls
 
     return decorator
