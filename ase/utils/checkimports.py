@@ -14,7 +14,7 @@ import os
 import re
 import sys
 from pprint import pprint
-from subprocess import PIPE, run
+from subprocess import run
 from typing import List, Optional, Set
 
 
@@ -40,10 +40,7 @@ def exec_and_check_modules(expression: str) -> Set[str]:
                " modules = list(sys.modules);"
                " import json; print(json.dumps(modules))")
     proc = run([sys.executable, '-c', command],
-               # For Python 3.6 and possibly older
-               stdout=PIPE, stderr=PIPE, universal_newlines=True,
-               # For Python 3.7+ the next line is equivalent
-               # capture_output=True, text=True,
+               capture_output=True, universal_newlines=True,
                check=True)
     return set(json.loads(proc.stdout))
 

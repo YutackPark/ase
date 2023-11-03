@@ -513,7 +513,7 @@ class BaseCalculator(GetPropertiesMixin):
     def get_property(self, name, atoms=None, allow_calculation=True):
         if name not in self.implemented_properties:
             raise PropertyNotImplementedError(
-                '{} property not implemented'.format(name)
+                f'{name} property not implemented'
             )
 
         if atoms is None:
@@ -955,7 +955,7 @@ class OldShellProfile:
             # to allow calling the subprocess directly, and then this
             # distinction (failed to launch vs failed to run) is useful.
             msg = f'Failed to execute "{command}"'
-            raise OSError(msg) from err
+            raise EnvironmentError(msg) from err
 
         errorcode = proc.wait()
 

@@ -43,7 +43,7 @@ def test_siesta_zmat(siesta_factory, atoms: Atoms):
     siesta.write_input(atoms, properties=['energy'])
 
     file = os.path.join(custom_dir, 'test_label.fdf')
-    with open(file, 'r', encoding='utf-8') as fd:
+    with open(file, encoding='utf-8') as fd:
         lines = fd.readlines()
     lsl = [line.split() for line in lines]
     assert ['cartesian'] in lsl
