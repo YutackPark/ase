@@ -803,7 +803,7 @@ def parametrize_calculator_tests(metafunc):
                              calculator_inputs,
                              indirect=True,
                              ids=lambda input: input[0])
-        
+
 
 class CalculatorInputs:
     def __init__(self, factory, parameters=None):
