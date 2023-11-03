@@ -105,13 +105,13 @@ def test_list_float_key(vaspinput_factory):
 
 def test_dict_key(vaspinput_factory):  # dict key. Current writer uses %.3f
     parameters = {"ldau_luj": {"H": {"L": 2, "U": 4.0, "J": 0.0}}}
-    # expected_output = " LDAUJ = 0.000\n"
     expected_output = ASE_header+" LDAU = .TRUE.\n LDAUL = 2\n LDAUU = 4.000\n LDAUJ = 0.000\n"
     check_last_call_to_write(parameters, expected_output, vaspinput_factory)
-    #expected_output = ASE_header+"\n".join([
-    #    " LDAU = .TRUE.",
-    #    " LDAUL = 2",
-    #    " LDAUU = 4.000",
-    #    " LDAUJ = 0.000\n",
-    #])
-    #check_calls_to_write(parameters, expected_output, vaspinput_factory)
+    # expected_output = [
+    #     ASE_header,
+    #     " LDAU = .TRUE.\n",
+    #     " LDAUL = 2\n",
+    #     " LDAUU = 4.000\n",
+    #     " LDAUJ = 0.000\n",
+    # ]
+    # check_calls_to_write(parameters, expected_output, vaspinput_factory)

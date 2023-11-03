@@ -36,22 +36,22 @@ from ase.io.vasp_parsers.incar_writer import generate_incar_lines
 FLOAT_FORMAT = '5.6f'
 EXP_FORMAT = '5.2e'
 
-def test_nelect_charge_compitability(nelect_val, charge, nelect_from_ppp):
+def test_nelect_charge_compitability(nelect, charge, nelect_from_ppp):
     # We need to determine the nelect resulting from a given
     # charge in any case if it's != 0, but if nelect is
     # additionally given explicitly, then we need to determine it
     # even for net charge of 0 to check for conflicts
-    if charge is not None and (charge != 0 or nelect_val is not None):
-        default_nelect = nelect_from_ppp
-        nelect_from_charge = default_nelect - charge
-        if nelect_val is not None and nelect_val != nelect_from_charge:
+    if charge is not None and charge != 0:
+        nelect_from_charge = nelect_from_ppp - charge
+        if nelect and nelect != nelect_from_charge:
             raise ValueError('incompatible input parameters: '
-                             f'nelect={nelect_val}, but charge={charge} '
+                             f'nelect={nelect}, but charge={charge} '
                              '(neutral nelect is '
-                             f'{default_nelect})')
+                             f'{nelect_from_ppp})')
+        print(nelect_from_charge)
         return nelect_from_charge
     else:
-        return nelect_val
+        return nelect
 
 def format_kpoints(kpts, atoms, reciprocal=False, gamma=False):
     tokens = []
@@ -1478,7 +1478,6 @@ class GenerateVaspInput:
 
     def write_incar(self, atoms, directory='./', **kwargs):
         """Writes the INCAR file."""
-        p = self.input_params
         # jrk 1/23/2015 I added this flag because this function has
         # two places where magmoms get written. There is some
         # complication when restarting that often leads to magmom
@@ -1488,11 +1487,14 @@ class GenerateVaspInput:
         # float params
         float_dct = dict((key, f'{val:{FLOAT_FORMAT}}') for key, val in self.float_params.items()
                             if val is not None)
-        if 'nelect' in float_dct:
-            nelect_val = test_nelect_charge_compitability(float(float_dct['nelect']),
-                                                 self.input_params['charge'],
-                                                 self.default_nelect_from_ppp())
-            float_dct['nelect'] = f'{nelect_val:{FLOAT_FORMAT}}'
+
+        if 'charge' in self.input_params:
+            nelect_val = test_nelect_charge_compitability(
+                        self.float_params['nelect'],
+                        self.input_params['charge'],
+                        self.default_nelect_from_ppp())
+            if nelect_val:
+                float_dct['nelect'] = f'{nelect_val:{FLOAT_FORMAT}}'
         incar_str += generate_incar_lines(float_dct)
 
         # exp params
@@ -1599,9 +1601,6 @@ class GenerateVaspInput:
                 llist.append(int(luj['L']))
                 ulist.append(f'{luj["U"]:{".3f"}}')
                 jlist.append(f'{luj["J"]:{".3f"}}')
-                #llist += ' %i' % luj['L']
-                #ulist += ' %.3f' % luj['U']
-                #jlist += ' %.3f' % luj['J']
             dict_dct['ldaul'] = llist
             dict_dct['ldauu'] = ulist
             dict_dct['ldauj'] = jlist
@@ -1609,36 +1608,39 @@ class GenerateVaspInput:
         print(dict_dct)
         incar_str += generate_incar_lines(dict_dct)
 
+        # get magmom from atoms if not explicitly set
+        extra_dct = {}
         if (self.spinpol and not magmom_written
                 # We don't want to write magmoms if they are all 0.
                 # but we could still be doing a spinpol calculation
                 and atoms.get_initial_magnetic_moments().any()):
             if not self.int_params['ispin']:
-                incar_str += ' ispin = 2\n'.upper()
+                extra_dct['ispin'] = 2
             # Write out initial magnetic moments
             magmom = atoms.get_initial_magnetic_moments()[self.sort]
             # unpack magmom array if three components specified
             if magmom.ndim > 1:
                 magmom = [item for sublist in magmom for item in sublist]
-            list = [[1, magmom[0]]]
+            lst = [[1, magmom[0]]]
             for n in range(1, len(magmom)):
                 if magmom[n] == magmom[n - 1]:
-                    list[-1][0] += 1
+                    lst[-1][0] += 1
                 else:
-                    list.append([1, magmom[n]])
-            incar_str += ' magmom = '.upper()
-            for mom in list:
-                incar_str += '%i*%.4f ' % (mom[0], mom[1])
-            incar_str += '\n'
+                    lst.append([1, magmom[n]])
+            line = ' '.join(['{:d}*{:.4f}'.format(mom[0], mom[1])
+                             for mom in lst])
+            extra_dct['magmom'] = line
+        incar_str += generate_incar_lines(extra_dct)
 
         # Custom key-value pairs, which receive no formatting
         # Use the comment "# <Custom ASE key>" to denote such
         # a custom key-value pair, as we cannot otherwise
         # reliably and easily identify such non-standard entries
-        custom_kv_pairs = p.get('custom')
-        for key, value in custom_kv_pairs.items():
-            incar_str += ' {} = {}  # <Custom ASE key>\n'.format(
-                key.upper(), value)
+
+        cust_dict = dict((key, str(val) + '  # <Custom ASE key>') for key, val in self.input_params['custom'].items()
+                        if val is not None)
+        incar_str += generate_incar_lines(cust_dict)
+
         with open(join(directory, 'INCAR'), 'w') as incar:
             incar.write(incar_str)
 
