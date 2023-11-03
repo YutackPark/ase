@@ -123,7 +123,7 @@ calculators-lite:
     - >
       ase test calculator --calculators=auto --coverage
       --pytest -m calculator_lite --color=yes --durations=20 -v
-      --junit-xml=report.xml
+      --junit-xml=report.xml -r s
       -W "ignore:The --rsyncdir command line argument"
     - coverage xml --data-file ase/test/.coverage
     - mv ase/test/coverage-html coverage-calculators-lite
