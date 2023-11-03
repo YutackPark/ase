@@ -35,6 +35,7 @@ factory_classes = {}
 def factory(name):
     def decorator(cls):
         cls.name = name
+        assert name not in factory_classes
         factory_classes[name] = cls
         return cls
 
@@ -627,7 +628,6 @@ dummy_factory_names = {
     'gaussian',
     'gulp',
     'hotbit',
-    'lammpslib',
     'onetep',
     'qchem',
     'turbomole',
