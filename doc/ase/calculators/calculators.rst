@@ -184,23 +184,27 @@ The example of a config file is as follows::
 
     [espresso]
     binary = pw.x
-    pseudo_dir = /home/ase/upf_pseudos
+    pseudo_path = /home/ase/upf_pseudos
 
 Then the `espresso` calculator can be invoked in the following way::
 
-    >>> from ase.build import molecule
+    >>> from ase.build import bulk
     >>> from ase.calculators.espresso import Espresso
     >>> espresso = Espresso(
-                       input_data = {'ecutwfc': 60},
-                       pseudopotentials = {'O': 'o_lda_v1.2.uspp.F.UPF'},
+                       input_data = {
+                            'system': {
+                               'ecutwfc': 60,
+                            }},
+                       pseudopotentials = {'Si': 'si_lda_v1.uspp.F.UPF'},
                        parallel=True,
                        parallel_info={'nprocs': 4}
                        )
-    >>> o2 = molecule('O2')
-    >>> o2.calc = espresso
-    >>> o2.get_potential_energy()
+    >>> si = bulk('Si')
+    >>> si.calc = espresso
+    >>> si.get_potential_energy()
+    -244.76638508140397
 
-Here espresso ran in parallel with 4 processes.
+Here espresso ran in parallel with 4 processes and produced a correct result.
 
 Calculator keywords
 ===================
