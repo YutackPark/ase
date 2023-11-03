@@ -7,7 +7,7 @@ Installation
 Requirements
 ============
 
-* Python_ 3.6 or newer
+* Python_ 3.8 or newer
 * NumPy_ (base N-dimensional array package)
 * SciPy_ (library for scientific computing)
 
