@@ -617,14 +617,13 @@ class SiestaFactory:
 
 dummy_factory_names = {
     'ace',
-    'aims',
     'amber',
     'crystal',
     'demon',
     'demonnano',
     'dftd3',
     'dmol',
-    'exciting',
+    'exciting',  # XXX remove?
     'gamess_us',
     'gaussian',
     'gulp',
