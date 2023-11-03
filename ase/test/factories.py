@@ -35,8 +35,10 @@ factory_classes = {}
 def factory(name):
     def decorator(cls):
         cls.name = name
-        assert name not in factory_classes
+        print('NAME', name)
+        assert name not in factory_classes, name
         factory_classes[name] = cls
+        print(sorted(factory_classes))
         return cls
 
     return decorator
@@ -616,43 +618,6 @@ class SiestaFactory:
         return cls(config.executables['siesta'], str(path))
 
 
-dummy_factory_names = {
-    'ace',
-    'amber',
-    'crystal',
-    'demon',
-    'demonnano',
-    'dftd3',
-    'dmol',
-    'gamess_us',
-    'gaussian',
-    'gulp',
-    'hotbit',
-    'onetep',
-    'qchem',
-    'turbomole',
-}
-
-
-def make_dummy_factory(name):
-    @factory(name)
-    class Factory:
-        def calc(self, **kwargs):
-            cls = get_calculator_class(name)
-            return cls(**kwargs)
-
-        @classmethod
-        def fromconfig(cls, config):
-            return cls()
-
-    Factory.__name__ = f'{name.upper()}Factory'
-    return Factory
-
-
-for name in dummy_factory_names:
-    make_dummy_factory(name)
-
-
 @factory('nwchem')
 class NWChemFactory:
     def __init__(self, executable):
@@ -700,28 +665,25 @@ class PlumedFactory:
         return cls()
 
 
-class NoSuchCalculator(Exception):
-    pass
-
-
 legacy_factory_calculator_names = {
     'ace',
     'amber',
     'crystal',
     'demon',
     'demonnano',
-    'dftd3',
     'dmol',
-    'exciting',
     'gamess_us',
     'gaussian',
     'gulp',
     'hotbit',
-    'lammpslib',
     'onetep',
     'qchem',
     'turbomole',
 }
+
+
+class NoSuchCalculator(Exception):
+    pass
 
 
 class Factories:
@@ -843,7 +805,7 @@ def parametrize_calculator_tests(metafunc):
                              calculator_inputs,
                              indirect=True,
                              ids=lambda input: input[0])
-
+        
 
 class CalculatorInputs:
     def __init__(self, factory, parameters=None):
