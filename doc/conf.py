@@ -4,7 +4,6 @@ import sys
 import sphinx_rtd_theme
 
 sys.path.append('.')
-assert sys.version_info >= (3, 6)
 
 extensions = ['ext',
               'sphinx.ext.autodoc',
