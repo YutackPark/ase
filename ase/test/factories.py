@@ -616,6 +616,47 @@ class SiestaFactory:
         return cls(config.executables['siesta'], str(path))
 
 
+dummy_factory_names = {
+    'ace',
+    'aims',
+    'amber',
+    'crystal',
+    'demon',
+    'demonnano',
+    'dftd3',
+    'dmol',
+    'exciting',
+    'gamess_us',
+    'gaussian',
+    'gulp',
+    'hotbit',
+    'lammpslib',
+    'onetep',
+    'qchem',
+    'turbomole',
+}
+
+
+def make_dummy_factory(name):
+    @factory(name)
+    class Factory:
+        def calc(self, **kwargs):
+            from ase.calculators.calculator import get_calculator_class
+            cls = get_calculator_class(name)
+            return cls(**kwargs)
+
+        @classmethod
+        def fromconfig(cls, config):
+            return cls()
+
+    Factory.__name__ = f'{name.upper()}Factory'
+    return Factory
+
+
+for name in dummy_factory_names:
+    make_dummy_factory(name)
+
+
 @factory('nwchem')
 class NWChemFactory:
     def __init__(self, executable):
@@ -674,25 +715,7 @@ class Factories:
 
     # TODO: Port calculators to use factories.  As we do so, remove names
     # from list of calculators that we monkeypatch:
-    monkeypatch_calculator_constructors = {
-        'ace',
-        'aims',
-        'amber',
-        'crystal',
-        'demon',
-        'demonnano',
-        'dftd3',
-        'dmol',
-        'exciting',
-        'gamess_us',
-        'gaussian',
-        'gulp',
-        'hotbit',
-        'lammpslib',
-        'onetep',
-        'qchem',
-        'turbomole',
-    }
+    monkeypatch_calculator_constructors = set()
 
     # Calculators requiring ase-datafiles.
     # TODO: So far hard-coded but should be automatically detected.
