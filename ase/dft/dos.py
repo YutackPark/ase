@@ -1,4 +1,5 @@
 from math import pi, sqrt
+import warnings
 
 import numpy as np
 
@@ -246,4 +247,4 @@ def lti_dos1(e, w, energies, dos):
 
 
 def ltidos(*args, **kwargs):
-    raise DeprecationWarning('Please use linear_tetrahedron_integration().')
+    warnings.warn('Please use linear_tetrahedron_integration().', DeprecationWarning)

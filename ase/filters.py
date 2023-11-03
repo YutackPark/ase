@@ -769,6 +769,10 @@ class ExpCellFilter(UnitCellFilter):
 
             \nabla E(U) / \nabla U_ij =  [L(U, S exp(-U))]_ij
         """
+        warn(
+            'Use FrechetCellFilter for better convergence wrt cell variables.',
+            DeprecationWarning
+            )
         Filter.__init__(self, atoms, indices=range(len(atoms)))
         UnitCellFilter.__init__(self, atoms, mask, cell_factor,
                                 hydrostatic_strain,

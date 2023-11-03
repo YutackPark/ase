@@ -8,6 +8,8 @@ object.
 """
 import copy
 import numbers
+import warnings
+
 from math import cos, pi, sin
 
 import numpy as np
@@ -268,20 +270,22 @@ class Atoms:
         new_symbols = Symbols.fromsymbols(obj)
         self.numbers[:] = new_symbols.numbers
 
-    @deprecated(DeprecationWarning('Please use atoms.calc = calc'))
     def set_calculator(self, calc=None):
         """Attach calculator object.
 
         Please use the equivalent atoms.calc = calc instead of this
         method."""
+
+        warnings.warn("Please use atoms.calc = calc", DeprecationWarning)
         self.calc = calc
 
-    @deprecated(DeprecationWarning('Please use atoms.calc'))
     def get_calculator(self):
         """Get currently attached calculator object.
 
         Please use the equivalent atoms.calc instead of
         atoms.get_calculator()."""
+
+        warnings.warn("Please use atoms.calc", DeprecationWarning)
         return self.calc
 
     @property
@@ -296,14 +300,14 @@ class Atoms:
             calc.set_atoms(self)
 
     @calc.deleter
-    @deprecated(DeprecationWarning('Please use atoms.calc = None'))
     def calc(self):
+        warnings.warn('Please use atoms.calc = None', DeprecationWarning)
         self._calc = None
 
     @property
-    @deprecated('Please use atoms.cell.rank instead')
     def number_of_lattice_vectors(self):
         """Number of (non-zero) lattice vectors."""
+        warnings.warn('Please use atoms.cell.rank instead', DeprecationWarning)
         return self.cell.rank
 
     def set_constraint(self, constraint=None):
@@ -408,7 +412,6 @@ class Atoms:
 
         return cell
 
-    @deprecated('Please use atoms.cell.cellpar() instead')
     def get_cell_lengths_and_angles(self):
         """Get unit cell parameters. Sequence of 6 numbers.
 
@@ -419,15 +422,15 @@ class Atoms:
 
         in degrees.
         """
+        warnings.warn('Please use atoms.cell.cellpar() instead', DeprecationWarning)
         return self.cell.cellpar()
 
-    @deprecated('Please use atoms.cell.reciprocal()')
     def get_reciprocal_cell(self):
         """Get the three reciprocal lattice vectors as a 3x3 ndarray.
 
         Note that the commonly used factor of 2 pi for Fourier
         transforms is not included here."""
-
+        warnings.warn('Please use atoms.cell.reciprocal()', DeprecationWarning)
         return self.cell.reciprocal()
 
     @property
@@ -966,7 +969,6 @@ class Atoms:
 
         You probably want len(atoms).  Or if your atoms are distributed,
         use (and see) get_global_number_of_atoms()."""
-        import warnings
         warnings.warn('Use get_global_number_of_atoms() instead',
                       np.VisibleDeprecationWarning)
         return len(self)

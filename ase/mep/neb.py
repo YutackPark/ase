@@ -1234,5 +1234,5 @@ def plot_band_from_fit(s, E, Sfit, Efit, lines, ax=None):
 
 
 def fit0(*args, **kwargs):
-    raise DeprecationWarning('fit0 is deprecated. Use `fit_raw` from '
-                             '`ase.utils.forcecurve` instead.')
+    warnings.warn('fit0 is deprecated. Use `fit_raw` from '
+                  '`ase.utils.forcecurve` instead.', DeprecationWarning)

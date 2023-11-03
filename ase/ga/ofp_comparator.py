@@ -1,5 +1,6 @@
 from itertools import combinations_with_replacement
 from math import erf
+import warnings
 
 import numpy as np
 from scipy.spatial.distance import cdist
@@ -493,7 +494,9 @@ class OFPComparator:
         try:
             import matplotlib.pyplot as plt
         except ImportError:
-            Warning("Matplotlib could not be loaded - plotting won't work")
+            warnings.warn(
+                "Matplotlib could not be loaded - plotting won't work"
+            )
             raise
 
         if 'fingerprints' in a.info and not self.recalculate:
@@ -519,7 +522,9 @@ class OFPComparator:
         try:
             import matplotlib.pyplot as plt
         except ImportError:
-            Warning("Matplotlib could not be loaded - plotting won't work")
+            warnings.warn(
+                "Matplotlib could not be loaded - plotting won't work"
+            )
             raise
 
         if 'individual_fingerprints' in a.info and not self.recalculate:
