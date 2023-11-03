@@ -348,7 +348,7 @@ class GenericFileIOCalculator(BaseCalculator, GetOutputsMixin):
         )
 
     def __repr__(self):
-        return '{}({})'.format(type(self).__name__, self.template.name)
+        return f'{type(self).__name__}({self.template.name})'
 
     @property
     def implemented_properties(self):

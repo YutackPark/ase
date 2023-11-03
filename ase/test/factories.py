@@ -646,7 +646,7 @@ class SiestaFactory:
     def calc(self, **kwargs):
         from ase.calculators.siesta import Siesta
 
-        command = '{} < PREFIX.fdf > PREFIX.out'.format(self.executable)
+        command = f'{self.executable} < PREFIX.fdf > PREFIX.out'
         return Siesta(
             command=command, pseudo_path=str(self.pseudo_path), **kwargs
         )
