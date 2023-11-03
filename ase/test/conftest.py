@@ -11,7 +11,7 @@ import ase
 from ase.dependencies import all_dependencies
 from ase.test.factories import (CalculatorInputs, NoSuchCalculator,
                                 factory_classes, get_factories,
-                                make_factory_fixture, factory,
+                                make_factory_fixture, factory as factory_deco,
                                 legacy_factory_calculator_names)
 from ase.utils import get_python_package_path_description, seterr, workdir
 
@@ -243,8 +243,9 @@ octopus_factory = make_factory_fixture('octopus')
 siesta_factory = make_factory_fixture('siesta')
 orca_factory = make_factory_fixture('orca')
 
+
 def make_dummy_factory(name):
-    @factory(name)
+    @factory_deco(name)
     class Factory:
         def calc(self, **kwargs):
             from ase.calculators.calculator import get_calculator_class
