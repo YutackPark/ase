@@ -11,7 +11,8 @@ import ase
 from ase.dependencies import all_dependencies
 from ase.test.factories import (CalculatorInputs, NoSuchCalculator,
                                 factory_classes, get_factories,
-                                make_factory_fixture)
+                                make_factory_fixture, factory,
+                                legacy_factory_calculator_names)
 from ase.utils import get_python_package_path_description, seterr, workdir
 
 helpful_message = """\
@@ -242,30 +243,7 @@ octopus_factory = make_factory_fixture('octopus')
 siesta_factory = make_factory_fixture('siesta')
 orca_factory = make_factory_fixture('orca')
 
-dummy_factory_names = {
-    'ace',
-    'aims',
-    'amber',
-    'crystal',
-    'demon',
-    'demonnano',
-    'dftd3',
-    'dmol',
-    'exciting',
-    'gamess_us',
-    'gaussian',
-    'gulp',
-    'hotbit',
-    'lammpslib',
-    'onetep',
-    'qchem',
-    'turbomole',
-}
-
-
 def make_dummy_factory(name):
-    from ase.test.factories import factory
-
     @factory(name)
     class Factory:
         def calc(self, **kwargs):
@@ -282,7 +260,7 @@ def make_dummy_factory(name):
     globalvars[f'{name}_factory'] = make_factory_fixture(name)
 
 
-for name in dummy_factory_names:
+for name in legacy_factory_calculator_names:
     make_dummy_factory(name)
 
 

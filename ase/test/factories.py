@@ -706,6 +706,26 @@ class NoSuchCalculator(Exception):
     pass
 
 
+legacy_factory_calculator_names = {
+    'ace',
+    'amber',
+    'crystal',
+    'demon',
+    'demonnano',
+    'dftd3',
+    'dmol',
+    'exciting',
+    'gamess_us',
+    'gaussian',
+    'gulp',
+    'hotbit',
+    'lammpslib',
+    'onetep',
+    'qchem',
+    'turbomole',
+}
+
+
 class Factories:
     all_calculators = set(calculator_names)
     builtin_calculators = {'eam', 'emt', 'ff', 'lj', 'morse', 'tip3p', 'tip4p'}
@@ -760,7 +780,11 @@ class Factories:
         requested_calculators = set(requested_calculators)
         if 'auto' in requested_calculators:
             requested_calculators.remove('auto')
-            requested_calculators |= set(self.factories)
+            # auto can only work with calculators whose configuration
+            # we actually control, so no legacy factories
+            requested_calculators |= (
+                set(self.factories) - legacy_factory_calculator_names)
+
         self.requested_calculators = requested_calculators
 
         for name in self.requested_calculators:
