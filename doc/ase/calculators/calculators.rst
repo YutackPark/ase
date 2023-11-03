@@ -157,10 +157,10 @@ Calculator configuration
 
 As of November 2023, there are two ways in which a calculator can be implemented:
 
- * a modern way -- subclassing a Calculator class from :class:`ase.calculators.genericfileio.GenericFileIOCalculator`
-(calculators implemented in such a way are ABINIT, FHI-Aims, Quantum ESPESSO, EXCITING, Octopus and Orca; there are
-plans to gradually rewrite the remaining calculators as well);
- * a somewhat conservative way, subclassing it from :class:`ase.calculators.calculator.FileIOCalculator`.
+  * a modern way -- subclassing a Calculator class from :class:`ase.calculators.genericfileio.GenericFileIOCalculator`
+    (calculators implemented in such a way are ABINIT, FHI-Aims, Quantum ESPESSO, EXCITING, Octopus and Orca; there are
+    plans to gradually rewrite the remaining calculators as well);
+  * a somewhat conservative way, subclassing it from :class:`ase.calculators.calculator.FileIOCalculator`.
 
 The calculators that are implemented in the modern way can be configured using the config file. It should have a `.ini`
 format and reside in a place specified by ``ASE_CONFIG_PATH`` environmental variable. If the variable is not set, then the
