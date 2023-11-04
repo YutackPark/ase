@@ -29,30 +29,58 @@ class InterceptedCommand(BaseException):
         self.command = command
 
 
-def mock_popen(command, shell, cwd):
+def mock_popen(command, shell, cwd, **kwargs):
+    # castep passes stdout/stderr
     assert shell
     raise InterceptedCommand(command)
 
 
 calculators = {
+    'ace': {},
+    'amber': {},
+    'castep': dict(keyword_tolerance=3),
+    'crystal': {},
+    'demon': dict(basis_path='hello'),
     'demonnano': dict(input_arguments={},
                       basis_path='hello'),
-    'demon': dict(basis_path='hello'),
+    'dmol': {},
+    'elk': {},
+    'espresso': {},
+    'exciting': {},
+    'gamess_us': {},
+    'gaussian': {},
+    'gromacs': {},
+    'gulp': {},
+    'mopac': {},
+    'morse': {},
+    'nwchem': {},
+    'onetep': {},
+    'openmx': {},
+    'orca': {},
+    'plumed': {},
+    'psi4': {},
+    'qchem': {},
+    'siesta': {},
+    'turbomole': {},
+    'vasp': {},
 }
 
 
-#class Factory:
-#    def __init__(self, name, kwargs):
-#        self.name = name
-#        self.kwargs = kwargs
-
-#    def calc(self):
 @pytest.fixture(autouse=True)
 def miscellaneous_hacks(monkeypatch):
     from ase.calculators.demon import Demon
+    from ase.calculators.castep import Castep
+    from ase.calculators.crystal import CRYSTAL
 
-    monkeypatch.setattr(Demon, 'link_file', lambda *args, **kwargs: None)
+    def do_nothing(retval=None):
+        def mock_function(*args, **kwargs):
+            return retval
+        return mock_function
 
+    monkeypatch.setattr(Demon, 'link_file', do_nothing())
+    monkeypatch.setattr(CRYSTAL, '_write_crystal_in', do_nothing())
+    #monkeypatch.setattr(Castep, 'import_castep_keywords',
+    #                    lambda *args, **kwargs: {})
 
 #@pytest.fixture(params=list(calculators))
 def mkcalc(name):
@@ -85,14 +113,34 @@ def intercept_command(name):
 
 
 envvars = {
+    'ace': 'ASE_ACE_COMMAND',
+    'amber': 'ASE_AMBER_COMMAND',
+    'castep': 'CASTEP_COMMAND',
+    'crystal': 'ASE_CRYSTAL_COMMAND',
+    'demon': 'ASE_DEMON_COMMAND',
     'demonnano': 'ASE_DEMONNANO_COMMAND',
+    'dmol': 'DMOL_COMMAND',  # XXX
 }
 
-@pytest.mark.parametrize('name', ['demonnano'])
+
+#names = [
+#         'elk', 'espresso', 'exciting', 'gamess_us',
+#         'gaussian', 'gromacs', 'gulp',
+#         'mopac', 'morse', 'nwchem',
+#         'onetep', 'openmx', 'orca',
+#         'plumed', 'psi4', 'qchem', 'siesta',
+#         'turbomole', 'vasp']
+
+@pytest.mark.parametrize('name', list(envvars))
 def test_envvar(monkeypatch, name):
     command = 'dummy shell command from environment'
+    expected_command = command
+    if name == 'castep':
+        expected_command = f'{command} castep'  # crazy
+    elif name == 'dmol':
+        expected_command = f'{command} tmp > tmp.out'
     monkeypatch.setenv(envvars[name], command)
-    assert intercept_command(name) == command
+    assert intercept_command(name) == expected_command
 
 
 #@pytest.mark.parametrize('kind', ['default', 'command', 'envvar'])

@@ -116,7 +116,8 @@ class Amber(FileIOCalculator):
             only rectangular unit cells are allowed"""
         if filename == '':
             filename = self.incoordfile
-        fout = netcdf.netcdf_file(filename, 'w')
+        from scipy.io import netcdf_file
+        fout = netcdf_file(filename, 'w')
         # dimension
         fout.Conventions = 'AMBERRESTART'
         fout.ConventionVersion = "1.0"
