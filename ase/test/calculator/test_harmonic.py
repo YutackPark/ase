@@ -6,6 +6,11 @@ from ase import Atoms
 from ase.calculators.calculator import CalculationFailed, CalculatorSetupError
 from ase.calculators.emt import EMT
 from ase.calculators.harmonic import HarmonicCalculator, HarmonicForceField
+from ase.calculators.mixing import MixedCalculator
+from ase.geometry.geometry import get_distances_derivatives
+from ase.md.andersen import Andersen
+from ase.md.velocitydistribution import (MaxwellBoltzmannDistribution,
+                                         Stationary, ZeroRotation)
 from ase.optimize import BFGS
 from ase.units import fs
 from ase.vibrations import Vibrations
@@ -138,7 +143,6 @@ def water_get_q_from_x(atoms):
 def water_get_jacobian(atoms):
     """Function to return the Jacobian for the water molecule described by
     three distances."""
-    from ase.geometry.geometry import get_distances_derivatives
     pos = atoms.get_positions()
     dist_vecs = [pos[j] - pos[i] for i, j in dist_defs]
     derivs = get_distances_derivatives(dist_vecs)
@@ -236,10 +240,6 @@ def test_compatible_with_ase_vibrations():
 
 
 def test_thermodynamic_integration():
-    from ase.calculators.mixing import MixedCalculator
-    from ase.md.andersen import Andersen
-    from ase.md.velocitydistribution import (MaxwellBoltzmannDistribution,
-                                             Stationary, ZeroRotation)
     parameters = {'ref_atoms': ref_atoms, 'ref_energy': ref_energy,
                   'hessian_x': hessian_x, 'get_q_from_x': water_get_q_from_x,
                   'get_jacobian': water_get_jacobian, 'cartesian': True,

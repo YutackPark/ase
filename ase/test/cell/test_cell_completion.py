@@ -1,7 +1,9 @@
-def test_cell_completion():
-    import numpy as np
+import numpy as np
 
-    from ase.geometry.cell import complete_cell
+from ase.geometry.cell import complete_cell
+
+
+def test_cell_completion():
 
     eps = 1E-10
     rng = np.random.RandomState(0)

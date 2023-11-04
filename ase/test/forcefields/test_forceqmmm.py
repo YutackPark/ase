@@ -2,16 +2,19 @@ import numpy as np
 import pytest
 
 from ase.build import bulk
+from ase.calculators.eam import EAM
+from ase.calculators.emt import EMT
+from ase.calculators.lj import LennardJones
 from ase.calculators.qmmm import ForceQMMM, RescaledCalculator
 from ase.eos import EquationOfState
 from ase.geometry import get_distances
 from ase.neighborlist import neighbor_list
 from ase.optimize import FIRE
+from ase.units import GPa
 
 
 @pytest.fixture
 def mm_calc():
-    from ase.calculators.lj import LennardJones
     bulk_at = bulk("Cu", cubic=True)
     sigma = (bulk_at * 2).get_distance(0, 1) * (2. ** (-1. / 6))
 
@@ -20,8 +23,6 @@ def mm_calc():
 
 @pytest.fixture
 def qm_calc():
-    from ase.calculators.emt import EMT
-
     return EMT()
 
 
@@ -192,9 +193,6 @@ def test_rescaled_calculator():
     and bulk modulus using fit to equation of state
     and comparing it to the desired values
     """
-
-    from ase.calculators.eam import EAM
-    from ase.units import GPa
 
     # A simple empirical N-body potential for
     # transition metals by M. W. Finnis & J.E. Sinclair

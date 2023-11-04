@@ -1,9 +1,11 @@
-def test_dmol():
-    import numpy as np
+import numpy as np
 
-    from ase.build import bulk, molecule
-    from ase.calculators.dmol import find_transformation
-    from ase.io import read, write
+from ase.build import bulk, molecule
+from ase.calculators.dmol import find_transformation
+from ase.io import read, write
+
+
+def test_dmol():
 
     def check(atoms, ref_atoms, dist_tol=1e-6):
 

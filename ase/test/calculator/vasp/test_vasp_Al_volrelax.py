@@ -3,6 +3,7 @@ import pytest
 
 from ase import io
 from ase.build import bulk
+from ase.filters import StrainFilter
 from ase.optimize import BFGS
 
 calc = pytest.mark.calculator
@@ -52,7 +53,6 @@ def test_vasp_Al_volrelax(factory):
         calc = factory.calc(xc='LDA')
         Al.calc = calc
 
-        from ase.filters import StrainFilter
         sf = StrainFilter(Al)
         with BFGS(sf, logfile='relaxation.log') as qn:
             qn.run(fmax=0.1, steps=5)

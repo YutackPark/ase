@@ -1,5 +1,7 @@
+from ase.calculators.siesta.siesta import parse_siesta_version
+
+
 def test_siesta_version():
-    from ase.calculators.siesta.siesta import parse_siesta_version
 
     def test(txt, reference):
         buf = txt.encode('ascii')

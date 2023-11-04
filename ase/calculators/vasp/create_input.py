@@ -1598,7 +1598,7 @@ class GenerateVaspInput:
                         lst[-1][0] += 1
                     else:
                         lst.append([1, val[n]])
-                line += ' '.join(['{:d}*{:.4f}'.format(mom[0], mom[1])
+                line += ' '.join([f'{mom[0]:d}*{mom[1]:.4f}'
                                   for mom in lst]) + '\n'
                 incar.write(line)
             else:

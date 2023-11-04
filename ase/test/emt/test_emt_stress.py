@@ -1,8 +1,10 @@
-def test_emt_stress():
-    import numpy as np
+import numpy as np
 
-    from ase.build import bulk
-    from ase.calculators.emt import EMT
+from ase.build import bulk
+from ase.calculators.emt import EMT
+
+
+def test_emt_stress():
 
     a = bulk('Cu', 'fcc')
     a.calc = EMT()

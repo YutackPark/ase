@@ -1,12 +1,14 @@
+import numpy as np
+
+from ase import Atoms
+from ase.calculators.calculator import compare_atoms
+
+
 def test_compare_atoms():
     """
     Check that Atoms.compare_atoms correctly accounts for the different
     types of system changes
     """
-    import numpy as np
-
-    from ase import Atoms
-    from ase.calculators.calculator import compare_atoms
 
     # A system property that's an attribute of Atoms, but isn't in
     # Atoms.arrays (currently this is just 'cell' and 'pbc')
