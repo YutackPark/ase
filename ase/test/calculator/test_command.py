@@ -84,6 +84,7 @@ def miscellaneous_hacks(monkeypatch, tmp_path):
 
     monkeypatch.setattr(Siesta, '_write_species', do_nothing())
 
+
 def mkcalc(name):
     from ase.calculators.calculator import get_calculator_class
     cls = get_calculator_class(name)
@@ -128,15 +129,14 @@ envvars = {
     # 'dmol': 'DMOL_COMMAND',  # XXX Crashes when it runs along other tests
     'elk': 'ASE_ELK_COMMAND',
     'gamess_us': 'ASE_GAMESSUS_COMMAND',
-#         'gaussian', 'gromacs', 'gulp',
-    'mopac': 'ASE_MOPAC_COMMAND', #
+    # 'gaussian', 'gromacs', 'gulp',
+    'mopac': 'ASE_MOPAC_COMMAND',
     'nwchem': 'ASE_NWCHEM_COMMAND',
     # 'openmx': 'ASE_OPENMX_COMMAND',
-#         'plumed', 'psi4', 'qchem',
+    # 'plumed', 'psi4', 'qchem',
     'siesta': 'ASE_SIESTA_COMMAND',
-#         'turbomole', 'vasp']
+    # 'turbomole', 'vasp']
 }
-
 
 
 @pytest.mark.parametrize('name', list(envvars))
