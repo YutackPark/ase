@@ -1231,8 +1231,3 @@ class NEBtools(NEBTools):
 @deprecated('Please use NEBTools.plot_band_from_fit.')
 def plot_band_from_fit(s, E, Sfit, Efit, lines, ax=None):
     NEBTools.plot_band_from_fit(s, E, Sfit, Efit, lines, ax=None)
-
-
-def fit0(*args, **kwargs):
-    warnings.warn('fit0 is deprecated. Use `fit_raw` from '
-                  '`ase.utils.forcecurve` instead.', DeprecationWarning)

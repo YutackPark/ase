@@ -20,7 +20,7 @@ from ase.cell import Cell
 from ase.data import atomic_masses, atomic_masses_common
 from ase.stress import full_3x3_to_voigt_6_stress, voigt_6_to_full_3x3_stress
 from ase.symbols import Symbols, symbols2numbers
-# from ase.utils import deprecated
+from ase.utils import deprecated
 
 
 class Atoms:
@@ -270,22 +270,22 @@ class Atoms:
         new_symbols = Symbols.fromsymbols(obj)
         self.numbers[:] = new_symbols.numbers
 
+    @deprecated("Please use atoms.calc = calc", DeprecationWarning)
     def set_calculator(self, calc=None):
         """Attach calculator object.
 
         Please use the equivalent atoms.calc = calc instead of this
         method."""
 
-        warnings.warn("Please use atoms.calc = calc", DeprecationWarning)
         self.calc = calc
 
+    @deprecated("Please use atoms.calc", DeprecationWarning)
     def get_calculator(self):
         """Get currently attached calculator object.
 
         Please use the equivalent atoms.calc instead of
         atoms.get_calculator()."""
 
-        warnings.warn("Please use atoms.calc", DeprecationWarning)
         return self.calc
 
     @property
@@ -300,14 +300,14 @@ class Atoms:
             calc.set_atoms(self)
 
     @calc.deleter
+    @deprecated('Please use atoms.calc = None', DeprecationWarning)
     def calc(self):
-        warnings.warn('Please use atoms.calc = None', DeprecationWarning)
         self._calc = None
 
     @property
+    @deprecated('Please use atoms.cell.rank instead', DeprecationWarning)
     def number_of_lattice_vectors(self):
         """Number of (non-zero) lattice vectors."""
-        warnings.warn('Please use atoms.cell.rank instead', DeprecationWarning)
         return self.cell.rank
 
     def set_constraint(self, constraint=None):
@@ -412,6 +412,7 @@ class Atoms:
 
         return cell
 
+    @deprecated('Please use atoms.cell.cellpar() instead', DeprecationWarning)
     def get_cell_lengths_and_angles(self):
         """Get unit cell parameters. Sequence of 6 numbers.
 
@@ -422,16 +423,14 @@ class Atoms:
 
         in degrees.
         """
-        warnings.warn('Please use atoms.cell.cellpar() instead',
-                      DeprecationWarning)
         return self.cell.cellpar()
 
+    @deprecated('Please use atoms.cell.reciprocal()', DeprecationWarning)
     def get_reciprocal_cell(self):
         """Get the three reciprocal lattice vectors as a 3x3 ndarray.
 
         Note that the commonly used factor of 2 pi for Fourier
         transforms is not included here."""
-        warnings.warn('Please use atoms.cell.reciprocal()', DeprecationWarning)
         return self.cell.reciprocal()
 
     @property

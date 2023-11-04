@@ -2094,7 +2094,7 @@ End CASTEP Interface Documentation
             comp = 'cell'
         else:
             raise RuntimeError('Programming error: could not attach '
-                              'the keyword to an input file')
+                               'the keyword to an input file')
 
         self.__dict__[comp].__setattr__(attr, value)
 
