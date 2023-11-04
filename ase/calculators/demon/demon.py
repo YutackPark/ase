@@ -13,7 +13,8 @@ import numpy as np
 import ase.data
 import ase.io
 from ase.calculators.calculator import (FileIOCalculator, Parameters,
-                                        ReadError, all_changes, equal)
+                                        ReadError, all_changes, equal,
+                                        CalculatorSetupError)
 from ase.units import Bohr, Hartree
 
 from .demon_io import parse_xray
@@ -67,7 +68,7 @@ class Demon(FileIOCalculator):
         'dipole',
         'eigenvalues']
 
-    def __init__(self, **kwargs):
+    def __init__(self, *, command=None, **kwargs):
         """ASE interface to the deMon code.
 
         The deMon2k code can be obtained from http://www.demon-software.com
@@ -84,7 +85,7 @@ class Demon(FileIOCalculator):
             the atoms object
         command  : str
             Command to run deMon. If not present the environment
-            variable DEMON_COMMAND will be used
+            variable ASE
         restart  : str
             Relative path to ASE restart directory for parameters and
             atoms object and results
@@ -136,15 +137,8 @@ class Demon(FileIOCalculator):
         parameters = Parameters_deMon(**kwargs)
 
         # Setup the run command
-        command = parameters['command']
         if command is None:
             command = self.cfg.get('DEMON_COMMAND')
-
-        if command is None:
-            mess = 'The "DEMON_COMMAND" environment is not defined.'
-            raise ValueError(mess)
-        else:
-            parameters['command'] = command
 
         FileIOCalculator.__init__(
             self,
@@ -185,7 +179,6 @@ class Demon(FileIOCalculator):
         return changed_parameters
 
     def link_file(self, fromdir, todir, filename):
-
         if op.exists(todir + '/' + filename):
             os.remove(todir + '/' + filename)
 
@@ -210,10 +203,7 @@ class Demon(FileIOCalculator):
             self.atoms = atoms.copy()
 
         self.write_input(self.atoms, properties, system_changes)
-        if self.command is None:
-            raise RuntimeError(f'Please set ${"DEMON_COMMAND"} environment '
-                               'variable or supply the command keyword')
-        command = self.command  # .replace('PREFIX', self.prefix)
+        command = self.command
 
         # basis path
         basis_path = self.parameters['basis_path']
@@ -249,6 +239,8 @@ class Demon(FileIOCalculator):
         for name in ['BASIS', 'AUXIS', 'ECPS', 'MCPS', 'FFDS']:
             self.link_file(abspath, self.directory, name)
 
+        if command is None:
+            raise CalculatorSetupError
         subprocess.check_call(command, shell=True, cwd=self.directory)
 
         try:
@@ -293,7 +285,7 @@ class Demon(FileIOCalculator):
         if system_changes is None and properties is None:
             return
 
-        filename = self.label + '/deMon.inp'
+        filename = f'{self.directory}/deMon.inp'
 
         add_print = ''
 
@@ -372,7 +364,7 @@ class Demon(FileIOCalculator):
             self._write_atomic_coordinates(fd, atoms)
 
             # write xyz file for good measure.
-            ase.io.write(self.label + '/deMon_atoms.xyz', self.atoms)
+            ase.io.write(f'{self.directory}/deMon_atoms.xyz', self.atoms)
 
     def read(self, restart_path):
         """Read parameters from directory restart_path."""
