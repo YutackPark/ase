@@ -27,7 +27,7 @@ class InterceptedCommand(BaseException):
         self.command = command
 
 
-def mock_popen(command, shell, cwd, **kwargs):
+def mock_popen(command, shell=False, cwd=None, **kwargs):
     # castep passes stdout/stderr
     assert shell
     raise InterceptedCommand(command)
@@ -53,21 +53,23 @@ calculators = {
     'morse': {},
     'nwchem': {},
     'onetep': {},
-    'openmx': {},
-    'orca': {},
+    'openmx': dict(data_path='.'),
     'plumed': {},
     'psi4': {},
     'qchem': {},
-    'siesta': {},
+    'siesta': dict(pseudo_path='.'),
     'turbomole': {},
     'vasp': {},
 }
 
 
 @pytest.fixture(autouse=True)
-def miscellaneous_hacks(monkeypatch):
+def miscellaneous_hacks(monkeypatch, tmp_path):
     from ase.calculators.demon import Demon
     from ase.calculators.crystal import CRYSTAL
+    from ase.calculators.gamess_us import GAMESSUS
+    from ase.calculators.calculator import FileIOCalculator
+    from ase.calculators.siesta import Siesta
 
     def do_nothing(retval=None):
         def mock_function(*args, **kwargs):
@@ -77,6 +79,10 @@ def miscellaneous_hacks(monkeypatch):
     monkeypatch.setattr(Demon, 'link_file', do_nothing())
     monkeypatch.setattr(CRYSTAL, '_write_crystal_in', do_nothing())
 
+    # It calls super, but we'd like to skip the userscr handling:
+    monkeypatch.setattr(GAMESSUS, 'calculate', FileIOCalculator.calculate)
+
+    monkeypatch.setattr(Siesta, '_write_species', do_nothing())
 
 def mkcalc(name):
     from ase.calculators.calculator import get_calculator_class
@@ -119,17 +125,19 @@ envvars = {
     'crystal': 'ASE_CRYSTAL_COMMAND',
     'demon': 'ASE_DEMON_COMMAND',
     'demonnano': 'ASE_DEMONNANO_COMMAND',
-    'dmol': 'DMOL_COMMAND',  # XXX
+    # 'dmol': 'DMOL_COMMAND',  # XXX Crashes when it runs along other tests
+    'elk': 'ASE_ELK_COMMAND',
+    'gamess_us': 'ASE_GAMESSUS_COMMAND',
+#         'gaussian', 'gromacs', 'gulp',
+    'mopac': 'ASE_MOPAC_COMMAND', #
+    'nwchem': 'ASE_NWCHEM_COMMAND',
+    # 'openmx': 'ASE_OPENMX_COMMAND',
+#         'plumed', 'psi4', 'qchem',
+    'siesta': 'ASE_SIESTA_COMMAND',
+#         'turbomole', 'vasp']
 }
 
 
-# names = [
-#         'elk', 'espresso', 'exciting', 'gamess_us',
-#         'gaussian', 'gromacs', 'gulp',
-#         'mopac', 'morse', 'nwchem',
-#         'onetep', 'openmx', 'orca',
-#         'plumed', 'psi4', 'qchem', 'siesta',
-#         'turbomole', 'vasp']
 
 @pytest.mark.parametrize('name', list(envvars))
 def test_envvar(monkeypatch, name):
