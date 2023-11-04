@@ -1,10 +1,8 @@
+import subprocess
+
 import pytest
 
 from ase import Atoms
-#from ase.calculators.gaussian import Gaussian
-from ase.calculators.demonnano import DemonNano
-from ase.calculators.names import names as calculator_names
-import subprocess
 
 # gaussian has weird handling
 
@@ -14,7 +12,7 @@ import subprocess
 # case 3: command specified via keyword
 
 
-#names = ['ace', 'amber', 'castep',
+# names = ['ace', 'amber', 'castep',
 #         'crystal', 'dmol',
 #         'elk', 'espresso', 'exciting', 'gamess_us',
 #         'gaussian', 'gromacs', 'gulp',
@@ -69,7 +67,6 @@ calculators = {
 @pytest.fixture(autouse=True)
 def miscellaneous_hacks(monkeypatch):
     from ase.calculators.demon import Demon
-    from ase.calculators.castep import Castep
     from ase.calculators.crystal import CRYSTAL
 
     def do_nothing(retval=None):
@@ -79,10 +76,8 @@ def miscellaneous_hacks(monkeypatch):
 
     monkeypatch.setattr(Demon, 'link_file', do_nothing())
     monkeypatch.setattr(CRYSTAL, '_write_crystal_in', do_nothing())
-    #monkeypatch.setattr(Castep, 'import_castep_keywords',
-    #                    lambda *args, **kwargs: {})
 
-#@pytest.fixture(params=list(calculators))
+
 def mkcalc(name):
     from ase.calculators.calculator import get_calculator_class
     cls = get_calculator_class(name)
@@ -91,8 +86,13 @@ def mkcalc(name):
 
 
 @pytest.mark.parametrize('name', ['demon', 'demonnano'])
-def test_default(name):
+def test_default(name, monkeypatch):
     from ase.calculators.calculator import CalculatorSetupError
+
+    # Make sure it does not pickup system var we don't know about:
+    if name in envvars:
+        monkeypatch.delenv(envvars[name], raising=False)
+
     with pytest.raises(CalculatorSetupError):
         intercept_command(name)
 
@@ -123,7 +123,7 @@ envvars = {
 }
 
 
-#names = [
+# names = [
 #         'elk', 'espresso', 'exciting', 'gamess_us',
 #         'gaussian', 'gromacs', 'gulp',
 #         'mopac', 'morse', 'nwchem',
@@ -141,33 +141,3 @@ def test_envvar(monkeypatch, name):
         expected_command = f'{command} tmp > tmp.out'
     monkeypatch.setenv(envvars[name], command)
     assert intercept_command(name) == expected_command
-
-
-#@pytest.mark.parametrize('kind', ['default', 'command', 'envvar'])
-def t1est_command(monkeypatch, kind, calcname):
-    atoms = Atoms('H')
-    atoms.center(vacuum=3.0)
-
-    dummy_command = 'hello world'
-
-    command = None
-    if kind == 'command':
-        command = dummy_command
-        kwargs = {**kwargs, 'command': dummy_command}
-    elif kind == 'envvar':
-        monkeypatch.setenv('ASE_DEMONNANO_COMMAND', dummy_command)
-    else:
-        assert kind == 'default'
-
-    atoms.calc = calc #DemonNano(basis_path='hello',
-                           # input_arguments={},
-                           # command=dummy_command
-                 #          )
-
-    # monkeypatch.setattr(subprocess, 'Popen', mock_popen)
-    try:
-        atoms.get_potential_energy()
-    except InterceptedCommand as err:
-        command = err.command
-
-    assert command == dummy_command
