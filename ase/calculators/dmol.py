@@ -93,17 +93,21 @@ class DMol3(FileIOCalculator):
                           'symmetry': 'on'}
     discard_results_on_any_change = True
 
-    if 'DMOL_COMMAND' in FileIOCalculator.cfg:
-        command = FileIOCalculator.cfg['DMOL_COMMAND'] + ' PREFIX > PREFIX.out'
-    else:
-        command = None
-
     def __init__(self, restart=None,
                  ignore_bad_restart_file=FileIOCalculator._deprecated,
-                 label='dmol_calc/tmp', atoms=None, **kwargs):
+                 label='dmol_calc/tmp', atoms=None,
+                 command=None, **kwargs):
         """ Construct DMol3 calculator. """
+
+        if command is None:
+            if 'DMOL_COMMAND' in self.cfg:
+                command = self.cfg['DMOL_COMMAND'] + ' PREFIX > PREFIX.out'
+
+        assert command is not None, command
+
         FileIOCalculator.__init__(self, restart, ignore_bad_restart_file,
-                                  label, atoms, **kwargs)
+                                  label, atoms, command=command,
+                                  **kwargs)
 
         # tracks if DMol transformed coordinate system
         self.internal_transformation = False

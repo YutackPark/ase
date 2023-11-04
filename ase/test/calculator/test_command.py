@@ -33,6 +33,8 @@ def mock_popen(command, shell=False, cwd=None, **kwargs):
     raise InterceptedCommand(command)
 
 
+# Parameters for each calculator -- whatever it takes trigger a calculation
+# without crashing first.
 calculators = {
     'ace': {},
     'amber': {},
@@ -68,12 +70,14 @@ def miscellaneous_hacks(monkeypatch, tmp_path):
     from ase.calculators.demon import Demon
     from ase.calculators.crystal import CRYSTAL
     from ase.calculators.gamess_us import GAMESSUS
+    from ase.calculators.gulp import GULP
     from ase.calculators.calculator import FileIOCalculator
     from ase.calculators.siesta import Siesta
+    from ase.calculators.vasp import Vasp
 
-    def do_nothing(retval=None):
+    def do_nothing(returnval=None):
         def mock_function(*args, **kwargs):
-            return retval
+            return returnval
         return mock_function
 
     monkeypatch.setattr(Demon, 'link_file', do_nothing())
@@ -81,8 +85,10 @@ def miscellaneous_hacks(monkeypatch, tmp_path):
 
     # It calls super, but we'd like to skip the userscr handling:
     monkeypatch.setattr(GAMESSUS, 'calculate', FileIOCalculator.calculate)
+    monkeypatch.setattr(GULP, 'library_check', do_nothing())
 
     monkeypatch.setattr(Siesta, '_write_species', do_nothing())
+    monkeypatch.setattr(Vasp, '_build_pp_list', do_nothing(returnval=[]))
 
 
 def mkcalc(name):
@@ -110,7 +116,7 @@ def mock_subprocess_popen(monkeypatch):
 
 
 def intercept_command(name):
-    atoms = Atoms('H')
+    atoms = Atoms('H', pbc=True)
     atoms.center(vacuum=3.0)
     atoms.calc = mkcalc(name)
     try:
@@ -126,16 +132,20 @@ envvars = {
     'crystal': 'ASE_CRYSTAL_COMMAND',
     'demon': 'ASE_DEMON_COMMAND',
     'demonnano': 'ASE_DEMONNANO_COMMAND',
-    # 'dmol': 'DMOL_COMMAND',  # XXX Crashes when it runs along other tests
+    'dmol': 'DMOL_COMMAND',  # XXX Crashes when it runs along other tests
     'elk': 'ASE_ELK_COMMAND',
     'gamess_us': 'ASE_GAMESSUS_COMMAND',
-    # 'gaussian', 'gromacs', 'gulp',
+    'gaussian': 'ASE_GAUSSIAN_COMMAND',
+    'gromacs': 'ASE_GROMACS_COMMAND',
+    'gulp': 'ASE_GULP_COMMAND',
     'mopac': 'ASE_MOPAC_COMMAND',
     'nwchem': 'ASE_NWCHEM_COMMAND',
-    # 'openmx': 'ASE_OPENMX_COMMAND',
-    # 'plumed', 'psi4', 'qchem',
+    # 'openmx': 'ASE_OPENMX_COMMAND',  # fails in get_dft_data_year
+    # 'psi4', <-- has command but is Calculator
+    # 'qchem': 'ASE_QCHEM_COMMAND',  # ignores environment
     'siesta': 'ASE_SIESTA_COMMAND',
-    # 'turbomole', 'vasp']
+    # 'turbomole': turbomole is not really a calculator
+    'vasp': 'ASE_VASP_COMMAND',
 }
 
 
@@ -147,5 +157,10 @@ def test_envvar(monkeypatch, name):
         expected_command = f'{command} castep'  # crazy
     elif name == 'dmol':
         expected_command = f'{command} tmp > tmp.out'
+    elif name == 'gromacs':
+        expected_command = (
+            f'{command} mdrun -s gromacs.tpr -o gromacs.trr '
+            '-e gromacs.edr -g gromacs.log -c gromacs.g96  > MM.log 2>&1')
+
     monkeypatch.setenv(envvars[name], command)
     assert intercept_command(name) == expected_command
