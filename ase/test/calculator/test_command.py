@@ -4,22 +4,9 @@ import pytest
 
 from ase import Atoms
 
-# gaussian has weird handling
-
-
 # case 1: nothing specified
 # case 2: command specified via environment
 # case 3: command specified via keyword
-
-
-# names = ['ace', 'amber', 'castep',
-#         'crystal', 'dmol',
-#         'elk', 'espresso', 'exciting', 'gamess_us',
-#         'gaussian', 'gromacs', 'gulp',
-#         'mopac', 'morse', 'nwchem',
-#         'onetep', 'openmx', 'orca',
-#         'plumed', 'psi4', 'qchem', 'siesta',
-#         'turbomole', 'vasp']
 
 
 class InterceptedCommand(BaseException):
@@ -28,7 +15,6 @@ class InterceptedCommand(BaseException):
 
 
 def mock_popen(command, shell=False, cwd=None, **kwargs):
-    # castep passes stdout/stderr
     assert shell
     raise InterceptedCommand(command)
 
@@ -45,18 +31,14 @@ calculators = {
                       basis_path='hello'),
     'dmol': {},
     'elk': {},
-    'espresso': {},
-    'exciting': {},
     'gamess_us': {},
     'gaussian': {},
     'gromacs': {},
     'gulp': {},
     'mopac': {},
-    'morse': {},
     'nwchem': {},
     'onetep': {},
     'openmx': dict(data_path='.', dft_data_year='13'),
-    'plumed': {},
     'psi4': {},
     'qchem': {},
     'siesta': dict(pseudo_path='.'),
@@ -100,10 +82,10 @@ def miscellaneous_hacks(monkeypatch, tmp_path):
     monkeypatch.setattr(Vasp, '_build_pp_list', do_nothing(returnval=[]))
 
 
-def mkcalc(name):
+def mkcalc(name, **kwargs):
     from ase.calculators.calculator import get_calculator_class
     cls = get_calculator_class(name)
-    kwargs = calculators[name]
+    kwargs = {**calculators[name], **kwargs}
     return cls(**kwargs)
 
 
@@ -124,10 +106,10 @@ def mock_subprocess_popen(monkeypatch):
     monkeypatch.setattr(subprocess, 'Popen', mock_popen)
 
 
-def intercept_command(name):
+def intercept_command(name, **kwargs):
     atoms = Atoms('H', pbc=True)
     atoms.center(vacuum=3.0)
-    atoms.calc = mkcalc(name)
+    atoms.calc = mkcalc(name, **kwargs)
     try:
         atoms.get_potential_energy()
     except InterceptedCommand as err:
@@ -158,9 +140,7 @@ envvars = {
 }
 
 
-@pytest.mark.parametrize('name', list(envvars))
-def test_envvar(monkeypatch, name, tmp_path):
-    command = 'dummy shell command from environment'
+def get_expected_command(command, name, tmp_path):
     expected_command = command
     if name == 'castep':
         expected_command = f'{command} castep'  # crazy
@@ -172,8 +152,40 @@ def test_envvar(monkeypatch, name, tmp_path):
             '-e gromacs.edr -g gromacs.log -c gromacs.g96  > MM.log 2>&1')
     elif name == 'openmx':
         # openmx converts the stream target to an abspath, so the command
-        # will vary depending on the tempdir we're running in
+        # will vary depending on the tempdir we're running in.
         expected_command = f'{command} openmx.dat > {tmp_path}/openmx.log'
+    return expected_command
 
+
+@pytest.mark.parametrize('name', list(envvars))
+def test_envvar(monkeypatch, name, tmp_path):
+    command = 'dummy shell command from environment'
+    expected_command = get_expected_command(command, name, tmp_path)
     monkeypatch.setenv(envvars[name], command)
     assert intercept_command(name) == expected_command
+
+
+def keyword_calculator_list():
+    skipped = {
+        'turbomole',  # commands are hardcoded in turbomole
+        'qchem',  # qchem does something entirely different.  wth
+        'castep',  # has castep_command keyword instead
+        'psi4',  # needs external package
+        'onetep',  # ?
+        'dmol',  # fixme
+        'demon',  # fixme
+    }
+    return sorted(set(calculators) - skipped)
+
+
+command_keywords = {'castep': 'CASTEP_COMMAND'}
+
+
+@pytest.mark.parametrize('name', keyword_calculator_list())
+def test_command_keyword(name, tmp_path):
+    command = 'dummy command via keyword'
+    expected_command = get_expected_command(command, name, tmp_path)
+
+    # normally {'command': command}
+    commandkwarg = {command_keywords.get(name, 'command'): command}
+    assert intercept_command(name, **commandkwarg) == expected_command
