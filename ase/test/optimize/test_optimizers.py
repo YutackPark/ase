@@ -2,8 +2,7 @@ import pytest
 
 from ase.build import bulk
 from ase.calculators.emt import EMT
-from ase.cluster import Icosahedron
-from ase.optimize import (BFGS, FIRE, LBFGS, Berny, BFGSLineSearch,
+from ase.optimize import (BFGS, FIRE, LBFGS, BFGSLineSearch,
                           GoodOldQuasiNewton, GPMin, LBFGSLineSearch, MDMin,
                           ODE12r)
 from ase.optimize.precon import PreconFIRE, PreconLBFGS, PreconODE12r
@@ -22,19 +21,13 @@ optclasses = [
     SciPyFminBFGS,
     PreconLBFGS,
     PreconFIRE,
-    Berny,
     ODE12r,
     PreconODE12r,
 ]
 
 
 @pytest.fixture(name="ref_atoms")
-def fixture_ref_atoms(optcls):
-    if optcls is Berny:
-        ref_atoms = Icosahedron("Ag", 2, 3.82975)
-        ref_atoms.calc = EMT()
-        return ref_atoms
-
+def fixture_ref_atoms():
     ref_atoms = bulk("Au")
     ref_atoms.calc = EMT()
     ref_atoms.get_potential_energy()
@@ -42,13 +35,9 @@ def fixture_ref_atoms(optcls):
 
 
 @pytest.fixture(name="atoms")
-def fixture_atoms(ref_atoms, optcls):
-    if optcls is Berny:
-        atoms = ref_atoms.copy()
-        floor = 7
-    else:
-        atoms = ref_atoms * (2, 2, 2)
-        floor = 0.45
+def fixture_atoms(ref_atoms):
+    atoms = ref_atoms * (2, 2, 2)
+    floor = 0.45
 
     atoms.calc = EMT()
     atoms.rattle(stdev=0.1, seed=7)
@@ -60,8 +49,6 @@ def fixture_atoms(ref_atoms, optcls):
 @pytest.fixture(name="optcls", params=optclasses)
 def fixture_optcls(request):
     optcls = request.param
-    if optcls is Berny:
-        pytest.importorskip("berny")  # check if pyberny installed
     return optcls
 
 
@@ -70,8 +57,6 @@ def fixture_kwargs(optcls):
     kwargs = {}
     if optcls is PreconLBFGS:
         kwargs["precon"] = None
-    if optcls is Berny:
-        kwargs["dihedral"] = False
     yield kwargs
     kwargs = {}
 
