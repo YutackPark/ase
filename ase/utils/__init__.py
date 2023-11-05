@@ -53,15 +53,32 @@ def deprecated(msg,
                condition=lambda *args, **kwargs: True):
     """Return a decorator deprecating a function.
 
-    Use like:
+    Parameters
+    ----------
+    msg : str or Warning
+        The message to be emitted.
+    category : Warning, default=FutureWarning
+        The type of Warning to be emitted.
+    condition : Callable, default=lambda *args, **kwargs: True
+        A function that determines if the warning should be emitted.
 
+    Returns
+    ------
+    deprecated_decorator : Callable
+        A decorator for deprecated functions parametrized with the input
+        parameters.
+
+    Example
+    --------
     >>> from ase.utils import deprecated
 
-    >>> @deprecated('warning message and explanation',
+    >>> @deprecated(('Calling this function with `atoms` is deprecated. '
+    ...             'Use `optimizable` instead.'),
     ...             category=DeprecationWarning,
     ...             condition=lambda *args, **kwargs: 'atoms' in kwargs)
-    >>> def no_atoms_function(atoms=None):...
+    ... def no_atoms_function(atoms=None, optimizable=None):...
     """
+
     def deprecated_decorator(func):
         @functools.wraps(func)
         def deprecated_function(*args, **kwargs):
@@ -71,7 +88,9 @@ def deprecated(msg,
                     warning = category(warning)
                 warnings.warn(warning)
             return func(*args, **kwargs)
+
         return deprecated_function
+
     return deprecated_decorator
 
 
