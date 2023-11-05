@@ -6,8 +6,7 @@ from ase.filters import FrechetCellFilter
 from ase.optimize import BFGS
 
 
-def test_gulp_opt():
-
+def test_gulp_opt(gulp_factory):
     # GULP optmization test
     atoms = molecule('H2O')
     atoms1 = atoms.copy()

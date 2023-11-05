@@ -2,7 +2,7 @@ from ase import Atoms
 from ase.calculators.crystal import CRYSTAL
 
 
-def test_bulk(testdir):
+def test_bulk(testdir, crystal_factory):
     with open('basis', 'w') as fd:
         fd.write("""6 4
     0 0 6 2.0 1.0

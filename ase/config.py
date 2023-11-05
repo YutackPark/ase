@@ -28,6 +28,12 @@ class Config(Mapping):
         yield from self._env()
 
     def __getitem__(self, item):
+        # XXX We should replace the mapping behaviour with individual
+        # methods to get from cfg or environment, or only from cfg.
+        #
+        # We cannot be a mapping very correctly without getting trouble
+        # with mutable state needing synchronization with os.environ.
+
         env = self._env()
         try:
             return env[item]
@@ -38,7 +44,7 @@ class Config(Mapping):
         warnings.warn(f'Loaded {item} from environment. '
                       'Please use configfile.',
                       ASEEnvDeprecationWarning)
-        env[item] = value
+
         return value
 
     def __len__(self):

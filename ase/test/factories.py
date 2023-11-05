@@ -40,6 +40,7 @@ factory_classes = {}
 def factory(name):
     def decorator(cls):
         cls.name = name
+        assert name not in factory_classes, name
         factory_classes[name] = cls
         return cls
 
@@ -470,8 +471,6 @@ class GromacsFactory:
 
 class BuiltinCalculatorFactory:
     def calc(self, **kwargs):
-        from ase.calculators.calculator import get_calculator_class
-
         cls = get_calculator_class(self.name)
         return cls(**kwargs)
 
@@ -723,6 +722,23 @@ class PlumedFactory:
         return cls()
 
 
+legacy_factory_calculator_names = {
+    'ace',
+    'amber',
+    'crystal',
+    'demon',
+    'demonnano',
+    'dmol',
+    'gamess_us',
+    'gaussian',
+    'gulp',
+    'hotbit',
+    'onetep',
+    'qchem',
+    'turbomole',
+}
+
+
 class NoSuchCalculator(Exception):
     pass
 
@@ -731,28 +747,6 @@ class Factories:
     all_calculators = set(calculator_names)
     builtin_calculators = builtin
     autoenabled_calculators = {'asap'} | builtin_calculators
-
-    # TODO: Port calculators to use factories.  As we do so, remove names
-    # from list of calculators that we monkeypatch:
-    monkeypatch_calculator_constructors = {
-        'ace',
-        'aims',
-        'amber',
-        'crystal',
-        'demon',
-        'demonnano',
-        'dftd3',
-        'dmol',
-        'exciting',
-        'gamess_us',
-        'gaussian',
-        'gulp',
-        'hotbit',
-        'lammpslib',
-        'onetep',
-        'qchem',
-        'turbomole',
-    }
 
     # Calculators requiring ase-datafiles.
     # TODO: So far hard-coded but should be automatically detected.
@@ -803,7 +797,11 @@ class Factories:
         requested_calculators = set(requested_calculators)
         if 'auto' in requested_calculators:
             requested_calculators.remove('auto')
-            requested_calculators |= set(self.factories)
+            # auto can only work with calculators whose configuration
+            # we actually control, so no legacy factories
+            requested_calculators |= (
+                set(self.factories) - legacy_factory_calculator_names)
+
         self.requested_calculators = requested_calculators
 
         for name in self.requested_calculators:
@@ -836,35 +834,6 @@ class Factories:
 
     def __getitem__(self, name):
         return self.factories[name]
-
-    def monkeypatch_disabled_calculators(self):
-        test_calculator_names = (
-            self.autoenabled_calculators
-            | self.builtin_calculators
-            | self.requested_calculators
-        )
-        disable_names = (
-            self.monkeypatch_calculator_constructors - test_calculator_names
-        )
-
-        for name in disable_names:
-            try:
-                cls = get_calculator_class(name)
-            except ImportError:
-                pass
-            else:
-
-                def get_mock_init(name):
-                    def mock_init(obj, *args, **kwargs):
-                        pytest.skip(f'use --calculators={name} to enable')
-
-                    return mock_init
-
-                def mock_del(obj):
-                    pass
-
-                cls.__init__ = get_mock_init(name)
-                cls.__del__ = mock_del
 
 
 def get_factories(pytestconfig):
@@ -935,15 +904,3 @@ class CalculatorInputs:
         param = dict(self.parameters)
         param.update(kwargs)
         return self.factory.calc(**param)
-
-
-class ObsoleteFactoryWrapper:
-    # We use this for transitioning older tests to the new framework.
-    def __init__(self, name):
-        self.name = name
-
-    def calc(self, **kwargs):
-        from ase.calculators.calculator import get_calculator_class
-
-        cls = get_calculator_class(self.name)
-        return cls(**kwargs)

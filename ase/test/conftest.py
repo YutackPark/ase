@@ -13,7 +13,8 @@ import ase
 from ase.dependencies import all_dependencies
 from ase.test.factories import (CalculatorInputs, NoSuchCalculator,
                                 factory_classes, get_factories,
-                                make_factory_fixture,
+                                make_factory_fixture, factory as factory_deco,
+                                legacy_factory_calculator_names,
                                 parametrize_calculator_tests)
 from ase.utils import get_python_package_path_description, seterr, workdir
 
@@ -118,12 +119,6 @@ def calculators_header(config):
             pytest.exit(f'Calculator "{name}" is not installed.  '
                         'Please run "ase test --help-calculators" on how '
                         'to install calculators')
-
-
-@pytest.fixture(scope='session', autouse=True)
-def monkeypatch_disabled_calculators(request, factories):
-    # XXX Replace with another mechanism.
-    factories.monkeypatch_disabled_calculators()
 
 
 @pytest.fixture(scope='session', autouse=True)
@@ -249,6 +244,27 @@ mopac_factory = make_factory_fixture('mopac')
 octopus_factory = make_factory_fixture('octopus')
 siesta_factory = make_factory_fixture('siesta')
 orca_factory = make_factory_fixture('orca')
+
+
+def make_dummy_factory(name):
+    @factory_deco(name)
+    class Factory:
+        def calc(self, **kwargs):
+            from ase.calculators.calculator import get_calculator_class
+            cls = get_calculator_class(name)
+            return cls(**kwargs)
+
+        @classmethod
+        def fromconfig(cls, config):
+            return cls()
+
+    Factory.__name__ = f'{name.upper()}Factory'
+    globalvars = globals()
+    globalvars[f'{name}_factory'] = make_factory_fixture(name)
+
+
+for name in legacy_factory_calculator_names:
+    make_dummy_factory(name)
 
 
 @pytest.fixture

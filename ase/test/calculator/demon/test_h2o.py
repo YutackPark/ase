@@ -5,8 +5,7 @@ from ase import Atoms
 from ase.optimize import BFGS
 
 
-def test_h2o():
-
+def test_h2o(demon_factory):
     tol = 1.0e-6
 
     # d = 0.9575
