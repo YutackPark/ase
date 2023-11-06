@@ -7,7 +7,7 @@ Author: Ole Schuett <ole.schuett@mat.ethz.ch>
 
 import os
 import os.path
-from subprocess import PIPE, Popen
+import subprocess
 from warnings import warn
 
 import numpy as np
@@ -486,8 +486,9 @@ class Cp2kShell:
         assert 'cp2k_shell' in command
         if self._debug:
             print(command)
-        self._child = Popen(command, shell=True, universal_newlines=True,
-                            stdin=PIPE, stdout=PIPE, bufsize=1)
+        self._child = subprocess.Popen(
+            command, shell=True, universal_newlines=True,
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1)
         self.expect('* READY')
 
         # check version of shell
