@@ -129,6 +129,7 @@ envvars = {
     'crystal': 'ASE_CRYSTAL_COMMAND',
     'demon': 'ASE_DEMON_COMMAND',
     'demonnano': 'ASE_DEMONNANO_COMMAND',
+    'dftb': 'DFTB_COMMAND',
     'dmol': 'DMOL_COMMAND',  # XXX Crashes when it runs along other tests
     'elk': 'ASE_ELK_COMMAND',
     'gamess_us': 'ASE_GAMESSUS_COMMAND',
@@ -146,10 +147,16 @@ envvars = {
 }
 
 
-def get_expected_command(command, name, tmp_path):
+def get_expected_command(command, name, tmp_path, from_envvar):
     expected_command = command
     if name == 'castep':
         expected_command = f'{command} castep'  # crazy
+    elif name == 'dftb':
+        # dftb modifies DFTB_COMMAND from envvar but not if given as keyword
+        if from_envvar:
+            expected_command = f'{command} > dftb.out'
+        else:
+            expected_comand = command
     elif name == 'dmol':
         expected_command = f'{command} tmp > tmp.out'
     elif name == 'gromacs':
@@ -166,7 +173,8 @@ def get_expected_command(command, name, tmp_path):
 @pytest.mark.parametrize('name', list(envvars))
 def test_envvar_command(monkeypatch, name, tmp_path):
     command = 'dummy shell command from environment'
-    expected_command = get_expected_command(command, name, tmp_path)
+    expected_command = get_expected_command(command, name, tmp_path,
+                                            from_envvar=True)
     monkeypatch.setenv(envvars[name], command)
     assert intercept_command(name) == expected_command
 
@@ -175,7 +183,7 @@ def keyword_calculator_list():
     skipped = {
         'turbomole',  # commands are hardcoded in turbomole
         'qchem',  # qchem does something entirely different.  wth
-        'castep',  # has castep_command keyword instead
+        # 'castep',  # has castep_command keyword instead
         'psi4',  # needs external package
         'onetep',  # ?
         'dmol',  # fixme
@@ -184,13 +192,15 @@ def keyword_calculator_list():
     return sorted(set(calculators) - skipped)
 
 
-command_keywords = {'castep': 'CASTEP_COMMAND'}
+# castep uses another keyword than normal
+command_keywords = {'castep': 'castep_command'}
 
 
 @pytest.mark.parametrize('name', keyword_calculator_list())
 def test_keyword_command(name, tmp_path):
     command = 'dummy command via keyword'
-    expected_command = get_expected_command(command, name, tmp_path)
+    expected_command = get_expected_command(command, name, tmp_path,
+                                            from_envvar=False)
 
     # normally {'command': command}
     commandkwarg = {command_keywords.get(name, 'command'): command}
@@ -202,7 +212,7 @@ default_commands = {
     'amber': ('sander -O  -i mm.in -o mm.out -p mm.top -c mm.crd -r '
               'mm_dummy.crd'),
     'castep': 'castep castep',  # wth?
-    # 'dftb': '',
+    'dftb': 'dftb+ > dftb.out',
     'elk': 'elk > elk.out',
     'gamess_us': 'rungms gamess_us.inp > gamess_us.log 2> gamess_us.err',
     'gulp': 'gulp < gulp.gin > gulp.got',
@@ -224,16 +234,6 @@ calculators_which_raise = [
     'gromacs',
     'vasp',
 ]
-
-
-names = ['abinit', 'ace', 'aims', 'amber', 'asap', 'castep', 'cp2k',
-         'crystal', 'demon', 'demonnano', 'dftb', 'dftd3', 'dmol', 'eam',
-         'elk', 'emt', 'espresso', 'exciting', 'ff', 'gamess_us',
-         'gaussian', 'gpaw', 'gromacs', 'gulp', 'hotbit', 'kim',
-         'lammpslib', 'lammpsrun', 'lj', 'mopac', 'morse', 'nwchem',
-         'octopus', 'onetep', 'openmx', 'orca',
-         'plumed', 'psi4', 'qchem', 'siesta',
-         'tip3p', 'tip4p', 'turbomole', 'vasp']
 
 
 @pytest.mark.parametrize('name', list(default_commands))
