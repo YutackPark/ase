@@ -39,7 +39,8 @@ def read_gpw(filename):
         bz2ibz=bz2ibz,
         # New gpw-files may have "non_collinear_magmom(s)" which ASE
         # doesn't know:
-        **{property: value for property, value in reader.results.asdict()
+        **{property: value
+           for property, value in reader.results.asdict().items()
            if property in all_properties})
 
     if kpts is not None:
