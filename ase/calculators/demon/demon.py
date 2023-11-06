@@ -84,7 +84,7 @@ class Demon(FileIOCalculator):
             the atoms object
         command  : str
             Command to run deMon. If not present the environment
-            variable ASE
+            variable DEMON_COMMAND will be used
         restart  : str
             Relative path to ASE restart directory for parameters and
             atoms object and results
