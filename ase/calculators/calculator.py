@@ -995,8 +995,8 @@ class ArgvProfile:
 class FileIOCalculator(Calculator):
     """Base class for calculators that write/read input/output files."""
 
-    command: Optional[str] = None
-    'Command used to start calculation'
+    # command: Optional[str] = None
+    # 'Command used to start calculation'
 
     # Fallback command when nothing else is specified.
     # There will be no fallback in the future; it must be explicitly
