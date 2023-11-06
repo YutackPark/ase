@@ -148,7 +148,7 @@ envvars = {
     'lammpsrun': 'ASE_LAMMPSRUN_COMMAND',
     'mopac': 'ASE_MOPAC_COMMAND',
     'nwchem': 'ASE_NWCHEM_COMMAND',
-    'onetep': 'ASE_ONETEP_COMMAND',
+    # 'onetep': 'ASE_ONETEP_COMMAND',  do we need to be compatible here?
     'openmx': 'ASE_OPENMX_COMMAND',  # fails in get_dft_data_year
     # 'psi4', <-- has command but is Calculator
     # 'qchem': 'ASE_QCHEM_COMMAND',  # ignores environment
