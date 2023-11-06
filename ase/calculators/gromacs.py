@@ -24,7 +24,8 @@ from shutil import which
 import numpy as np
 
 from ase import units
-from ase.calculators.calculator import FileIOCalculator, all_changes
+from ase.calculators.calculator import (
+    FileIOCalculator, all_changes, CalculatorSetupError)
 from ase.io.gromos import read_gromos, write_gromos
 
 
@@ -190,7 +191,7 @@ class Gromacs(FileIOCalculator):
         if self.command:
             subprocess.check_call(self.command + ' ' + command, shell=True)
         else:
-            raise OSError(self.missing_gmx)
+            raise CalculatorSetupError(self.missing_gmx)
 
     def generate_g96file(self):
         """ from current coordinates (self.structure_file)
