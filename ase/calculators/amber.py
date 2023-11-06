@@ -85,20 +85,20 @@ class Amber(FileIOCalculator):
         self.incoordfile = incoordfile
         self.outcoordfile = outcoordfile
         self.mdcoordfile = mdcoordfile
-        if command is not None:
-            self.command = command
-        else:
-            self.command = (self.amber_exe +
-                            ' -i ' + self.infile +
-                            ' -o ' + self.outfile +
-                            ' -p ' + self.topologyfile +
-                            ' -c ' + self.incoordfile +
-                            ' -r ' + self.outcoordfile)
+
+        if command is None:
+            command = (self.amber_exe +
+                       ' -i ' + self.infile +
+                       ' -o ' + self.outfile +
+                       ' -p ' + self.topologyfile +
+                       ' -c ' + self.incoordfile +
+                       ' -r ' + self.outcoordfile)
             if self.mdcoordfile is not None:
-                self.command = self.command + ' -x ' + self.mdcoordfile
+                command = command + ' -x ' + self.mdcoordfile
 
         FileIOCalculator.__init__(self, restart, ignore_bad_restart_file,
-                                  label, atoms, **kwargs)
+                                  label, atoms, command=command,
+                                  **kwargs)
 
     def write_input(self, atoms=None, properties=None, system_changes=None):
         """Write updated coordinates to a file."""

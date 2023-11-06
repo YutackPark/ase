@@ -1028,6 +1028,18 @@ class FileIOCalculator(Calculator):
             profile = self._initialize_profile(command)
         self.profile = profile
 
+    @property
+    def command(self):
+        # XXX deprecate me
+        #
+        # This is for calculators that invoke Popen directly on
+        # self.command instead of lettung us (superclass) do it.
+        return self.profile.command
+
+    @command.setter
+    def command(self, command):
+        self.profile.command = command
+
     def _initialize_profile(self, command):
         if self.name in self.cfg.parser:
             section = self.cfg.parser[self.name]
