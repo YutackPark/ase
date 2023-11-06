@@ -35,6 +35,70 @@ from ase.io.vasp_parsers.incar_writer import write_incar
 FLOAT_FORMAT = '5.6f'
 EXP_FORMAT = '5.2e'
 
+def set_magmom(ispin, spinpol, atoms, magmom_input, sorting):
+    """Helps to set the magmom tag in the INCAR file with correct formatting"""
+    magmom_dct = {}
+    if magmom_input is not None:
+        if not len(magmom_input) == len(atoms):
+            msg = ('Expected length of magmom tag to be'
+                   ' {}, i.e. 1 value per atom, but got {}').format(
+                len(atoms), len(magmom_input))
+            raise ValueError(msg)
+
+            # Check if user remembered to specify ispin
+            # note: we do not overwrite ispin if ispin=1
+        if not ispin:
+            spinpol = True
+            # note that ispin is an int key, but for the INCAR it does not
+            # matter
+            magmom_dct['ispin'] = 2
+        magmom = np.array(magmom_input)
+        magmom = magmom[sorting]
+    elif (spinpol and atoms.get_initial_magnetic_moments().any()):
+        # We don't want to write magmoms if they are all 0.
+        # but we could still be doing a spinpol calculation
+        if not ispin:
+            magmom_dct['ispin'] = 2
+        # Write out initial magnetic moments
+        magmom = atoms.get_initial_magnetic_moments()[sorting]
+        # unpack magmom array if three components specified
+        if magmom.ndim > 1:
+            magmom = [item for sublist in magmom for item in sublist]
+    else:
+        return spinpol, {}
+    # Compactify the magmom list to symbol order
+    lst = [[1, magmom[0]]]
+    for n in range(1, len(magmom)):
+        if magmom[n] == magmom[n - 1]:
+            lst[-1][0] += 1
+        else:
+            lst.append([1, magmom[n]])
+    line = ' '.join(['{:d}*{:.4f}'.format(mom[0], mom[1])
+                     for mom in lst])
+    magmom_dct['magmom'] = line
+    return spinpol, magmom_dct
+
+def set_ldau(ldau_param, luj_params, symbol_count):
+    """Helps to set the ldau tag in the INCAR file with correct formatting"""
+    ldau_dct = {}
+    if ldau_param is None:
+        ldau_dct['ldau'] = '.TRUE.'
+    llist = []
+    ulist = []
+    jlist = []
+    for symbol in symbol_count:
+        #  default: No +U
+        luj = luj_params.get(
+            symbol[0],
+            {'L': -1, 'U': 0.0, 'J': 0.0}
+        )
+        llist.append(int(luj['L']))
+        ulist.append(f'{luj["U"]:{".3f"}}')
+        jlist.append(f'{luj["J"]:{".3f"}}')
+    ldau_dct['ldaul'] = llist
+    ldau_dct['ldauu'] = ulist
+    ldau_dct['ldauj'] = jlist
+    return ldau_dct
 
 def test_nelect_charge_compitability(nelect, charge, nelect_from_ppp):
     # We need to determine the nelect resulting from a given
@@ -1479,11 +1543,6 @@ class GenerateVaspInput:
 
     def write_incar(self, atoms, directory='./', **kwargs):
         """Writes the INCAR file."""
-        # jrk 1/23/2015 I added this flag because this function has
-        # two places where magmoms get written. There is some
-        # complication when restarting that often leads to magmom
-        # getting written twice. this flag prevents that issue.
-        magmom_written = False
         incar_params = {}
         incar_header = \
             'INCAR created by Atomic Simulation Environment'
@@ -1554,36 +1613,6 @@ class GenerateVaspInput:
         if 'ldauj' in float_dct.keys() and self.dict_params[
                 'ldau_luj'] is not None:
             del float_dct['ldauj']
-        if 'magmom' in float_dct.keys():
-            if not len(float_dct['magmom']) == len(atoms):
-                msg = ('Expected length of magmom tag to be'
-                       ' {}, i.e. 1 value per atom, but got {}').format(
-                    len(atoms), len(float_dct['magmom']))
-                raise ValueError(msg)
-
-            # Check if user remembered to specify ispin
-            # note: we do not overwrite ispin if ispin=1
-            if not self.int_params['ispin']:
-                self.spinpol = True
-                # note that ispin is a int key, but for the INCAR it does not
-                # matter
-                float_dct['ispin'] = 2
-
-            magmom_written = True
-            # Work out compact a*x b*y notation and write in this form
-            # Assume 1 magmom per atom, ordered as our atoms object
-            val = np.array(float_dct['magmom'])
-            val = val[self.sort]
-            # Compactify the magmom list to symbol order
-            lst = [[1, val[0]]]
-            for n in range(1, len(val)):
-                if val[n] == val[n - 1]:
-                    lst[-1][0] += 1
-                else:
-                    lst.append([1, val[n]])
-            line = ' '.join(['{:d}*{:.4f}'.format(mom[0], mom[1])
-                             for mom in lst])
-            float_dct['magmom'] = line
         incar_params.update(float_dct)
 
         # bool params
@@ -1605,48 +1634,25 @@ class GenerateVaspInput:
         dict_dct = dict((key, val) for key, val in self.dict_params.items()
                         if val is not None)
         if 'ldau_luj' in dict_dct.keys():
-            if self.bool_params['ldau'] is None:
-                dict_dct['ldau'] = '.TRUE.'
-            llist = []
-            ulist = []
-            jlist = []
-            for symbol in self.symbol_count:
-                #  default: No +U
-                luj = dict_dct['ldau_luj'].get(symbol[0],
-                                               {'L': -1, 'U': 0.0, 'J': 0.0})
-                llist.append(int(luj['L']))
-                ulist.append(f'{luj["U"]:{".3f"}}')
-                jlist.append(f'{luj["J"]:{".3f"}}')
-            dict_dct['ldaul'] = llist
-            dict_dct['ldauu'] = ulist
-            dict_dct['ldauj'] = jlist
+            ldau_dict = set_ldau(
+                ldau_param=self.bool_params['ldau'],
+                luj_params=dict_dct['ldau_luj'],
+                symbol_count=self.symbol_count,
+                )
+            dict_dct.update(ldau_dict)
             del dict_dct['ldau_luj']
         incar_params.update(dict_dct)
 
-
-        # get magmom from atoms if not explicitly set
-        extra_dct = {}
-        if (self.spinpol and not magmom_written
-                # We don't want to write magmoms if they are all 0.
-                # but we could still be doing a spinpol calculation
-                and atoms.get_initial_magnetic_moments().any()):
-            if not self.int_params['ispin']:
-                extra_dct['ispin'] = 2
-            # Write out initial magnetic moments
-            magmom = atoms.get_initial_magnetic_moments()[self.sort]
-            # unpack magmom array if three components specified
-            if magmom.ndim > 1:
-                magmom = [item for sublist in magmom for item in sublist]
-            lst = [[1, magmom[0]]]
-            for n in range(1, len(magmom)):
-                if magmom[n] == magmom[n - 1]:
-                    lst[-1][0] += 1
-                else:
-                    lst.append([1, magmom[n]])
-            line = ' '.join(['{:d}*{:.4f}'.format(mom[0], mom[1])
-                             for mom in lst])
-            extra_dct['magmom'] = line
-        incar_params.update(extra_dct)
+        # set magmom based on input or initial atoms object
+        spinpol, magmom_dct = set_magmom(
+            atoms=atoms,
+            ispin=self.int_params['ispin'],
+            spinpol=self.spinpol,
+            magmom_input=float_dct.get('magmom', None),
+            sorting=self.sort,
+        )
+        self.spinpol = spinpol
+        incar_params.update(magmom_dct)
 
         # Custom key-value pairs, which receive no formatting
         # Use the comment "# <Custom ASE key>" to denote such
