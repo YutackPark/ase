@@ -998,6 +998,11 @@ class FileIOCalculator(Calculator):
     command: Optional[str] = None
     'Command used to start calculation'
 
+    # Fallback command when nothing else is specified.
+    # There will be no fallback in the future; it must be explicitly
+    # configured.
+    _legacy_default_command: Optional[str] = None
+
     cfg = _cfg  # Ensure easy access to config for subclasses
 
     def __init__(
@@ -1016,28 +1021,34 @@ class FileIOCalculator(Calculator):
             Command used to start calculation.
         """
 
-        Calculator.__init__(
-            self, restart, ignore_bad_restart_file, label, atoms, **kwargs
-        )
+        super().__init__(restart, ignore_bad_restart_file, label, atoms,
+                         **kwargs)
+
+        if profile is None:
+            profile = self._initialize_profile(command)
+        self.profile = profile
+
+    def _initialize_profile(self, command):
+        if self.name in self.cfg.parser:
+            section = self.cfg.parser[self.name]
+            # XXX getargv() returns None if missing!
+            return ArgvProfile(self.name, section.getargv('argv'))
 
         if command is None:
             name = 'ASE_' + self.name.upper() + '_COMMAND'
             command = self.cfg.get(name)
 
         if command is None:
-            if self.name in self.cfg.parser:
-                section = self.cfg.parser[self.name]
-                # XXX getargv() returns None if missing!
-                profile = ArgvProfile(self.name, section.getargv('argv'))
-            else:
-                raise EnvironmentError(
-                    f'No configuration of {self.name}.  '
-                    f'Missing section [{self.name}] in configuration'
-                )
-        else:
-            profile = OldShellProfile(self.name, command, self.prefix)
+            # XXX issue a FutureWarning if this causes the command
+            # to no longer be None
+            command = self._legacy_default_command
 
-        self.profile = profile
+        if command is None:
+            raise EnvironmentError(
+                f'No configuration of {self.name}.  '
+                f'Missing section [{self.name}] in configuration')
+
+        return OldShellProfile(self.name, command, self.prefix)
 
     def calculate(
         self, atoms=None, properties=['energy'], system_changes=all_changes
