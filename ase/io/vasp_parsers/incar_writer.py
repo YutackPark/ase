@@ -18,7 +18,8 @@ def generate_incar_lines(parameters):
         incar_lines = []
         for item in parameters.items():
             incar_lines += list(generate_line(*item))
-        return "\n".join(incar_lines)
+        # Adding a newline at the end of the file
+        return "\n".join(incar_lines) + "\n"
 
 
 def generate_line(key, value, num_spaces=1):
