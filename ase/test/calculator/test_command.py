@@ -3,6 +3,7 @@ import subprocess
 import pytest
 
 from ase import Atoms
+from ase.calculators.calculator import CalculatorSetupError
 
 """
 These tests monkeypatch Popen so as to abort execution and verify that
@@ -18,6 +19,7 @@ They test several cases:
 
 (We do not bother to check e.g. conflicting combinations.)
 """
+
 
 class InterceptedCommand(BaseException):
     def __init__(self, command):
@@ -148,26 +150,26 @@ envvars = {
 
 
 def get_expected_command(command, name, tmp_path, from_envvar):
-    expected_command = command
     if name == 'castep':
-        expected_command = f'{command} castep'  # crazy
-    elif name == 'dftb':
+        return f'{command} castep'  # crazy
+
+    if name == 'dftb' and from_envvar:
         # dftb modifies DFTB_COMMAND from envvar but not if given as keyword
-        if from_envvar:
-            expected_command = f'{command} > dftb.out'
-        else:
-            expected_comand = command
-    elif name == 'dmol':
-        expected_command = f'{command} tmp > tmp.out'
-    elif name == 'gromacs':
-        expected_command = (
-            f'{command} mdrun -s gromacs.tpr -o gromacs.trr '
-            '-e gromacs.edr -g gromacs.log -c gromacs.g96  > MM.log 2>&1')
-    elif name == 'openmx':
+        return f'{command} > dftb.out'
+
+    if name == 'dmol':
+        return f'{command} tmp > tmp.out'
+
+    if name == 'gromacs':
+        return (f'{command} mdrun -s gromacs.tpr -o gromacs.trr '
+                '-e gromacs.edr -g gromacs.log -c gromacs.g96  > MM.log 2>&1')
+
+    if name == 'openmx':
         # openmx converts the stream target to an abspath, so the command
         # will vary depending on the tempdir we're running in.
-        expected_command = f'{command} openmx.dat > {tmp_path}/openmx.log'
-    return expected_command
+        return f'{command} openmx.dat > {tmp_path}/openmx.log'
+
+    return command
 
 
 @pytest.mark.parametrize('name', list(envvars))
@@ -204,6 +206,7 @@ def test_keyword_command(name, tmp_path):
 
     # normally {'command': command}
     commandkwarg = {command_keywords.get(name, 'command'): command}
+    print('EXPECTED', expected_command)
     assert intercept_command(name, **commandkwarg) == expected_command
 
 
@@ -244,7 +247,6 @@ def test_nocommand_default(name, monkeypatch):
     assert intercept_command(name) == default_commands[name]
 
 
-from ase.calculators.calculator import CalculatorSetupError
 @pytest.mark.parametrize('name', calculators_which_raise)
 def test_nocommand_raise(name, monkeypatch):
     if name in envvars:
