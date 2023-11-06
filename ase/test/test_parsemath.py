@@ -1,7 +1,9 @@
-def test_parsemath():
-    import math
+import math
 
-    from ase.utils.parsemath import eval_expression
+from ase.utils.parsemath import eval_expression
+
+
+def test_parsemath():
 
     param_dct = {
         "param_1": 1,

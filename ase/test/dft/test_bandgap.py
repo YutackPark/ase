@@ -1,5 +1,7 @@
+from ase.dft.bandgap import bandgap
+
+
 def test_bandgap():
-    from ase.dft.bandgap import bandgap
 
     class Test:
         def get_ibz_k_points(self):

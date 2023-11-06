@@ -1,6 +1,8 @@
+from ase.build import bulk
+from ase.io.siesta import _read_fdf_lines
+
+
 def test_fdf_io(siesta_factory):
-    from ase.build import bulk
-    from ase.io.siesta import _read_fdf_lines
 
     atoms = bulk('Ti')
     calc = siesta_factory.calc()

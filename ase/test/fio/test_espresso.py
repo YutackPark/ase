@@ -10,7 +10,10 @@ import numpy as np
 from pytest import approx
 
 from ase import build, io
-from ase.io.espresso import parse_position_line
+from ase.io.espresso import (parse_position_line,
+                             get_atomic_species,
+                             read_fortran_namelist,
+                             write_espresso_in)
 
 # This file is parsed correctly by pw.x, even though things are
 # scattered all over the place with some namelist edge cases
@@ -283,7 +286,6 @@ def test_pw_input():
 
 def test_get_atomic_species():
     """Parser for atomic species section"""
-    from ase.io.espresso import get_atomic_species, read_fortran_namelist
 
     with open('pw_input.pwi', 'w') as pw_input_f:
         pw_input_f.write(pw_input_text)
@@ -372,7 +374,6 @@ def test_pw_input_write():
     readback = io.read('espresso_test.pwi')
     assert np.allclose(bulk.positions, readback.positions)
     #
-    from ase.io.espresso import write_espresso_in
     sections = {'system': {
         'lda_plus_u': True,
         'Hubbard_U(1)': 4.0,

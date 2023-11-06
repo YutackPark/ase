@@ -19,6 +19,7 @@ from os.path import isfile, islink, join
 
 import numpy as np
 
+from ase import Atoms
 from ase.calculators.calculator import (FileIOCalculator, Parameters,
                                         ReadError, all_changes)
 from ase.calculators.siesta.import_functions import (get_valence_charge,
@@ -135,6 +136,22 @@ def resolve_band_structure(path, kpts, energies, efermi):
     skn2e = np.swapaxes(ksn2e, 0, 1)
     bs = BandStructure(path, skn2e, reference=efermi)
     return bs
+
+
+def is_along_cartesian(norm_dir: np.ndarray) -> bool:
+    """Return whether `norm_dir` is along a Cartesian coordidate."""
+    directions = [
+        [+1, 0, 0],
+        [-1, 0, 0],
+        [0, +1, 0],
+        [0, -1, 0],
+        [0, 0, +1],
+        [0, 0, -1],
+    ]
+    for direction in directions:
+        if np.allclose(norm_dir, direction, rtol=0.0, atol=1e-6):
+            return True
+    return False
 
 
 class SiestaParameters(Parameters):
@@ -629,9 +646,12 @@ class Siesta(FileIOCalculator):
     def _write_structure(self, fd, atoms):
         """Translate the Atoms object to fdf-format.
 
-        Parameters:
-            - f:     An open file object.
-            - atoms: An atoms object.
+        Parameters
+        ----------
+        fd : IO
+            An open file object.
+        atoms: Atoms
+            An atoms object.
         """
         cell = atoms.cell
         fd.write('\n')
@@ -679,14 +699,17 @@ class Siesta(FileIOCalculator):
             fd.write('%endblock DM.InitSpin\n')
             fd.write('\n')
 
-    def _write_atomic_coordinates(self, fd, atoms):
+    def _write_atomic_coordinates(self, fd, atoms: Atoms):
         """Write atomic coordinates.
 
-        Parameters:
-            - f:     An open file object.
-            - atoms: An atoms object.
+        Parameters
+        ----------
+        fd : IO
+            An open file object.
+        atoms : Atoms
+            An atoms object.
         """
-        af = self.parameters.atomic_coord_format.lower()
+        af = self.parameters["atomic_coord_format"].lower()
         if af == 'xyz':
             self._write_atomic_coordinates_xyz(fd, atoms)
         elif af == 'zmatrix':
@@ -694,12 +717,15 @@ class Siesta(FileIOCalculator):
         else:
             raise RuntimeError(f'Unknown atomic_coord_format: {af}')
 
-    def _write_atomic_coordinates_xyz(self, fd, atoms):
+    def _write_atomic_coordinates_xyz(self, fd, atoms: Atoms):
         """Write atomic coordinates.
 
-        Parameters:
-            - f:     An open file object.
-            - atoms: An atoms object.
+        Parameters
+        ----------
+        fd : IO
+            An open file object.
+        atoms : Atoms
+            An atoms object.
         """
         species, species_numbers = self.species(atoms)
         fd.write('\n')
@@ -722,12 +748,15 @@ class Siesta(FileIOCalculator):
             fd.write('%endblock AtomicCoordinatesOrigin\n')
             fd.write('\n')
 
-    def _write_atomic_coordinates_zmatrix(self, fd, atoms):
+    def _write_atomic_coordinates_zmatrix(self, fd, atoms: Atoms):
         """Write atomic coordinates in Z-matrix format.
 
-        Parameters:
-            - f:     An open file object.
-            - atoms: An atoms object.
+        Parameters
+        ----------
+        fd : IO
+            An open file object.
+        atoms : Atoms
+            An atoms object.
         """
         species, species_numbers = self.species(atoms)
         fd.write('\n')
@@ -753,33 +782,31 @@ class Siesta(FileIOCalculator):
             fd.write('%endblock AtomicCoordinatesOrigin\n')
             fd.write('\n')
 
-    def make_xyz_constraints(self, atoms):
+    def make_xyz_constraints(self, atoms: Atoms):
         """ Create coordinate-resolved list of constraints [natoms, 0:3]
         The elements of the list must be integers 0 or 1
           1 -- means that the coordinate will be updated during relaxation
           0 -- mains that the coordinate will be fixed during relaxation
         """
         import sys
-        import warnings
 
         from ase.constraints import (FixAtoms, FixCartesian, FixedLine,
                                      FixedPlane)
 
-        a = atoms
-        a2c = np.ones((len(a), 3), dtype=int)
-        for c in a.constraints:
+        a2c = np.ones((len(atoms), 3), dtype=int)  # (0: fixed, 1: updated)
+        for c in atoms.constraints:
             if isinstance(c, FixAtoms):
                 a2c[c.get_indices()] = 0
             elif isinstance(c, FixedLine):
                 norm_dir = c.dir / np.linalg.norm(c.dir)
-                if (max(norm_dir) - 1.0) > 1e-6:
+                if not is_along_cartesian(norm_dir):
                     raise RuntimeError(
                         'norm_dir: {} -- must be one of the Cartesian axes...'
                         .format(norm_dir))
                 a2c[c.get_indices()] = norm_dir.round().astype(int)
             elif isinstance(c, FixedPlane):
                 norm_dir = c.dir / np.linalg.norm(c.dir)
-                if (max(norm_dir) - 1.0) > 1e-6:
+                if not is_along_cartesian(norm_dir):
                     raise RuntimeError(
                         'norm_dir: {} -- must be one of the Cartesian axes...'
                         .format(norm_dir))

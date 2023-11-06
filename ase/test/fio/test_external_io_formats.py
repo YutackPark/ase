@@ -4,14 +4,9 @@ outside of the ase package
 """
 import copy
 import io
-import sys
+from importlib.metadata import EntryPoint
 
 import pytest
-
-if sys.version_info >= (3, 8):
-    from importlib.metadata import EntryPoint
-else:
-    from importlib_metadata import EntryPoint
 
 from ase.build import bulk
 from ase.io import formats, read, write

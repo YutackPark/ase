@@ -25,11 +25,7 @@ from pathlib import Path, PurePath
 from typing import (IO, Any, Dict, Iterable, List, Optional, Sequence, Tuple,
                     Union)
 
-if sys.version_info >= (3, 8):
-    from importlib.metadata import entry_points
-else:
-    from importlib_metadata import entry_points
-
+from importlib.metadata import entry_points
 from importlib import import_module
 
 from ase.atoms import Atoms

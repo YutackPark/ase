@@ -27,7 +27,7 @@ grad = [True, True, True, True, False]
 
 
 @pytest.mark.parametrize('kwargs, eref, grad', zip(kwargs, erefs, grad))
-def test_gamess(water, kwargs, eref, grad):
+def test_gamess(water, kwargs, eref, grad, gamess_us_factory):
     water.calc = GAMESSUS(**kwargs)
     e = water.get_potential_energy()
     if eref is not None:

@@ -1,7 +1,9 @@
-def test_atoms_formula():
-    import warnings
+import warnings
 
-    from ase.build import add_adsorbate, fcc111
+from ase.build import add_adsorbate, fcc111
+
+
+def test_atoms_formula():
 
     # some random system
     slab = fcc111('Al', size=(2, 2, 3))

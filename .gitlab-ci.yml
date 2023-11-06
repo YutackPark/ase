@@ -97,13 +97,20 @@ main:
       ase test
       --calculators asap,ff,lj,morse,tip3p,tip4p
       --coverage --pytest --color=yes --durations 20 -v -r s
+      --junit-xml=report.xml
       -W "ignore:The --rsyncdir command line argument"
       -W "ignore:NumPy will stop allowing conversion of out-of-bound Python integers"
+    - coverage xml --data-file ase/test/.coverage
     - mv ase/test/coverage-html coverage-main
     - mv ase/test/.coverage coverage-main/coverage.dat
   artifacts:
     paths:
       - coverage-main/
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+      junit: ase/test/report.xml
     expire_in: 1 week
 
 # Calculator integration tests which always run.
@@ -116,12 +123,19 @@ calculators-lite:
     - >
       ase test calculator --calculators=auto --coverage
       --pytest -m calculator_lite --color=yes --durations=20 -v
+      --junit-xml=report.xml -r s
       -W "ignore:The --rsyncdir command line argument"
+    - coverage xml --data-file ase/test/.coverage
     - mv ase/test/coverage-html coverage-calculators-lite
     - mv ase/test/.coverage coverage-calculators-lite/coverage.dat
   artifacts:
     paths:
       - coverage-calculators-lite/
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+      junit: ase/test/report.xml
     expire_in: 1 week
 
 # Plan: Test as many calculators as possible as well as possible.
@@ -137,8 +151,9 @@ calculators:
     - ase info --calculators
     - >
       ase test calculator --calculators abinit,asap,cp2k,dftb,espresso,gpaw,kim,lammpslib,lammpsrun,mopac,nwchem,octopus,siesta
-      --coverage --pytest --color=yes --durations 20
+      --coverage --pytest --color=yes --durations 20 --junit-xml=report.xml
       -W "ignore:The --rsyncdir command line argument"
+    - coverage xml --data-file ase/test/.coverage
     - mv ase/test/coverage-html coverage-calculators
     - mv ase/test/.coverage coverage-calculators/coverage.dat
   rules:
@@ -149,6 +164,11 @@ calculators:
   artifacts:
     paths:
       - coverage-calculators/
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.xml
+      junit: ase/test/report.xml
     expire_in: 1 week
 
 doc:

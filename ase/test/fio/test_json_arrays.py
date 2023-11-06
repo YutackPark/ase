@@ -1,7 +1,9 @@
-def test_json_arrays():
-    import numpy as np
+import numpy as np
 
-    from ase.io.jsonio import decode, encode
+from ase.io.jsonio import decode, encode
+
+
+def test_json_arrays():
 
     def check(obj):
         txt = encode(obj)

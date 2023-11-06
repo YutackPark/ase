@@ -515,7 +515,7 @@ non_metals = ['H', 'He', 'B', 'C', 'N', 'O', 'F', 'Ne',
               'Po', 'At', 'Rn']
 
 
-@lru_cache()
+@lru_cache
 def periodic_table_order() -> Dict[str, int]:
     """Create dict for sorting after period first then row."""
     return {symbol: n for n, symbol in enumerate(chemical_symbols[87:] +

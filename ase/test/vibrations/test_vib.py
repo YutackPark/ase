@@ -9,6 +9,7 @@ from numpy.testing import assert_array_almost_equal
 import ase.io
 from ase import Atoms, units
 from ase.build import add_adsorbate, fcc111
+from ase.calculators.calculator import compare_atoms
 from ase.calculators.qmmm import ForceConstantCalculator
 from ase.constraints import FixAtoms, FixCartesian
 from ase.thermochemistry import IdealGasThermo
@@ -284,7 +285,6 @@ class TestVibrationsDataStaticMethods:
     def test_get_jmol_images(self, kwargs, expected):
         # Test the private staticmethod _get_jmol_images
         # used by the public write_jmol_images() method
-        from ase.calculators.calculator import compare_atoms
 
         jmol_images = list(VibrationsData._get_jmol_images(**kwargs))
         assert len(jmol_images) == len(expected)

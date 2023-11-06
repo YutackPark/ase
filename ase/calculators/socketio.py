@@ -8,7 +8,10 @@ import numpy as np
 import ase.units as units
 from ase.calculators.calculator import (Calculator,
                                         PropertyNotImplementedError,
-                                        all_changes)
+                                        all_changes,
+                                        ArgvProfile,
+                                        OldShellProfile)
+from ase.calculators.genericfileio import GenericFileIOCalculator
 from ase.stress import full_3x3_to_voigt_6_stress
 from ase.utils import IOContext
 
@@ -224,8 +227,9 @@ class FileIOSocketClientLauncher:
     def __call__(self, atoms, properties=None, port=None, unixsocket=None):
         assert self.calc is not None
         cwd = self.calc.directory
+
         profile = getattr(self.calc, 'profile', None)
-        if profile is not None:
+        if isinstance(self.calc, GenericFileIOCalculator):
             # New GenericFileIOCalculator:
 
             self.calc.write_inputfiles(atoms, properties)
@@ -237,10 +241,18 @@ class FileIOSocketClientLauncher:
             return Popen(argv, cwd=cwd, env=os.environ)
         else:
             # Old FileIOCalculator:
+            if profile is None:
+                cmd = self.calc.command.replace('PREFIX', self.calc.prefix)
+                cmd = cmd.format(port=port, unixsocket=unixsocket)
+            elif isinstance(profile, OldShellProfile):
+                cmd = profile.command
+                if "PREFIX" in cmd:
+                    cmd = cmd.replace("PREFIX", profile.prefix)
+            elif isinstance(profile, ArgvProfile):
+                cmd = " ".join(profile.argv)
+
             self.calc.write_input(atoms, properties=properties,
                                   system_changes=all_changes)
-            cmd = self.calc.command.replace('PREFIX', self.calc.prefix)
-            cmd = cmd.format(port=port, unixsocket=unixsocket)
             return Popen(cmd, shell=True, cwd=cwd)
 
 

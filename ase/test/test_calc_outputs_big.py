@@ -1,6 +1,10 @@
 import numpy as np
 import pytest
 
+from ase.build import bulk
+from ase.calculators.abc import GetOutputsMixin
+from ase.calculators.singlepoint import (SinglePointDFTCalculator,
+                                         arrays_to_kpoints)
 from ase.outputs import Properties, all_outputs
 
 
@@ -49,9 +53,6 @@ def test_properties_big(props):
 
 
 def test_singlepoint_roundtrip(props):
-    from ase.build import bulk
-    from ase.calculators.singlepoint import (SinglePointDFTCalculator,
-                                             arrays_to_kpoints)
 
     atoms = bulk('Au') * (1, 1, props['natoms'])
 
@@ -72,7 +73,6 @@ def test_singlepoint_roundtrip(props):
 
 
 def test_output_mixin(props, rng):
-    from ase.calculators.abc import GetOutputsMixin
 
     class OutputsMixinTester(GetOutputsMixin):
         def __init__(self, props):

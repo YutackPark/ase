@@ -289,7 +289,8 @@ class Phonons(Displacement):
     >>> from gpaw import GPAW, FermiDirac
 
     >>> atoms = bulk('Si', 'diamond', a=5.4)
-    >>> calc = GPAW(kpts=(5, 5, 5),
+    >>> calc = GPAW(mode='fd',
+    ...             kpts=(5, 5, 5),
     ...             h=0.2,
     ...             occupations=FermiDirac(0.))
     >>> ph = Phonons(atoms, calc, supercell=(5, 5, 5))

@@ -1,3 +1,4 @@
+import io
 import pytest
 
 from ase import Atoms
@@ -6,6 +7,7 @@ from ase.db import connect
 from ase.db.app import DatabaseProject
 from ase.db.cli import check_jsmol
 from ase.db.web import Session
+from ase.io import read
 
 projectname = 'db-web-test-project'
 
@@ -73,10 +75,6 @@ def test_favicon(client):
 
 
 def test_db_web(client):
-    import io
-
-    from ase.db.web import Session
-    from ase.io import read
     c = client
 
     page = c.get('/').data.decode()

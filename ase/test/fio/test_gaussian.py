@@ -15,6 +15,16 @@ from ase.io.gaussian import (_get_atoms_info, _get_cartesian_atom_coords,
                              read_gaussian_in)
 
 
+# Refactoring needed.
+#
+# Lots of calculators are instantiated here even though no calculations
+# are taking place.  These tests should instead use the GaussianConfiguration
+# class to ensure that all the formatting/parsing works well.
+@pytest.fixture(autouse=True)
+def hack_gaussian_command(monkeypatch):
+    monkeypatch.setenv('ASE_GAUSSIAN_COMMAND', '_does_not_exist_')
+
+
 @pytest.fixture
 def fd_cartesian():
     # make an example input string with cartesian coords:

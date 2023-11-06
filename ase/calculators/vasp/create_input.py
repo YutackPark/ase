@@ -131,6 +131,62 @@ def test_nelect_charge_compitability(nelect, charge, nelect_from_ppp):
         return nelect
 
 
+def get_pp_setup(setup) -> Tuple[dict, Sequence[int]]:
+    """
+    Get the pseudopotential mapping based on the "setpus" input.
+
+    Parameters
+    ----------
+    setup : [str, dict]
+        The setup to use for the calculation. This can be a string
+        shortcut, or a dict of atom identities and suffixes.
+        In the dict version it is also possible to select a base setup
+        e.g.: {'base': 'minimal', 'Ca': '_sv', 2: 'O_s'}
+        If the key is an integer, this means an atom index.
+        For the string version, 'minimal', 'recommended' and 'GW' are
+        available. The default is 'minimal
+
+    Returns
+    -------
+    setups : dict
+        The setup dictionary, with atom indices as keys and suffixes
+        as values.
+    special_setups : list
+        A list of atom indices that have a special setup.
+    """
+    special_setups = []
+
+    # Avoid mutating the module dictionary, so we use a copy instead
+    # Note, it is a nested dict, so a regular copy is not enough
+    setups_defaults = get_default_setups()
+
+    # Default to minimal basis
+    if setup is None:
+        setup = {'base': 'minimal'}
+
+    # String shortcuts are initialised to dict form
+    elif isinstance(setup, str):
+        if setup.lower() in setups_defaults.keys():
+            setup = {'base': setup}
+
+    # Dict form is then queried to add defaults from setups.py.
+    if 'base' in setup:
+        setups = setups_defaults[setup['base'].lower()]
+    else:
+        setups = {}
+
+    # Override defaults with user-defined setups
+    if setup is not None:
+        setups.update(setup)
+
+    for m in setups:
+        try:
+            special_setups.append(int(m))
+        except ValueError:
+            pass
+    return setups, special_setups
+
+
 def format_kpoints(kpts, atoms, reciprocal=False, gamma=False):
     tokens = []
     append = tokens.append
@@ -146,11 +202,11 @@ def format_kpoints(kpts, atoms, reciprocal=False, gamma=False):
     # Wrap scalar in list if necessary
     if shape == ():
         kpts = [kpts]
-        shape = (1,)
+        shape = (1, )
 
     if len(shape) == 1:
         append('0\n')
-        if shape == (1,):
+        if shape == (1, ):
             append('Auto\n')
         elif gamma:
             append('Gamma\n')
@@ -1165,9 +1221,20 @@ class GenerateVaspInput:
             'charge': None,
             # Deprecated older parameter which works just like "charge" but
             # with the sign flipped
+            'net_charge': None,
             # Custom key-value pairs, written to INCAR with *no* type checking
             'custom': {},
         }
+        # warning message for pw91
+        self.pw91_warning_msg =\
+            "The PW91 (potpaw_GGA) pseudopotential set is " \
+            "from 2006 and not recommended for use.\nWe will " \
+            "remove support for it in a future release, " \
+            "and use the current PBE (potpaw_PBE) set instead.\n" \
+            "Note that this still allows for PW91 calculations, " \
+            "since VASP recalculates the exchange-correlation\n" \
+            "energy inside the PAW sphere and corrects the atomic " \
+            "energies given by the POTCAR file."
 
     def set_xc_params(self, xc):
         """Set parameters corresponding to XC functional"""
@@ -1179,6 +1246,11 @@ class GenerateVaspInput:
             raise ValueError('{} is not supported for xc! Supported xc values'
                              'are: {}'.format(xc, xc_allowed))
         else:
+            # print future warning in case pw91 is selected:
+            if xc == 'pw91':
+                warnings.warn(
+                    self.pw91_warning_msg, FutureWarning
+                )
             # XC defaults to PBE pseudopotentials
             if 'pp' not in self.xc_defaults[xc]:
                 self.set(pp='PBE')
@@ -1242,6 +1314,10 @@ class GenerateVaspInput:
                 p.update({'pp': 'lda'})
             elif self.string_params['gga'] == '91':
                 p.update({'pp': 'pw91'})
+                warnings.warn(
+                    self.pw91_warning_msg, FutureWarning
+                )
+
             elif self.string_params['gga'] == 'PE':
                 p.update({'pp': 'pbe'})
             else:
@@ -1267,7 +1343,7 @@ class GenerateVaspInput:
                           "\n".format(p['pp'].upper()))
 
     def _make_sort(
-            self, atoms: ase.Atoms, special_setups: Sequence[int] = ()
+        self, atoms: ase.Atoms, special_setups: Sequence[int] = ()
     ) -> Tuple[List[int], List[int]]:
         symbols, _ = count_symbols(atoms, exclude=special_setups)
 
@@ -1287,6 +1363,14 @@ class GenerateVaspInput:
             resrt[srt[n]] = n
         return srt, resrt
 
+    def _set_spinpol(self, atoms):
+        if self.int_params['ispin'] is None:
+            self.spinpol = atoms.get_initial_magnetic_moments().any()
+        else:
+            # VASP runs non-spin-polarized calculations when `ispin=1`,
+            # regardless if `magmom` is specified or not.
+            self.spinpol = (self.int_params['ispin'] == 2)
+
     def _build_pp_list(self,
                        atoms,
                        setups=None,
@@ -1296,7 +1380,7 @@ class GenerateVaspInput:
         p = self.input_params
 
         if setups is None:
-            setups, special_setups = self._get_setups()
+            setups, special_setups = get_pp_setup(p['setups'])
 
         symbols, _ = count_symbols(atoms, exclude=special_setups)
 
@@ -1365,65 +1449,6 @@ class GenerateVaspInput:
                 raise RuntimeError(msg)
         return ppp_list
 
-    def _get_setups(self):
-        p = self.input_params
-
-        special_setups = []
-
-        # Default setup lists are available: 'minimal', 'recommended' and 'GW'
-        # These may be provided as a string e.g.::
-        #
-        #     calc = Vasp(setups='recommended')
-        #
-        # or in a dict with other specifications e.g.::
-        #
-        #    calc = Vasp(setups={'base': 'minimal', 'Ca': '_sv', 2: 'O_s'})
-        #
-        # Where other keys are either atom identities or indices, and the
-        # corresponding values are suffixes or the full name of the setup
-        # folder, respectively.
-
-        # Avoid mutating the module dictionary, so we use a copy instead
-        # Note, it is a nested dict, so a regular copy is not enough
-        setups_defaults = get_default_setups()
-
-        # Default to minimal basis
-        if p['setups'] is None:
-            p['setups'] = {'base': 'minimal'}
-
-        # String shortcuts are initialised to dict form
-        elif isinstance(p['setups'], str):
-            if p['setups'].lower() == 'materialsproject':
-                warnings.warn('`materialsproject` setup will be'
-                              'removed in a future release.', FutureWarning)
-            if p['setups'].lower() in setups_defaults.keys():
-                p['setups'] = {'base': p['setups']}
-
-        # Dict form is then queried to add defaults from setups.py.
-        if 'base' in p['setups']:
-            setups = setups_defaults[p['setups']['base'].lower()]
-        else:
-            setups = {}
-
-        # Override defaults with user-defined setups
-        if p['setups'] is not None:
-            setups.update(p['setups'])
-
-        for m in setups:
-            try:
-                special_setups.append(int(m))
-            except ValueError:
-                pass
-        return setups, special_setups
-
-    def _set_spinpol(self, atoms):
-        if self.int_params['ispin'] is None:
-            self.spinpol = atoms.get_initial_magnetic_moments().any()
-        else:
-            # VASP runs non-spin-polarized calculations when `ispin=1`,
-            # regardless if `magmom` is specified or not.
-            self.spinpol = (self.int_params['ispin'] == 2)
-
     def initialize(self, atoms):
         """Initialize a VASP calculation
 
@@ -1449,7 +1474,7 @@ class GenerateVaspInput:
 
         self._set_spinpol(atoms)
 
-        setups, special_setups = self._get_setups()
+        setups, special_setups = get_pp_setup(self.input_params['setups'])
 
         # Determine the number of atoms of each atomic species
         # sorted after atomic species

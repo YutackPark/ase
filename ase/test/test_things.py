@@ -1,7 +1,9 @@
+from ase.build import bulk
+from ase.dft.kpoints import monkhorst_pack
+from ase.units import Bohr, Hartree, fs, kB, kcal, kJ, mol
+
+
 def test_things():
-    from ase.build import bulk
-    from ase.dft.kpoints import monkhorst_pack
-    from ase.units import Bohr, Hartree, fs, kB, kcal, kJ, mol
 
     assert [0, 0, 0] in monkhorst_pack((1, 3, 5)).tolist()
     assert [0, 0, 0] not in monkhorst_pack((1, 3, 6)).tolist()

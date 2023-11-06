@@ -1,6 +1,8 @@
+from ase import Atoms
+from ase.geometry import get_duplicate_atoms
+
+
 def test_atoms_get_duplicates():
-    from ase import Atoms
-    from ase.geometry import get_duplicate_atoms
 
     at = Atoms('H5', positions=[[0., 0., 0.],
                                 [1., 0., 0.],

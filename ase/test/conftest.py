@@ -2,7 +2,9 @@ import os
 import sys
 import zlib
 from pathlib import Path
+import shutil
 from subprocess import PIPE, Popen, check_output
+import tempfile
 
 import numpy as np
 import pytest
@@ -11,7 +13,9 @@ import ase
 from ase.dependencies import all_dependencies
 from ase.test.factories import (CalculatorInputs, NoSuchCalculator,
                                 factory_classes, get_factories,
-                                make_factory_fixture)
+                                make_factory_fixture, factory as factory_deco,
+                                legacy_factory_calculator_names,
+                                parametrize_calculator_tests)
 from ase.utils import get_python_package_path_description, seterr, workdir
 
 helpful_message = """\
@@ -118,12 +122,6 @@ def calculators_header(config):
 
 
 @pytest.fixture(scope='session', autouse=True)
-def monkeypatch_disabled_calculators(request, factories):
-    # XXX Replace with another mechanism.
-    factories.monkeypatch_disabled_calculators()
-
-
-@pytest.fixture(scope='session', autouse=True)
 def sessionlevel_testing_path():
     # We cd into a tempdir so tests and fixtures won't create files
     # elsewhere (e.g. in the unsuspecting user's directory).
@@ -138,7 +136,6 @@ def sessionlevel_testing_path():
     # disturb other pytest runs if we use the pytest tempdir factory.
     #
     # So we use the tempfile module for this temporary directory.
-    import tempfile
     with tempfile.TemporaryDirectory(prefix='ase-test-workdir-') as tempdir:
         path = Path(tempdir)
         path.chmod(0o555)
@@ -249,6 +246,27 @@ siesta_factory = make_factory_fixture('siesta')
 orca_factory = make_factory_fixture('orca')
 
 
+def make_dummy_factory(name):
+    @factory_deco(name)
+    class Factory:
+        def calc(self, **kwargs):
+            from ase.calculators.calculator import get_calculator_class
+            cls = get_calculator_class(name)
+            return cls(**kwargs)
+
+        @classmethod
+        def fromconfig(cls, config):
+            return cls()
+
+    Factory.__name__ = f'{name.upper()}Factory'
+    globalvars = globals()
+    globalvars[f'{name}_factory'] = make_factory_fixture(name)
+
+
+for name in legacy_factory_calculator_names:
+    make_dummy_factory(name)
+
+
 @pytest.fixture
 def factory(request, factories):
     name, kwargs = request.param
@@ -264,7 +282,6 @@ def factory(request, factories):
 
 
 def pytest_generate_tests(metafunc):
-    from ase.test.factories import parametrize_calculator_tests
     parametrize_calculator_tests(metafunc)
 
     if 'seed' in metafunc.fixturenames:
@@ -274,6 +291,74 @@ def pytest_generate_tests(metafunc):
         else:
             seeds = list(map(int, seeds))
         metafunc.parametrize('seed', seeds)
+
+
+@pytest.fixture
+def config_file(tmp_path, monkeypatch):
+    dummy_config = """\
+[parallel]
+runner = mpirun
+nprocs = -np
+stdout = --output-filename
+
+[abinit]
+binary = /home/ase/calculators/abinit/bin/abinit
+abipy_mrgddb = /home/ase/calculators/abinit/bin/mrgddb
+abipy_anaddb = /home/ase/calculators/abinit/bin/anaddb
+
+[cp2k]
+cp2k_shell = cp2k_shell
+binary = cp2k
+
+[dftb]
+binary = /home/ase/calculators/dftbplus/bin/dftb+
+
+[dftd3]
+binary = /home/ase/calculators/dftd3/bin/dftd3
+
+[elk]
+binary = /usr/bin/elk-lapw
+
+[espresso]
+binary = /home/ase/calculators/espresso/bin/pw.x
+pseudo_path = /home/ase/.local/lib/python3.10/site-packages/asetest/\
+datafiles/espresso/gbrv-lda-espresso
+
+[exciting]
+binary = /home/ase/calculators/exciting/bin/exciting
+
+[gromacs]
+binary = gmx
+
+[lammps]
+binary = /home/ase/calculators/lammps/bin/lammps
+
+[mopac]
+binary = /home/ase/calculators/mopac/bin/mopac
+
+[nwchem]
+binary = /home/ase/calculators/nwchem/bin/nwchem
+
+[octopus]
+binary = /home/ase/calculators/octopus/bin/octopus
+
+[openmx]
+# binary = /usr/bin/openmx
+
+[siesta]
+binary = /home/ase/calculators/siesta/bin/siesta
+"""
+    from ase.config import Config
+
+    config_file_name = tmp_path / "ase.conf"
+    with open(config_file_name, "w") as f:
+        f.write(dummy_config)
+    monkeypatch.setenv("ASE_CONFIG_PATH", config_file_name.as_posix())
+    cfg = Config()
+    monkeypatch.setattr(
+        "ase.calculators.genericfileio.GenericFileIOCalculator.cfg", cfg
+    )
+    monkeypatch.setattr("ase.calculators.calculator.FileIOCalculator.cfg", cfg)
 
 
 class CLI:
@@ -355,7 +440,6 @@ def arbitrarily_seed_rng(request):
 
 @pytest.fixture(scope='session')
 def povray_executable():
-    import shutil
     exe = shutil.which('povray')
     if exe is None:
         pytest.skip('povray not installed')

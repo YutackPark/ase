@@ -1,7 +1,9 @@
-def test_mic():
-    import numpy as np
+import numpy as np
 
-    import ase
+import ase
+
+
+def test_mic():
 
     tol = 1e-9
     cell = np.array([[1., 0., 0.],

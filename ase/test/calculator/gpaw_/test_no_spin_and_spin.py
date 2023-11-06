@@ -11,7 +11,7 @@ from ase.build import molecule
 def test_no_spin_and_spin(factory):
     txt = 'out.txt'
 
-    calculator = factory.calc(h=0.3, txt=txt)
+    calculator = factory.calc(mode='fd', h=0.3, txt=txt)
     atoms = molecule('H2', calculator=calculator)
     atoms.center(vacuum=3)
     atoms.get_potential_energy()

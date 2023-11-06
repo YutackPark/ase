@@ -1,7 +1,9 @@
-def test_bandgap():
-    import numpy as np
+import numpy as np
 
-    from ase.dft.bandgap import bandgap
+from ase.dft.bandgap import bandgap
+
+
+def test_bandgap():
 
     class Calculator:
         def __init__(self, e_skn):

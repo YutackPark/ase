@@ -1,5 +1,4 @@
 import os
-import sys
 import time
 from subprocess import PIPE, Popen
 
@@ -71,8 +70,7 @@ class VaspInteractive(GenerateVaspInput, Calculator):  # type: ignore[misc]
         if self.print_log:
             print(text, end=ending)
         self.process.stdin.write(text + ending)
-        if sys.version_info[0] >= 3:
-            self.process.stdin.flush()
+        self.process.stdin.flush()
 
     def _stdout(self, text):
         if self.txt is not None:
@@ -89,13 +87,9 @@ class VaspInteractive(GenerateVaspInput, Calculator):  # type: ignore[misc]
             self.initialize(atoms)
             self.write_input(atoms, directory=self.path)
             self._stdout("Starting VASP for initial step...\n")
-            if sys.version_info[0] >= 3:
-                self.process = Popen(self.command, stdout=PIPE,
-                                     stdin=PIPE, stderr=PIPE, cwd=self.path,
-                                     universal_newlines=True)
-            else:
-                self.process = Popen(self.command, stdout=PIPE,
-                                     stdin=PIPE, stderr=PIPE, cwd=self.path)
+            self.process = Popen(self.command, stdout=PIPE,
+                                 stdin=PIPE, stderr=PIPE, cwd=self.path,
+                                 universal_newlines=True)
         else:
             self._stdout("Inputting positions...\n")
             for atom in atoms.get_scaled_positions():
