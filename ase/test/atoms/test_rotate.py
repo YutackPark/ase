@@ -1,10 +1,12 @@
+from math import sqrt
+
+import numpy as np
+
+from ase import Atoms
+from ase.utils import irotate, rotate
+
+
 def test_rotate():
-    from math import sqrt
-
-    import numpy as np
-
-    from ase import Atoms
-    from ase.utils import irotate, rotate
 
     def test(xyz):
         a = rotate(xyz)

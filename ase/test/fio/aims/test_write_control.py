@@ -33,7 +33,7 @@ def parameters_dict():
 
 def contains(pattern, txt):
     """"Regex search for pattern in the text."""
-    return re.search(pattern, txt, re.M)
+    return re.search(pattern, txt, re.M | re.DOTALL)
 
 
 def write_control_to_string(ase_atoms_obj, parameters):
@@ -56,6 +56,15 @@ def write_control_to_string(ase_atoms_obj, parameters):
 def bulk_au():
     """Create an ASE.Atoms bulk object of Gold."""
     return ase.build.bulk("Au")
+
+
+@pytest.fixture
+def bulk_aucl():
+    """Create an ASE AuCl Atoms object"""
+    return ase.build.bulk("AuCl",
+                          crystalstructure="rocksalt",
+                          a=6.32,
+                          cubic=True)
 
 
 AIMS_AU_SPECIES_LIGHT = """\
@@ -233,11 +242,13 @@ def test_write_species(aims_species_dir_light):
 
 @pytest.mark.parametrize(
     "output_level,tier,expected_basis_set_re", [
-        ("tight", 0, "#     hydro 4 f 7.4"),
-        ("tight", 1, "ionic 6 p auto\n     hydro 4 f 7.4")])
+        ("tight", [0, 1],
+         "#     hydro 4 f 7.4.*^     ionic 3 d auto\n     hydro 2 p 1.9"),
+        ("tight", [1, 0],
+         "ionic 6 p auto\n     hydro 4 f 7.4.*^#     ionic 3 d auto")])
 def test_control_tier(
         aims_species_dir_light,
-        bulk_au,
+        bulk_aucl,
         parameters_dict,
         output_level: str, tier: int,
         expected_basis_set_re: str):
@@ -249,7 +260,7 @@ def test_control_tier(
     for these combinations.
 
     Args:
-        bulk_au: PyTest fixture to create a test Au bulk ase
+        bulk_aucl: PyTest fixture to create a test AuCl bulk ase
             Atoms object that we can use to write out the control.in file.
         output_level: The numerical settings (e.g. light, tight, really_tight).
         tier: The basis set size (either None for standard, 0 for minimal, 1
@@ -264,7 +275,7 @@ def test_control_tier(
     parameters["species_dir"] = aims_species_dir_light
     parameters['tier'] = tier
 
-    control_file_as_string = write_control_to_string(bulk_au, parameters)
+    control_file_as_string = write_control_to_string(bulk_aucl, parameters)
 
     assert contains(r"output_level\s+" + "", control_file_as_string)
     assert contains(expected_basis_set_re, control_file_as_string)

@@ -1,13 +1,13 @@
 import warnings
 
 import pytest
+from matplotlib.animation import writers
 
 from ase.build import bulk, fcc111, molecule
 from ase.io.animation import write_animation
 
 
 def test_animate(plt):
-    from matplotlib.animation import writers
 
     if 'html' not in writers.list():
         pytest.skip('matplotlib html writer not present')

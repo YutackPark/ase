@@ -28,9 +28,8 @@ class OptimizableFilter(Optimizable):
     def get_forces(self):
         return self.filterobj.get_forces()
 
-    def get_potential_energy(self, force_consistent):
-        return self.filterobj.get_potential_energy(
-            force_consistent=force_consistent)
+    def get_potential_energy(self):
+        return self.filterobj.get_potential_energy(force_consistent=True)
 
     def __len__(self):
         return len(self.filterobj)
@@ -233,7 +232,7 @@ class StrainFilter(Filter):
         else:
             mask = np.array(mask)
 
-        Filter.__init__(self, atoms, mask=mask)
+        Filter.__init__(self, atoms=atoms, mask=mask)
         self.mask = mask
         self.origcell = atoms.get_cell()
 
@@ -267,6 +266,7 @@ class UnitCellFilter(Filter):
                  cell_factor=None,
                  hydrostatic_strain=False,
                  constant_volume=False,
+                 orig_cell=None,
                  scalar_pressure=0.0):
         """Create a filter that returns the atomic forces and unit cell
         stresses together, so they can simultaneously be minimized.
@@ -341,9 +341,12 @@ class UnitCellFilter(Filter):
             breaks energy/force consistency.
         """
 
-        Filter.__init__(self, atoms, indices=range(len(atoms)))
+        Filter.__init__(self, atoms=atoms, indices=range(len(atoms)))
         self.atoms = atoms
-        self.orig_cell = atoms.get_cell()
+        if orig_cell is None:
+            self.orig_cell = atoms.get_cell()
+        else:
+            self.orig_cell = orig_cell
         self.stress = None
 
         if mask is None:
@@ -560,8 +563,8 @@ class FrechetCellFilter(UnitCellFilter):
         https://github.com/lan496/lan496.github.io/blob/main/notes/cell_grad.pdf
         """
 
-        Filter.__init__(self, atoms, indices=range(len(atoms)))
-        UnitCellFilter.__init__(self, atoms, mask=mask,
+        Filter.__init__(self, atoms=atoms, indices=range(len(atoms)))
+        UnitCellFilter.__init__(self, atoms=atoms, mask=mask,
                                 hydrostatic_strain=hydrostatic_strain,
                                 constant_volume=constant_volume,
                                 scalar_pressure=scalar_pressure)
@@ -773,10 +776,12 @@ class ExpCellFilter(UnitCellFilter):
             'Use FrechetCellFilter for better convergence wrt cell variables.',
             DeprecationWarning
         )
-        Filter.__init__(self, atoms, indices=range(len(atoms)))
-        UnitCellFilter.__init__(self, atoms, mask, cell_factor,
-                                hydrostatic_strain,
-                                constant_volume, scalar_pressure)
+        Filter.__init__(self, atoms=atoms, indices=range(len(atoms)))
+        UnitCellFilter.__init__(self, atoms=atoms, mask=mask,
+                                cell_factor=cell_factor,
+                                hydrostatic_strain=hydrostatic_strain,
+                                constant_volume=constant_volume,
+                                scalar_pressure=scalar_pressure)
         if cell_factor is not None:
             # cell_factor used in UnitCellFilter does not affect on gradients of
             # ExpCellFilter.

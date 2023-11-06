@@ -13,6 +13,7 @@ import numpy as np
 from ase import io
 from ase.calculators.calculator import (Calculator, CalculatorSetupError,
                                         InputError, ReadError, all_changes)
+from ase.config import cfg
 from ase.units import Bohr, Hartree
 
 
@@ -54,9 +55,11 @@ class Psi4(Calculator):
 
         # Set the scrath directory for electronic structure files.
         # The default is /tmp
-        if 'PSI_SCRATCH' in os.environ:
+        if 'PSI_SCRATCH' in cfg:
             pass
         elif self.parameters.get('PSI_SCRATCH'):
+            # XXX We should probably not be setting envvars except
+            # if we are creating new processes.
             os.environ['PSI_SCRATCH'] = self.parameters['PSI_SCRATCH']
 
         # Input spin settings

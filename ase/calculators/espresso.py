@@ -5,16 +5,21 @@ Run pw.x jobs.
 
 
 import os
+import warnings
 
-from ase.calculators.genericfileio import (CalculatorTemplate,
-                                           GenericFileIOCalculator,
-                                           read_stdout)
+from ase.calculators.genericfileio import (
+    CalculatorTemplate,
+    GenericFileIOCalculator,
+    read_stdout,
+    BaseProfile,
+)
 from ase.io import read, write
 
 compatibility_msg = (
     'Espresso calculator is being restructured.  Please use e.g. '
-    'Espresso(profile=EspressoProfile(argv=[\'mpiexec\', \'pw.x\'])) '
-    'to customize command-line arguments.')
+    "Espresso(profile=EspressoProfile(argv=['mpiexec', 'pw.x'])) "
+    'to customize command-line arguments.'
+)
 
 
 # XXX We should find a way to display this warning.
@@ -24,51 +29,64 @@ compatibility_msg = (
 #                 'Please try running Quantum Espresso with "high" verbosity.'
 
 
-class EspressoProfile:
-    def __init__(self, argv):
-        self.argv = tuple(argv)
+class EspressoProfile(BaseProfile):
+    def __init__(self, binary, pseudo_path, **kwargs):
+        super().__init__(**kwargs)
+        self.binary = binary
+        self.pseudo_path = pseudo_path
 
     @staticmethod
     def parse_version(stdout):
         import re
+
         match = re.match(r'\s*Program PWSCF\s*v\.(\S+)', stdout, re.M)
         assert match is not None
         return match.group(1)
 
     def version(self):
-        stdout = read_stdout(self.argv)
-        return self.parse_version(stdout)
+        try:
+            stdout = read_stdout(self.binary)
+            return self.parse_version(stdout)
+        except FileNotFoundError:
+            warnings.warn(
+                f'The executable {self.binary} is not found on the path'
+            )
+            return None
 
-    def run(self, directory, inputfile, outputfile):
-        import os
-        from subprocess import check_call
-        argv = list(self.argv) + ['-in', str(inputfile)]
-        with open(directory / outputfile, 'wb') as fd:
-            check_call(argv, cwd=directory, stdout=fd, env=os.environ)
+    def get_calculator_command(self, inputfile):
+        return [self.binary, '-in', inputfile]
 
 
 class EspressoTemplate(CalculatorTemplate):
     def __init__(self):
         super().__init__(
             'espresso',
-            ['energy', 'free_energy', 'forces', 'stress', 'magmoms', 'dipole'])
+            ['energy', 'free_energy', 'forces', 'stress', 'magmoms', 'dipole'],
+        )
         self.inputname = 'espresso.pwi'
         self.outputname = 'espresso.pwo'
 
-    def write_input(self, directory, atoms, parameters, properties):
+    def write_input(self, profile, directory, atoms, parameters, properties):
         dst = directory / self.inputname
-        write(dst, atoms, format='espresso-in', properties=properties,
-              **parameters)
+        write(
+            dst,
+            atoms,
+            format='espresso-in',
+            properties=properties,
+            pseudo_dir=str(profile.pseudo_path),
+            **parameters,
+        )
 
     def execute(self, directory, profile):
-        profile.run(directory,
-                    self.inputname,
-                    self.outputname)
+        profile.run(directory, self.inputname, self.outputname)
 
     def read_results(self, directory):
         path = directory / self.outputname
         atoms = read(path, format='espresso-out')
         return dict(atoms.calc.properties())
+
+    def load_profile(self, cfg, **kwargs):
+        return EspressoProfile.from_config(cfg, self.name, **kwargs)
 
     def socketio_parameters(self, unixsocket, port):
         return {}
@@ -78,15 +96,24 @@ class EspressoTemplate(CalculatorTemplate):
             ipi_arg = f'{unixsocket}:UNIX'
         else:
             ipi_arg = f'localhost:{port:d}'  # XXX should take host, too
-        return [*profile.argv, '-in', self.inputname, '--ipi', ipi_arg]
+        return profile.get_calculator_command(self.inputname) + [
+            '--ipi',
+            ipi_arg,
+        ]
 
 
 class Espresso(GenericFileIOCalculator):
-    def __init__(self, *, profile=None,
-                 command=GenericFileIOCalculator._deprecated,
-                 label=GenericFileIOCalculator._deprecated,
-                 directory='.',
-                 **kwargs):
+    def __init__(
+        self,
+        *,
+        profile=None,
+        command=GenericFileIOCalculator._deprecated,
+        label=GenericFileIOCalculator._deprecated,
+        directory='.',
+        parallel_info=None,
+        parallel=True,
+        **kwargs,
+    ):
         """
         All options for pw.x are copied verbatim to the input file, and put
         into the correct section. Use ``input_data`` for parameters that are
@@ -166,16 +193,22 @@ class Espresso(GenericFileIOCalculator):
 
         if label is not self._deprecated:
             import warnings
-            warnings.warn('Ignoring label, please use directory instead',
-                          FutureWarning)
+
+            warnings.warn(
+                'Ignoring label, please use directory instead', FutureWarning
+            )
 
         if 'ASE_ESPRESSO_COMMAND' in os.environ and profile is None:
             import warnings
+
             warnings.warn(compatibility_msg, FutureWarning)
 
         template = EspressoTemplate()
-        if profile is None:
-            profile = EspressoProfile(argv=['pw.x'])
-        super().__init__(profile=profile, template=template,
-                         directory=directory,
-                         parameters=kwargs)
+        super().__init__(
+            profile=profile,
+            template=template,
+            directory=directory,
+            parallel_info=parallel_info,
+            parallel=parallel,
+            parameters=kwargs,
+        )

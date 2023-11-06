@@ -138,7 +138,7 @@ class Demon(FileIOCalculator):
         # Setup the run command
         command = parameters['command']
         if command is None:
-            command = os.environ.get('DEMON_COMMAND')
+            command = self.cfg.get('DEMON_COMMAND')
 
         if command is None:
             mess = 'The "DEMON_COMMAND" environment is not defined.'
@@ -146,7 +146,6 @@ class Demon(FileIOCalculator):
         else:
             parameters['command'] = command
 
-        # Call the base class.
         FileIOCalculator.__init__(
             self,
             **parameters)
@@ -219,7 +218,7 @@ class Demon(FileIOCalculator):
         # basis path
         basis_path = self.parameters['basis_path']
         if basis_path is None:
-            basis_path = os.environ.get('DEMON_BASIS_PATH')
+            basis_path = self.cfg.get('DEMON_BASIS_PATH')
 
         if basis_path is None:
             raise RuntimeError('Please set basis_path keyword,' +

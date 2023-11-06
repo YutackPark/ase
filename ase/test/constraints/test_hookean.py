@@ -1,3 +1,12 @@
+import numpy as np
+
+from ase import Atom, Atoms, units
+from ase.build import fcc110
+from ase.calculators.emt import EMT
+from ase.constraints import FixAtoms, Hookean
+from ase.md import VelocityVerlet
+
+
 def test_hookean():
     """
     Test of Hookean constraint.
@@ -5,14 +14,6 @@ def test_hookean():
     Checks for activity in keeping a bond, preventing vaporization, and
     that energy is conserved in NVE dynamics.
     """
-
-    import numpy as np
-
-    from ase import Atom, Atoms, units
-    from ase.build import fcc110
-    from ase.calculators.emt import EMT
-    from ase.constraints import FixAtoms, Hookean
-    from ase.md import VelocityVerlet
 
     class SaveEnergy:
         """Class to save energy."""

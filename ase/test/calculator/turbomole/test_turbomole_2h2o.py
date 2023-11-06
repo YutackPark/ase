@@ -5,7 +5,7 @@ from ase.calculators.turbomole import Turbomole
 from ase.collections import s22
 
 
-def test_turbomole_2h2o():
+def test_turbomole_2h2o(turbomole_factory):
     """Water dimer calculation in which each molecule is calculated quantum
     mechanically and the interaction between the molecules is electrostatic.
     The process is repeated until self consitence. """

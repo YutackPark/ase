@@ -4,6 +4,7 @@ import pytest
 from ase.build import bulk
 from ase.calculators.test import FreeElectrons
 from ase.dft.kpoints import special_paths
+from ase.lattice import RHL
 from ase.spectrum.band_structure import BandStructure
 
 
@@ -26,7 +27,6 @@ def test_bandstructure(testdir, plt):
 
 @pytest.fixture
 def bs():
-    from ase.lattice import RHL
     rhl = RHL(4.0, 65.0)
     path = rhl.bandpath()
     return path.free_electron_band_structure()

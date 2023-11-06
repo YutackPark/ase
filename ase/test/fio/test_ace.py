@@ -3,11 +3,11 @@ import pytest
 
 from ase.atoms import Atoms
 from ase.io.acemolecule import read_acemolecule_input, read_acemolecule_out
+import ase.units
 
 
 def test_acemolecule_output():
 
-    import ase.units
     sample_outfile = """\
 
 ====================  Atoms  =====================

@@ -15,6 +15,7 @@ import numpy as np
 import ase.io
 from ase.calculators.calculator import (Calculator, CalculatorSetupError,
                                         Parameters, all_changes)
+from ase.config import cfg
 from ase.units import Rydberg
 
 
@@ -116,9 +117,10 @@ class CP2K(Calculator):
     max_scf: int
         Maximum number of SCF iteration to be performed for
         one optimization. Default is ``50``.
-    multiplicity: int
+    multiplicity: int, default=None
         Select the multiplicity of the system
         (two times the total spin plus one).
+        If None, multiplicity is not explicitly given in the input file.
     poisson_solver: str
         The poisson solver to be used. Currently, the only supported
         values are ``auto`` and ``None``. Default is ``auto``.
@@ -166,7 +168,7 @@ class CP2K(Calculator):
         force_eval_method="Quickstep",
         inp='',
         max_scf=50,
-        multiplicity=1,
+        multiplicity=None,
         potential_file='POTENTIAL',
         pseudo_potential='auto',
         stress_tensor=True,
@@ -194,14 +196,12 @@ class CP2K(Calculator):
             self.command = command
         elif CP2K.command is not None:
             self.command = CP2K.command
-        elif 'ASE_CP2K_COMMAND' in os.environ:
-            self.command = os.environ['ASE_CP2K_COMMAND']
         else:
-            self.command = 'cp2k_shell'  # default
+            self.command = cfg.get('ASE_CP2K_COMMAND', 'cp2k_shell')
 
-        Calculator.__init__(self, restart=restart,
-                            ignore_bad_restart_file=ignore_bad_restart_file,
-                            label=label, atoms=atoms, **kwargs)
+        super().__init__(restart=restart,
+                         ignore_bad_restart_file=ignore_bad_restart_file,
+                         label=label, atoms=atoms, **kwargs)
 
         self._shell = Cp2kShell(self.command, self._debug)
 

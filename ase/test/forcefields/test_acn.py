@@ -1,7 +1,9 @@
+from ase import Atoms
+from ase.calculators.acn import ACN, m_me, r_cn, r_mec
+
+
 def test_acn():
     """Test ACN forces."""
-    from ase import Atoms
-    from ase.calculators.acn import ACN, m_me, r_cn, r_mec
 
     dimer = Atoms('CCNCCN',
                   [(-r_mec, 0, 0),

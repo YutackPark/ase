@@ -13,11 +13,9 @@ ESPRESSO.
 """
 
 import operator as op
-import os
 import re
 import warnings
 from collections import OrderedDict
-from os import path
 
 import numpy as np
 
@@ -25,9 +23,8 @@ from ase.atoms import Atoms
 from ase.calculators.calculator import kpts2ndarray, kpts2sizeandoffsets
 from ase.calculators.singlepoint import (SinglePointDFTCalculator,
                                          SinglePointKPoint)
-from ase.cell import Cell
 from ase.constraints import FixAtoms, FixCartesian
-from ase.data import atomic_numbers, chemical_symbols
+from ase.data import chemical_symbols
 from ase.dft.kpoints import kpoint_convert
 from ase.units import create_units
 from ase.utils import iofunction
@@ -395,8 +392,18 @@ def read_espresso_out(fileobj, index=slice(None), results_required=True):
 
         # Put everything together
         #
-        # I have added free_energy.  Can and should we distinguish
-        # energy and free_energy?  --askhl
+        # In PW the forces are consistent with the "total energy"; that's why
+        # its value must be assigned to free_energy.
+        # PW doesn't compute the extrapolation of the energy to 0K smearing
+        # the closer thing to this is again the total energy that contains
+        # the correct (i.e. variational) form of the band energy is
+        #   Eband = \int e N(e) de   for e<Ef , where N(e) is the DOS
+        # This differs by the term (-TS)  from the sum of KS eigenvalues:
+        #    Eks = \sum wg(n,k) et(n,k)
+        # which is non variational. When a Fermi-Dirac function is used
+        # for a given T, the variational energy is REALLY the free energy F,
+        # and F = E - TS , with E = non variational energy.
+        #
         calc = SinglePointDFTCalculator(structure, energy=energy,
                                         free_energy=energy,
                                         forces=forces, stress=stress,
@@ -563,13 +570,12 @@ def read_espresso_in(fileobj):
     species_info = {}
     for ispec, (label, weight, pseudo) in enumerate(species_card):
         symbol = label_to_symbol(label)
-        valence = get_valence_electrons(symbol, data, pseudo)
 
         # starting_magnetization is in fractions of valence electrons
         magnet_key = f"starting_magnetization({ispec + 1})"
-        magmom = valence * data["system"].get(magnet_key, 0.0)
+        magmom = data["system"].get(magnet_key, 0.0)
         species_info[symbol] = {"weight": weight, "pseudo": pseudo,
-                                "valence": valence, "magmom": magmom}
+                                "magmom": magmom}
 
     positions_card = get_atomic_positions(
         card_lines, n_atoms=data['system']['nat'], cell=cell, alat=alat)
@@ -584,194 +590,6 @@ def read_espresso_in(fileobj):
                   magmoms=magmoms)
 
     return atoms
-
-
-def ibrav_to_cell(system):
-    """
-    Convert a value of ibrav to a cell. Any unspecified lattice dimension
-    is set to 0.0, but will not necessarily raise an error. Also return the
-    lattice parameter.
-
-    Parameters
-    ----------
-    system : dict
-        The &SYSTEM section of the input file, containing the 'ibrav' setting,
-        and either celldm(1)..(6) or a, b, c, cosAB, cosAC, cosBC.
-
-    Returns
-    -------
-    cell : Cell
-        The cell as an ASE Cell object
-
-    Raises
-    ------
-    KeyError
-        Raise an error if any required keys are missing.
-    NotImplementedError
-        Only a limited number of ibrav settings can be parsed. An error
-        is raised if the ibrav interpretation is not implemented.
-    """
-    if 'celldm(1)' in system and 'a' in system:
-        raise KeyError('do not specify both celldm and a,b,c!')
-    elif 'celldm(1)' in system:
-        # celldm(x) in bohr
-        alat = system['celldm(1)'] * units['Bohr']
-        b_over_a = system.get('celldm(2)', 0.0)
-        c_over_a = system.get('celldm(3)', 0.0)
-        cosab = system.get('celldm(4)', 0.0)
-        cosac = system.get('celldm(5)', 0.0)
-        cosbc = 0.0
-        if system['ibrav'] == 14:
-            cosbc = system.get('celldm(4)', 0.0)
-            cosac = system.get('celldm(5)', 0.0)
-            cosab = system.get('celldm(6)', 0.0)
-    elif 'a' in system:
-        # a, b, c, cosAB, cosAC, cosBC in Angstrom
-        raise NotImplementedError(
-            'params_to_cell() does not yet support A/B/C/cosAB/cosAC/cosBC')
-    else:
-        raise KeyError("Missing celldm(1)")
-
-    if system['ibrav'] == 1:
-        cell = np.identity(3) * alat
-    elif system['ibrav'] == 2:
-        cell = np.array([[-1.0, 0.0, 1.0],
-                         [0.0, 1.0, 1.0],
-                         [-1.0, 1.0, 0.0]]) * (alat / 2)
-    elif system['ibrav'] == 3:
-        cell = np.array([[1.0, 1.0, 1.0],
-                         [-1.0, 1.0, 1.0],
-                         [-1.0, -1.0, 1.0]]) * (alat / 2)
-    elif system['ibrav'] == -3:
-        cell = np.array([[-1.0, 1.0, 1.0],
-                         [1.0, -1.0, 1.0],
-                         [1.0, 1.0, -1.0]]) * (alat / 2)
-    elif system['ibrav'] == 4:
-        cell = np.array([[1.0, 0.0, 0.0],
-                         [-0.5, 0.5 * 3**0.5, 0.0],
-                         [0.0, 0.0, c_over_a]]) * alat
-    elif system['ibrav'] == 5:
-        tx = ((1.0 - cosab) / 2.0)**0.5
-        ty = ((1.0 - cosab) / 6.0)**0.5
-        tz = ((1 + 2 * cosab) / 3.0)**0.5
-        cell = np.array([[tx, -ty, tz],
-                         [0, 2 * ty, tz],
-                         [-tx, -ty, tz]]) * alat
-    elif system['ibrav'] == -5:
-        ty = ((1.0 - cosab) / 6.0)**0.5
-        tz = ((1 + 2 * cosab) / 3.0)**0.5
-        a_prime = alat / 3**0.5
-        u = tz - 2 * 2**0.5 * ty
-        v = tz + 2**0.5 * ty
-        cell = np.array([[u, v, v],
-                         [v, u, v],
-                         [v, v, u]]) * a_prime
-    elif system['ibrav'] == 6:
-        cell = np.array([[1.0, 0.0, 0.0],
-                         [0.0, 1.0, 0.0],
-                         [0.0, 0.0, c_over_a]]) * alat
-    elif system['ibrav'] == 7:
-        cell = np.array([[1.0, -1.0, c_over_a],
-                         [1.0, 1.0, c_over_a],
-                         [-1.0, -1.0, c_over_a]]) * (alat / 2)
-    elif system['ibrav'] == 8:
-        cell = np.array([[1.0, 0.0, 0.0],
-                         [0.0, b_over_a, 0.0],
-                         [0.0, 0.0, c_over_a]]) * alat
-    elif system['ibrav'] == 9:
-        cell = np.array([[1.0 / 2.0, b_over_a / 2.0, 0.0],
-                         [-1.0 / 2.0, b_over_a / 2.0, 0.0],
-                         [0.0, 0.0, c_over_a]]) * alat
-    elif system['ibrav'] == -9:
-        cell = np.array([[1.0 / 2.0, -b_over_a / 2.0, 0.0],
-                         [1.0 / 2.0, b_over_a / 2.0, 0.0],
-                         [0.0, 0.0, c_over_a]]) * alat
-    elif system['ibrav'] == 10:
-        cell = np.array([[1.0 / 2.0, 0.0, c_over_a / 2.0],
-                         [1.0 / 2.0, b_over_a / 2.0, 0.0],
-                         [0.0, b_over_a / 2.0, c_over_a / 2.0]]) * alat
-    elif system['ibrav'] == 11:
-        cell = np.array([[1.0 / 2.0, b_over_a / 2.0, c_over_a / 2.0],
-                         [-1.0 / 2.0, b_over_a / 2.0, c_over_a / 2.0],
-                         [-1.0 / 2.0, -b_over_a / 2.0, c_over_a / 2.0]]) * alat
-    elif system['ibrav'] == 12:
-        sinab = (1.0 - cosab**2)**0.5
-        cell = np.array([[1.0, 0.0, 0.0],
-                         [b_over_a * cosab, b_over_a * sinab, 0.0],
-                         [0.0, 0.0, c_over_a]]) * alat
-    elif system['ibrav'] == -12:
-        sinac = (1.0 - cosac**2)**0.5
-        cell = np.array([[1.0, 0.0, 0.0],
-                         [0.0, b_over_a, 0.0],
-                         [c_over_a * cosac, 0.0, c_over_a * sinac]]) * alat
-    elif system['ibrav'] == 13:
-        sinab = (1.0 - cosab**2)**0.5
-        cell = np.array([[1.0 / 2.0, 0.0, -c_over_a / 2.0],
-                         [b_over_a * cosab, b_over_a * sinab, 0.0],
-                         [1.0 / 2.0, 0.0, c_over_a / 2.0]]) * alat
-    elif system['ibrav'] == 14:
-        sinab = (1.0 - cosab**2)**0.5
-        v3 = [c_over_a * cosac,
-              c_over_a * (cosbc - cosac * cosab) / sinab,
-              c_over_a * ((1 + 2 * cosbc * cosac * cosab
-                           - cosbc**2 - cosac**2 - cosab**2)**0.5) / sinab]
-        cell = np.array([[1.0, 0.0, 0.0],
-                         [b_over_a * cosab, b_over_a * sinab, 0.0],
-                         v3]) * alat
-    else:
-        raise NotImplementedError('ibrav = {} is not implemented'
-                                  ''.format(system['ibrav']))
-
-    return Cell(cell)
-
-
-def get_pseudo_dirs(data):
-    """Guess a list of possible locations for pseudopotential files.
-
-    Parameters
-    ----------
-    data : Namelist
-        Namelist representing the quantum espresso input parameters
-
-    Returns
-    -------
-    pseudo_dirs : list[str]
-        A list of directories where pseudopotential files could be located.
-    """
-    pseudo_dirs = []
-    if 'pseudo_dir' in data['control']:
-        pseudo_dirs.append(data['control']['pseudo_dir'])
-    if 'ESPRESSO_PSEUDO' in os.environ:
-        pseudo_dirs.append(os.environ['ESPRESSO_PSEUDO'])
-    pseudo_dirs.append(path.expanduser('~/espresso/pseudo/'))
-    return pseudo_dirs
-
-
-def get_valence_electrons(symbol, data, pseudo=None):
-    """The number of valence electrons for a atomic symbol.
-
-    Parameters
-    ----------
-    symbol : str
-        Chemical symbol
-
-    data : Namelist
-        Namelist representing the quantum espresso input parameters
-
-    pseudo : str, optional
-        File defining the pseudopotential to be used. If missing a fallback
-        to the number of valence electrons recommended at
-        http://materialscloud.org/sssp/ is employed.
-    """
-    if pseudo is None:
-        pseudo = f'{symbol}_dummy.UPF'
-    for pseudo_dir in get_pseudo_dirs(data):
-        if path.exists(path.join(pseudo_dir, pseudo)):
-            valence = grep_valence(path.join(pseudo_dir, pseudo))
-            break
-    else:  # not found in a file
-        valence = SSSP_VALENCE[atomic_numbers[symbol]]
-    return valence
 
 
 def get_atomic_positions(lines, n_atoms, cell=None, alat=None):
@@ -1388,46 +1206,6 @@ def construct_namelist(parameters=None, warn=False, **kwargs):
     return input_namelist
 
 
-def grep_valence(pseudopotential):
-    """
-    Given a UPF pseudopotential file, find the number of valence atoms.
-
-    Parameters
-    ----------
-    pseudopotential: str
-        Filename of the pseudopotential.
-
-    Returns
-    -------
-    valence: float
-        Valence as reported in the pseudopotential.
-
-    Raises
-    ------
-    ValueError
-        If valence cannot be found in the pseudopotential.
-    """
-
-    # Example lines
-    # Sr.pbe-spn-rrkjus_psl.1.0.0.UPF:        z_valence="1.000000000000000E+001"
-    # C.pbe-n-kjpaw_psl.1.0.0.UPF (new ld1.x):
-    #                            ...PBC" z_valence="4.000000000000e0" total_p...
-    # C_ONCV_PBE-1.0.upf:                     z_valence="    4.00"
-    # Ta_pbe_v1.uspp.F.UPF:   13.00000000000      Z valence
-
-    with open(pseudopotential) as psfile:
-        for line in psfile:
-            if 'z valence' in line.lower():
-                return float(line.split()[0])
-            elif 'z_valence' in line.lower():
-                if line.split()[0] == '<PP_HEADER':
-                    line = list(filter(lambda x: 'z_valence' in x,
-                                       line.split(' ')))[0]
-                return float(line.split('=')[-1].strip().strip('"'))
-        else:
-            raise ValueError(f'Valence missing in {pseudopotential}')
-
-
 def kspacing_to_grid(atoms, spacing, calculated_spacing=None):
     """
     Calculate the kpoint mesh that is equivalent to the given spacing
@@ -1547,7 +1325,6 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
     - Hubbard parameters
     - Validation of the argument types for input
     - Validation of required options
-    - Noncollinear magnetism
 
     Parameters
     ----------
@@ -1622,8 +1399,7 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
         # Look in all possible locations for the pseudos and try to figure
         # out the number of valence electrons
         pseudo = pseudopotentials.get(species, None)
-        valence = get_valence_electrons(species, input_parameters, pseudo)
-        species_info[species] = {'pseudo': pseudo, 'valence': valence}
+        species_info[species] = {'pseudo': pseudo}
 
     # Convert atoms into species.
     # Each different magnetic moment needs to be a separate type even with
@@ -1635,31 +1411,34 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
     atomic_positions_str = []
 
     nspin = input_parameters['system'].get('nspin', 1)  # 1 is the default
+    noncolin = input_parameters['system'].get('noncolin', False)
+    rescale_magmom_fac = kwargs.get('rescale_magmom_fac', 1.0)
     if any(atoms.get_initial_magnetic_moments()):
-        if nspin == 1:
+        if nspin == 1 and not noncolin:
             # Force spin on
             input_parameters['system']['nspin'] = 2
             nspin = 2
 
-    if nspin == 2:
-        # Spin on
+    if nspin == 2 or noncolin:
+        # Magnetic calculation on
         for atom, mask, magmom in zip(
                 atoms, masks, atoms.get_initial_magnetic_moments()):
             if (atom.symbol, magmom) not in atomic_species:
-                # spin as fraction of valence
-                fspin = float(magmom) / species_info[atom.symbol]['valence']
+                # for qe version 7.2 or older magmon must be rescale by
+                # about a factor 10 to assume sensible values
+                # since qe-v7.3 magmom values will be provided unscaled
+                fspin = float(magmom) / rescale_magmom_fac
                 # Index in the atomic species list
                 sidx = len(atomic_species) + 1
                 # Index for that atom type; no index for first one
                 tidx = sum(atom.symbol == x[0] for x in atomic_species) or ' '
                 atomic_species[(atom.symbol, magmom)] = (sidx, tidx)
                 # Add magnetization to the input file
-                mag_str = f'starting_magnetization({sidx})'
+                mag_str = f"starting_magnetization({sidx})"
                 input_parameters['system'][mag_str] = fspin
+                species_pseudo = species_info[atom.symbol]['pseudo']
                 atomic_species_str.append(
-                    '{species}{tidx} {mass} {pseudo}\n'.format(
-                        species=atom.symbol, tidx=tidx, mass=atom.mass,
-                        pseudo=species_info[atom.symbol]['pseudo']))
+                    f"{atom.symbol}{tidx} {atom.mass} {species_pseudo}\n")
             # lookup tidx to append to name
             sidx, tidx = atomic_species[(atom.symbol, magmom)]
             # construct line for atomic positions
@@ -1672,10 +1451,9 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
         for atom, mask in zip(atoms, masks):
             if atom.symbol not in atomic_species:
                 atomic_species[atom.symbol] = True  # just a placeholder
+                species_pseudo = species_info[atom.symbol]['pseudo']
                 atomic_species_str.append(
-                    '{species} {mass} {pseudo}\n'.format(
-                        species=atom.symbol, mass=atom.mass,
-                        pseudo=species_info[atom.symbol]['pseudo']))
+                    f"{atom.symbol} {atom.mass} {species_pseudo}\n")
             # construct line for atomic positions
             atomic_positions_str.append(
                 format_atom_position(atom, crystal_coordinates, mask=mask)
@@ -1744,15 +1522,15 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
         kgrid = kpts2ndarray(kgrid, atoms=atoms)
         pwi.append(f'{len(kgrid)}\n')
         for k in kgrid:
-            pwi.append('{k[0]:.14f} {k[1]:.14f} {k[2]:.14f} 0\n'.format(k=k))
+            pwi.append(f"{k[0]:.14f} {k[1]:.14f} {k[2]:.14f} 0\n")
         pwi.append('\n')
     elif isinstance(kgrid, str) and (kgrid == "gamma"):
         pwi.append('K_POINTS gamma\n')
         pwi.append('\n')
     else:
         pwi.append('K_POINTS automatic\n')
-        pwi.append('{0[0]} {0[1]} {0[2]}  {1[0]:d} {1[1]:d} {1[2]:d}\n'
-                   ''.format(kgrid, koffset))
+        pwi.append(f"{kgrid[0]} {kgrid[1]} {kgrid[2]} "
+                   f" {koffset[0]:d} {koffset[1]:d} {koffset[2]:d}\n")
         pwi.append('\n')
 
     # CELL block, if required

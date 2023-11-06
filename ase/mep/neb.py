@@ -15,7 +15,7 @@ from ase.calculators.singlepoint import SinglePointCalculator
 from ase.geometry import find_mic
 from ase.optimize import MDMin
 from ase.optimize.ode import ode12r
-from ase.optimize.optimize import Optimizer
+from ase.optimize.optimize import DEFAULT_MAX_STEPS, Optimizer
 from ase.optimize.precon import Precon, PreconImages
 from ase.optimize.sciopt import OptimizerConvergenceError
 from ase.utils import deprecated, lazyproperty
@@ -264,9 +264,8 @@ class NEBOptimizable(Optimizable):
     def get_forces(self):
         return self.neb.get_forces()
 
-    def get_potential_energy(self, force_consistent):
-        return self.neb.get_potential_energy(
-            force_consistent=force_consistent)
+    def get_potential_energy(self):
+        return self.neb.get_potential_energy()
 
     def is_neb(self):
         return True
@@ -544,10 +543,8 @@ class BaseNEB:
             raise RuntimeError("get_residual() called before get_forces()")
         return np.max(self.residuals)
 
-    def get_potential_energy(self, force_consistent=False):
-        """Return the maximum potential energy along the band.
-        Note that the force_consistent keyword is ignored and is only
-        present for compatibility with ase.Atoms.get_potential_energy."""
+    def get_potential_energy(self):
+        """Return the maximum potential energy along the band."""
         return self.emax
 
     def set_calculators(self, calculators):
@@ -865,8 +862,7 @@ class NEBOptimizer(Optimizer):
         super().__init__(atoms=neb, restart=restart,
                          logfile=logfile, trajectory=trajectory,
                          master=master,
-                         append_trajectory=append_trajectory,
-                         force_consistent=False)
+                         append_trajectory=append_trajectory)
         self.neb = neb
 
         method = method.lower()
@@ -937,7 +933,7 @@ class NEBOptimizer(Optimizer):
             self.callback(X)
         return False
 
-    def run(self, fmax=0.05, steps=None, method=None):
+    def run(self, fmax=0.05, steps=DEFAULT_MAX_STEPS, method=None):
         """
         Optimize images to obtain the minimum energy path
 
@@ -946,8 +942,7 @@ class NEBOptimizer(Optimizer):
         fmax - desired force tolerance
         steps - maximum number of steps
         """
-        if steps:
-            self.max_steps = steps
+        self.max_steps = steps
         if method is None:
             method = self.method
         if method == 'ode':

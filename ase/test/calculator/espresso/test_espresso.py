@@ -23,7 +23,8 @@ def test_version(version, txt):
 
 
 def test_version_integration(espresso_factory):
-    profile = EspressoProfile([espresso_factory.executable])
+    profile = EspressoProfile(espresso_factory.executable,
+                              espresso_factory.pseudo_dir)
     version = profile.version()
     assert version[0].isdigit()
 
@@ -76,7 +77,8 @@ def test_dipole(espresso_factory):
     assert dipol_arr == pytest.approx(expected_dipol_arr, abs=0.02)
 
 
-def test_warn_label():
+def test_warn_label(config_file):
+    print()
     with pytest.warns(FutureWarning):
         Espresso(label='hello')
 

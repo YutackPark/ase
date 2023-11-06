@@ -16,8 +16,8 @@ from ase.units import Bohr, Hartree
 
 
 class Dftb(FileIOCalculator):
-    if 'DFTB_COMMAND' in os.environ:
-        command = os.environ['DFTB_COMMAND'] + ' > PREFIX.out'
+    if 'DFTB_COMMAND' in FileIOCalculator.cfg:
+        command = FileIOCalculator.cfg['DFTB_COMMAND'] + ' > PREFIX.out'
     else:
         command = 'dftb+ > PREFIX.out'
 
@@ -27,9 +27,8 @@ class Dftb(FileIOCalculator):
 
     def __init__(self, restart=None,
                  ignore_bad_restart_file=FileIOCalculator._deprecated,
-                 label='dftb', atoms=None, kpts=None,
-                 slako_dir=None,
-                 **kwargs):
+                 label='dftb', atoms=None, kpts=None, slako_dir=None,
+                 profile=None, **kwargs):
         """
         All keywords for the dftb_in.hsd input file (see the DFTB+ manual)
         can be set by ASE. Consider the following input file block::
@@ -90,7 +89,7 @@ class Dftb(FileIOCalculator):
         """
 
         if slako_dir is None:
-            slako_dir = os.environ.get('DFTB_PREFIX', './')
+            slako_dir = self.cfg.get('DFTB_PREFIX', './')
             if not slako_dir.endswith('/'):
                 slako_dir += '/'
 
@@ -118,9 +117,13 @@ class Dftb(FileIOCalculator):
         self.do_forces = False
         self.outfilename = 'dftb.out'
 
-        FileIOCalculator.__init__(self, restart, ignore_bad_restart_file,
-                                  label, atoms,
-                                  **kwargs)
+        # Pull out the `command` as a specific kwarg
+        self.command = kwargs.get('command') or self.command
+        kwargs.pop('command', None)
+
+        super().__init__(restart, ignore_bad_restart_file,
+                         label, atoms, command=self.command,
+                         profile=profile, **kwargs)
 
         # Determine number of spin channels
         try:

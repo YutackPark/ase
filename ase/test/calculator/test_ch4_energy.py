@@ -1,31 +1,12 @@
 import pytest
 
 from ase.build import molecule
-from ase.calculators.calculator import get_calculator_class
 from ase.units import Ry
 from ase.utils import workdir
 
 
-# XXX To be replaced by stuff in ase.test.factories
-class CalculatorInputs:
-    def __init__(self, name, parameters=None):
-        self.name = name
-        if parameters is None:
-            parameters = {}
-        self.parameters = parameters
-
-    def __repr__(self):
-        cls = type(self)
-        return '{}({}, {})'.format(cls.__name__,
-                                   self.name, self.parameters)
-
-    def calc(self):
-        cls = get_calculator_class(self.name)
-        return cls(**self.parameters)
-
-
-def inputs(name, **parameters):
-    return CalculatorInputs(name, parameters)
+calc = pytest.mark.calculator
+filterwarnings = pytest.mark.filterwarnings
 
 
 def _calculate(code, name):
@@ -34,30 +15,6 @@ def _calculate(code, name):
     with workdir(f'test-{name}', mkdir=True):
         atoms.calc = code.calc()
         return atoms.get_potential_energy()
-
-
-@pytest.mark.parametrize(
-    "spec",
-    [
-        inputs('gamess_us', label='ch4'),
-        inputs('gaussian', xc='lda', basis='3-21G'),
-    ],
-    ids=lambda spec: spec.name)
-def test_ch4(tmp_path, spec):
-    # XXX Convert to string since pytest can sometimes gives us tmp_path
-    # as a pathlib2 path.
-    with workdir(str(tmp_path), mkdir=True):
-        e_ch4 = _calculate(spec, 'CH4')
-        e_c2h2 = _calculate(spec, 'C2H2')
-        e_h2 = _calculate(spec, 'H2')
-        energy = e_ch4 - 0.5 * e_c2h2 - 1.5 * e_h2
-        print(energy)
-        ref_energy = -2.8
-        assert abs(energy - ref_energy) < 0.3
-
-
-calc = pytest.mark.calculator
-filterwarnings = pytest.mark.filterwarnings
 
 
 @pytest.mark.calculator_lite
@@ -73,6 +30,8 @@ filterwarnings = pytest.mark.filterwarnings
       convreldens=1e-3, Radius='3.5 * angstrom')
 @calc('openmx')
 @calc('siesta', marks=pytest.mark.xfail)
+@calc('gamess_us', label='ch4')
+@calc('gaussian', xc='lda', basis='3-21G')
 def test_ch4_reaction(factory):
     e_ch4 = _calculate(factory, 'CH4')
     e_c2h2 = _calculate(factory, 'C2H2')

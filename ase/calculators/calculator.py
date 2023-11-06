@@ -12,6 +12,7 @@ import numpy as np
 
 from ase.calculators.abc import GetPropertiesMixin
 from ase.cell import Cell
+from ase.config import cfg as _cfg
 from ase.outputs import Properties, all_outputs
 from ase.utils import jsonable
 
@@ -97,8 +98,9 @@ def compare_atoms(atoms1, atoms2, tol=1e-15, excluded_properties=None):
         for prop in ['cell', 'pbc']:
             if prop in properties_to_check:
                 properties_to_check.remove(prop)
-                if not equal(getattr(atoms1, prop), getattr(atoms2, prop),
-                             atol=tol):
+                if not equal(
+                    getattr(atoms1, prop), getattr(atoms2, prop), atol=tol
+                ):
                     system_changes.append(prop)
 
         arrays1 = set(atoms1.arrays)
@@ -120,46 +122,66 @@ def compare_atoms(atoms1, atoms2, tol=1e-15, excluded_properties=None):
     return system_changes
 
 
-all_properties = ['energy', 'forces', 'stress', 'stresses', 'dipole',
-                  'charges', 'magmom', 'magmoms', 'free_energy', 'energies',
-                  'dielectric_tensor', 'born_effective_charges', 'polarization']
+all_properties = [
+    'energy',
+    'forces',
+    'stress',
+    'stresses',
+    'dipole',
+    'charges',
+    'magmom',
+    'magmoms',
+    'free_energy',
+    'energies',
+    'dielectric_tensor',
+    'born_effective_charges',
+    'polarization',
+]
 
 
-all_changes = ['positions', 'numbers', 'cell', 'pbc',
-               'initial_charges', 'initial_magmoms']
+all_changes = [
+    'positions',
+    'numbers',
+    'cell',
+    'pbc',
+    'initial_charges',
+    'initial_magmoms',
+]
 
 
-special = {'cp2k': 'CP2K',
-           'demonnano': 'DemonNano',
-           'dftd3': 'DFTD3',
-           'dmol': 'DMol3',
-           'eam': 'EAM',
-           'elk': 'ELK',
-           'emt': 'EMT',
-           'exciting': 'ExcitingGroundStateCalculator',
-           'crystal': 'CRYSTAL',
-           'ff': 'ForceField',
-           'gamess_us': 'GAMESSUS',
-           'gulp': 'GULP',
-           'kim': 'KIM',
-           'lammpsrun': 'LAMMPS',
-           'lammpslib': 'LAMMPSlib',
-           'lj': 'LennardJones',
-           'mopac': 'MOPAC',
-           'morse': 'MorsePotential',
-           'nwchem': 'NWChem',
-           'openmx': 'OpenMX',
-           'orca': 'ORCA',
-           'qchem': 'QChem',
-           'tip3p': 'TIP3P',
-           'tip4p': 'TIP4P'}
+special = {
+    'cp2k': 'CP2K',
+    'demonnano': 'DemonNano',
+    'dftd3': 'DFTD3',
+    'dmol': 'DMol3',
+    'eam': 'EAM',
+    'elk': 'ELK',
+    'emt': 'EMT',
+    'exciting': 'ExcitingGroundStateCalculator',
+    'crystal': 'CRYSTAL',
+    'ff': 'ForceField',
+    'gamess_us': 'GAMESSUS',
+    'gulp': 'GULP',
+    'kim': 'KIM',
+    'lammpsrun': 'LAMMPS',
+    'lammpslib': 'LAMMPSlib',
+    'lj': 'LennardJones',
+    'mopac': 'MOPAC',
+    'morse': 'MorsePotential',
+    'nwchem': 'NWChem',
+    'openmx': 'OpenMX',
+    'orca': 'ORCA',
+    'qchem': 'QChem',
+    'tip3p': 'TIP3P',
+    'tip4p': 'TIP4P',
+}
 
 
 external_calculators = {}
 
 
 def register_calculator_class(name, cls):
-    """ Add the class into the database. """
+    """Add the class into the database."""
     assert name not in external_calculators
     external_calculators[name] = cls
     names.append(name)
@@ -198,8 +220,9 @@ def equal(a, b, tol=None, rtol=None, atol=None):
     if tol is not None:
         msg = 'Use `equal(a, b, rtol=..., atol=...)` instead of `tol=...`'
         warnings.warn(msg, DeprecationWarning)
-        assert rtol is None and atol is None, \
-            'Do not use deprecated `tol` with `atol` and/or `rtol`'
+        assert (
+            rtol is None and atol is None
+        ), 'Do not use deprecated `tol` with `atol` and/or `rtol`'
         rtol = tol
         atol = tol
 
@@ -242,7 +265,7 @@ def kptdensity2monkhorstpack(atoms, kptdensity=3.5, even=True):
     kpts = []
     for i in range(3):
         if atoms.pbc[i]:
-            k = 2 * pi * sqrt((recipcell[i]**2).sum()) * kptdensity
+            k = 2 * pi * sqrt((recipcell[i] ** 2).sum()) * kptdensity
             if even:
                 kpts.append(2 * int(np.ceil(k / 2)))
             else:
@@ -261,8 +284,9 @@ def kpts2mp(atoms, kpts, even=False):
         return kpts
 
 
-def kpts2sizeandoffsets(size=None, density=None, gamma=None, even=None,
-                        atoms=None):
+def kpts2sizeandoffsets(
+    size=None, density=None, gamma=None, even=None, atoms=None
+):
     """Helper function for selecting k-points.
 
     Use either size or density.
@@ -283,11 +307,14 @@ def kpts2sizeandoffsets(size=None, density=None, gamma=None, even=None,
     """
 
     if size is not None and density is not None:
-        raise ValueError('Cannot specify k-point mesh size and '
-                         'density simultaneously')
+        raise ValueError(
+            'Cannot specify k-point mesh size and ' 'density simultaneously'
+        )
     elif density is not None and atoms is None:
-        raise ValueError('Cannot set k-points from "density" unless '
-                         'Atoms are provided (need BZ dimensions).')
+        raise ValueError(
+            'Cannot set k-points from "density" unless '
+            'Atoms are provided (need BZ dimensions).'
+        )
 
     if size is None:
         if density is None:
@@ -303,7 +330,7 @@ def kpts2sizeandoffsets(size=None, density=None, gamma=None, even=None,
         if even:
             size += remainder
         else:  # Round up to odd numbers
-            size += (1 - remainder)
+            size += 1 - remainder
 
     offsets = [0, 0, 0]
     if atoms is None:
@@ -366,6 +393,7 @@ class EigenvalOccupationMixin:
 
     Classes must implement the old-fashioned get_eigenvalues and
     get_occupations methods."""
+
     # We should maybe deprecate this and rely on the new
     # Properties object for eigenvalues/occupations.
 
@@ -379,6 +407,7 @@ class EigenvalOccupationMixin:
 
     def _propwrapper(self):
         from ase.calculator.singlepoint import OutputPropertyWrapper
+
         return OutputPropertyWrapper(self)
 
 
@@ -403,6 +432,7 @@ class Parameters(dict):
         # We use ast to evaluate literals, avoiding eval()
         # for security reasons.
         import ast
+
         with open(filename) as fd:
             txt = fd.read().strip()
         assert txt.startswith('dict(')
@@ -426,8 +456,11 @@ class Parameters(dict):
 
     def tostring(self):
         keys = sorted(self)
-        return 'dict(' + ',\n     '.join(
-            f'{key}={self[key]!r}' for key in keys) + ')\n'
+        return (
+            'dict('
+            + ',\n     '.join(f'{key}={self[key]!r}' for key in keys)
+            + ')\n'
+        )
 
     def write(self, filename):
         Path(filename).write_text(self.tostring())
@@ -480,8 +513,9 @@ class BaseCalculator(GetPropertiesMixin):
 
     def get_property(self, name, atoms=None, allow_calculation=True):
         if name not in self.implemented_properties:
-            raise PropertyNotImplementedError('{} property not implemented'
-                                              .format(name))
+            raise PropertyNotImplementedError(
+                f'{name} property not implemented'
+            )
 
         if atoms is None:
             atoms = self.atoms
@@ -505,8 +539,9 @@ class BaseCalculator(GetPropertiesMixin):
         if name not in self.results:
             # For some reason the calculator was not able to do what we want,
             # and that is OK.
-            raise PropertyNotImplementedError('{} not present in this '
-                                              'calculation'.format(name))
+            raise PropertyNotImplementedError(
+                '{} not present in this ' 'calculation'.format(name)
+            )
 
         result = self.results[name]
         if isinstance(result, np.ndarray):
@@ -558,10 +593,15 @@ class Calculator(BaseCalculator):
     'Whether we purge the results following any change in the set() method.  '
     'Most (file I/O) calculators will probably want this.'
 
-    def __init__(self, restart=None,
-                 ignore_bad_restart_file=BaseCalculator._deprecated,
-                 label=None, atoms=None, directory='.',
-                 **kwargs):
+    def __init__(
+        self,
+        restart=None,
+        ignore_bad_restart_file=BaseCalculator._deprecated,
+        label=None,
+        atoms=None,
+        directory='.',
+        **kwargs,
+    ):
         """Basic calculator implementation.
 
         restart: str
@@ -593,14 +633,16 @@ class Calculator(BaseCalculator):
         if ignore_bad_restart_file is self._deprecated:
             ignore_bad_restart_file = False
         else:
-            warnings.warn(FutureWarning(
-                'The keyword "ignore_bad_restart_file" is deprecated and '
-                'will be removed in a future version of ASE.  Passing more '
-                'than one positional argument to Calculator is also '
-                'deprecated and will stop functioning in the future.  '
-                'Please pass arguments by keyword (key=value) except '
-                'optionally the "restart" keyword.'
-            ))
+            warnings.warn(
+                FutureWarning(
+                    'The keyword "ignore_bad_restart_file" is deprecated and '
+                    'will be removed in a future version of ASE.  Passing more '
+                    'than one positional argument to Calculator is also '
+                    'deprecated and will stop functioning in the future.  '
+                    'Please pass arguments by keyword (key=value) except '
+                    'optionally the "restart" keyword.'
+                )
+            )
 
         if restart is not None:
             try:
@@ -623,10 +665,11 @@ class Calculator(BaseCalculator):
                 # or not at all
                 self.label = '/'.join((self.directory, label))
             else:
-                raise ValueError('Directory redundantly specified though '
-                                 'directory="{}" and label="{}".  '
-                                 'Please omit "/" in label.'
-                                 .format(self.directory, label))
+                raise ValueError(
+                    'Directory redundantly specified though '
+                    'directory="{}" and label="{}".  '
+                    'Please omit "/" in label.'.format(self.directory, label)
+                )
 
         if self.parameters is None:
             # Use default parameters if they were not read from file:
@@ -636,8 +679,10 @@ class Calculator(BaseCalculator):
             atoms.calc = self
             if self.atoms is not None:
                 # Atoms were read from file.  Update atoms:
-                if not (equal(atoms.numbers, self.atoms.numbers) and
-                        (atoms.pbc == self.atoms.pbc).all()):
+                if not (
+                    equal(atoms.numbers, self.atoms.numbers)
+                    and (atoms.pbc == self.atoms.pbc).all()
+                ):
                     raise CalculatorError('Atoms not compatible with file')
                 atoms.positions = self.atoms.positions
                 atoms.cell = self.atoms.cell
@@ -793,11 +838,16 @@ class Calculator(BaseCalculator):
 
     def check_state(self, atoms, tol=1e-15):
         """Check for any system changes since last calculation."""
-        return compare_atoms(self.atoms, atoms, tol=tol,
-                             excluded_properties=set(self.ignored_changes))
+        return compare_atoms(
+            self.atoms,
+            atoms,
+            tol=tol,
+            excluded_properties=set(self.ignored_changes),
+        )
 
-    def calculate(self, atoms=None, properties=['energy'],
-                  system_changes=all_changes):
+    def calculate(
+        self, atoms=None, properties=['energy'], system_changes=all_changes
+    ):
         """Do the calculation.
 
         properties: list of str
@@ -835,9 +885,12 @@ class Calculator(BaseCalculator):
                 # We can only end up here in case of a race condition if
                 # multiple Calculators are running concurrently *and* use the
                 # same _directory, which cannot be expected to work anyway.
-                msg = ('Concurrent use of directory ' + self._directory +
-                       'by multiple Calculator instances detected. Please '
-                       'use one directory per instance.')
+                msg = (
+                    'Concurrent use of directory '
+                    + self._directory
+                    + 'by multiple Calculator instances detected. Please '
+                    'use one directory per instance.'
+                )
                 raise RuntimeError(msg) from e
 
     def calculate_numerical_forces(self, atoms, d=0.001):
@@ -845,18 +898,22 @@ class Calculator(BaseCalculator):
 
         All atoms will be displaced by +d and -d in all directions."""
         from ase.calculators.test import numeric_forces
+
         return numeric_forces(atoms, d=d)
 
     def calculate_numerical_stress(self, atoms, d=1e-6, voigt=True):
         """Calculate numerical stress using finite difference."""
         from ase.calculators.test import numeric_stress
+
         return numeric_stress(atoms, d=d, voigt=voigt)
 
     def _deprecated_get_spin_polarized(self):
-        msg = ('This calculator does not implement get_spin_polarized().  '
-               'In the future, calc.get_spin_polarized() will work only on '
-               'calculator classes that explicitly implement this method or '
-               'inherit the method via specialized subclasses.')
+        msg = (
+            'This calculator does not implement get_spin_polarized().  '
+            'In the future, calc.get_spin_polarized() will work only on '
+            'calculator classes that explicitly implement this method or '
+            'inherit the method via specialized subclasses.'
+        )
         warnings.warn(msg, FutureWarning)
         return False
 
@@ -873,65 +930,126 @@ class Calculator(BaseCalculator):
         return get_band_structure(calc=self)
 
 
-class FileIOCalculator(Calculator):
-    """Base class for calculators that write/read input/output files."""
+class OldShellProfile:
+    def __init__(self, name, command, prefix):
+        self.name = name
+        self.command = command
+        self.prefix = prefix
 
-    command: Optional[str] = None
-    'Command used to start calculation'
-
-    def __init__(self, restart=None,
-                 ignore_bad_restart_file=Calculator._deprecated,
-                 label=None, atoms=None, command=None, **kwargs):
-        """File-IO calculator.
-
-        command: str
-            Command used to start calculation.
-        """
-
-        Calculator.__init__(self, restart, ignore_bad_restart_file, label,
-                            atoms, **kwargs)
-
-        if command is not None:
-            self.command = command
-        else:
-            name = 'ASE_' + self.name.upper() + '_COMMAND'
-            self.command = os.environ.get(name, self.command)
-
-    def calculate(self, atoms=None, properties=['energy'],
-                  system_changes=all_changes):
-        Calculator.calculate(self, atoms, properties, system_changes)
-        self.write_input(self.atoms, properties, system_changes)
-        self.execute()
-        self.read_results()
-
-    def execute(self):
+    def execute(self, directory):
         if self.command is None:
-            raise CalculatorSetupError(
-                'Please set ${} environment variable '
-                .format('ASE_' + self.name.upper() + '_COMMAND') +
-                'or supply the command keyword')
+            raise EnvironmentError(
+                'Please set ${} environment variable '.format(
+                    'ASE_' + self.name.upper() + '_COMMAND'
+                )
+                + 'or supply the command keyword'
+            )
         command = self.command
         if 'PREFIX' in command:
             command = command.replace('PREFIX', self.prefix)
 
         try:
-            proc = subprocess.Popen(command, shell=True, cwd=self.directory)
+            proc = subprocess.Popen(command, shell=True, cwd=directory)
         except OSError as err:
             # Actually this may never happen with shell=True, since
             # probably the shell launches successfully.  But we soon want
             # to allow calling the subprocess directly, and then this
             # distinction (failed to launch vs failed to run) is useful.
             msg = f'Failed to execute "{command}"'
-            raise OSError(msg) from err
+            raise EnvironmentError(msg) from err
 
         errorcode = proc.wait()
 
         if errorcode:
-            path = os.path.abspath(self.directory)
-            msg = ('Calculator "{}" failed with command "{}" failed in '
-                   '{} with error code {}'.format(self.name, command,
-                                                  path, errorcode))
+            path = os.path.abspath(directory)
+            msg = (
+                'Calculator "{}" failed with command "{}" failed in '
+                '{} with error code {}'.format(
+                    self.name, command, path, errorcode
+                )
+            )
             raise CalculationFailed(msg)
+
+
+class ArgvProfile:
+    def __init__(self, name, argv):
+        self.name = name
+        self.argv = argv
+
+    def execute(self, directory, stdout_name=None):
+        directory = Path(directory).resolve()
+        if stdout_name is None:
+            stdout_name = f'{self.name}.out'
+        stdout_path = directory / f'{stdout_name}.out'
+        try:
+            with open(stdout_path, 'w') as fd:
+                subprocess.run(self.argv, cwd=directory, check=True, stdout=fd)
+        except subprocess.CalledProcessError as err:
+            msg = (
+                f'Calculator {self.name} failed with args {self.argv} '
+                f'in directory {directory}'
+            )
+            raise CalculationFailed(msg) from err
+        return stdout_path
+
+
+class FileIOCalculator(Calculator):
+    """Base class for calculators that write/read input/output files."""
+
+    command: Optional[str] = None
+    'Command used to start calculation'
+
+    cfg = _cfg  # Ensure easy access to config for subclasses
+
+    def __init__(
+        self,
+        restart=None,
+        ignore_bad_restart_file=Calculator._deprecated,
+        label=None,
+        atoms=None,
+        command=None,
+        profile=None,
+        **kwargs,
+    ):
+        """File-IO calculator.
+
+        command: str
+            Command used to start calculation.
+        """
+
+        Calculator.__init__(
+            self, restart, ignore_bad_restart_file, label, atoms, **kwargs
+        )
+
+        if command is None:
+            name = 'ASE_' + self.name.upper() + '_COMMAND'
+            command = self.cfg.get(name)
+
+        if command is None:
+            if self.name in self.cfg.parser:
+                section = self.cfg.parser[self.name]
+                # XXX getargv() returns None if missing!
+                profile = ArgvProfile(self.name, section.getargv('argv'))
+            else:
+                raise EnvironmentError(
+                    f'No configuration of {self.name}.  '
+                    f'Missing section [{self.name}] in configuration'
+                )
+        else:
+            profile = OldShellProfile(self.name, command, self.prefix)
+
+        self.profile = profile
+
+    def calculate(
+        self, atoms=None, properties=['energy'], system_changes=all_changes
+    ):
+        Calculator.calculate(self, atoms, properties, system_changes)
+        self.write_input(self.atoms, properties, system_changes)
+        self.execute()
+        self.read_results()
+
+    def execute(self):
+        self.profile.execute(self.directory)
 
     def write_input(self, atoms, properties=None, system_changes=None):
         """Write input file(s).

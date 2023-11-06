@@ -54,7 +54,7 @@ D   1   1.00
 """
 
 
-def test_h2of(testdir):
+def test_h2of(gaussian_factory):
     with open('def2-svp.gbs', 'w') as bfile:
         bfile.write(basis)
 
