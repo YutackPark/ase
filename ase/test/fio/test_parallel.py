@@ -1,7 +1,9 @@
+from ase import Atoms
+from ase.io import read, write
+from ase.parallel import world
+
+
 def test_parallel():
-    from ase import Atoms
-    from ase.io import read, write
-    from ase.parallel import world
 
     n = world.rank + 1
     a = Atoms('H' * n)

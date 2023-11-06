@@ -1,17 +1,19 @@
+import numpy as np
+import pytest
+
+from ase.build import fcc111
+from ase.calculators.calculator import CalculatorSetupError
+from ase.calculators.emt import EMT
+from ase.calculators.mixing import (AverageCalculator,
+                                    LinearCombinationCalculator,
+                                    MixedCalculator, SumCalculator)
+from ase.constraints import FixAtoms
+
+
 def test_mixingcalc():
     """This test checks the basic functionality of the MixingCalculators.
     The example system is based on the SinglePointCalculator test case.
     """
-    import numpy as np
-    import pytest
-
-    from ase.build import fcc111
-    from ase.calculators.calculator import CalculatorSetupError
-    from ase.calculators.emt import EMT
-    from ase.calculators.mixing import (AverageCalculator,
-                                        LinearCombinationCalculator,
-                                        MixedCalculator, SumCalculator)
-    from ase.constraints import FixAtoms
 
     # Calculate reference values:
     atoms = fcc111('Cu', (2, 2, 1), vacuum=10.)

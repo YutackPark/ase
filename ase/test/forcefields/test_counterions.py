@@ -1,11 +1,12 @@
+import numpy as np
+
+from ase import Atoms, units
+from ase.calculators.counterions import AtomicCounterIon as ACI
+
+
 def test_counterions():
     """ Test AtomicCounterIon is force/energy consistent over
         PBCs and with cutoff """
-
-    import numpy as np
-
-    from ase import Atoms, units
-    from ase.calculators.counterions import AtomicCounterIon as ACI
 
     sigma = 1.868 * (1.0 / 2.0)**(1.0 / 6.0)
     epsilon = 0.00277 * units.kcal / units.mol

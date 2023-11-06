@@ -1,7 +1,9 @@
-def test_center_nonperiodic():
-    import numpy as np
+import numpy as np
 
-    from ase import Atoms
+from ase import Atoms
+
+
+def test_center_nonperiodic():
 
     a = Atoms('H')
     a.center(about=[0., 0., 0.])

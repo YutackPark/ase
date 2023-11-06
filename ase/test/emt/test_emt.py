@@ -1,8 +1,10 @@
-def test_emt():
-    import numpy as np
+import numpy as np
 
-    from ase import Atoms
-    from ase.calculators.emt import EMT
+from ase import Atoms
+from ase.calculators.emt import EMT
+
+
+def test_emt():
 
     a = 3.60
     b = a / 2

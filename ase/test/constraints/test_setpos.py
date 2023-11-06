@@ -1,8 +1,10 @@
-def test_setpos():
-    import numpy as np
+import numpy as np
 
-    from ase.build import molecule
-    from ase.constraints import FixAtoms
+from ase.build import molecule
+from ase.constraints import FixAtoms
+
+
+def test_setpos():
 
     def array_almost_equal(a1, a2, tol=np.finfo(float).eps):
         """Replacement for old numpy.testing.utils.array_almost_equal."""

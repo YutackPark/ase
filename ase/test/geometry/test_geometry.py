@@ -1,12 +1,13 @@
+import numpy as np
+
+from ase.build import bulk, cut, fcc111
+from ase.cell import Cell
+from ase.geometry import get_layers, wrap_positions
+from ase.spacegroup import crystal, get_spacegroup
+
+
 def test_geometry():
     """Test the ase.geometry module and ase.build.cut() function."""
-
-    import numpy as np
-
-    from ase.build import bulk, cut, fcc111
-    from ase.cell import Cell
-    from ase.geometry import get_layers, wrap_positions
-    from ase.spacegroup import crystal, get_spacegroup
 
     al = crystal('Al', [(0, 0, 0)], spacegroup=225, cellpar=4.05)
 

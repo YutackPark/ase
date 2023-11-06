@@ -3,6 +3,7 @@ import pytest
 
 from ase import Atoms
 from ase.db import connect
+from ase.db.sqlite import all_tables
 
 dbtypes = ['db', 'postgresql', 'mysql', 'mariadb']
 
@@ -116,7 +117,6 @@ def test_insert_in_external_tables(testdir, get_db_name, dbtype):
                     "rate2": 2.0}})
 
     # Test that we cannot insert anything into a reserved table name
-    from ase.db.sqlite import all_tables
     for tab_name in all_tables:
         with pytest.raises(ValueError):
             db.write(atoms, external_tables={tab_name: {"value": 1}})

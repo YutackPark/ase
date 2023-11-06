@@ -1,9 +1,11 @@
+import numpy as np
+
+from ase import Atoms
+from ase.calculators.counterions import AtomicCounterIon as ACI
+
+
 def test_aic():
     """Test Atomic Counter Ion calc forces."""
-    import numpy as np
-
-    from ase import Atoms
-    from ase.calculators.counterions import AtomicCounterIon as ACI
 
     atoms = Atoms('2Na', positions=np.array([[0, 0, 0], [0, 0, 4]]))
 

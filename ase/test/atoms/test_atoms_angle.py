@@ -1,7 +1,9 @@
-def test_atoms_angle():
-    import numpy as np
+import numpy as np
 
-    from ase import Atoms
+from ase import Atoms
+
+
+def test_atoms_angle():
 
     atoms = Atoms(['O', 'H', 'H'], positions=[[0., 0., 0.119262],
                                               [0., 0.763239, -0.477047],
