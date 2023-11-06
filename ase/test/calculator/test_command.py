@@ -19,6 +19,11 @@ def mock_popen(command, shell=False, cwd=None, **kwargs):
     raise InterceptedCommand(command)
 
 
+# Other calculators:
+#  * cp2k uses command but is not FileIOCalculator
+#  * turbomole hardcodes multiple commands but does not use command keyword
+
+
 # Parameters for each calculator -- whatever it takes trigger a calculation
 # without crashing first.
 calculators = {
@@ -29,6 +34,7 @@ calculators = {
     'demon': dict(basis_path='hello'),
     'demonnano': dict(input_arguments={},
                       basis_path='hello'),
+    'dftb': {},
     'dmol': {},
     'elk': {},
     'gamess_us': {},
@@ -52,6 +58,7 @@ def miscellaneous_hacks(monkeypatch, tmp_path):
     from ase.calculators.calculator import FileIOCalculator
     from ase.calculators.demon import Demon
     from ase.calculators.crystal import CRYSTAL
+    from ase.calculators.dftb import Dftb
     from ase.calculators.gamess_us import GAMESSUS
     from ase.calculators.gulp import GULP
     from ase.calculators.openmx import OpenMX
@@ -70,6 +77,7 @@ def miscellaneous_hacks(monkeypatch, tmp_path):
 
     monkeypatch.setattr(Demon, 'link_file', do_nothing())
     monkeypatch.setattr(CRYSTAL, '_write_crystal_in', do_nothing())
+    monkeypatch.setattr(Dftb, 'write_dftb_in', do_nothing())
 
     # It calls super, but we'd like to skip the userscr handling:
     monkeypatch.setattr(GAMESSUS, 'calculate', FileIOCalculator.calculate)
@@ -87,18 +95,6 @@ def mkcalc(name, **kwargs):
     cls = get_calculator_class(name)
     kwargs = {**calculators[name], **kwargs}
     return cls(**kwargs)
-
-
-@pytest.mark.parametrize('name', ['demon', 'demonnano'])
-def test_default(name, monkeypatch):
-    from ase.calculators.calculator import CalculatorSetupError
-
-    # Make sure it does not pickup system var we don't know about:
-    if name in envvars:
-        monkeypatch.delenv(envvars[name], raising=False)
-
-    with pytest.raises(CalculatorSetupError):
-        intercept_command(name)
 
 
 @pytest.fixture(autouse=True)
@@ -158,7 +154,7 @@ def get_expected_command(command, name, tmp_path):
 
 
 @pytest.mark.parametrize('name', list(envvars))
-def test_envvar(monkeypatch, name, tmp_path):
+def test_envvar_command(monkeypatch, name, tmp_path):
     command = 'dummy shell command from environment'
     expected_command = get_expected_command(command, name, tmp_path)
     monkeypatch.setenv(envvars[name], command)
@@ -182,10 +178,67 @@ command_keywords = {'castep': 'CASTEP_COMMAND'}
 
 
 @pytest.mark.parametrize('name', keyword_calculator_list())
-def test_command_keyword(name, tmp_path):
+def test_keyword_command(name, tmp_path):
     command = 'dummy command via keyword'
     expected_command = get_expected_command(command, name, tmp_path)
 
     # normally {'command': command}
     commandkwarg = {command_keywords.get(name, 'command'): command}
     assert intercept_command(name, **commandkwarg) == expected_command
+
+
+# Calculators that (somewhat unwisely) have a hardcoded default command
+default_commands = {
+    'amber': ('sander -O  -i mm.in -o mm.out -p mm.top -c mm.crd -r '
+              'mm_dummy.crd'),
+    'castep': 'castep castep',  # wth?
+    # 'dftb': '',
+    'elk': 'elk > elk.out',
+    'gamess_us': 'rungms gamess_us.inp > gamess_us.log 2> gamess_us.err',
+    'gulp': 'gulp < gulp.gin > gulp.got',
+    'mopac': 'mopac mopac.mop 2> /dev/null',
+    'nwchem': 'nwchem nwchem.nwi > nwchem.nwo',
+    # 'openmx': '',  # command contains full path which is variable
+    'qchem': 'qchem qchem.inp qchem.out',
+    'siesta': 'siesta < siesta.fdf > siesta.out',
+}
+
+# Calculators that raise error if command not set
+calculators_which_raise = [
+    'ace',
+    'demonnano',
+    'crystal',
+    'demon',
+    # 'dmol',
+    'gaussian',
+    'gromacs',
+    'vasp',
+]
+
+
+names = ['abinit', 'ace', 'aims', 'amber', 'asap', 'castep', 'cp2k',
+         'crystal', 'demon', 'demonnano', 'dftb', 'dftd3', 'dmol', 'eam',
+         'elk', 'emt', 'espresso', 'exciting', 'ff', 'gamess_us',
+         'gaussian', 'gpaw', 'gromacs', 'gulp', 'hotbit', 'kim',
+         'lammpslib', 'lammpsrun', 'lj', 'mopac', 'morse', 'nwchem',
+         'octopus', 'onetep', 'openmx', 'orca',
+         'plumed', 'psi4', 'qchem', 'siesta',
+         'tip3p', 'tip4p', 'turbomole', 'vasp']
+
+
+@pytest.mark.parametrize('name', list(default_commands))
+def test_nocommand_default(name, monkeypatch):
+    if name in envvars:
+        monkeypatch.delenv(envvars[name], raising=False)
+
+    assert intercept_command(name) == default_commands[name]
+
+
+from ase.calculators.calculator import CalculatorSetupError
+@pytest.mark.parametrize('name', calculators_which_raise)
+def test_nocommand_raise(name, monkeypatch):
+    if name in envvars:
+        monkeypatch.delenv(envvars[name], raising=False)
+
+    with pytest.raises(CalculatorSetupError):
+        intercept_command(name)
