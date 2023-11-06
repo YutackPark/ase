@@ -66,10 +66,6 @@ class OptimizableAtoms(Optimizable):
         # of this to be the number of DOFs
         return len(self.atoms)
 
-    def get_chemical_symbols(self):
-        # XXX For Pyberny
-        return self.atoms.get_chemical_symbols()
-
 
 class Dynamics(IOContext):
     """Base-class for all MD and structure optimization classes."""

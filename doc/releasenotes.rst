@@ -226,6 +226,8 @@ Optimizers:
 * :class:`ase.optimize.mdmin.MDMin` now takes in a `maxstep` parameter that
   directly restricts how much atoms can move in a single optimization step.
 
+* Removed `Berny` optimizer (:mr:`3151`)
+
 Thermochemistry:
 
 * All thermochemistry modules now sort the vibrational energies before
