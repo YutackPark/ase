@@ -148,6 +148,7 @@ envvars = {
     'lammpsrun': 'ASE_LAMMPSRUN_COMMAND',
     'mopac': 'ASE_MOPAC_COMMAND',
     'nwchem': 'ASE_NWCHEM_COMMAND',
+    'onetep': 'ASE_ONETEP_COMMAND',
     'openmx': 'ASE_OPENMX_COMMAND',  # fails in get_dft_data_year
     # 'psi4', <-- has command but is Calculator
     # 'qchem': 'ASE_QCHEM_COMMAND',  # ignores environment
@@ -177,6 +178,8 @@ def get_expected_command(command, name, tmp_path, from_envvar):
         return [*command.split(), '-echo', 'log',
                 '-screen', 'none', '-log', '/dev/stdout']
 
+    if name == 'onetep':
+        return [*command.split(), 'onetep.dat']
 
     if name == 'openmx':
         # openmx converts the stream target to an abspath, so the command
@@ -203,9 +206,8 @@ def keyword_calculator_list():
     skipped = {
         'turbomole',  # commands are hardcoded in turbomole
         'qchem',  # qchem does something entirely different.  wth
-        # 'castep',  # has castep_command keyword instead
         'psi4',  # needs external package
-        'onetep',  # ?
+        'onetep',  # (takes profile)
     }
     return sorted(set(calculators) - skipped)
 
@@ -258,6 +260,8 @@ calculators_which_raise = [
     'dmol',
     'gaussian',
     'gromacs',
+    # Fixme: onetep raises AttributError
+    # Should be handled universally by GenericFileIO system
     'vasp',
 ]
 
