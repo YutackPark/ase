@@ -1,9 +1,11 @@
 from collections.abc import Iterable
 
 
-def write_incar(directory, parameters):
+def write_incar(directory, parameters, header=None):
     incar_string = generate_incar_lines(parameters)
     with open(f"{directory}/INCAR", "w") as incar:
+        if header is not None:
+            incar.write(header + "\n")
         incar.write(incar_string)
 
 
@@ -12,14 +14,11 @@ def generate_incar_lines(parameters):
         return parameters
     elif parameters is None:
         return ""
-    # check for empty dict
-    elif not parameters:
-        return ""
     else:
         incar_lines = []
         for item in parameters.items():
             incar_lines += list(generate_line(*item))
-        return "\n".join(incar_lines) + "\n"
+        return "\n".join(incar_lines)
 
 
 def generate_line(key, value, num_spaces=1):

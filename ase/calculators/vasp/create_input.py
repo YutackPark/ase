@@ -30,8 +30,7 @@ import ase
 from ase.calculators.calculator import kpts2ndarray
 from ase.calculators.vasp.setups import get_default_setups
 from ase.config import cfg
-
-from ase.io.vasp_parsers.incar_writer import generate_incar_lines
+from ase.io.vasp_parsers.incar_writer import write_incar
 
 FLOAT_FORMAT = '5.6f'
 EXP_FORMAT = '5.2e'
@@ -1485,8 +1484,9 @@ class GenerateVaspInput:
         # complication when restarting that often leads to magmom
         # getting written twice. this flag prevents that issue.
         magmom_written = False
-        incar_str = \
-            'INCAR created by Atomic Simulation Environment\n'
+        incar_params = {}
+        incar_header = \
+            'INCAR created by Atomic Simulation Environment'
         # float params
         float_dct = dict((key, f'{val:{FLOAT_FORMAT}}') for key, val
                          in self.float_params.items()
@@ -1500,18 +1500,18 @@ class GenerateVaspInput:
                 self.default_nelect_from_ppp())
             if nelect_val:
                 float_dct['nelect'] = f'{nelect_val:{FLOAT_FORMAT}}'
-        incar_str += generate_incar_lines(float_dct)
+        incar_params.update(float_dct)
 
         # exp params
         exp_dct = dict(
             (key, f'{val:{EXP_FORMAT}}') for key, val in self.exp_params.items()
             if val is not None)
-        incar_str += generate_incar_lines(exp_dct)
+        incar_params.update(exp_dct)
 
         # string_params
         string_dct = dict((key, val) for key, val in self.string_params.items()
                           if val is not None)
-        incar_str += generate_incar_lines(string_dct)
+        incar_params.update(string_dct)
 
         # int params
         int_dict = dict((key, val) for key, val in self.int_params.items()
@@ -1527,14 +1527,14 @@ class GenerateVaspInput:
                 if 'ediffg' not in exp_dct.keys() or float(
                         exp_dct['ediffg']) > 0.0:
                     raise RuntimeError('Please set EDIFFG < 0')
-        incar_str += generate_incar_lines(int_dict)
+        incar_params.update(int_dict)
 
         # list_bool_params
         bool_dct = dict((key, val) for key, val in self.list_bool_params.items()
                         if val is not None)
         for key, val in bool_dct.items():
             bool_dct[key] = [_to_vasp_bool(x) for x in val]
-        incar_str += generate_incar_lines(bool_dct)
+        incar_params.update(bool_dct)
 
         # list_int_params
         int_dct = dict((key, val) for key, val in self.list_int_params.items()
@@ -1542,7 +1542,7 @@ class GenerateVaspInput:
         if 'ldaul' in int_dct.keys() and self.dict_params[
                 'ldau_luj'] is not None:
             del int_dct['ldaul']
-        incar_str += generate_incar_lines(int_dct)
+        incar_params.update(int_dct)
 
         # list_float_params
         float_dct = dict(
@@ -1584,13 +1584,13 @@ class GenerateVaspInput:
             line = ' '.join(['{:d}*{:.4f}'.format(mom[0], mom[1])
                              for mom in lst])
             float_dct['magmom'] = line
-        incar_str += generate_incar_lines(float_dct)
+        incar_params.update(float_dct)
 
         # bool params
         bool_dct = dict(
             (key, _to_vasp_bool(val)) for key, val in self.bool_params.items()
             if val is not None)
-        incar_str += generate_incar_lines(bool_dct)
+        incar_params.update(bool_dct)
 
         # special params
         special_dct = dict(
@@ -1599,7 +1599,7 @@ class GenerateVaspInput:
         if 'lreal' in special_dct.keys():
             if isinstance(special_dct['lreal'], bool):
                 special_dct['lreal'] = _to_vasp_bool(special_dct['lreal'])
-        incar_str += generate_incar_lines(special_dct)
+        incar_params.update(special_dct)
 
         # dict params
         dict_dct = dict((key, val) for key, val in self.dict_params.items()
@@ -1621,8 +1621,8 @@ class GenerateVaspInput:
             dict_dct['ldauu'] = ulist
             dict_dct['ldauj'] = jlist
             del dict_dct['ldau_luj']
-        print(dict_dct)
-        incar_str += generate_incar_lines(dict_dct)
+        incar_params.update(dict_dct)
+
 
         # get magmom from atoms if not explicitly set
         extra_dct = {}
@@ -1646,7 +1646,7 @@ class GenerateVaspInput:
             line = ' '.join(['{:d}*{:.4f}'.format(mom[0], mom[1])
                              for mom in lst])
             extra_dct['magmom'] = line
-        incar_str += generate_incar_lines(extra_dct)
+        incar_params.update(extra_dct)
 
         # Custom key-value pairs, which receive no formatting
         # Use the comment "# <Custom ASE key>" to denote such
@@ -1657,10 +1657,11 @@ class GenerateVaspInput:
             (key, str(val) + '  # <Custom ASE key>') for key, val in
             self.input_params['custom'].items()
             if val is not None)
-        incar_str += generate_incar_lines(cust_dict)
+        incar_params.update(cust_dict)
 
-        with open(join(directory, 'INCAR'), 'w') as incar:
-            incar.write(incar_str)
+        write_incar(directory=directory,
+                    parameters=incar_params,
+                    header=incar_header)
 
     def write_kpoints(self, atoms=None, directory='./', **kwargs):
         """Writes the KPOINTS file."""
