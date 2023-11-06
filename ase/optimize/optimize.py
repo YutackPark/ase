@@ -469,4 +469,3 @@ class Optimizer(Dynamics):
                        'You may need to delete the restart file '
                        f'{self.restart}')
                 raise RestartError(msg) from ex
-
