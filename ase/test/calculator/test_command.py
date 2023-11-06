@@ -42,6 +42,7 @@ calculators = {
     'ace': {},
     'amber': {},
     'castep': dict(keyword_tolerance=3),
+    'cp2k': {},
     'crystal': {},
     'demon': dict(basis_path='hello'),
     'demonnano': dict(input_arguments={},
@@ -117,8 +118,11 @@ def mock_subprocess_popen(monkeypatch):
 def intercept_command(name, **kwargs):
     atoms = Atoms('H', pbc=True)
     atoms.center(vacuum=3.0)
-    atoms.calc = mkcalc(name, **kwargs)
     try:
+        # cp2k runs cp2k_shell already in the constructor, and it has a right
+        # to choose to do so.  Maybe other calculators do this as well.
+        # So we include both lines in "try".
+        atoms.calc = mkcalc(name, **kwargs)
         atoms.get_potential_energy()
     except InterceptedCommand as err:
         return err.command
@@ -128,6 +132,7 @@ envvars = {
     'ace': 'ASE_ACE_COMMAND',
     'amber': 'ASE_AMBER_COMMAND',
     'castep': 'CASTEP_COMMAND',
+    'cp2k': 'ASE_CP2K_COMMAND',
     'crystal': 'ASE_CRYSTAL_COMMAND',
     'demon': 'ASE_DEMON_COMMAND',
     'demonnano': 'ASE_DEMONNANO_COMMAND',
@@ -175,6 +180,10 @@ def get_expected_command(command, name, tmp_path, from_envvar):
 @pytest.mark.parametrize('name', list(envvars))
 def test_envvar_command(monkeypatch, name, tmp_path):
     command = 'dummy shell command from environment'
+
+    if name == 'cp2k':
+        command += 'cp2k_shell'  # circumvent sanity check
+
     expected_command = get_expected_command(command, name, tmp_path,
                                             from_envvar=True)
     monkeypatch.setenv(envvars[name], command)
@@ -201,6 +210,10 @@ command_keywords = {'castep': 'castep_command'}
 @pytest.mark.parametrize('name', keyword_calculator_list())
 def test_keyword_command(name, tmp_path):
     command = 'dummy command via keyword'
+
+    if name == 'cp2k':
+        command += ' cp2k_shell'  # circumvent sanity check
+
     expected_command = get_expected_command(command, name, tmp_path,
                                             from_envvar=False)
 
@@ -215,6 +228,7 @@ default_commands = {
     'amber': ('sander -O  -i mm.in -o mm.out -p mm.top -c mm.crd -r '
               'mm_dummy.crd'),
     'castep': 'castep castep',  # wth?
+    'cp2k': 'cp2k_shell',
     'dftb': 'dftb+ > dftb.out',
     'elk': 'elk > elk.out',
     'gamess_us': 'rungms gamess_us.inp > gamess_us.log 2> gamess_us.err',

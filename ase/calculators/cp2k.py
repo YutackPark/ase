@@ -516,9 +516,10 @@ class Cp2kShell:
             rtncode = self._child.wait()
             assert rtncode == 0  # child process exited properly?
         else:
-            warn("CP2K-shell not ready, sending SIGTERM.", RuntimeWarning)
-            self._child.terminate()
-            self._child.communicate()
+            if hasattr(self, '_child'):
+                warn('CP2K-shell not ready, sending SIGTERM.', RuntimeWarning)
+                self._child.terminate()
+                self._child.communicate()
         self._child = None
         self.version = None
         self.isready = False
