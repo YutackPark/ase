@@ -35,18 +35,20 @@ from ase.io.vasp_parsers.incar_writer import write_incar
 FLOAT_FORMAT = '5.6f'
 EXP_FORMAT = '5.2e'
 
-def check_ichain(ichain, ediffg):
+
+def check_ichain(ichain, ediffg, iopt):
     ichain_dct = {}
     if ichain > 0:
         ichain_dct['ibrion'] = 1
         ichain_dct['potim'] = 0.0
-        if 'iopt' not in int_dict.keys():
+        if iopt is None:
             warnings.warn(
                 'WARNING: optimization is set to LFBGS (IOPT = 1)')
             ichain_dct['iopt'] = 1
         if ediffg is None or float(ediffg > 0.0):
             raise RuntimeError('Please set EDIFFG < 0')
     return ichain_dct
+
 
 def set_magmom(ispin, spinpol, atoms, magmom_input, sorting):
     """Helps to set the magmom tag in the INCAR file with correct formatting"""
@@ -91,6 +93,7 @@ def set_magmom(ispin, spinpol, atoms, magmom_input, sorting):
     magmom_dct['magmom'] = line
     return spinpol, magmom_dct
 
+
 def set_ldau(ldau_param, luj_params, symbol_count):
     """Helps to set the ldau tag in the INCAR file with correct formatting"""
     ldau_dct = {}
@@ -112,6 +115,7 @@ def set_ldau(ldau_param, luj_params, symbol_count):
     ldau_dct['ldauu'] = ulist
     ldau_dct['ldauj'] = jlist
     return ldau_dct
+
 
 def test_nelect_charge_compitability(nelect, charge, nelect_from_ppp):
     # We need to determine the nelect resulting from a given
@@ -1611,15 +1615,16 @@ class GenerateVaspInput:
         incar_params.update(string_dct)
 
         # int params
-        int_dict = dict((key, val) for key, val in self.int_params.items()
-                        if val is not None)
-        if 'ichain' in int_dict.keys():
+        int_dct = dict((key, val) for key, val in self.int_params.items()
+                       if val is not None)
+        if 'ichain' in int_dct.keys():
             ichain_dict = check_ichain(
-                ichain=int_dict['ichain'],
+                ichain=int_dct['ichain'],
                 ediffg=self.exp_params.get('ediffg', None),
+                iopt=int_dct.get('iopt', None),
             )
-            int_dict.update(ichain_dict)
-        incar_params.update(int_dict)
+            int_dct.update(ichain_dict)
+        incar_params.update(int_dct)
 
         # list_bool_params
         bool_dct = dict((key, val) for key, val in self.list_bool_params.items()
@@ -1670,8 +1675,7 @@ class GenerateVaspInput:
             ldau_dict = set_ldau(
                 ldau_param=self.bool_params['ldau'],
                 luj_params=dict_dct['ldau_luj'],
-                symbol_count=self.symbol_count,
-                )
+                symbol_count=self.symbol_count)
             dict_dct.update(ldau_dict)
             del dict_dct['ldau_luj']
         incar_params.update(dict_dct)

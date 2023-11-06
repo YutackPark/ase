@@ -81,7 +81,8 @@ def test_write_dictionary_to_incar():
 
 
 def test_write_complex_dictionary_to_incar():
-    parameters = {"one": {"two": {"integer": 1, "list": [2, 3, 4]}, "string": "value"}}
+    parameters = {"one": {"two": {"integer": 1, "list": [2, 3, 4]},
+                          "string": "value"}}
     expected_output = """ ONE {
      TWO {
          INTEGER = 1
@@ -98,7 +99,8 @@ ENCUT = 600
 ISMEAR = 0
 SIGMA = 0.05
 """
-    check_write_incar_file(expected_output,expected_output)
+    check_write_incar_file(expected_output, expected_output)
+
 
 def test_write_incar_no_parameters():
-    check_write_incar_file(None,"")
+    check_write_incar_file(None, "")
