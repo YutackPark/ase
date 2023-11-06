@@ -2077,10 +2077,10 @@ End CASTEP Interface Documentation
                     attr,
                     self.cell._options.keys() + self.param._options.keys())
                 if similars:
-                    raise UserWarning(
+                    raise RuntimeError(
                         f'Option "{attr}" not known! You mean "{similars[0]}"?')
                 else:
-                    raise UserWarning(f'Option "{attr}" is not known!')
+                    raise RuntimeError(f'Option "{attr}" is not known!')
             else:
                 warnings.warn('Option "%s" is not known - please set any new'
                               ' options directly in the .cell or .param '
@@ -2094,8 +2094,8 @@ End CASTEP Interface Documentation
         elif attr in self.cell._options.keys():
             comp = 'cell'
         else:
-            raise UserWarning('Programming error: could not attach '
-                              'the keyword to an input file')
+            raise RuntimeError('Programming error: could not attach '
+                               'the keyword to an input file')
 
         self.__dict__[comp].__setattr__(attr, value)
 
@@ -2683,10 +2683,10 @@ class CastepInputFile:
                 similars = difflib.get_close_matches(attr,
                                                      self._options.keys())
                 if similars:
-                    raise UserWarning(
+                    raise RuntimeError(
                         f'Option "{attr}" not known! You mean "{similars[0]}"?')
                 else:
-                    raise UserWarning(f'Option "{attr}" is not known!')
+                    raise RuntimeError(f'Option "{attr}" is not known!')
             elif self._perm == 1:
                 warnings.warn(('Option "%s" is not known and will '
                                'be added as a %s') % (attr,

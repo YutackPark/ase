@@ -332,8 +332,8 @@ def write_castep_cell(fd, atoms, positions_frac=False, force_write=False,
                         symbol = atoms.get_chemical_symbols()[i]
                         nis = species_indices[i] + 1
                     except KeyError:
-                        raise UserWarning('Unrecognized index in'
-                                          + f' constraint {constr}')
+                        raise RuntimeError('Unrecognized index in'
+                                           + f' constraint {constr}')
                     for j in range(3):
                         L = '%6d %3s %3d   ' % (len(constr_block) + 1,
                                                 symbol,

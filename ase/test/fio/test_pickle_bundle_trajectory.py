@@ -18,7 +18,7 @@ trajname = 'pickletraj.traj'
 
 
 def test_raises():
-    with pytest.raises(DeprecationWarning):
+    with pytest.raises(RuntimeError):
         PickleTrajectory(trajname, 'w')
 
 

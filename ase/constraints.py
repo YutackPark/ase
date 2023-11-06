@@ -901,14 +901,14 @@ class FixInternals(FixConstraint):
         """
         warn_msg = 'Please specify {} in degrees using the {} argument.'
         if angles:
-            warn(FutureWarning(warn_msg.format('angles', 'angle_deg')))
+            warn(warn_msg.format('angles', 'angle_deg'), FutureWarning)
             angles = np.asarray(angles)
             angles[:, 0] = angles[:, 0] / np.pi * 180
             angles = angles.tolist()
         else:
             angles = angles_deg
         if dihedrals:
-            warn(FutureWarning(warn_msg.format('dihedrals', 'dihedrals_deg')))
+            warn(warn_msg.format('dihedrals', 'dihedrals_deg'), FutureWarning)
             dihedrals = np.asarray(dihedrals)
             dihedrals[:, 0] = dihedrals[:, 0] / np.pi * 180
             dihedrals = dihedrals.tolist()
