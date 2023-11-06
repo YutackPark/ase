@@ -234,6 +234,8 @@ def test_keyword_command(name, tmp_path):
 
 # Calculators that (somewhat unwisely) have a hardcoded default command
 default_commands = {
+    'amber': ('sander -O  -i mm.in -o mm.out -p mm.top -c mm.crd '
+              '-r mm_dummy.crd'),
     'castep': 'castep castep',  # wth?
     'cp2k': 'cp2k_shell',
     'dftb': 'dftb+ > dftb.out',
@@ -252,7 +254,6 @@ default_commands = {
 # Calculators that raise error if command not set
 calculators_which_raise = [
     'ace',
-    'amber',
     'demonnano',
     'crystal',
     'demon',
