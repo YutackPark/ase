@@ -1,10 +1,9 @@
 import copy
 import os
 from collections.abc import Iterable
-from shutil import which
 from typing import Dict, Optional
 
-from ase.calculators.calculator import FileIOCalculator, CalculatorSetupError
+from ase.calculators.calculator import FileIOCalculator
 from ase.io import read, write
 
 

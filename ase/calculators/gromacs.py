@@ -19,7 +19,6 @@ To be done:
 import os
 import subprocess
 from glob import glob
-from shutil import which
 
 import numpy as np
 
