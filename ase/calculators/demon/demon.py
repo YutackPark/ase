@@ -36,7 +36,6 @@ class Parameters_deMon(Parameters):
             self,
             label='rundir',
             atoms=None,
-            command=None,
             restart=None,
             basis_path=None,
             ignore_bad_restart_file=FileIOCalculator._deprecated,
@@ -142,6 +141,7 @@ class Demon(FileIOCalculator):
 
         FileIOCalculator.__init__(
             self,
+            command=command,
             **parameters)
 
     def __getitem__(self, key):

@@ -198,7 +198,7 @@ def keyword_calculator_list():
         'psi4',  # needs external package
         'onetep',  # ?
         'dmol',  # fixme
-        'demon',  # fixme
+        # 'demon',  # fixme
     }
     return sorted(set(calculators) - skipped)
 
