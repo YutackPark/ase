@@ -125,18 +125,6 @@ class Gromacs(FileIOCalculator):
             ('gmx', 'gmx_d', 'gmx_mpi', 'gmx_mpi_d')
         """
 
-        gmxes = ('gmx', 'gmx_d', 'gmx_mpi', 'gmx_mpi_d')
-        if command is not None:
-            self.command = command
-        else:
-            for command in gmxes:
-                if which(command):
-                    self.command = command
-                    break
-            else:
-                self.command = None
-                self.missing_gmx = f'missing gromacs executable {gmxes}'
-
         self.do_qmmm = do_qmmm
         self.water_model = water_model
         self.force_field = force_field
@@ -155,7 +143,8 @@ class Gromacs(FileIOCalculator):
         self.atoms = None
 
         FileIOCalculator.__init__(self, restart, ignore_bad_restart_file,
-                                  label, atoms, **kwargs)
+                                  label, atoms, command=command,
+                                  **kwargs)
         self.set(**kwargs)
         # default values for runtime parameters
         # can be changed by self.set_own_params_runs('key', 'value')
@@ -191,7 +180,7 @@ class Gromacs(FileIOCalculator):
         if self.command:
             subprocess.check_call(self.command + ' ' + command, shell=True)
         else:
-            raise CalculatorSetupError(self.missing_gmx)
+            raise CalculatorSetupError('Missing gromacs executable')
 
     def generate_g96file(self):
         """ from current coordinates (self.structure_file)
