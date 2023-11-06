@@ -85,20 +85,22 @@ class Amber(FileIOCalculator):
         self.incoordfile = incoordfile
         self.outcoordfile = outcoordfile
         self.mdcoordfile = mdcoordfile
-        if command is not None:
-            self.command = command
-        else:
-            self.command = (self.amber_exe +
-                            ' -i ' + self.infile +
-                            ' -o ' + self.outfile +
-                            ' -p ' + self.topologyfile +
-                            ' -c ' + self.incoordfile +
-                            ' -r ' + self.outcoordfile)
-            if self.mdcoordfile is not None:
-                self.command = self.command + ' -x ' + self.mdcoordfile
 
         FileIOCalculator.__init__(self, restart, ignore_bad_restart_file,
-                                  label, atoms, **kwargs)
+                                  label, atoms, command=command,
+                                  **kwargs)
+
+    @property
+    def _legacy_default_command(self):
+        command = (self.amber_exe +
+                   ' -i ' + self.infile +
+                   ' -o ' + self.outfile +
+                   ' -p ' + self.topologyfile +
+                   ' -c ' + self.incoordfile +
+                   ' -r ' + self.outcoordfile)
+        if self.mdcoordfile is not None:
+            command = command + ' -x ' + self.mdcoordfile
+        return command
 
     def write_input(self, atoms=None, properties=None, system_changes=None):
         """Write updated coordinates to a file."""
@@ -116,7 +118,8 @@ class Amber(FileIOCalculator):
             only rectangular unit cells are allowed"""
         if filename == '':
             filename = self.incoordfile
-        fout = netcdf.netcdf_file(filename, 'w')
+        from scipy.io import netcdf_file
+        fout = netcdf_file(filename, 'w')
         # dimension
         fout.Conventions = 'AMBERRESTART'
         fout.ConventionVersion = "1.0"

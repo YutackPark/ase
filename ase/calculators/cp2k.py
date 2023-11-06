@@ -7,7 +7,7 @@ Author: Ole Schuett <ole.schuett@mat.ethz.ch>
 
 import os
 import os.path
-from subprocess import PIPE, Popen
+import subprocess
 from warnings import warn
 
 import numpy as np
@@ -486,8 +486,9 @@ class Cp2kShell:
         assert 'cp2k_shell' in command
         if self._debug:
             print(command)
-        self._child = Popen(command, shell=True, universal_newlines=True,
-                            stdin=PIPE, stdout=PIPE, bufsize=1)
+        self._child = subprocess.Popen(
+            command, shell=True, universal_newlines=True,
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, bufsize=1)
         self.expect('* READY')
 
         # check version of shell
@@ -516,9 +517,10 @@ class Cp2kShell:
             rtncode = self._child.wait()
             assert rtncode == 0  # child process exited properly?
         else:
-            warn("CP2K-shell not ready, sending SIGTERM.", RuntimeWarning)
-            self._child.terminate()
-            self._child.communicate()
+            if hasattr(self, '_child'):
+                warn('CP2K-shell not ready, sending SIGTERM.', RuntimeWarning)
+                self._child.terminate()
+                self._child.communicate()
         self._child = None
         self.version = None
         self.isready = False

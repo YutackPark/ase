@@ -354,8 +354,8 @@ class MOPACFactory:
     def calc(self, **kwargs):
         from ase.calculators.mopac import MOPAC
 
-        MOPAC.command = f'{self.executable} PREFIX.mop 2> /dev/null'
-        return MOPAC(**kwargs)
+        command = f'{self.executable} PREFIX.mop 2> /dev/null'
+        return MOPAC(command=command, **kwargs)
 
     @classmethod
     def fromconfig(cls, config):

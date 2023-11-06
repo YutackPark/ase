@@ -15,7 +15,7 @@ from ase.units import Hartree
 class NWChem(FileIOCalculator):
     implemented_properties = ['energy', 'free_energy',
                               'forces', 'stress', 'dipole']
-    command = 'nwchem PREFIX.nwi > PREFIX.nwo'
+    _legacy_default_command = 'nwchem PREFIX.nwi > PREFIX.nwo'
     accepts_bandpath_keyword = True
     discard_results_on_any_change = True
 
