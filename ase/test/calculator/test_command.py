@@ -4,10 +4,20 @@ import pytest
 
 from ase import Atoms
 
-# case 1: nothing specified
-# case 2: command specified via environment
-# case 3: command specified via keyword
+"""
+These tests monkeypatch Popen so as to abort execution and verify that
+a particular command as executed.
 
+They test several cases:
+
+ * command specified by environment
+ * command specified via keyword
+ * command not specified, with two possible behaviours:
+   - command defaults to particular value
+   - calculator raises CalculatorSetupError
+
+(We do not bother to check e.g. conflicting combinations.)
+"""
 
 class InterceptedCommand(BaseException):
     def __init__(self, command):
