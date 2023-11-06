@@ -27,7 +27,7 @@ class InterceptedCommand(BaseException):
 
 
 def mock_popen(command, shell=False, cwd=None, **kwargs):
-    assert shell
+    assert isinstance(command, str) is shell
     raise InterceptedCommand(command)
 
 
@@ -54,6 +54,7 @@ calculators = {
     'gaussian': {},
     'gromacs': {},
     'gulp': {},
+    'lammpsrun': {},
     'mopac': {},
     'nwchem': {},
     'onetep': {},
@@ -125,6 +126,7 @@ def intercept_command(name, **kwargs):
         atoms.calc = mkcalc(name, **kwargs)
         atoms.get_potential_energy()
     except InterceptedCommand as err:
+        print(err.command)
         return err.command
 
 
@@ -143,6 +145,7 @@ envvars = {
     'gaussian': 'ASE_GAUSSIAN_COMMAND',
     'gromacs': 'ASE_GROMACS_COMMAND',
     'gulp': 'ASE_GULP_COMMAND',
+    'lammpsrun': 'ASE_LAMMPSRUN_COMMAND',
     'mopac': 'ASE_MOPAC_COMMAND',
     'nwchem': 'ASE_NWCHEM_COMMAND',
     'openmx': 'ASE_OPENMX_COMMAND',  # fails in get_dft_data_year
@@ -168,6 +171,12 @@ def get_expected_command(command, name, tmp_path, from_envvar):
     if name == 'gromacs':
         return (f'{command} mdrun -s gromacs.tpr -o gromacs.trr '
                 '-e gromacs.edr -g gromacs.log -c gromacs.g96  > MM.log 2>&1')
+
+    if name == 'lammpsrun':
+        # lammpsrun does not use a shell command
+        return [*command.split(), '-echo', 'log',
+                '-screen', 'none', '-log', '/dev/stdout']
+
 
     if name == 'openmx':
         # openmx converts the stream target to an abspath, so the command
@@ -217,7 +226,7 @@ def test_keyword_command(name, tmp_path):
 
     # normally {'command': command}
     commandkwarg = {command_keywords.get(name, 'command'): command}
-    print('EXPECTED', expected_command)
+    print(intercept_command(name, **commandkwarg))
     assert intercept_command(name, **commandkwarg) == expected_command
 
 
@@ -231,6 +240,8 @@ default_commands = {
     'elk': 'elk > elk.out',
     'gamess_us': 'rungms gamess_us.inp > gamess_us.log 2> gamess_us.err',
     'gulp': 'gulp < gulp.gin > gulp.got',
+    'lammpsrun': ['lammps', '-echo', 'log', '-screen', 'none',
+                  '-log', '/dev/stdout'],
     'mopac': 'mopac mopac.mop 2> /dev/null',
     'nwchem': 'nwchem nwchem.nwi > nwchem.nwo',
     # 'openmx': '',  # command contains full path which is variable
