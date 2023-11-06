@@ -103,11 +103,9 @@ class DMol3(FileIOCalculator):
             if 'DMOL_COMMAND' in self.cfg:
                 command = self.cfg['DMOL_COMMAND'] + ' PREFIX > PREFIX.out'
 
-        assert command is not None, command
-
-        FileIOCalculator.__init__(self, restart, ignore_bad_restart_file,
-                                  label, atoms, command=command,
-                                  **kwargs)
+        super().__init__(restart, ignore_bad_restart_file,
+                         label, atoms, command=command,
+                         **kwargs)
 
         # tracks if DMol transformed coordinate system
         self.internal_transformation = False

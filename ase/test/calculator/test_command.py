@@ -162,7 +162,7 @@ def get_expected_command(command, name, tmp_path, from_envvar):
         # dftb modifies DFTB_COMMAND from envvar but not if given as keyword
         return f'{command} > dftb.out'
 
-    if name == 'dmol':
+    if name == 'dmol' and from_envvar:
         return f'{command} tmp > tmp.out'
 
     if name == 'gromacs':
@@ -197,8 +197,6 @@ def keyword_calculator_list():
         # 'castep',  # has castep_command keyword instead
         'psi4',  # needs external package
         'onetep',  # ?
-        'dmol',  # fixme
-        # 'demon',  # fixme
     }
     return sorted(set(calculators) - skipped)
 
@@ -246,7 +244,7 @@ calculators_which_raise = [
     'demonnano',
     'crystal',
     'demon',
-    # 'dmol',
+    'dmol',
     'gaussian',
     'gromacs',
     'vasp',
