@@ -35,6 +35,19 @@ from ase.io.vasp_parsers.incar_writer import write_incar
 FLOAT_FORMAT = '5.6f'
 EXP_FORMAT = '5.2e'
 
+def check_ichain(ichain, ediffg):
+    ichain_dct = {}
+    if ichain > 0:
+        ichain_dct['ibrion'] = 1
+        ichain_dct['potim'] = 0.0
+        if 'iopt' not in int_dict.keys():
+            warnings.warn(
+                'WARNING: optimization is set to LFBGS (IOPT = 1)')
+            ichain_dct['iopt'] = 1
+        if ediffg is None or float(ediffg > 0.0):
+            raise RuntimeError('Please set EDIFFG < 0')
+    return ichain_dct
+
 def set_magmom(ispin, spinpol, atoms, magmom_input, sorting):
     """Helps to set the magmom tag in the INCAR file with correct formatting"""
     magmom_dct = {}
@@ -1576,16 +1589,11 @@ class GenerateVaspInput:
         int_dict = dict((key, val) for key, val in self.int_params.items()
                         if val is not None)
         if 'ichain' in int_dict.keys():
-            if int_dict['ichain'] > 0:
-                int_dict['ibrion'] = 3
-                int_dict['potim'] = 0.0
-                if 'iopt' not in int_dict.keys():
-                    warnings.warn(
-                        'WARNING: optimization is set to LFBGS (IOPT = 1)')
-                    int_dict['iopt'] = 1
-                if 'ediffg' not in exp_dct.keys() or float(
-                        exp_dct['ediffg']) > 0.0:
-                    raise RuntimeError('Please set EDIFFG < 0')
+            ichain_dict = check_ichain(
+                ichain=int_dict['ichain'],
+                ediffg=self.exp_params.get('ediffg', None),
+            )
+            int_dict.update(ichain_dict)
         incar_params.update(int_dict)
 
         # list_bool_params
