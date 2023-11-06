@@ -78,7 +78,7 @@ def test_kspacing_supress_kpoints_file(factory, write_kpoints):
     calc.write_incar(Al)
     assert not os.path.isfile('KPOINTS')
     with open('INCAR') as fd:
-        assert ' KSPACING = 0.230000\n' in fd.readlines()
+        assert ' KSPACING = 0.230000' in fd.readlines()
 
 
 @calc('vasp')

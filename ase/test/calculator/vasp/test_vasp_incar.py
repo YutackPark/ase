@@ -29,9 +29,16 @@ def get_mock_open_and_check_write(parameters, vaspinput_factory) -> MagicMock:
     atoms = Atoms('H2', positions=[[0, 0, 0], [0, 0, 1.2]])
     calc_factory = vaspinput_factory(**parameters)
     calc_factory.initialize(atoms)
-    with patch("ase.calculators.vasp.create_input.open", mock):
+    with patch("ase.io.vasp_parsers.incar_writer.write_incar", mock):
         calc_factory.write_incar(atoms, "./")
-        mock.assert_called_once_with(join("./", 'INCAR'), "w")
+        mock.assert_called_once_with(
+            './',
+            parameters,
+            'INCAR created by Atomic Simulation Environment'
+        )
+    # with patch("ase.calculators.vasp.create_input.open", mock):
+    #     calc_factory.write_incar(atoms, "./")
+    #     mock.assert_called_once_with(join("./", 'INCAR'), "w")
         return mock
 
 
