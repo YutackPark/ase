@@ -7,6 +7,7 @@ from typing import IO, Any, Dict, List, Optional, Union
 import warnings
 
 from ase import Atoms
+from ase.filters import UnitCellFilter
 from ase.calculators.calculator import PropertyNotImplementedError
 from ase.parallel import barrier, world
 from ase.utils import IOContext, lazyproperty
@@ -226,7 +227,14 @@ class Dynamics(IOContext):
         # log the initial step
         if self.nsteps == 0:
             self.log()
-            self.call_observers()
+
+            # we write a trajectory file if it is None
+            if self.trajectory is None:
+                self.call_observers()
+            # We do not write on restart w/ an existing trajectory file
+            # present. This duplicates the same entry twice
+            elif len(self.trajectory) == 0:
+                self.call_observers()
 
         # check convergence
         is_converged = self.converged()
@@ -335,9 +343,9 @@ class Optimizer(Dynamics):
         self.check_deprecated(force_consistent)
 
         super().__init__(
-            atoms,
-            logfile,
-            trajectory,
+            atoms=atoms,
+            logfile=logfile,
+            trajectory=trajectory,
             append_trajectory=append_trajectory,
             master=master)
 
@@ -449,6 +457,16 @@ class Optimizer(Dynamics):
         from ase.io.jsonio import read_json
         with open(self.restart) as fd:
             try:
+                from ase.optimize import BFGS
+                if not isinstance(self, BFGS) and isinstance(
+                    self.atoms, UnitCellFilter
+                ):
+                    warnings.warn(
+                        "WARNING: restart function is untested and may result "
+                        "in unintended behavior. Namely orig_cell is not "
+                        "loaded in the UnitCellFilter. Please test on your own"
+                        " to ensure consistent results."
+                    )
                 return read_json(fd, always_array=False)
             except Exception as ex:
                 msg = ('Could not decode restart file as JSON.  '

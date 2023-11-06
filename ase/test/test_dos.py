@@ -1,9 +1,11 @@
+import numpy as np
+
+from ase.dft.dos import linear_tetrahedron_integration as lti
+from ase.dft.kpoints import monkhorst_pack
+
+
 def test_dos():
     """Check density of states tetrahedron code."""
-    import numpy as np
-
-    from ase.dft.dos import linear_tetrahedron_integration as lti
-    from ase.dft.kpoints import monkhorst_pack
 
     cell = np.eye(3)
     shape = (11, 13, 9)

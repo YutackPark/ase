@@ -12,47 +12,49 @@ import re
 
 import numpy as np
 
-from ase.calculators.genericfileio import (CalculatorTemplate,
-                                           GenericFileIOCalculator)
-from ase.config import cfg
+from ase.calculators.genericfileio import (
+    CalculatorTemplate,
+    GenericFileIOCalculator,
+    BaseProfile,
+    read_stdout,
+)
 from ase.io.aims import write_aims, write_control
 
 
 def get_aims_version(string):
-    match = re.search(r"\s*FHI-aims version\s*:\s*(\S+)", string, re.M)
+    match = re.search(r'\s*FHI-aims version\s*:\s*(\S+)', string, re.M)
     return match.group(1)
 
 
-class AimsProfile:
-    def __init__(self, argv):
-        if isinstance(argv, str):
-            argv = argv.split()
+class AimsProfile(BaseProfile):
+    def __init__(self, binary, default_species_directory=None, **kwargs):
+        super().__init__(**kwargs)
+        self.binary = binary
+        self.default_species_directory = default_species_directory
 
-        self.argv = argv
+    def get_calculator_command(self, inputfile):
+        return [self.binary]
 
-    def run(self, directory, outputname):
-        from subprocess import check_call
-
-        with open(directory / outputname, "w") as fd:
-            check_call(self.argv, stdout=fd, cwd=directory, env=os.environ)
+    def version(self):
+        return get_aims_version(read_stdout(self.binary))
 
 
 class AimsTemplate(CalculatorTemplate):
     def __init__(self):
         super().__init__(
-            "aims",
+            'aims',
             [
-                "energy",
-                "free_energy",
-                "forces",
-                "stress",
-                "stresses",
-                "dipole",
-                "magmom",
+                'energy',
+                'free_energy',
+                'forces',
+                'stress',
+                'stresses',
+                'dipole',
+                'magmom',
             ],
         )
 
-        self.outputname = "aims.out"
+        self.outputname = 'aims.out'
 
     def update_parameters(self, properties, parameters):
         """Check and update the parameters to match the desired calculation
@@ -71,9 +73,9 @@ class AimsTemplate(CalculatorTemplate):
         """
         parameters = dict(parameters)
         property_flags = {
-            "forces": "compute_forces",
-            "stress": "compute_analytical_stress",
-            "stresses": "compute_heat_flux",
+            'forces': 'compute_forces',
+            'stress': 'compute_analytical_stress',
+            'stresses': 'compute_heat_flux',
         }
         # Ensure FHI-aims will calculate all desired properties
         for property in properties:
@@ -81,16 +83,16 @@ class AimsTemplate(CalculatorTemplate):
             if aims_name is not None:
                 parameters[aims_name] = True
 
-        if "dipole" in properties:
-            if "output" in parameters and "dipole" not in parameters["output"]:
-                parameters["output"] = list(parameters["output"])
-                parameters["output"].append("dipole")
-            elif "output" not in parameters:
-                parameters["output"] = ["dipole"]
+        if 'dipole' in properties:
+            if 'output' in parameters and 'dipole' not in parameters['output']:
+                parameters['output'] = list(parameters['output'])
+                parameters['output'].append('dipole')
+            elif 'output' not in parameters:
+                parameters['output'] = ['dipole']
 
         return parameters
 
-    def write_input(self, directory, atoms, parameters, properties):
+    def write_input(self, profile, directory, atoms, parameters, properties):
         """Write the geometry.in and control.in files for the calculation
 
         Parameters
@@ -106,31 +108,31 @@ class AimsTemplate(CalculatorTemplate):
         """
         parameters = self.update_parameters(properties, parameters)
 
-        ghosts = parameters.pop("ghosts", None)
-        geo_constrain = parameters.pop("geo_constrain", None)
-        scaled = parameters.pop("scaled", None)
-        write_velocities = parameters.pop("write_velocities", None)
+        ghosts = parameters.pop('ghosts', None)
+        geo_constrain = parameters.pop('geo_constrain', None)
+        scaled = parameters.pop('scaled', None)
+        write_velocities = parameters.pop('write_velocities', None)
 
         if scaled is None:
             scaled = np.all(atoms.pbc)
         if write_velocities is None:
-            write_velocities = atoms.has("momenta")
+            write_velocities = atoms.has('momenta')
 
         if geo_constrain is None:
-            geo_constrain = scaled and "relax_geometry" in parameters
+            geo_constrain = scaled and 'relax_geometry' in parameters
 
         have_lattice_vectors = atoms.pbc.any()
         have_k_grid = (
-            "k_grid" in parameters
-            or "kpts" in parameters
-            or "k_grid_density" in parameters
+            'k_grid' in parameters
+            or 'kpts' in parameters
+            or 'k_grid_density' in parameters
         )
         if have_lattice_vectors and not have_k_grid:
-            raise RuntimeError("Found lattice vectors but no k-grid!")
+            raise RuntimeError('Found lattice vectors but no k-grid!')
         if not have_lattice_vectors and have_k_grid:
-            raise RuntimeError("Found k-grid but no lattice vectors!")
+            raise RuntimeError('Found k-grid but no lattice vectors!')
 
-        geometry_in = directory / "geometry.in"
+        geometry_in = directory / 'geometry.in'
 
         write_aims(
             geometry_in,
@@ -141,11 +143,18 @@ class AimsTemplate(CalculatorTemplate):
             ghosts=ghosts,
         )
 
-        control = directory / "control.in"
+        control = directory / 'control.in'
+
+        if (
+            'species_dir' not in parameters
+            and profile.default_species_directory is not None
+        ):
+            parameters['species_dir'] = profile.default_species_directory
+
         write_control(control, atoms, parameters)
 
     def execute(self, directory, profile):
-        profile.run(directory, self.outputname)
+        profile.run(directory, inputfile=None, outputfile=self.outputname)
 
     def read_results(self, directory):
         from ase.io.aims import read_aims_results
@@ -153,23 +162,31 @@ class AimsTemplate(CalculatorTemplate):
         dst = directory / self.outputname
         return read_aims_results(dst, index=-1)
 
+    def load_profile(self, cfg, **kwargs):
+        return AimsProfile.from_config(cfg, self.name, **kwargs)
+
     def socketio_argv(self, profile, unixsocket, port):
-        return [*profile.argv]
+        return [profile.binary]
 
     def socketio_parameters(self, unixsocket, port):
         if port:
-            use_pimd_wrapper = ('localhost', port),
+            use_pimd_wrapper = ('localhost', port)
         else:
             # (INET port number should be unused.)
-            use_pimd_wrapper = (f'UNIX:{unixsocket}', 31415),
+            use_pimd_wrapper = (f'UNIX:{unixsocket}', 31415)
 
-        return dict(
-            use_pimd_wrapper=use_pimd_wrapper,
-            compute_forces=True)
+        return dict(use_pimd_wrapper=use_pimd_wrapper, compute_forces=True)
 
 
 class Aims(GenericFileIOCalculator):
-    def __init__(self, profile=None, directory=".", **kwargs):
+    def __init__(
+        self,
+        profile=None,
+        directory='.',
+        parallel_info=None,
+        parallel=True,
+        **kwargs,
+    ):
         """Construct the FHI-aims calculator.
 
         The keyword arguments (kwargs) can be one of the ASE standard
@@ -193,23 +210,18 @@ class Aims(GenericFileIOCalculator):
 
         """
 
-        if profile is None:
-            profile = AimsProfile(
-                kwargs.pop(
-                    "aims_command", cfg.get("ASE_AIMS_COMMAND", "aims.x")
-                )
-            )
-
         super().__init__(
             template=AimsTemplate(),
             profile=profile,
             parameters=kwargs,
+            parallel_info=parallel_info,
+            parallel=parallel,
             directory=directory,
         )
 
 
 class AimsCube:
-    "Object to ensure the output of cube files, can be attached to Aims object"
+    'Object to ensure the output of cube files, can be attached to Aims object'
 
     def __init__(
         self,
@@ -225,7 +237,7 @@ class AimsCube:
         plots:
             what to print, same names as in FHI-aims"""
 
-        self.name = "AimsCube"
+        self.name = 'AimsCube'
         self.origin = origin
         self.edges = edges
         self.points = points
@@ -243,25 +255,25 @@ class AimsCube:
             found = False
             cube = plot.split()
             if (
-                cube[0] == "total_density"
-                or cube[0] == "spin_density"
-                or cube[0] == "delta_density"
+                cube[0] == 'total_density'
+                or cube[0] == 'spin_density'
+                or cube[0] == 'delta_density'
             ):
                 found = True
-                old_name = cube[0] + ".cube"
-                new_name = basename + "." + old_name
-            if cube[0] == "eigenstate" or cube[0] == "eigenstate_density":
+                old_name = cube[0] + '.cube'
+                new_name = basename + '.' + old_name
+            if cube[0] == 'eigenstate' or cube[0] == 'eigenstate_density':
                 found = True
                 state = int(cube[1])
                 s_state = cube[1]
                 for i in [10, 100, 1000, 10000]:
                     if state < i:
-                        s_state = "0" + s_state
-                old_name = cube[0] + "_" + s_state + "_spin_1.cube"
-                new_name = basename + "." + old_name
+                        s_state = '0' + s_state
+                old_name = cube[0] + '_' + s_state + '_spin_1.cube'
+                new_name = basename + '.' + old_name
             if found:
                 # XXX Should not use platform dependent commands!
-                os.system("mv " + old_name + " " + new_name)
+                os.system('mv ' + old_name + ' ' + new_name)
 
     def add_plot(self, name):
         """in case you forgot one ..."""
@@ -269,16 +281,16 @@ class AimsCube:
 
     def write(self, file):
         """write the necessary output to the already opened control.in"""
-        file.write("output cube " + self.plots[0] + "\n")
-        file.write("   cube origin ")
+        file.write('output cube ' + self.plots[0] + '\n')
+        file.write('   cube origin ')
         for ival in self.origin:
-            file.write(str(ival) + " ")
-        file.write("\n")
+            file.write(str(ival) + ' ')
+        file.write('\n')
         for i in range(3):
-            file.write("   cube edge " + str(self.points[i]) + " ")
+            file.write('   cube edge ' + str(self.points[i]) + ' ')
             for ival in self.edges[i]:
-                file.write(str(ival) + " ")
-            file.write("\n")
+                file.write(str(ival) + ' ')
+            file.write('\n')
         if self.ncubes() > 1:
             for i in range(self.ncubes() - 1):
-                file.write("output cube " + self.plots[i + 1] + "\n")
+                file.write('output cube ' + self.plots[i + 1] + '\n')

@@ -1,8 +1,10 @@
+from ase.build import molecule
+from ase.constraints import FixAtoms
+from ase.io import read, write
+
+
 def test_turbomole():
     """Test that FixAtoms constraints are written properly."""
-    from ase.build import molecule
-    from ase.constraints import FixAtoms
-    from ase.io import read, write
 
     mol1 = molecule('H2O')
     mol1.set_constraint(FixAtoms(mask=[True, False, True]))

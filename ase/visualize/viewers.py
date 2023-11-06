@@ -34,10 +34,7 @@ from contextlib import contextmanager
 from io import BytesIO
 from pathlib import Path
 
-if sys.version_info >= (3, 8):
-    from importlib.metadata import entry_points
-else:
-    from importlib_metadata import entry_points
+from importlib.metadata import entry_points
 
 from importlib import import_module
 

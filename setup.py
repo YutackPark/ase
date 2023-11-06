@@ -12,19 +12,18 @@ from os.path import join
 from setuptools import find_packages, setup
 from setuptools.command.build_py import build_py as _build_py
 
-python_min_version = (3, 6)
+python_min_version = (3, 8)
 python_requires = '>=' + '.'.join(str(num) for num in python_min_version)
 
 
 if sys.version_info < python_min_version:
-    raise SystemExit('Python 3.6 or later is required!')
+    raise SystemExit(f'Python {python_requires} is required!')
 
 
 install_requires = [
-    'numpy>=1.17.0',  # July 2019
-    'scipy>=1.3.1',  # August 2019
-    'matplotlib>=3.3.0',  # July 2020
-    'importlib-metadata>=0.12;python_version<"3.8"'
+    'numpy>=1.18.5',  # June 2020
+    'scipy>=1.4.1',  # December 2019
+    'matplotlib>=3.3.4',  # January 2021 (3.3.0 is July 2020)
 ]
 
 
@@ -35,8 +34,8 @@ extras_require = {
         'pillow',
     ],
     'test': [
-        'pytest>=5.0.0',
-        'pytest-xdist>=1.30.0',
+        'pytest>=6.2.5',
+        'pytest-xdist>=2.1.0',
     ]
 }
 
@@ -117,7 +116,5 @@ setup(name='ase',
           'GNU Lesser General Public License v2 or later (LGPLv2+)',
           'Operating System :: OS Independent',
           'Programming Language :: Python :: 3',
-          'Programming Language :: Python :: 3.6',
-          'Programming Language :: Python :: 3.7',
           'Programming Language :: Python :: 3.8',
           'Topic :: Scientific/Engineering :: Physics'])

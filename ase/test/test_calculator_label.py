@@ -1,5 +1,7 @@
+from ase.calculators.calculator import Calculator
+
+
 def test_calculator_label():
-    from ase.calculators.calculator import Calculator
 
     calc = Calculator()
     assert calc.directory == '.'

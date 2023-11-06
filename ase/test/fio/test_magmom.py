@@ -1,6 +1,8 @@
+from ase import Atoms
+from ase.io import read, write
+
+
 def test_magmom():
-    from ase import Atoms
-    from ase.io import read, write
 
     atoms = Atoms('HH', [[.0, .0, .0], [.0, .0, .74]], pbc=True, cell=[5, 5, 5])
     atoms.set_initial_magnetic_moments([1, -1])

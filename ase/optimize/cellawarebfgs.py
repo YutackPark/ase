@@ -69,9 +69,9 @@ class CellAwareBFGS(BFGS):
         self.bulk_modulus = bulk_modulus
         self.poisson_ratio = poisson_ratio
         self.long_output = long_output
-        BFGS.__init__(self, atoms, restart, logfile,
-                      trajectory,
-                      maxstep, master, alpha)
+        BFGS.__init__(self, atoms=atoms, restart=restart, logfile=logfile,
+                      trajectory=trajectory, maxstep=maxstep, master=master,
+                      alpha=alpha)
         assert not isinstance(atoms, Atoms)
         if hasattr(atoms, 'exp_cell_factor'):
             assert atoms.exp_cell_factor == 1.0

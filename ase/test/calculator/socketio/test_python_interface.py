@@ -3,16 +3,16 @@ import os
 import numpy as np
 import pytest
 
+from ase.build import bulk
 from ase.calculators.emt import EMT
 from ase.calculators.socketio import PySocketIOClient, SocketIOCalculator
+from ase.filters import FrechetCellFilter
+from ase.optimize import BFGS
 
 
 @pytest.mark.optimize
 @pytest.mark.skipif(os.name != 'posix', reason='only posix')
 def test_socketio_python():
-    from ase.build import bulk
-    from ase.filters import FrechetCellFilter
-    from ase.optimize import BFGS
 
     atoms = bulk('Au') * (2, 2, 2)
     atoms.rattle(stdev=0.05)

@@ -1,9 +1,10 @@
 import pytest
 
+from ase.build import (bcc111, bcc111_root, fcc111, fcc111_root, hcp0001,
+                       hcp0001_root, root_surface, root_surface_analysis)
+
 
 def test_root_surf():
-    from ase.build import (bcc111, bcc111_root, fcc111, fcc111_root, hcp0001,
-                           hcp0001_root, root_surface, root_surface_analysis)
 
     # Manually checked set of roots for FCC111
     fcc111_21_set = {1, 3, 4, 7, 9, 12, 13, 16, 19, 21}

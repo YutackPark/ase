@@ -1,8 +1,10 @@
+from io import StringIO
+
+from ase.io import read, write
+
+
 def test_jsondb():
     """Read and write json from/to file descriptor."""
-    from io import StringIO
-
-    from ase.io import read, write
 
     s = """
     {"1":

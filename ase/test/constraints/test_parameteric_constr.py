@@ -1,10 +1,12 @@
-def test_parameteric_constr():
-    import numpy as np
+import numpy as np
 
-    from ase.build import bulk
-    from ase.calculators.emt import EMT
-    from ase.constraints import (FixCartesianParametricRelations,
-                                 FixScaledParametricRelations, dict2constraint)
+from ase.build import bulk
+from ase.calculators.emt import EMT
+from ase.constraints import (FixCartesianParametricRelations,
+                             FixScaledParametricRelations, dict2constraint)
+
+
+def test_parameteric_constr():
 
     # Build the atoms object and attach a calculator
     a = bulk("Ni", cubic=True)

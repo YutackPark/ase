@@ -155,7 +155,7 @@ class Gromacs(FileIOCalculator):
         self.atoms = None
 
         FileIOCalculator.__init__(self, restart, ignore_bad_restart_file,
-                                  label, atoms, **kwargs)
+                                  label, atoms, self.command, **kwargs)
         self.set(**kwargs)
         # default values for runtime parameters
         # can be changed by self.set_own_params_runs('key', 'value')
