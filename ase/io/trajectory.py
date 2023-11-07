@@ -212,7 +212,7 @@ class TrajectoryWriter:
         self.backend.close()
 
     def __len__(self):
-        return world.sum(len(self.backend))
+        return world.sum_scalar(len(self.backend))
 
 
 class TrajectoryReader:
