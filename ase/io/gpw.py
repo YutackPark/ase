@@ -2,7 +2,7 @@
 import ase.io.ulm as ulm
 from ase import Atoms
 from ase.calculators.singlepoint import (SinglePointDFTCalculator,
-                                         SinglePointKPoint)
+                                         SinglePointKPoint, all_properties)
 from ase.io.trajectory import read_atoms
 from ase.units import Bohr, Hartree
 
@@ -37,7 +37,11 @@ def read_gpw(filename):
         ibzkpts=ibzkpts,
         bzkpts=bzkpts,
         bz2ibz=bz2ibz,
-        **reader.results.asdict())
+        # New gpw-files may have "non_collinear_magmom(s)" which ASE
+        # doesn't know:
+        **{property: value
+           for property, value in reader.results.asdict().items()
+           if property in all_properties})
 
     if kpts is not None:
         atoms.calc.kpts = []
