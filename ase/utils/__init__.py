@@ -7,6 +7,7 @@ import re
 import string
 import sys
 import time
+from typing import Callable, Type, Union
 import warnings
 from contextlib import ExitStack, contextmanager
 from importlib import import_module
@@ -48,19 +49,24 @@ basestring = str
 pickleload = functools.partial(pickle.load, encoding='bytes')
 
 
-def deprecated(msg,
-               category=FutureWarning,
-               condition=True):
+def deprecated(msg: Union[str, Warning],
+               category=Type[FutureWarning],
+               condition: Union[bool, Callable] = True):
     """Return a decorator deprecating a function.
 
     Parameters
     ----------
     msg : str or Warning
         The message to be emitted.
-    category : Warning, default=FutureWarning
+    category : Type[Warning], default=FutureWarning
         The type of Warning to be emitted.
-    condition : Callable, default=lambda *args, **kwargs: True
-        A function that determines if the warning should be emitted.
+    condition : bool or Callable, default=True
+        A boolean indicating whether a warning should be emitted or a callable
+        that determines if the warning should be emitted. The callable will
+        receive two positional arguments, a list and a dictionary, corresponding
+        to the positional and keyword arguments, respectively, passed to the
+        deprecated function at runtime. This callable must return `True` if the
+        warning is to be emitted and `False`otherwise.
 
     Returns
     ------
@@ -69,14 +75,39 @@ def deprecated(msg,
         parameters.
 
     Example
-    --------
+    -------
+    >>> # Inspect keyword parameters passed to deprecated function
+    >>> from typing import Any, Dict, List
+    >>> import warnings
     >>> from ase.utils import deprecated
 
-    >>> @deprecated(('Calling this function with `atoms` is deprecated. '
-    ...             'Use `optimizable` instead.'),
-    ...             category=DeprecationWarning,
-    ...             condition=lambda *args, **kwargs: 'atoms' in kwargs)
-    ... def no_atoms_function(atoms=None, optimizable=None):...
+    >>> def alias_condition_factory(kwarg: str, alias: str):
+    ...     def _inner(args: List, kwargs: Dict[str, Any]):
+    ...         if alias in kwargs and kwarg not in kwargs:
+    ...             kwargs[kwarg] = kwargs[alias]
+    ...             del kwargs[alias]
+    ...             return True
+    ...     return _inner
+
+    >>> MESSAGE = ("Calling this function with `atoms` is deprecated. "
+    ...            "Use `optimizable` instead.")
+    >>> @deprecated(
+    ...     MESSAGE,
+    ...     DeprecationWarning,
+    ...     condition=alias_condition_factory("optimizable", "atoms"),
+    ... )
+    ... def function(atoms=None, optimizable=None):
+    ...     print(f"atoms: {atoms}")
+    ...     print(f"optimizable: {optimizable}")
+
+    >>> with warnings.catch_warnings(record=True) as w:
+    ...     warnings.simplefilter("always")
+    ...     function(atoms="atoms")  # doctest: +ELLIPSIS
+    atoms: None
+    optimizable: atoms
+
+    >>> w[-1].category == DeprecationWarning
+    True
     """
 
     def deprecated_decorator(func):
