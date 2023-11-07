@@ -50,7 +50,7 @@ pickleload = functools.partial(pickle.load, encoding='bytes')
 
 def deprecated(msg,
                category=FutureWarning,
-               condition=lambda *args, **kwargs: True):
+               condition=True):
     """Return a decorator deprecating a function.
 
     Parameters
@@ -82,12 +82,20 @@ def deprecated(msg,
     def deprecated_decorator(func):
         @functools.wraps(func)
         def deprecated_function(*args, **kwargs):
-            if condition(*args, **kwargs):
+            _args = list(args)
+            condition_met = False
+            if isinstance(condition, bool):
+                condition_met = condition
+            else:
+                condition_met = condition(_args, kwargs)
+
+            if condition_met:
                 warning = msg
                 if not isinstance(warning, Warning):
                     warning = category(warning)
                 warnings.warn(warning)
-            return func(*args, **kwargs)
+
+            return func(*_args, **kwargs)
 
         return deprecated_function
 
