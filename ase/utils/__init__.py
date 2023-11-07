@@ -200,7 +200,7 @@ def _opencew(filename, world=None):
             closelater.append(fd)
 
         # Synchronize:
-        error = parallel.broadcast(error, 0, world)
+        error = world.sum_scalar(error)
         if error == errno.EEXIST:
             return None
         if error:
