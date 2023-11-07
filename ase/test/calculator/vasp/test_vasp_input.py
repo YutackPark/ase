@@ -239,7 +239,7 @@ def test_vasp_xc(vaspinput_factory):
 
 def test_ichain(vaspinput_factory):
 
-    with pytest.warns():
+    with pytest.warns(UserWarning):
         calc_warn = vaspinput_factory(ichain=1, ediffg=-0.01)
         calc_warn.write_incar(nacl)
         calc_warn.read_incar('INCAR')
