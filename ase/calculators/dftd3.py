@@ -283,7 +283,7 @@ class PureDFTD3(FileIOCalculator):
                 errorcode = subprocess.call(command,
                                             cwd=self.directory, stdout=fd)
 
-        errorcode = self.comm.sum(errorcode)
+        errorcode = self.comm.sum_scalar(errorcode)
 
         if errorcode:
             raise RuntimeError('%s returned an error: %d' %

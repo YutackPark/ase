@@ -4,6 +4,7 @@ import os
 import pickle
 import sys
 import time
+import warnings
 
 import numpy as np
 
@@ -58,7 +59,13 @@ class DummyMPI:
         return None
 
     def sum(self, a, root=-1):
+        if np.isscalar(a):
+            warnings.warn('Please use sum_scalar(...) for scalar arguments',
+                          FutureWarning)
         return self._returnval(a)
+
+    def sum_scalar(self, a, root=-1):
+        return a
 
     def product(self, a, root=-1):
         return self._returnval(a)
@@ -150,7 +157,17 @@ class MPI4PY:
             b = self.comm.allreduce(a)
         else:
             b = self.comm.reduce(a, root)
+        if np.isscalar(a):
+            warnings.warn('Please use sum_scalar(...) for scalar arguments',
+                          FutureWarning)
         return self._returnval(a, b)
+
+    def sum_scalar(self, a, root=-1):
+        if root == -1:
+            b = self.comm.allreduce(a)
+        else:
+            b = self.comm.reduce(a, root)
+        return b
 
     def split(self, split_size=None):
         """Divide the communicator."""

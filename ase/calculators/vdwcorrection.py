@@ -355,7 +355,7 @@ class vdWTkatchenko09prl(Calculator, IOContext):
                     # Forces go both ways for every interaction
                     forces[i] += force_ij
                     forces[j] -= force_ij
-        EvdW = self.comm.sum(EvdW)
+        EvdW = self.comm.sum_scalar(EvdW)
         self.comm.sum(forces)
 
         self.results['energy'] += EvdW
