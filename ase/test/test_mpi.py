@@ -7,10 +7,10 @@ import pytest
 
 def test_mpi():
     x = 42.0
-    assert pytest.warns():
+    with pytest.warns(FutureWarning):
         x = world.sum(x)
     x = world.sum_scalar(x)
-    assert x == 42
+    assert x == 42 * world.size
 
 
 @pytest.mark.skip(reason='Does not work and no time to investigate.')

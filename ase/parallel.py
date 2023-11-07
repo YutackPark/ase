@@ -60,7 +60,8 @@ class DummyMPI:
 
     def sum(self, a, root=-1):
         if np.isscalar(a):
-            warnings.warn('Please use sum_scalar(...)')
+            warnings.warn('Please use sum_scalar(...) for scalar arguments',
+                          FutureWarning)
         return self._returnval(a)
 
     def sum_scalar(self, a, root=-1):
@@ -157,7 +158,8 @@ class MPI4PY:
         else:
             b = self.comm.reduce(a, root)
         if np.isscalar(a):
-            warnings.warn('Please use sum_scalar(...)')
+            warnings.warn('Please use sum_scalar(...) for scalar arguments',
+                          FutureWarning)
         return self._returnval(a, b)
 
     def sum_scalar(self, a, root=-1):
