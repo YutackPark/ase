@@ -1,6 +1,5 @@
 """Structure optimization. """
 
-from ase.optimize.berny import Berny
 from ase.optimize.bfgs import BFGS
 from ase.optimize.bfgslinesearch import BFGSLineSearch
 from ase.optimize.fire import FIRE
@@ -16,4 +15,4 @@ QuasiNewton = BFGSLineSearch
 __all__ = ['MDMin', 'FIRE', 'LBFGS',
            'LBFGSLineSearch', 'BFGSLineSearch', 'BFGS',
            'GoodOldQuasiNewton', 'QuasiNewton', 'GPMin',
-           'Berny', 'ODE12r', 'RestartError']
+           'ODE12r', 'RestartError']

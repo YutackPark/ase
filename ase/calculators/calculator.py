@@ -2,6 +2,7 @@ import copy
 import os
 import subprocess
 import warnings
+
 from abc import abstractmethod
 from math import pi, sqrt
 from pathlib import Path
@@ -995,8 +996,13 @@ class ArgvProfile:
 class FileIOCalculator(Calculator):
     """Base class for calculators that write/read input/output files."""
 
-    command: Optional[str] = None
-    'Command used to start calculation'
+    # command: Optional[str] = None
+    # 'Command used to start calculation'
+
+    # Fallback command when nothing else is specified.
+    # There will be no fallback in the future; it must be explicitly
+    # configured.
+    _legacy_default_command: Optional[str] = None
 
     cfg = _cfg  # Ensure easy access to config for subclasses
 
@@ -1016,28 +1022,46 @@ class FileIOCalculator(Calculator):
             Command used to start calculation.
         """
 
-        Calculator.__init__(
-            self, restart, ignore_bad_restart_file, label, atoms, **kwargs
-        )
+        super().__init__(restart, ignore_bad_restart_file, label, atoms,
+                         **kwargs)
+
+        if profile is None:
+            profile = self._initialize_profile(command)
+        self.profile = profile
+
+    @property
+    def command(self):
+        # XXX deprecate me
+        #
+        # This is for calculators that invoke Popen directly on
+        # self.command instead of lettung us (superclass) do it.
+        return self.profile.command
+
+    @command.setter
+    def command(self, command):
+        self.profile.command = command
+
+    def _initialize_profile(self, command):
+        if self.name in self.cfg.parser:
+            section = self.cfg.parser[self.name]
+            # XXX getargv() returns None if missing!
+            return ArgvProfile(self.name, section.getargv('argv'))
 
         if command is None:
             name = 'ASE_' + self.name.upper() + '_COMMAND'
             command = self.cfg.get(name)
 
         if command is None:
-            if self.name in self.cfg.parser:
-                section = self.cfg.parser[self.name]
-                # XXX getargv() returns None if missing!
-                profile = ArgvProfile(self.name, section.getargv('argv'))
-            else:
-                raise EnvironmentError(
-                    f'No configuration of {self.name}.  '
-                    f'Missing section [{self.name}] in configuration'
-                )
-        else:
-            profile = OldShellProfile(self.name, command, self.prefix)
+            # XXX issue a FutureWarning if this causes the command
+            # to no longer be None
+            command = self._legacy_default_command
 
-        self.profile = profile
+        if command is None:
+            raise EnvironmentError(
+                f'No configuration of {self.name}.  '
+                f'Missing section [{self.name}] in configuration')
+
+        return OldShellProfile(self.name, command, self.prefix)
 
     def calculate(
         self, atoms=None, properties=['energy'], system_changes=all_changes

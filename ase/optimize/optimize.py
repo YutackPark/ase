@@ -3,7 +3,7 @@ import time
 from collections.abc import Callable
 from math import sqrt
 from os.path import isfile
-from typing import IO, Any, Dict, List, Optional, Union
+from typing import IO, Any, Dict, List, Optional, Tuple, Union
 import warnings
 
 from ase import Atoms
@@ -66,10 +66,6 @@ class OptimizableAtoms(Optimizable):
         # of this to be the number of DOFs
         return len(self.atoms)
 
-    def get_chemical_symbols(self):
-        # XXX For Pyberny
-        return self.atoms.get_chemical_symbols()
-
 
 class Dynamics(IOContext):
     """Base-class for all MD and structure optimization classes."""
@@ -112,7 +108,7 @@ class Dynamics(IOContext):
         self.atoms = atoms
         self.optimizable = atoms.__ase_optimizable__()
         self.logfile = self.openfile(logfile, mode='a', comm=world)
-        self.observers: List[Callable] = []
+        self.observers: List[Tuple[Callable, int, Tuple, Dict[str, Any]]] = []
         self.nsteps = 0
         self.max_steps = 0  # to be updated in run or irun
 

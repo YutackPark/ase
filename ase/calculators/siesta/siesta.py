@@ -204,7 +204,7 @@ class Siesta(FileIOCalculator):
         'VDW': ['DRSLL', 'LMKLL', 'KBM', 'C09', 'BH', 'VV']}
 
     name = 'siesta'
-    command = 'siesta < PREFIX.fdf > PREFIX.out'
+    _legacy_default_command = 'siesta < PREFIX.fdf > PREFIX.out'
     implemented_properties = [
         'energy',
         'free_energy',

@@ -208,23 +208,29 @@ Algorithms:
 
 * Change :func:`ase.optimize.optimize.Dynamics.irun` so that it yields its
   convergence status *after* logging and dumping for the corresponding step
-  (:mr:`3072`)
+  (:issue:`1339`; :mr:`3072`)
 
 Optimizers:
 
-* Add :class:`ase.optimize.climbfixinternals.ClimbFixInternals` class for
+* Add :class:`ase.optimize.climbfixinternals.BFGSClimbFixInternals` class for
   transition state search and optimization along internal reaction coordinates
+  (:mr:`2299`)
 
-* The `.run` and `.irun` methods of :class:`ase.optimize.Optimizers` now respect
-  `steps=0`.
+* :func:`ase.optimize.optimize.Optimizers.irun` and
+  :func:`ase.optimize.optimize.Optimizers.run` now respect `steps=0` (:issue:`1183`; 
+  :issue:`1258`; :mr:`2922`).
 
-* Added the `.trajectory` attribute to :class:`ase.optimize.optimize.Dynamics`.
+* Added the `.trajectory` attribute to :class:`ase.optimize.optimize.Dynamics` 
+  (:mr:`2901`).
 
-* Fixed a bug when `PreconImages` is initialized with a list of `precon` objects
-  in :class:`ase.optimize.precon.precon.PreconImages`
+* Fixed a bug when :class:`ase.optimize.precon.precon.PreconImages` is initialized with
+  a list of `precon` objects (:mr:`2875`)
 
 * :class:`ase.optimize.mdmin.MDMin` now takes in a `maxstep` parameter that
-  directly restricts how much atoms can move in a single optimization step.
+  directly restricts how much atoms can move in a single optimization step
+  (:mr:`3065`).
+
+* Removed `Berny` optimizer (:mr:`3151`)
 
 Thermochemistry:
 
