@@ -70,6 +70,12 @@ def deprecated(message: Union[str, Warning],
         to the positional and keyword arguments, respectively, passed to the
         deprecated function at runtime. This callable must return `True` if the
         warning is to be emitted and `False` otherwise.
+    handler: Callable, default=lambda args, kwargs: None
+        A callable that does any processing prior to calling the deprecated
+        function. This function is only called in the case that `condition`
+        is True (or returns True) and must accept the same two positional
+        arguments as `condition`. The list and dictionary will be used to call
+        the function.
 
     Returns
     ------
@@ -84,20 +90,19 @@ def deprecated(message: Union[str, Warning],
     >>> import warnings
     >>> from ase.utils import deprecated
 
-    >>> def alias_condition_factory(kwarg: str, alias: str):
-    ...     def _inner(args: List, kwargs: Dict[str, Any]):
-    ...         if alias in kwargs and kwarg not in kwargs:
-    ...             kwargs[kwarg] = kwargs[alias]
-    ...             del kwargs[alias]
-    ...             return True
-    ...     return _inner
+    >>> def alias_handler_factory(kwarg: str, alias: str):
+    ...     def _replace_arg(_: List, kwargs: Dict[str, Any]):
+    ...         kwargs[kwarg] = kwargs[alias]
+    ...         del kwargs[alias]
+    ...     return _replace_arg
 
     >>> MESSAGE = ("Calling this function with `atoms` is deprecated. "
     ...            "Use `optimizable` instead.")
     >>> @deprecated(
     ...     MESSAGE,
-    ...     DeprecationWarning,
-    ...     condition=alias_condition_factory("optimizable", "atoms"),
+    ...     category=DeprecationWarning,
+    ...     condition=lambda _, kwargs: "atoms" in kwargs,
+    ...     handler=alias_handler_factory("optimizable", "atoms")
     ... )
     ... def function(atoms=None, optimizable=None):
     ...     print(f"atoms: {atoms}")
@@ -105,7 +110,7 @@ def deprecated(message: Union[str, Warning],
 
     >>> with warnings.catch_warnings(record=True) as w:
     ...     warnings.simplefilter("always")
-    ...     function(atoms="atoms")  # doctest: +ELLIPSIS
+    ...     function(atoms="atoms")
     atoms: None
     optimizable: atoms
 
@@ -121,7 +126,7 @@ def deprecated(message: Union[str, Warning],
             if isinstance(condition, bool):
                 condition_met = condition
             else:
-                condition_met = condition(_args, kwargs)
+                condition_met = condition(args, kwargs)
 
             if condition_met:
                 warnings.warn(message, category=category)
