@@ -15,7 +15,7 @@ class DummyWarning(UserWarning):
     pass
 
 
-def _add(a: int = 0, b: int = 0) -> int:
+def _add(a: int = 0, b: int = 0, *args, **kwargs) -> int:
     return a + b
 
 
@@ -26,6 +26,7 @@ DEPRECATION_MESSAGE = "Test"
     f"ignore:{DEPRECATION_MESSAGE}:ase.test.test_util.DummyWarning"
 )
 class TestDeprecatedDecorator:
+    handler_called: bool = False
     @staticmethod
     def test_should_raise_future_warning_by_default() -> None:
         deprecated_add = deprecated(DEPRECATION_MESSAGE, condition=True)(_add)
@@ -41,6 +42,17 @@ class TestDeprecatedDecorator:
             _ = deprecated_add()
 
     @staticmethod
+    def test_should_raise_warning_when_condition_satisfied() -> None:
+        def condition(_: List, kwargs: Dict) -> bool:
+            return "test" in kwargs
+
+        deprecated_add = deprecated(
+            DEPRECATION_MESSAGE,
+            condition=condition
+        )(_add)
+        _ = deprecated_add(test=True)
+
+    @staticmethod
     def test_should_not_raise_warning_when_condition_unsatisfied() -> None:
         deprecated_add = deprecated(
             DEPRECATION_MESSAGE,
@@ -54,16 +66,24 @@ class TestDeprecatedDecorator:
         assert deprecated_add(2, 2) == 4
 
     @staticmethod
+    def test_should_call_handler() -> None:
+        def _handler() -> None:
+            TestDeprecatedDecorator.handler_called = True
+
+        deprecated_add = deprecated(DEPRECATION_MESSAGE, handler=_handler)
+        _ = deprecated_add()
+        assert TestDeprecatedDecorator.handler_called
+
+    @staticmethod
     def test_should_call_function_with_modified_args() -> None:
         def double_summands(args: List[int], _):
             for i, val in enumerate(args):
                 args[i] = 2 * val
-            return True
 
         deprecated_add_double = deprecated(
             DEPRECATION_MESSAGE,
-            DummyWarning,
-            double_summands)(_add)
+            category=DummyWarning,
+            handler=double_summands)(_add)
         assert deprecated_add_double(2, 2) == 8
 
     @staticmethod
@@ -71,12 +91,11 @@ class TestDeprecatedDecorator:
         def double_summands(_: List[int], kwargs: Dict[str, int]):
             for kwarg, val in kwargs.items():
                 kwargs[kwarg] = 2 * val
-            return True
 
         deprecated_add_double = deprecated(
             DEPRECATION_MESSAGE,
-            DummyWarning,
-            double_summands)(_add)
+            category=DummyWarning,
+            handler=double_summands)(_add)
         assert deprecated_add_double(a=2, b=2) == 8
 
     @staticmethod
