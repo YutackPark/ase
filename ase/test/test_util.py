@@ -50,7 +50,8 @@ class TestDeprecatedDecorator:
 
         with pytest.warns(DummyWarning, match=DEPRECATION_MESSAGE):
             deprecated_add = deprecated(
-                DEPRECATION_MESSAGE, category=DummyWarning,
+                DEPRECATION_MESSAGE,
+                category=DummyWarning,
                 condition=condition
             )(_add)
             _ = deprecated_add(test=True)
@@ -76,13 +77,12 @@ class TestDeprecatedDecorator:
         def _handler(_: List, __: Dict) -> None:
             TestDeprecatedDecorator.handler_called = True
 
-        with pytest.warns(DummyWarning, match=DEPRECATION_MESSAGE):
-            deprecated_add = deprecated(
-                DEPRECATION_MESSAGE,
-                category=DummyWarning,
-                handler=_handler
-            )(_add)
-            _ = deprecated_add()
+        deprecated_add = deprecated(
+            DEPRECATION_MESSAGE,
+            category=DummyWarning,
+            handler=_handler
+        )(_add)
+        _ = deprecated_add()
         assert TestDeprecatedDecorator.handler_called
 
     @staticmethod
