@@ -1,4 +1,3 @@
-import inspect
 from typing import Dict, List
 
 import pytest
@@ -15,7 +14,9 @@ class DummyWarning(UserWarning):
     pass
 
 
-def _add(a: int = 0, b: int = 0, *args, **kwargs) -> int:
+def _add(
+    a: int = 0, b: int = 0, *_, **__
+) -> int:
     return a + b
 
 
@@ -27,6 +28,7 @@ DEPRECATION_MESSAGE = "Test"
 )
 class TestDeprecatedDecorator:
     handler_called: bool = False
+
     @staticmethod
     def test_should_raise_future_warning_by_default() -> None:
         deprecated_add = deprecated(DEPRECATION_MESSAGE, condition=True)(_add)
@@ -46,11 +48,12 @@ class TestDeprecatedDecorator:
         def condition(_: List, kwargs: Dict) -> bool:
             return "test" in kwargs
 
-        deprecated_add = deprecated(
-            DEPRECATION_MESSAGE,
-            condition=condition
-        )(_add)
-        _ = deprecated_add(test=True)
+        with pytest.warns(DummyWarning, match=DEPRECATION_MESSAGE):
+            deprecated_add = deprecated(
+                DEPRECATION_MESSAGE, category=DummyWarning,
+                condition=condition
+            )(_add)
+            _ = deprecated_add(test=True)
 
     @staticmethod
     def test_should_not_raise_warning_when_condition_unsatisfied() -> None:
@@ -62,16 +65,24 @@ class TestDeprecatedDecorator:
 
     @staticmethod
     def test_should_call_function_correctly() -> None:
-        deprecated_add = deprecated(DEPRECATION_MESSAGE, DummyWarning)(_add)
+        deprecated_add = deprecated(
+            DEPRECATION_MESSAGE,
+            category=DummyWarning
+        )(_add)
         assert deprecated_add(2, 2) == 4
 
     @staticmethod
     def test_should_call_handler() -> None:
-        def _handler() -> None:
+        def _handler(_: List, __: Dict) -> None:
             TestDeprecatedDecorator.handler_called = True
 
-        deprecated_add = deprecated(DEPRECATION_MESSAGE, handler=_handler)
-        _ = deprecated_add()
+        with pytest.warns(DummyWarning, match=DEPRECATION_MESSAGE):
+            deprecated_add = deprecated(
+                DEPRECATION_MESSAGE,
+                category=DummyWarning,
+                handler=_handler
+            )(_add)
+            _ = deprecated_add()
         assert TestDeprecatedDecorator.handler_called
 
     @staticmethod
