@@ -27,8 +27,6 @@ DEPRECATION_MESSAGE = "Test"
     f"ignore:{DEPRECATION_MESSAGE}:ase.test.test_util.DummyWarning"
 )
 class TestDeprecatedDecorator:
-    handler_called: bool = False
-
     @staticmethod
     def test_should_raise_future_warning_by_default() -> None:
         deprecated_add = deprecated(DEPRECATION_MESSAGE, condition=True)(_add)
@@ -72,10 +70,11 @@ class TestDeprecatedDecorator:
         )(_add)
         assert deprecated_add(2, 2) == 4
 
-    @staticmethod
-    def test_should_call_handler() -> None:
+    def test_should_call_handler(self) -> None:
+        self.handler_called = False
+
         def _handler(_: List, __: Dict) -> None:
-            TestDeprecatedDecorator.handler_called = True
+            self.handler_called = True
 
         deprecated_add = deprecated(
             DEPRECATION_MESSAGE,
@@ -83,7 +82,7 @@ class TestDeprecatedDecorator:
             handler=_handler
         )(_add)
         _ = deprecated_add()
-        assert TestDeprecatedDecorator.handler_called
+        assert self.handler_called
 
     @staticmethod
     def test_should_call_function_with_modified_args() -> None:
