@@ -51,7 +51,8 @@ pickleload = functools.partial(pickle.load, encoding='bytes')
 
 def deprecated(message: Union[str, Warning],
                category: Type[Warning] = FutureWarning,
-               condition: Union[bool, Callable] = True):
+               condition: Union[bool, Callable] = True,
+               handler: Callable = lambda args, kwargs: None):
     """Return a decorator deprecating a function.
 
     Parameters
@@ -124,6 +125,7 @@ def deprecated(message: Union[str, Warning],
 
             if condition_met:
                 warnings.warn(message, category=category)
+                handler(_args, kwargs)
 
             return func(*_args, **kwargs)
 
