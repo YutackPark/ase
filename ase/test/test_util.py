@@ -1,3 +1,6 @@
+import inspect
+from typing import Dict, List
+
 import pytest
 
 from ase.utils import (
@@ -12,59 +15,75 @@ class DummyWarning(UserWarning):
     pass
 
 
-def _is_test_in_kwargs(_, kwargs) -> bool:
-    return "test" in kwargs
-
-
-@deprecated("hello", category=DummyWarning)
-def _add(a: int, b: int) -> int:
+def _add(a: int = 0, b: int = 0) -> int:
     return a + b
 
 
-@deprecated("hello", category=DummyWarning, condition=_is_test_in_kwargs)
-def _subtract(a: int, b: int, *args, **kwargs) -> int:
-    print(args, kwargs)
-    return a - b
+DEPRECATION_MESSAGE = "Test"
 
 
+@pytest.mark.filterwarnings(
+    f"ignore:{DEPRECATION_MESSAGE}:"
+    "ase.test.test_util.DummyWarning"
+)
 class TestDeprecatedDecorator:
     @staticmethod
+    @pytest.mark.filterwarnings(
+        f"error:{DEPRECATION_MESSAGE}:"
+        "ase.test.test_util.DummyWarning"
+    )
     def test_should_raise_warning() -> None:
-        with pytest.warns(DummyWarning, match="hello"):
-            assert _add(2, 2) == 4
+        deprecated_add = deprecated(DEPRECATION_MESSAGE, DummyWarning)(_add)
+        with pytest.warns(DummyWarning, match=DEPRECATION_MESSAGE):
+            _ = deprecated_add()
 
     @staticmethod
-    def test_should_call_function() -> None:
-        ...
+    def test_should_call_function_correctly() -> None:
+        deprecated_add = deprecated(DEPRECATION_MESSAGE, DummyWarning)(_add)
+        assert deprecated_add(2, 2) == 4
 
     @staticmethod
     def test_should_modify_args() -> None:
-        ...
+        def double_summands(args: List[int], _):
+            for i, val in enumerate(args):
+                args[i] = 2 * val
+            return True
+
+        deprecated_add_double = deprecated(
+            DEPRECATION_MESSAGE,
+            DummyWarning,
+            double_summands)(_add)
+        assert deprecated_add_double(2, 2) == 8
 
     @staticmethod
     def test_should_modify_kwargs() -> None:
-        ...
+        def double_summands(_: List[int], kwargs: Dict[str, int]):
+            for kwarg, val in kwargs.items():
+                kwargs[kwarg] = 2 * val
+            return True
 
-    @staticmethod
-    def test_should_introspect_calling_context() -> None:
-        ...
+        deprecated_add_double = deprecated(
+            DEPRECATION_MESSAGE,
+            DummyWarning,
+            double_summands)(_add)
+        assert deprecated_add_double(a=2, b=2) == 8
 
     @staticmethod
     def test_should_emit_future_warning_with_message_by_default() -> None:
-        ...
+        deprecated_add = deprecated(DEPRECATION_MESSAGE)(_add)
+        with pytest.warns(FutureWarning, match=DEPRECATION_MESSAGE):
+            _ = deprecated_add(2, 2)
 
     @staticmethod
-    def test_should_make_warning_refer_to_caller() -> None:
-        ...
+    def test_should_not_raise_warning_when_condition_unmet() -> None:
+        deprecated_add = deprecated(DEPRECATION_MESSAGE, condition=False)(_add)
+        assert deprecated_add() == 0
 
     @staticmethod
-    def test_should_raise_warning_when_test_in_kwargs() -> None:
-        with pytest.warns(DummyWarning, match="hello"):
-            assert _subtract(2, 2, test=True) == 0
-
-    @staticmethod
-    def test_should_not_raise_warning_when_test_not_in_kwargs() -> None:
-        assert _subtract(2, 2, not_test=True) == 0
+    def test_should_work_when_warning_passed_as_message() -> None:
+        deprecated_add = deprecated(FutureWarning(DEPRECATION_MESSAGE))(_add)
+        with pytest.warns(FutureWarning, match=DEPRECATION_MESSAGE):
+            _ = deprecated_add(2, 2)
 
 
 def test_deprecated_devnull():
