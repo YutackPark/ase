@@ -28,10 +28,6 @@ DEPRECATION_MESSAGE = "Test"
 )
 class TestDeprecatedDecorator:
     @staticmethod
-    @pytest.mark.filterwarnings(
-        f"error:{DEPRECATION_MESSAGE}:"
-        "ase.test.test_util.DummyWarning"
-    )
     def test_should_raise_warning() -> None:
         deprecated_add = deprecated(DEPRECATION_MESSAGE, DummyWarning)(_add)
         with pytest.warns(DummyWarning, match=DEPRECATION_MESSAGE):
