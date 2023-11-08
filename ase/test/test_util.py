@@ -1,23 +1,27 @@
 import pytest
 
-from ase.utils import (deprecated, devnull,
-                       get_python_package_path_description, tokenize_version)
+from ase.utils import (
+    deprecated,
+    devnull,
+    get_python_package_path_description,
+    tokenize_version,
+)
 
 
-class MyWarning(UserWarning):
+class DummyWarning(UserWarning):
     pass
 
 
-def _is_test_in_kwargs(*_, **kwargs) -> bool:
+def _is_test_in_kwargs(_, kwargs) -> bool:
     return "test" in kwargs
 
 
-@deprecated('hello', category=MyWarning)
+@deprecated("hello", category=DummyWarning)
 def _add(a: int, b: int) -> int:
     return a + b
 
 
-@deprecated('hello', category=MyWarning, condition=_is_test_in_kwargs)
+@deprecated("hello", category=DummyWarning, condition=_is_test_in_kwargs)
 def _subtract(a: int, b: int, *args, **kwargs) -> int:
     print(args, kwargs)
     return a - b
@@ -26,12 +30,36 @@ def _subtract(a: int, b: int, *args, **kwargs) -> int:
 class TestDeprecatedDecorator:
     @staticmethod
     def test_should_raise_warning() -> None:
-        with pytest.warns(MyWarning, match='hello'):
+        with pytest.warns(DummyWarning, match="hello"):
             assert _add(2, 2) == 4
 
     @staticmethod
+    def test_should_call_function() -> None:
+        ...
+
+    @staticmethod
+    def test_should_modify_args() -> None:
+        ...
+
+    @staticmethod
+    def test_should_modify_kwargs() -> None:
+        ...
+
+    @staticmethod
+    def test_should_introspect_calling_context() -> None:
+        ...
+
+    @staticmethod
+    def test_should_emit_future_warning_with_message_by_default() -> None:
+        ...
+
+    @staticmethod
+    def test_should_make_warning_refer_to_caller() -> None:
+        ...
+
+    @staticmethod
     def test_should_raise_warning_when_test_in_kwargs() -> None:
-        with pytest.warns(MyWarning, match='hello'):
+        with pytest.warns(DummyWarning, match="hello"):
             assert _subtract(2, 2, test=True) == 0
 
     @staticmethod
