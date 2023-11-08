@@ -49,17 +49,19 @@ basestring = str
 pickleload = functools.partial(pickle.load, encoding='bytes')
 
 
-def deprecated(msg: Union[str, Warning],
+def deprecated(message: Union[str, Warning],
                category: Type[Warning] = FutureWarning,
                condition: Union[bool, Callable] = True):
     """Return a decorator deprecating a function.
 
     Parameters
     ----------
-    msg : str or Warning
+    message : str or Warning
         The message to be emitted.
     category : Type[Warning], default=FutureWarning
-        The type of Warning to be emitted.
+        The type of warning to be emitted. If `message` is a `Warning`
+        instance, then `category` will be ignored and `message.__class__` will
+        be used.
     condition : bool or Callable, default=True
         A boolean indicating whether a warning should be emitted or a callable
         that determines if the warning should be emitted. The callable will
@@ -121,10 +123,7 @@ def deprecated(msg: Union[str, Warning],
                 condition_met = condition(_args, kwargs)
 
             if condition_met:
-                warning = msg
-                if not isinstance(warning, Warning):
-                    warning = category(warning)
-                warnings.warn(warning)
+                warnings.warn(message, category=category)
 
             return func(*_args, **kwargs)
 
