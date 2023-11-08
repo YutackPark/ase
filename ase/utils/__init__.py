@@ -126,7 +126,7 @@ def deprecated(message: Union[str, Warning],
             if isinstance(condition, bool):
                 condition_met = condition
             else:
-                condition_met = condition(args, kwargs)
+                condition_met = condition(_args, kwargs)
 
             if condition_met:
                 warnings.warn(message, category=category)
