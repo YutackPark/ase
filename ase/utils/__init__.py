@@ -51,8 +51,7 @@ pickleload = functools.partial(pickle.load, encoding='bytes')
 
 def deprecated(message: Union[str, Warning],
                category: Type[Warning] = FutureWarning,
-               condition: Callable = lambda args, kwargs: True,
-               handler: Callable = lambda args, kwargs: None):
+               callback: Callable = lambda args, kwargs: True):
     """Return a decorator deprecating a function.
 
     Parameters
@@ -64,20 +63,16 @@ def deprecated(message: Union[str, Warning],
         The type of warning to be emitted. If `message` is a `Warning`
         instance, then `category` will be ignored and `message.__class__` will
         be used.
-    condition : Callable, default=lambda args, kwargs: True
-        A callable that determines if the warning should be emitted. The
-        callable will receive two arguments, a list and a dictionary. The
-        list will contain the positional arguments that the deprecated function
-        was called with at runtime while the dictionary will contain the
-        keyword arguments. The callable must return `True` if the warning is to
-        be emitted and `False` otherwise.
-    handler : Callable, default=lambda args, kwargs: None
-        A callable that does any processing prior to calling the deprecated
-        function. This callable is only called if `condition` returns `True`
-        and must accept the same two positional arguments as `condition` (the
-        list and dictionary). The list and dictionary will be unpacked into
-        the positional and keyword arguments, respectively, used to call the
-        deprecated function.
+    callback : Callable, default=lambda args, kwargs: True
+        A callable that determines if the warning should be emitted and handles
+        any processing prior to calling the deprecated function. The callable
+        will receive two arguments, a list and a dictionary. The list will
+        contain the positional arguments that the deprecated function was
+        called with at runtime while the dictionary will contain the keyword
+        arguments. The callable must return `True` if the warning is to be
+        emitted and `False` otherwise. The list and dictionary will be unpacked
+        into the positional and keyword arguments, respectively, used to call
+        the deprecated function.
 
     Returns
     -------
@@ -89,14 +84,15 @@ def deprecated(message: Union[str, Warning],
     Example
     -------
     >>> # Inspect & replace a keyword parameter passed to a deprecated function
-    >>> from typing import Any, Dict, List
+    >>> from typing import Any, Callable, Dict, List
     >>> import warnings
     >>> from ase.utils import deprecated
 
-    >>> def alias_handler_factory(kwarg: str, alias: str):
-    ...     def _replace_arg(_: List, kwargs: Dict[str, Any]):
+    >>> def alias_callback_factory(kwarg: str, alias: str) -> Callable:
+    ...     def _replace_arg(_: List, kwargs: Dict[str, Any]) -> bool:
     ...         kwargs[kwarg] = kwargs[alias]
     ...         del kwargs[alias]
+    ...         return True
     ...     return _replace_arg
 
     >>> MESSAGE = ("Calling this function with `atoms` is deprecated. "
@@ -104,10 +100,14 @@ def deprecated(message: Union[str, Warning],
     >>> @deprecated(
     ...     MESSAGE,
     ...     category=DeprecationWarning,
-    ...     condition=lambda _, kwargs: "atoms" in kwargs,
-    ...     handler=alias_handler_factory("optimizable", "atoms")
+    ...     callback=alias_callback_factory("optimizable", "atoms")
     ... )
     ... def function(atoms=None, optimizable=None):
+    ...     '''
+    ...     .. deprecated:: 3.23.0
+    ...         Calling this function with ``atoms`` is deprecated.
+    ...         Use ``optimizable`` instead.
+    ...     '''
     ...     print(f"atoms: {atoms}")
     ...     print(f"optimizable: {optimizable}")
 
@@ -125,9 +125,8 @@ def deprecated(message: Union[str, Warning],
         @functools.wraps(func)
         def deprecated_function(*args, **kwargs):
             _args = list(args)
-            if condition(_args, kwargs):
+            if callback(_args, kwargs):
                 warnings.warn(message, category=category)
-                handler(_args, kwargs)
 
             return func(*_args, **kwargs)
 
