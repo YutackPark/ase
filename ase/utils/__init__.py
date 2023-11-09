@@ -58,32 +58,37 @@ def deprecated(message: Union[str, Warning],
     Parameters
     ----------
     message : str or Warning
-        The message to be emitted.
+        The message to be emitted. If `message` is a Warning, then `category`
+        is ignored and `message.__class__` will be used.
     category : Type[Warning], default=FutureWarning
         The type of warning to be emitted. If `message` is a `Warning`
         instance, then `category` will be ignored and `message.__class__` will
         be used.
     condition : Callable, default=lambda args, kwargs: True
         A callable that determines if the warning should be emitted. The
-        callable will receive two positional arguments, a list and a dictionary,
-        corresponding to the positional and keyword arguments, respectively,
-        passed to the deprecated function at runtime. This callable must return
-        `True` if the warning is to be emitted and `False` otherwise.
+        callable will receive two arguments, a list and a dictionary. The
+        list will contain the positional arguments that the deprecated function
+        was called with at runtime while the dictionary will contain the
+        keyword arguments. The callable must return `True` if the warning is to
+        be emitted and `False` otherwise.
     handler : Callable, default=lambda args, kwargs: None
         A callable that does any processing prior to calling the deprecated
-        function. This function is only called in the case that `condition`
-        returns `True` and must accept the same two positional arguments as
-        `condition`. The list and dictionary will be used to call the function.
+        function. This callable is only called if `condition` returns `True`
+        and must accept the same two positional arguments as `condition` (the
+        list and dictionary). The list and dictionary will be unpacked into
+        the positional and keyword arguments, respectively, used to call the
+        deprecated function.
 
     Returns
-    ------
+    -------
     deprecated_decorator : Callable
-        A decorator for deprecated functions parametrized with the input
-        parameters.
+        A decorator for deprecated functions that can be used to conditionally
+        emit deprecation warnings and/or pre-process the arguments of a
+        deprecated function.
 
     Example
     -------
-    >>> # Inspect keyword parameters passed to deprecated function
+    >>> # Inspect & replace a keyword parameter passed to a deprecated function
     >>> from typing import Any, Dict, List
     >>> import warnings
     >>> from ase.utils import deprecated
