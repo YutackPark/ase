@@ -42,23 +42,23 @@ class TestDeprecatedDecorator:
             _ = deprecated_add()
 
     @staticmethod
-    def test_should_raise_warning_when_condition_satisfied() -> None:
-        def condition(_: List, kwargs: Dict) -> bool:
+    def test_should_raise_warning_when_callback_returns_true() -> None:
+        def callback(_: List, kwargs: Dict) -> bool:
             return "test" in kwargs
 
         with pytest.warns(DummyWarning, match=DEPRECATION_MESSAGE):
             deprecated_add = deprecated(
                 DEPRECATION_MESSAGE,
                 category=DummyWarning,
-                condition=condition
+                callback=callback
             )(_add)
             _ = deprecated_add(test=True)
 
     @staticmethod
-    def test_should_not_raise_warning_when_condition_unsatisfied() -> None:
+    def test_should_not_raise_warning_when_callback_returns_false() -> None:
         deprecated_add = deprecated(
             DEPRECATION_MESSAGE,
-            condition=lambda args, kwargs: False
+            callback=lambda args, kwargs: False
         )(_add)
         _ = deprecated_add()
 
@@ -70,19 +70,19 @@ class TestDeprecatedDecorator:
         )(_add)
         assert deprecated_add(2, 2) == 4
 
-    def test_should_call_handler(self) -> None:
-        self.handler_called = False
+    def test_should_call_callback(self) -> None:
+        self.callback_called = False
 
-        def _handler(_: List, __: Dict) -> None:
-            self.handler_called = True
+        def callback(_: List, __: Dict) -> None:
+            self.callback_called = True
 
         deprecated_add = deprecated(
             DEPRECATION_MESSAGE,
             category=DummyWarning,
-            handler=_handler
+            callback=callback
         )(_add)
         _ = deprecated_add()
-        assert self.handler_called
+        assert self.callback_called
 
     @staticmethod
     def test_should_call_function_with_modified_args() -> None:
@@ -93,7 +93,7 @@ class TestDeprecatedDecorator:
         deprecated_add_double = deprecated(
             DEPRECATION_MESSAGE,
             category=DummyWarning,
-            handler=double_summands)(_add)
+            callback=double_summands)(_add)
         assert deprecated_add_double(2, 2) == 8
 
     @staticmethod
@@ -105,11 +105,11 @@ class TestDeprecatedDecorator:
         deprecated_add_double = deprecated(
             DEPRECATION_MESSAGE,
             category=DummyWarning,
-            handler=double_summands)(_add)
+            callback=double_summands)(_add)
         assert deprecated_add_double(a=2, b=2) == 8
 
     @staticmethod
-    def test_should_raise_warning_and_modify_args_if_condition_satisfied(
+    def test_should_raise_warning_and_modify_args_if_callback_returns_true(
     ) -> None:
         def limit_args_to_two(args: List, _: Dict[str, Any]):
             del args[2:]
@@ -117,7 +117,7 @@ class TestDeprecatedDecorator:
         deprecated_add = deprecated(
             DEPRECATION_MESSAGE,
             category=DummyWarning,
-            handler=limit_args_to_two)(_add)
+            callback=limit_args_to_two)(_add)
         assert deprecated_add(1, 1, 1) == 2
 
     @staticmethod
