@@ -51,7 +51,7 @@ pickleload = functools.partial(pickle.load, encoding='bytes')
 
 def deprecated(message: Union[str, Warning],
                category: Type[Warning] = FutureWarning,
-               condition: Union[bool, Callable] = True,
+               condition: Callable = lambda args, kwargs: True,
                handler: Callable = lambda args, kwargs: None):
     """Return a decorator deprecating a function.
 
@@ -63,19 +63,17 @@ def deprecated(message: Union[str, Warning],
         The type of warning to be emitted. If `message` is a `Warning`
         instance, then `category` will be ignored and `message.__class__` will
         be used.
-    condition : bool or Callable, default=True
-        A boolean indicating whether a warning should be emitted or a callable
-        that determines if the warning should be emitted. The callable will
-        receive two positional arguments, a list and a dictionary, corresponding
-        to the positional and keyword arguments, respectively, passed to the
-        deprecated function at runtime. This callable must return `True` if the
-        warning is to be emitted and `False` otherwise.
-    handler: Callable, default=lambda args, kwargs: None
+    condition : Callable, default=lambda args, kwargs: True
+        A callable that determines if the warning should be emitted. The
+        callable will receive two positional arguments, a list and a dictionary,
+        corresponding to the positional and keyword arguments, respectively,
+        passed to the deprecated function at runtime. This callable must return
+        `True` if the warning is to be emitted and `False` otherwise.
+    handler : Callable, default=lambda args, kwargs: None
         A callable that does any processing prior to calling the deprecated
         function. This function is only called in the case that `condition`
-        is True (or returns True) and must accept the same two positional
-        arguments as `condition`. The list and dictionary will be used to call
-        the function.
+        returns `True` and must accept the same two positional arguments as
+        `condition`. The list and dictionary will be used to call the function.
 
     Returns
     ------
@@ -122,13 +120,7 @@ def deprecated(message: Union[str, Warning],
         @functools.wraps(func)
         def deprecated_function(*args, **kwargs):
             _args = list(args)
-            condition_met = False
-            if isinstance(condition, bool):
-                condition_met = condition
-            else:
-                condition_met = condition(_args, kwargs)
-
-            if condition_met:
+            if condition(_args, kwargs):
                 warnings.warn(message, category=category)
                 handler(_args, kwargs)
 
