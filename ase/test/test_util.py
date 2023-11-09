@@ -113,8 +113,9 @@ class TestDeprecatedDecorator:
     def test_should_call_callback(self) -> None:
         self.callback_called = False
 
-        def callback(_: List, __: Dict) -> None:
+        def callback(_: List, __: Dict) -> bool:
             self.callback_called = True
+            return True
 
         deprecated_add = deprecated(
             DEPRECATION_MESSAGE,
