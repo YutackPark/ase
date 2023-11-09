@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Any, Dict, List
 
 import pytest
 
@@ -15,9 +15,9 @@ class DummyWarning(UserWarning):
 
 
 def _add(
-    a: int = 0, b: int = 0, *_, **__
+    a: int = 0, b: int = 0, *args, **kwargs
 ) -> int:
-    return a + b
+    return a + b + len(args)
 
 
 DEPRECATION_MESSAGE = "Test"
@@ -107,6 +107,18 @@ class TestDeprecatedDecorator:
             category=DummyWarning,
             handler=double_summands)(_add)
         assert deprecated_add_double(a=2, b=2) == 8
+
+    @staticmethod
+    def test_should_raise_warning_and_modify_args_if_condition_satisfied(
+    ) -> None:
+        def limit_args_to_two(args: List, _: Dict[str, Any]):
+            del args[2:]
+
+        deprecated_add = deprecated(
+            DEPRECATION_MESSAGE,
+            category=DummyWarning,
+            handler=limit_args_to_two)(_add)
+        assert deprecated_add(1, 1, 1) == 2
 
     @staticmethod
     def test_should_work_when_warning_passed_as_message() -> None:
