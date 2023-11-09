@@ -168,18 +168,13 @@ class TestDeprecatedDecorator:
 
     @staticmethod
     @pytest.mark.slow
-    def test_should_evoke_arg_type_error_if_callback_returns_none(
-        mypy_errors: List[str]
+    @pytest.mark.parametrize(
+        "expected_mypy_error",
+        ["arg-type", "return-value"]
+    )
+    def test_should_evoke_mypy_error_if_callback_returns_none(
+        expected_mypy_error: str, mypy_errors: List[str]
     ) -> None:
-        expected_mypy_error = "[arg-type]"
-        assert any(expected_mypy_error in line for line in mypy_errors)
-
-    @staticmethod
-    @pytest.mark.slow
-    def test_should_evoke_return_value_error_if_callback_returns_none(
-        mypy_errors: List[str]
-    ) -> None:
-        expected_mypy_error = "[return-value]"
         assert any(expected_mypy_error in line for line in mypy_errors)
 
 
