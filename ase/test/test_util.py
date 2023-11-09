@@ -29,7 +29,7 @@ DEPRECATION_MESSAGE = "Test"
 class TestDeprecatedDecorator:
     @staticmethod
     def test_should_raise_future_warning_by_default() -> None:
-        deprecated_add = deprecated(DEPRECATION_MESSAGE, condition=True)(_add)
+        deprecated_add = deprecated(DEPRECATION_MESSAGE)(_add)
         with pytest.warns(FutureWarning, match=DEPRECATION_MESSAGE):
             _ = deprecated_add()
 
@@ -58,7 +58,7 @@ class TestDeprecatedDecorator:
     def test_should_not_raise_warning_when_condition_unsatisfied() -> None:
         deprecated_add = deprecated(
             DEPRECATION_MESSAGE,
-            condition=False
+            condition=lambda args, kwargs: False
         )(_add)
         _ = deprecated_add()
 
