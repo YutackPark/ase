@@ -7,12 +7,12 @@ import re
 import string
 import sys
 import time
-from typing import Callable, Type, Union
 import warnings
 from contextlib import ExitStack, contextmanager
 from importlib import import_module
 from math import atan2, cos, degrees, gcd, radians, sin
 from pathlib import Path, PurePath
+from typing import Callable, Dict, List, Type, Union
 
 import numpy as np
 
@@ -49,9 +49,11 @@ basestring = str
 pickleload = functools.partial(pickle.load, encoding='bytes')
 
 
-def deprecated(message: Union[str, Warning],
-               category: Type[Warning] = FutureWarning,
-               callback: Callable = lambda args, kwargs: True):
+def deprecated(
+    message: Union[str, Warning],
+    category: Type[Warning] = FutureWarning,
+    callback: Callable[[List, Dict], bool] = lambda args, kwargs: True
+):
     """Return a decorator deprecating a function.
 
     Parameters
@@ -63,13 +65,13 @@ def deprecated(message: Union[str, Warning],
         The type of warning to be emitted. If `message` is a `Warning`
         instance, then `category` will be ignored and `message.__class__` will
         be used.
-    callback : Callable, default=lambda args, kwargs: True
+    callback : Callable[[List, Dict], bool], default=lambda args, kwargs: True
         A callable that determines if the warning should be emitted and handles
         any processing prior to calling the deprecated function. The callable
         will receive two arguments, a list and a dictionary. The list will
         contain the positional arguments that the deprecated function was
         called with at runtime while the dictionary will contain the keyword
-        arguments. The callable must return `True` if the warning is to be
+        arguments. The callable *must* return `True` if the warning is to be
         emitted and `False` otherwise. The list and dictionary will be unpacked
         into the positional and keyword arguments, respectively, used to call
         the deprecated function.
