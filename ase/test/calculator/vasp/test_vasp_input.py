@@ -235,3 +235,33 @@ def test_vasp_xc(vaspinput_factory):
                 'gamma': True,
                 'reciprocal': False
             }, calc_pw91.input_params)
+
+
+def test_ichain(vaspinput_factory):
+
+    with pytest.warns(UserWarning):
+        calc_warn = vaspinput_factory(ichain=1, ediffg=-0.01)
+        calc_warn.write_incar(nacl)
+        calc_warn.read_incar('INCAR')
+        assert calc_warn.int_params['iopt'] == 1
+        assert calc_warn.exp_params['ediffg'] == -0.01
+        assert calc_warn.int_params['ibrion'] == 1
+        assert calc_warn.float_params['potim'] == 0.0
+
+    with pytest.raises(RuntimeError):
+        calc_wrong = vaspinput_factory(ichain=1, ediffg=0.0001, iopt=1)
+        calc_wrong.write_incar(nacl)
+        calc_wrong.read_incar('INCAR')
+        assert calc_wrong.int_params['iopt'] == 1
+
+    calc = vaspinput_factory(ichain=1,
+                             ediffg=-0.01,
+                             iopt=1,
+                             potim=0.0,
+                             ibrion=1)
+    calc.write_incar(nacl)
+    calc.read_incar('INCAR')
+    assert calc.int_params['iopt'] == 1
+    assert calc.exp_params['ediffg'] == -0.01
+    assert calc.int_params['ibrion'] == 1
+    assert calc.float_params['potim'] == 0.0

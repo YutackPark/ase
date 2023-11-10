@@ -30,9 +30,109 @@ import ase
 from ase.calculators.calculator import kpts2ndarray
 from ase.calculators.vasp.setups import get_default_setups
 from ase.config import cfg
+from ase.io.vasp_parsers.incar_writer import write_incar
 
 FLOAT_FORMAT = '5.6f'
 EXP_FORMAT = '5.2e'
+
+
+def check_ichain(ichain, ediffg, iopt):
+    ichain_dct = {}
+    if ichain > 0:
+        ichain_dct['ibrion'] = 1
+        ichain_dct['potim'] = 0.0
+        if iopt is None:
+            warnings.warn(
+                'WARNING: optimization is set to LFBGS (IOPT = 1)')
+            ichain_dct['iopt'] = 1
+        if ediffg is None or float(ediffg > 0.0):
+            raise RuntimeError('Please set EDIFFG < 0')
+    return ichain_dct
+
+
+def set_magmom(ispin, spinpol, atoms, magmom_input, sorting):
+    """Helps to set the magmom tag in the INCAR file with correct formatting"""
+    magmom_dct = {}
+    if magmom_input is not None:
+        if not len(magmom_input) == len(atoms):
+            msg = ('Expected length of magmom tag to be'
+                   ' {}, i.e. 1 value per atom, but got {}').format(
+                len(atoms), len(magmom_input))
+            raise ValueError(msg)
+
+            # Check if user remembered to specify ispin
+            # note: we do not overwrite ispin if ispin=1
+        if not ispin:
+            spinpol = True
+            # note that ispin is an int key, but for the INCAR it does not
+            # matter
+            magmom_dct['ispin'] = 2
+        magmom = np.array(magmom_input)
+        magmom = magmom[sorting]
+    elif (spinpol and atoms.get_initial_magnetic_moments().any()):
+        # We don't want to write magmoms if they are all 0.
+        # but we could still be doing a spinpol calculation
+        if not ispin:
+            magmom_dct['ispin'] = 2
+        # Write out initial magnetic moments
+        magmom = atoms.get_initial_magnetic_moments()[sorting]
+        # unpack magmom array if three components specified
+        if magmom.ndim > 1:
+            magmom = [item for sublist in magmom for item in sublist]
+    else:
+        return spinpol, {}
+    # Compactify the magmom list to symbol order
+    lst = [[1, magmom[0]]]
+    for n in range(1, len(magmom)):
+        if magmom[n] == magmom[n - 1]:
+            lst[-1][0] += 1
+        else:
+            lst.append([1, magmom[n]])
+    line = ' '.join(['{:d}*{:.4f}'.format(mom[0], mom[1])
+                     for mom in lst])
+    magmom_dct['magmom'] = line
+    return spinpol, magmom_dct
+
+
+def set_ldau(ldau_param, luj_params, symbol_count):
+    """Helps to set the ldau tag in the INCAR file with correct formatting"""
+    ldau_dct = {}
+    if ldau_param is None:
+        ldau_dct['ldau'] = '.TRUE.'
+    llist = []
+    ulist = []
+    jlist = []
+    for symbol in symbol_count:
+        #  default: No +U
+        luj = luj_params.get(
+            symbol[0],
+            {'L': -1, 'U': 0.0, 'J': 0.0}
+        )
+        llist.append(int(luj['L']))
+        ulist.append(f'{luj["U"]:{".3f"}}')
+        jlist.append(f'{luj["J"]:{".3f"}}')
+    ldau_dct['ldaul'] = llist
+    ldau_dct['ldauu'] = ulist
+    ldau_dct['ldauj'] = jlist
+    return ldau_dct
+
+
+def test_nelect_charge_compitability(nelect, charge, nelect_from_ppp):
+    # We need to determine the nelect resulting from a given
+    # charge in any case if it's != 0, but if nelect is
+    # additionally given explicitly, then we need to determine it
+    # even for net charge of 0 to check for conflicts
+    if charge is not None and charge != 0:
+        nelect_from_charge = nelect_from_ppp - charge
+        if nelect and nelect != nelect_from_charge:
+            raise ValueError('incompatible input parameters: '
+                             f'nelect={nelect}, but charge={charge} '
+                             '(neutral nelect is '
+                             f'{nelect_from_ppp})')
+        print(nelect_from_charge)
+        return nelect_from_charge
+    else:
+        return nelect
 
 
 def get_pp_setup(setup) -> Tuple[dict, Sequence[int]]:
@@ -1485,192 +1585,126 @@ class GenerateVaspInput:
 
     def write_incar(self, atoms, directory='./', **kwargs):
         """Writes the INCAR file."""
-        p = self.input_params
-        # jrk 1/23/2015 I added this flag because this function has
-        # two places where magmoms get written. There is some
-        # complication when restarting that often leads to magmom
-        # getting written twice. this flag prevents that issue.
-        magmom_written = False
-        incar = open(join(directory, 'INCAR'), 'w')
-        incar.write('INCAR created by Atomic Simulation Environment\n')
-        for key, val in self.float_params.items():
-            if key == 'nelect':
-                charge = p.get('charge')
-                # Handle deprecated net_charge parameter (remove at some point)
-                net_charge = p.get('net_charge')
-                if net_charge is not None:
-                    warnings.warn(
-                        '`net_charge`, which is given in units of '
-                        'the *negative* elementary charge (i.e., the opposite '
-                        'of what one normally calls charge) has been '
-                        'deprecated in favor of `charge`, which is given in '
-                        'units of the positive elementary charge as usual',
-                        category=FutureWarning)
-                    if charge is not None and charge != -net_charge:
-                        raise ValueError(
-                            "can't give both net_charge and charge")
-                    charge = -net_charge
-                # We need to determine the nelect resulting from a given net
-                # charge in any case if it's != 0, but if nelect is
-                # additionally given explicitly, then we need to determine it
-                # even for net charge of 0 to check for conflicts
-                if charge is not None and (charge != 0 or val is not None):
-                    default_nelect = self.default_nelect_from_ppp()
-                    nelect_from_charge = default_nelect - charge
-                    if val is not None and val != nelect_from_charge:
-                        raise ValueError('incompatible input parameters: '
-                                         f'nelect={val}, but charge={charge} '
-                                         '(neutral nelect is '
-                                         f'{default_nelect})')
-                    val = nelect_from_charge
-            if val is not None:
-                incar.write(f' {key.upper()} = {val:{FLOAT_FORMAT}}\n')
-        for key, val in self.exp_params.items():
-            if val is not None:
-                incar.write(f' {key.upper()} = {val:{EXP_FORMAT}}\n')
-        for key, val in self.string_params.items():
-            if val is not None:
-                incar.write(f' {key.upper()} = {val}\n')
-        for key, val in self.int_params.items():
-            if val is not None:
-                incar.write(f' {key.upper()} = {val}\n')
-                if key == 'ichain' and val > 0:
-                    incar.write(' IBRION = 3\n POTIM = 0.0\n')
-                    for key, val in self.int_params.items():
-                        if key == 'iopt' and val is None:
-                            print('WARNING: optimization is '
-                                  'set to LFBGS (IOPT = 1)')
-                            incar.write(' IOPT = 1\n')
-                    for key, val in self.exp_params.items():
-                        if key == 'ediffg' and val is None:
-                            RuntimeError('Please set EDIFFG < 0')
+        incar_params = {}
+        incar_header = \
+            'INCAR created by Atomic Simulation Environment'
+        # float params
+        float_dct = dict((key, f'{val:{FLOAT_FORMAT}}') for key, val
+                         in self.float_params.items()
+                         if val is not None)
 
-        for key, val in self.list_bool_params.items():
-            if val is None:
-                pass
-            else:
-                line = f' {key.upper()} ='
-                for x in val:
-                    line += f' {_to_vasp_bool(x)}'
-                line += '\n'
-                incar.write(line)
+        if 'charge' in self.input_params and self.input_params[
+                'charge'] is not None:
+            nelect_val = test_nelect_charge_compitability(
+                self.float_params['nelect'],
+                self.input_params['charge'],
+                self.default_nelect_from_ppp())
+            if nelect_val:
+                float_dct['nelect'] = f'{nelect_val:{FLOAT_FORMAT}}'
+        incar_params.update(float_dct)
 
-        for key, val in self.list_int_params.items():
-            if val is None:
-                pass
-            elif key == 'ldaul' and (self.dict_params['ldau_luj'] is not None):
-                pass
-            else:
-                incar.write(f' {key.upper()} = ')
-                [incar.write(f'{x} ') for x in val]
-                incar.write('\n')
+        # exp params
+        exp_dct = dict(
+            (key, f'{val:{EXP_FORMAT}}') for key, val in self.exp_params.items()
+            if val is not None)
+        incar_params.update(exp_dct)
 
-        for key, val in self.list_float_params.items():
-            if val is None:
-                pass
-            elif ((key in ('ldauu', 'ldauj'))
-                  and (self.dict_params['ldau_luj'] is not None)):
-                pass
-            elif key == 'magmom':
-                if not len(val) == len(atoms):
-                    msg = ('Expected length of magmom tag to be'
-                           ' {}, i.e. 1 value per atom, but got {}').format(
-                               len(atoms), len(val))
-                    raise ValueError(msg)
+        # string_params
+        string_dct = dict((key, val) for key, val in self.string_params.items()
+                          if val is not None)
+        incar_params.update(string_dct)
 
-                # Check if user remembered to specify ispin
-                # note: we do not overwrite ispin if ispin=1
-                if not self.int_params['ispin']:
-                    self.spinpol = True
-                    incar.write(' ispin = 2\n'.upper())
+        # int params
+        int_dct = dict((key, val) for key, val in self.int_params.items()
+                       if val is not None)
+        if 'ichain' in int_dct.keys():
+            ichain_dict = check_ichain(
+                ichain=int_dct['ichain'],
+                ediffg=self.exp_params.get('ediffg', None),
+                iopt=int_dct.get('iopt', None),
+            )
+            int_dct.update(ichain_dict)
+        incar_params.update(int_dct)
 
-                line = f' {key.upper()} = '
-                magmom_written = True
-                # Work out compact a*x b*y notation and write in this form
-                # Assume 1 magmom per atom, ordered as our atoms object
-                val = np.array(val)
-                val = val[self.sort]  # Order in VASP format
+        # list_bool_params
+        bool_dct = dict((key, val) for key, val in self.list_bool_params.items()
+                        if val is not None)
+        for key, val in bool_dct.items():
+            bool_dct[key] = [_to_vasp_bool(x) for x in val]
+        incar_params.update(bool_dct)
 
-                # Compactify the magmom list to symbol order
-                lst = [[1, val[0]]]
-                for n in range(1, len(val)):
-                    if val[n] == val[n - 1]:
-                        lst[-1][0] += 1
-                    else:
-                        lst.append([1, val[n]])
-                line += ' '.join([f'{mom[0]:d}*{mom[1]:.4f}'
-                                  for mom in lst]) + '\n'
-                incar.write(line)
-            else:
-                line = f' {key.upper()} = '
-                line += ' '.join([f'{x:.4f}' for x in val])
-                line += '\n'
-                incar.write(line)
+        # list_int_params
+        int_dct = dict((key, val) for key, val in self.list_int_params.items()
+                       if val is not None)
+        if 'ldaul' in int_dct.keys() and self.dict_params[
+                'ldau_luj'] is not None:
+            del int_dct['ldaul']
+        incar_params.update(int_dct)
 
-        for key, val in self.bool_params.items():
-            if val is not None:
-                incar.write(f' {key.upper()} = {_to_vasp_bool(val)}\n')
+        # list_float_params
+        float_dct = dict(
+            (key, val) for key, val in self.list_float_params.items()
+            if val is not None)
+        if 'ldauu' in float_dct.keys() and self.dict_params[
+                'ldau_luj'] is not None:
+            del float_dct['ldauu']
+        if 'ldauj' in float_dct.keys() and self.dict_params[
+                'ldau_luj'] is not None:
+            del float_dct['ldauj']
+        incar_params.update(float_dct)
 
-        for key, val in self.special_params.items():
-            if val is not None:
-                line = f' {key.upper()} = '
-                if key == 'lreal':
-                    if isinstance(val, str):
-                        line += val + '\n'
-                    elif isinstance(val, bool):
-                        line += f'{_to_vasp_bool(val)}\n'
-                incar.write(line)
+        # bool params
+        bool_dct = dict(
+            (key, _to_vasp_bool(val)) for key, val in self.bool_params.items()
+            if val is not None)
+        incar_params.update(bool_dct)
 
-        for key, val in self.dict_params.items():
-            if val is not None:
-                if key == 'ldau_luj':
-                    # User didn't turn on LDAU tag.
-                    # Only turn on if ldau is unspecified
-                    if self.bool_params['ldau'] is None:
-                        self.bool_params['ldau'] = True
-                        # At this point we have already parsed our bool params
-                        incar.write(' LDAU = .TRUE.\n')
-                    llist = ulist = jlist = ''
-                    for symbol in self.symbol_count:
-                        #  default: No +U
-                        luj = val.get(symbol[0], {'L': -1, 'U': 0.0, 'J': 0.0})
-                        llist += ' %i' % luj['L']
-                        ulist += ' %.3f' % luj['U']
-                        jlist += ' %.3f' % luj['J']
-                    incar.write(f' LDAUL ={llist}\n')
-                    incar.write(f' LDAUU ={ulist}\n')
-                    incar.write(f' LDAUJ ={jlist}\n')
+        # special params
+        special_dct = dict(
+            (key, val) for key, val in self.special_params.items()
+            if val is not None)
+        if 'lreal' in special_dct.keys():
+            if isinstance(special_dct['lreal'], bool):
+                special_dct['lreal'] = _to_vasp_bool(special_dct['lreal'])
+        incar_params.update(special_dct)
 
-        if (self.spinpol and not magmom_written
-                # We don't want to write magmoms if they are all 0.
-                # but we could still be doing a spinpol calculation
-                and atoms.get_initial_magnetic_moments().any()):
-            if not self.int_params['ispin']:
-                incar.write(' ispin = 2\n'.upper())
-            # Write out initial magnetic moments
-            magmom = atoms.get_initial_magnetic_moments()[self.sort]
-            # unpack magmom array if three components specified
-            if magmom.ndim > 1:
-                magmom = [item for sublist in magmom for item in sublist]
-            list = [[1, magmom[0]]]
-            for n in range(1, len(magmom)):
-                if magmom[n] == magmom[n - 1]:
-                    list[-1][0] += 1
-                else:
-                    list.append([1, magmom[n]])
-            incar.write(' magmom = '.upper())
-            [incar.write('%i*%.4f ' % (mom[0], mom[1])) for mom in list]
-            incar.write('\n')
+        # dict params
+        dict_dct = dict((key, val) for key, val in self.dict_params.items()
+                        if val is not None)
+        if 'ldau_luj' in dict_dct.keys():
+            ldau_dict = set_ldau(
+                ldau_param=self.bool_params['ldau'],
+                luj_params=dict_dct['ldau_luj'],
+                symbol_count=self.symbol_count)
+            dict_dct.update(ldau_dict)
+            del dict_dct['ldau_luj']
+        incar_params.update(dict_dct)
+
+        # set magmom based on input or initial atoms object
+        spinpol, magmom_dct = set_magmom(
+            atoms=atoms,
+            ispin=self.int_params['ispin'],
+            spinpol=self.spinpol,
+            magmom_input=float_dct.get('magmom', None),
+            sorting=self.sort,
+        )
+        self.spinpol = spinpol
+        incar_params.update(magmom_dct)
 
         # Custom key-value pairs, which receive no formatting
         # Use the comment "# <Custom ASE key>" to denote such
         # a custom key-value pair, as we cannot otherwise
         # reliably and easily identify such non-standard entries
-        custom_kv_pairs = p.get('custom')
-        for key, value in custom_kv_pairs.items():
-            incar.write(' {} = {}  # <Custom ASE key>\n'.format(
-                key.upper(), value))
-        incar.close()
+
+        cust_dict = dict(
+            (key, str(val) + '  # <Custom ASE key>') for key, val in
+            self.input_params['custom'].items()
+            if val is not None)
+        incar_params.update(cust_dict)
+
+        write_incar(directory=directory,
+                    parameters=incar_params,
+                    header=incar_header)
 
     def write_kpoints(self, atoms=None, directory='./', **kwargs):
         """Writes the KPOINTS file."""
