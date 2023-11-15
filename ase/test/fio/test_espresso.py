@@ -370,15 +370,18 @@ def test_pw_input_write():
     bulk.set_initial_magnetic_moments([2.2 if atom.symbol == 'Ni' else 0.0
                                        for atom in bulk])
 
-    bulk.write('espresso_test.pwi')
+    pseudos = {'Ni': 'potato', 'O': 'orange'}
+
+    bulk.write('espresso_test.pwi', pseudopotentials=pseudos)
     readback = io.read('espresso_test.pwi')
     assert np.allclose(bulk.positions, readback.positions)
-    #
+
     sections = {'system': {
         'lda_plus_u': True,
         'Hubbard_U(1)': 4.0,
         'Hubbard_U(2)': 0.0}}
     with open('espresso_test.pwi', 'w') as fh:
-        write_espresso_in(fh, bulk, sections)
+        write_espresso_in(fh, bulk, sections,
+                          pseudopotentials=pseudos)
     readback = io.read('espresso_test.pwi')
     assert np.allclose(bulk.positions, readback.positions)

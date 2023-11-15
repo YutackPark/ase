@@ -1167,12 +1167,17 @@ def construct_namelist(parameters=None, warn=False, **kwargs):
         for key in KEYS[section]:
             # Check all three separately and pop them all so that
             # we can check for missing values later
+            value = None
+
             if key in parameters.get(section, {}):
-                sec_list[key] = parameters[section].pop(key)
+                value = parameters[section].pop(key)
             if key in parameters:
-                sec_list[key] = parameters.pop(key)
+                value = parameters.pop(key)
             if key in kwargs:
-                sec_list[key] = kwargs.pop(key)
+                value = kwargs.pop(key)
+
+            if value is not None:
+                sec_list[key] = value
 
             # Check if there is a key(i) version (no extra parsing)
             for arg_key in list(parameters.get(section, {})):
@@ -1398,7 +1403,7 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
     for species in set(atoms.get_chemical_symbols()):
         # Look in all possible locations for the pseudos and try to figure
         # out the number of valence electrons
-        pseudo = pseudopotentials.get(species, None)
+        pseudo = pseudopotentials[species]
         species_info[species] = {'pseudo': pseudo}
 
     # Convert atoms into species.

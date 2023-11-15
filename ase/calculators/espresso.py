@@ -78,7 +78,7 @@ class EspressoTemplate(CalculatorTemplate):
         )
 
     def execute(self, directory, profile):
-        profile.run(directory, self.inputname, self.outputname)
+        profile.run(directory, self.inputname, directory / self.outputname)
 
     def read_results(self, directory):
         path = directory / self.outputname
