@@ -407,9 +407,8 @@ class Dftb(FileIOCalculator):
         dipole = None
         for line in lines:
             if 'Dipole moment:' in line and 'au' in line:
-                words = line.split()
-                dipole = np.array(
-                    [float(w) for w in words[-4:-1]]) * Bohr
+                line = line.replace("Dipole moment:", "").replace("au", "")
+                dipole = np.array(line.split(), dtype=float) * Bohr
 
         return np.array(qm_charges), energy, dipole
 
