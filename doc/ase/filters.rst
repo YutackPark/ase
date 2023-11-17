@@ -75,3 +75,8 @@ The exponential cell filter is an improved :class:`UnitCellFilter`
 which is parameter free.
 
 .. autoclass:: ExpCellFilter
+
+The FrechetCellFilter class
+===========================
+
+.. autoclass:: FrechetCellFilter
