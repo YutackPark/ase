@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 import pytest
@@ -184,7 +185,7 @@ def get_expected_command(command, name, tmp_path, from_envvar):
     if name == 'openmx':
         # openmx converts the stream target to an abspath, so the command
         # will vary depending on the tempdir we're running in.
-        return f'{command} openmx.dat > {tmp_path}/openmx.log'
+        return f'{command} openmx.dat > {os.path.join(tmp_path, "openmx.log")}'
 
     return command
 

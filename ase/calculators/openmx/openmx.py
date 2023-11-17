@@ -484,9 +484,9 @@ class OpenMX(FileIOCalculator):
             # str(processes) + ' openmx %s' + threads_string + ' > %s'
 
         if runfile is None:
-            runfile = abs_dir + '/' + self.prefix + '.dat'
+            runfile = os.path.join(abs_dir, f'{self.prefix} .dat')
         if outfile is None:
-            outfile = abs_dir + '/' + self.prefix + '.log'
+            outfile = os.path.join(abs_dir, f'{self.prefix} .log')
         try:
             command = command % (runfile, outfile)
             # command += '" > ./%s &' % outfile  # outputs
