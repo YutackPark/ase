@@ -4,14 +4,16 @@ from warnings import warn
 
 import numpy as np
 
-# `Filter` classes are imported for backward compatibility.
-from ase.filters import (  # noqa: F401 # pylint: disable=unused-import
-    ExpCellFilter, Filter, StrainFilter, UnitCellFilter)
+from ase.filters import ExpCellFilter as ExpCellFilterOld
+from ase.filters import Filter as FilterOld
+from ase.filters import StrainFilter as StrainFilterOld
+from ase.filters import UnitCellFilter as UnitCellFilterOld
 from ase.geometry import (conditional_find_mic, find_mic, get_angles,
                           get_angles_derivatives, get_dihedrals,
                           get_dihedrals_derivatives, get_distances_derivatives,
                           wrap_positions)
 from ase.stress import full_3x3_to_voigt_6_stress, voigt_6_to_full_3x3_stress
+from ase.utils import deprecated
 from ase.utils.parsemath import eval_expression
 
 __all__ = [
@@ -2230,3 +2232,27 @@ class MirrorTorque(FixConstraint):
                            'a3': self.indices[2], 'a4': self.indices[3],
                            'max_angle': self.max_angle,
                            'min_angle': self.min_angle, 'fmax': self.fmax}}
+
+
+class Filter(FilterOld):
+    @deprecated('Import Filter from ase.filters')
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+class StrainFilter(StrainFilterOld):
+    @deprecated('Import StrainFilter from ase.filters')
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+class UnitCellFilter(UnitCellFilterOld):
+    @deprecated('Import UnitCellFilter from ase.filters')
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+
+class ExpCellFilter(ExpCellFilterOld):
+    @deprecated('Import ExpCellFilter from ase.filters')
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)

@@ -4,7 +4,7 @@ from math import sqrt
 
 import numpy as np
 
-from ase.constraints import UnitCellFilter
+from ase.filters import UnitCellFilter
 from ase.optimize.optimize import Optimizer
 from ase.optimize.precon.precon import make_precon
 from ase.utils.linesearch import LineSearch
@@ -107,7 +107,7 @@ class PreconLBFGS(Optimizer):
             line searches for comparatively small changes in geometry.
 
         variable_cell: bool
-            If True, wrap atoms an ase.constraints.UnitCellFilter to
+            If True, wrap atoms in UnitCellFilter to
             relax both postions and cell. Default is False.
 
         rigid_units: each I = rigid_units[i] is a list of indices, which

@@ -1,6 +1,7 @@
 import numpy as np
 
-from ase.constraints import Filter, FixAtoms
+from ase.constraints import FixAtoms
+from ase.filters import Filter
 from ase.geometry.cell import cell_to_cellpar
 from ase.neighborlist import neighbor_list
 

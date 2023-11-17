@@ -15,7 +15,8 @@ from scipy.sparse.linalg import spsolve
 
 import ase.units as units
 import ase.utils.ff as ff
-from ase.constraints import Filter, FixAtoms
+from ase.constraints import FixAtoms
+from ase.filters import Filter
 from ase.geometry import find_mic
 from ase.neighborlist import neighbor_list
 from ase.optimize.precon.neighbors import (estimate_nearest_neighbour_distance,
