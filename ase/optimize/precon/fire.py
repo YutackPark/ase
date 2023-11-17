@@ -2,7 +2,7 @@ import time
 
 import numpy as np
 
-from ase.constraints import UnitCellFilter
+from ase.filters import UnitCellFilter
 from ase.optimize.optimize import Optimizer
 
 
