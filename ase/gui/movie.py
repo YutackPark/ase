@@ -10,7 +10,7 @@ class Movie:
             _('Movie'), close=self.close, wmtype='utility')
         win.add(_('Image number:'))
         self.frame_number = ui.Scale(gui.frame, 0,
-                                     len(gui.images)-1,
+                                     len(gui.images) - 1,
                                      callback=self.new_frame)
         win.add(self.frame_number)
 
@@ -54,11 +54,11 @@ class Movie:
         self.win.close()
 
     def click(self, step, firstlast=False):
-        if firstlast and step < 0: # First
+        if firstlast and step < 0:
             i = 0
-        elif firstlast: # Last
+        elif firstlast:
             i = len(self.gui.images)
-        else: # Back & Forward
+        else:
             i = max(0, min(len(self.gui.images) - 1, self.gui.frame + step))
 
         self.frame_number.value = i
@@ -82,7 +82,7 @@ class Movie:
     def step(self):
         i = self.gui.frame
         nimages = len(self.gui.images)
-        delta = int(self.skip.value + 1)
+        delta = int(self.skip.value)
 
         if self.rock.value:
             if i <= self.skip.value:
