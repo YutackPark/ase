@@ -40,13 +40,15 @@ class Status:  # Status is used as a mixin in GUI
             line = ''
             if atoms.calc:
                 calc = atoms.calc
-                energy = calc.get_property('energy', atoms, allow_calculation=False)
+                energy = calc.get_property('energy', atoms,
+                                           allow_calculation=False)
                 if energy is not None:
                     line += f'Energy = {energy:.3f} eV'
-                forces = calc.get_property('forces', atoms, allow_calculation=False)
+                forces = calc.get_property('forces', atoms,
+                                           allow_calculation=False)
                 if forces is not None:
                     maxf = np.linalg.norm(forces, axis=1).max()
-                    line += f'   Max force = {maxf:.3f} eV/Å'                                
+                    line += f'   Max force = {maxf:.3f} eV/Å'
             self.window.update_status_line(line)
             return
 
