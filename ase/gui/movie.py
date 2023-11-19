@@ -9,8 +9,8 @@ class Movie:
         self.win = win = ui.Window(
             _('Movie'), close=self.close, wmtype='utility')
         win.add(_('Image number:'))
-        self.frame_number = ui.Scale(gui.frame + 1, 1,
-                                     len(gui.images),
+        self.frame_number = ui.Scale(gui.frame, 0,
+                                     len(gui.images)-1,
                                      callback=self.new_frame)
         win.add(self.frame_number)
 
@@ -54,21 +54,21 @@ class Movie:
         self.win.close()
 
     def click(self, step, firstlast=False):
-        if firstlast and step < 0:
+        if firstlast and step < 0: # First
             i = 0
-        elif firstlast:
-            i = len(self.gui.images) - 1
-        else:
+        elif firstlast: # Last
+            i = len(self.gui.images)
+        else: # Back & Forward
             i = max(0, min(len(self.gui.images) - 1, self.gui.frame + step))
 
-        self.frame_number.value = i + 1
+        self.frame_number.value = i
         if firstlast:
             self.direction = np.sign(-step)
         else:
             self.direction = np.sign(step)
 
     def new_frame(self, value):
-        self.gui.set_frame(value - 1)
+        self.gui.set_frame(value)
 
     def play(self):
         self.stop()
