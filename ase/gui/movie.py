@@ -82,7 +82,7 @@ class Movie:
     def step(self):
         i = self.gui.frame
         nimages = len(self.gui.images)
-        delta = int(self.skip.value)
+        delta = int(self.skip.value) + 1
 
         if self.rock.value:
             if i <= self.skip.value:
@@ -93,5 +93,5 @@ class Movie:
         else:
             i = (i + self.direction * delta + nimages) % nimages
 
-        self.frame_number.value = i + 1
+        self.frame_number.value = i
         self.play()
