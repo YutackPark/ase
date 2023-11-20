@@ -554,7 +554,7 @@ class View:
 
     def draw_frame_number(self):
         x, y = self.window.size
-        self.window.text(x, y, '{}/{}'.format(self.frame + 1,
+        self.window.text(x, y, '{}/{}'.format(self.frame,
                                               len(self.images)),
                          anchor='SE')
 
