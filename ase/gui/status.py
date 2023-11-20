@@ -6,6 +6,7 @@ from ase.data import atomic_names as names
 from ase.data import chemical_symbols as symbols
 from ase.gui.i18n import _
 from ase.gui.utils import get_magmoms
+import warnings
 
 
 def formula(Z):
@@ -40,12 +41,29 @@ class Status:  # Status is used as a mixin in GUI
             line = ''
             if atoms.calc:
                 calc = atoms.calc
-                energy = calc.get_property('energy', atoms,
-                                           allow_calculation=False)
+
+                def getresult(name, get_quantity):
+                    # ase/io/trajectory.py line 170 does this by using
+                    # the get_property(prop, atoms, allow_calculation=False)
+                    # so that is an alternative option.
+                    try:
+                        if calc.calculation_required(atoms, [name]):
+                            quantity = None
+                        else:
+                            quantity = get_quantity()
+                    except Exception as err:
+                        quantity = None
+                        errmsg = ('An error occurred while retrieving {} '
+                                  'from the calculator: {}'.format(name, err))
+                        warnings.warn(errmsg)
+                    return quantity
+
+                energy = getresult('energy', atoms.get_potential_energy)
+                forces = getresult('forces', atoms.get_forces)
+
                 if energy is not None:
                     line += f'Energy = {energy:.3f} eV'
-                forces = calc.get_property('forces', atoms,
-                                           allow_calculation=False)
+
                 if forces is not None:
                     maxf = np.linalg.norm(forces, axis=1).max()
                     line += f'   Max force = {maxf:.3f} eV/Å'
