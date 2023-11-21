@@ -59,22 +59,22 @@ def deprecated(
     Parameters
     ----------
     message : str or Warning
-        The message to be emitted. If `message` is a Warning, then `category`
-        is ignored and `message.__class__` will be used.
+        The message to be emitted. If ``message`` is a Warning, then
+        ``category`` is ignored and ``message.__class__`` will be used.
     category : Type[Warning], default=FutureWarning
-        The type of warning to be emitted. If `message` is a `Warning`
-        instance, then `category` will be ignored and `message.__class__` will
-        be used.
+        The type of warning to be emitted. If ``message`` is a ``Warning``
+        instance, then ``category`` will be ignored and ``message.__class__``
+        will be used.
     callback : Callable[[List, Dict], bool], default=lambda args, kwargs: True
         A callable that determines if the warning should be emitted and handles
         any processing prior to calling the deprecated function. The callable
         will receive two arguments, a list and a dictionary. The list will
         contain the positional arguments that the deprecated function was
         called with at runtime while the dictionary will contain the keyword
-        arguments. The callable *must* return `True` if the warning is to be
-        emitted and `False` otherwise. The list and dictionary will be unpacked
-        into the positional and keyword arguments, respectively, used to call
-        the deprecated function.
+        arguments. The callable *must* return ``True`` if the warning is to be
+        emitted and ``False`` otherwise. The list and dictionary will be
+        unpacked into the positional and keyword arguments, respectively, used
+        to call the deprecated function.
 
     Returns
     -------
