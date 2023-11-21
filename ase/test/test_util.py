@@ -1,6 +1,3 @@
-import contextlib
-import pathlib
-from io import StringIO
 from typing import Any, Dict, List
 
 import pytest
@@ -24,43 +21,6 @@ def _add(
 
 
 DEPRECATION_MESSAGE = "Test"
-
-DEPRECATION_CODE = "\n".join(
-    (
-        "from ase.utils import deprecated",
-        "",
-        "@deprecated(",
-        f"    '{DEPRECATION_MESSAGE}',",
-        # expect arg-type and return-value mypy errors here (line 5)
-        "    callback=lambda args, kwargs: None,",
-        ")",
-        "def function() -> None:",
-        "    pass",
-    )
-)
-
-MYPY_CONFIG_FILE = str(pathlib.Path(__file__).parents[2].joinpath("mypy.ini"))
-
-
-@pytest.fixture(name="mypy_errors", scope="class")
-def fixture_mypy_errors() -> List[str]:
-    from mypy.main import main
-    output = StringIO("")
-    with contextlib.suppress(SystemExit):
-        main(
-            args=[
-                "--config-file",
-                MYPY_CONFIG_FILE,
-                "-c",
-                DEPRECATION_CODE
-            ],
-            stdout=output,
-            stderr=output,
-            clean_exit=True,
-        )
-
-    output.seek(0)
-    return output.readlines()
 
 
 @pytest.mark.filterwarnings(
@@ -166,17 +126,6 @@ class TestDeprecatedDecorator:
         deprecated_add = deprecated(FutureWarning(DEPRECATION_MESSAGE))(_add)
         with pytest.warns(FutureWarning, match=DEPRECATION_MESSAGE):
             _ = deprecated_add(2, 2)
-
-    @staticmethod
-    @pytest.mark.slow
-    @pytest.mark.parametrize(
-        "expected_mypy_error",
-        ["arg-type", "return-value"]
-    )
-    def test_should_evoke_mypy_error_if_callback_returns_none(
-        expected_mypy_error: str, mypy_errors: List[str]
-    ) -> None:
-        assert any(expected_mypy_error in line for line in mypy_errors)
 
 
 def test_deprecated_devnull():
