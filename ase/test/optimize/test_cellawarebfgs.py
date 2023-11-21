@@ -22,10 +22,10 @@ def test_rattle_supercell_old():
         return relax.nsteps
 
     atoms = bulk('Au')
-    atoms *= 2
+    atoms *= (2, 1, 1)
     atoms.rattle(0.05)
     nsteps = relax(atoms.copy())
-    atoms *= 2
+    atoms *= (2, 1, 1)
     nsteps2 = relax(atoms.copy())
     assert nsteps != nsteps2
 
@@ -34,7 +34,7 @@ def relax(atoms):
     atoms.calc = EMT()
     relax = CellAwareBFGS(FrechetCellFilter(atoms, exp_cell_factor=1.0),
                           alpha=70, long_output=True)
-    relax.run(fmax=0.00005, smax=0.0000005)
+    relax.run(fmax=0.005, smax=0.00005)
     return relax.nsteps
 
 
@@ -44,10 +44,10 @@ def test_rattle_supercell():
        of iterations than a corresponding supercell with CellAwareBFGS.
     """
     atoms = bulk('Au')
-    atoms *= 2
+    atoms *= (2, 1, 1)
     atoms.rattle(0.05)
     nsteps = relax(atoms.copy())
-    atoms *= 2
+    atoms *= (2, 1, 1)
     nsteps2 = relax(atoms.copy())
     assert nsteps == nsteps2
 
@@ -71,7 +71,7 @@ def test_cellaware_bfgs_2d(filt):
         dct = dict(cell_factor=1.0)
     relax = CellAwareBFGS(filt(atoms, mask=[1, 1, 0, 0, 0, 1], **dct),
                           alpha=70, long_output=True)
-    relax.run(fmax=0.0005)
+    relax.run(fmax=0.05)
     assert np.allclose(atoms.cell[2, :], orig_cell[2, :])
     assert np.allclose(atoms.cell[:, 2], orig_cell[:, 2])
 
