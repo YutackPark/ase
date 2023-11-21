@@ -12,6 +12,7 @@ from contextlib import ExitStack, contextmanager
 from importlib import import_module
 from math import atan2, cos, degrees, gcd, radians, sin
 from pathlib import Path, PurePath
+from typing import Callable, Dict, List, Type, Union
 
 import numpy as np
 
@@ -48,19 +49,91 @@ basestring = str
 pickleload = functools.partial(pickle.load, encoding='bytes')
 
 
-def deprecated(msg, category=FutureWarning):
+def deprecated(
+    message: Union[str, Warning],
+    category: Type[Warning] = FutureWarning,
+    callback: Callable[[List, Dict], bool] = lambda args, kwargs: True
+):
     """Return a decorator deprecating a function.
 
-    Use like @deprecated('warning message and explanation')."""
+    Parameters
+    ----------
+    message : str or Warning
+        The message to be emitted. If ``message`` is a Warning, then
+        ``category`` is ignored and ``message.__class__`` will be used.
+    category : Type[Warning], default=FutureWarning
+        The type of warning to be emitted. If ``message`` is a ``Warning``
+        instance, then ``category`` will be ignored and ``message.__class__``
+        will be used.
+    callback : Callable[[List, Dict], bool], default=lambda args, kwargs: True
+        A callable that determines if the warning should be emitted and handles
+        any processing prior to calling the deprecated function. The callable
+        will receive two arguments, a list and a dictionary. The list will
+        contain the positional arguments that the deprecated function was
+        called with at runtime while the dictionary will contain the keyword
+        arguments. The callable *must* return ``True`` if the warning is to be
+        emitted and ``False`` otherwise. The list and dictionary will be
+        unpacked into the positional and keyword arguments, respectively, used
+        to call the deprecated function.
+
+    Returns
+    -------
+    deprecated_decorator : Callable
+        A decorator for deprecated functions that can be used to conditionally
+        emit deprecation warnings and/or pre-process the arguments of a
+        deprecated function.
+
+    Example
+    -------
+    >>> # Inspect & replace a keyword parameter passed to a deprecated function
+    >>> from typing import Any, Callable, Dict, List
+    >>> import warnings
+    >>> from ase.utils import deprecated
+
+    >>> def alias_callback_factory(kwarg: str, alias: str) -> Callable:
+    ...     def _replace_arg(_: List, kwargs: Dict[str, Any]) -> bool:
+    ...         kwargs[kwarg] = kwargs[alias]
+    ...         del kwargs[alias]
+    ...         return True
+    ...     return _replace_arg
+
+    >>> MESSAGE = ("Calling this function with `atoms` is deprecated. "
+    ...            "Use `optimizable` instead.")
+    >>> @deprecated(
+    ...     MESSAGE,
+    ...     category=DeprecationWarning,
+    ...     callback=alias_callback_factory("optimizable", "atoms")
+    ... )
+    ... def function(atoms=None, optimizable=None):
+    ...     '''
+    ...     .. deprecated:: 3.23.0
+    ...         Calling this function with ``atoms`` is deprecated.
+    ...         Use ``optimizable`` instead.
+    ...     '''
+    ...     print(f"atoms: {atoms}")
+    ...     print(f"optimizable: {optimizable}")
+
+    >>> with warnings.catch_warnings(record=True) as w:
+    ...     warnings.simplefilter("always")
+    ...     function(atoms="atoms")
+    atoms: None
+    optimizable: atoms
+
+    >>> w[-1].category == DeprecationWarning
+    True
+    """
+
     def deprecated_decorator(func):
         @functools.wraps(func)
         def deprecated_function(*args, **kwargs):
-            warning = msg
-            if not isinstance(warning, Warning):
-                warning = category(warning)
-            warnings.warn(warning)
-            return func(*args, **kwargs)
+            _args = list(args)
+            if callback(_args, kwargs):
+                warnings.warn(message, category=category)
+
+            return func(*_args, **kwargs)
+
         return deprecated_function
+
     return deprecated_decorator
 
 
