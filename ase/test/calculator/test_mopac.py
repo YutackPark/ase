@@ -7,6 +7,7 @@ from ase.io.trajectory import Trajectory
 from ase.optimize import BFGS
 
 
+@pytest.mark.calculator_lite
 @pytest.mark.calculator
 def test_mopac(mopac_factory):
     """Test H2 molecule atomization with MOPAC."""
