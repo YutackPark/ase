@@ -32,7 +32,7 @@ def test_mopac(mopac_factory):
                                                         tasks='GRADIENTS'))
     h2o.get_potential_energy()
     print('dipole:', h2o.get_dipole_moment())
-    atoms = MOPAC.read_atoms('h2')
+    atoms = MOPAC.read_atoms('h2', profile=h2o.calc.profile)
     print('magmom:', atoms.calc.get_magnetic_moment())
     print('PM7 homo lumo:', atoms.calc.get_homo_lumo_levels())
     atoms.calc.set(method='AM1')
