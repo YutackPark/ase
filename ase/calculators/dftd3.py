@@ -136,6 +136,7 @@ class PureDFTD3(FileIOCalculator):
     implemented_properties = list(dftd3_properties)
     default_parameters = dftd3_defaults()
     damping_methods = {'zero', 'bj', 'zerom', 'bjm'}
+    _legacy_default_command = 'dftd3'
 
     def __init__(self,
                  *,
@@ -144,6 +145,11 @@ class PureDFTD3(FileIOCalculator):
                  comm=world,
                  **kwargs):
 
+        # FileIOCalculator would default to self.name to get the envvar
+        # which determines the command.
+        # We'll have to overrule that if we want to keep scripts working:
+        command = command or self.cfg.get('ASE_DFTD3_COMMAND')
+
         super().__init__(label=label,
                          command=command,
                          **kwargs)
@@ -151,7 +157,6 @@ class PureDFTD3(FileIOCalculator):
         # TARP: This is done because the calculator does not call
         # FileIOCalculator.calculate, but Calculator.calculate and does not
         # use the profile defined in FileIOCalculator.__init__
-        self.command = command or "dftd3"
         self.comm = comm
 
     def set(self, **kwargs):
