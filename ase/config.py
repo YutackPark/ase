@@ -9,7 +9,7 @@ from ase.utils import lazymethod
 from ase.calculators.names import names, builtin, templates
 
 
-ASE_CONFIG_FILE = Path.home() / ".config/ase/ase.conf"
+ASE_CONFIG_FILE = Path.home() / ".config/ase/config.ini"
 
 
 class ASEEnvDeprecationWarning(DeprecationWarning):
