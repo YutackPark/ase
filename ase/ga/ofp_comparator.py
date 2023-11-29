@@ -425,15 +425,16 @@ class OFPComparator:
 
         # total number of atoms:
         n_tot = sum([len(typedic[key]) for key in typedic])
+        inv_n_tot = 1. / n_tot
 
         local_orders = []
-        for index, fingerprints in individual_fingerprints.items():
+        for fingerprints in individual_fingerprints.values():
             local_order = 0
             for unique_type, fingerprint in fingerprints.items():
                 term = np.linalg.norm(fingerprint)**2
                 term *= self.binwidth
-                term *= (volume * 1. / n_tot)**3
-                term *= len(typedic[unique_type]) * 1. / n_tot
+                term *= (volume * inv_n_tot)**(-1/3)
+                term *= len(typedic[unique_type]) * inv_n_tot
                 local_order += term
             local_orders.append(np.sqrt(local_order))
 
