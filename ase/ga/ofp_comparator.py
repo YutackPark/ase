@@ -433,7 +433,7 @@ class OFPComparator:
             for unique_type, fingerprint in fingerprints.items():
                 term = np.linalg.norm(fingerprint)**2
                 term *= self.binwidth
-                term *= (volume * inv_n_tot)**(-1/3)
+                term *= (volume * inv_n_tot)**(-1 / 3)
                 term *= len(typedic[unique_type]) * inv_n_tot
                 local_order += term
             local_orders.append(np.sqrt(local_order))
