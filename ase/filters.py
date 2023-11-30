@@ -785,11 +785,11 @@ class ExpCellFilter(UnitCellFilter):
         and therefore the contribution to the gradient of the energy is
 
             \nabla E(U) / \nabla U_ij =  [L(U, S exp(-U))]_ij
+
+        .. deprecated:: 3.23.0
+            Use :class:`~ase.filters.FrechetCellFilter` for better convergence
+            w.r.t. cell variables.
         """
-        warn(
-            'Use FrechetCellFilter for better convergence wrt cell variables.',
-            DeprecationWarning
-        )
         Filter.__init__(self, atoms=atoms, indices=range(len(atoms)))
         UnitCellFilter.__init__(self, atoms=atoms, mask=mask,
                                 cell_factor=cell_factor,

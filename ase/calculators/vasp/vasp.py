@@ -37,8 +37,14 @@ from ase.calculators.singlepoint import SinglePointDFTCalculator
 from ase.calculators.vasp.create_input import GenerateVaspInput
 from ase.config import cfg
 from ase.io import jsonio, read
-from ase.utils import PurePath
+from ase.utils import PurePath, deprecated
 from ase.vibrations.data import VibrationsData
+
+
+def _prohibit_directory_in_label(args: List, kwargs: Dict[str, Any]) -> bool:
+    if len(args) >= 5 and "/" in args[4]:
+        return True
+    return "/" in kwargs.get("label", "")
 
 
 class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
@@ -100,6 +106,12 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
     # Can be used later to set some ASE defaults
     default_parameters: Dict[str, Any] = {}
 
+    @deprecated(
+        'Specifying directory in "label" is deprecated, '
+        'use "directory" instead.',
+        category=FutureWarning,
+        callback=_prohibit_directory_in_label,
+    )
     def __init__(self,
                  atoms=None,
                  restart=None,
@@ -109,6 +121,11 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
                  command=None,
                  txt='vasp.out',
                  **kwargs):
+        """
+        .. deprecated:: 3.19.2
+            Specifying directory in ``label`` is deprecated,
+            use ``directory`` instead.
+        """
 
         self._atoms = None
         self.results = {}
@@ -122,23 +139,20 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
 
         # Set directory and label
         self.directory = directory
-        if '/' in label:
-            warn(('Specifying directory in "label" is deprecated, '
-                  'use "directory" instead.'), np.VisibleDeprecationWarning)
-            if self.directory != '.':
-                raise ValueError('Directory redundantly specified though '
-                                 'directory="{}" and label="{}".  '
-                                 'Please omit "/" in label.'.format(
-                                     self.directory, label))
+        if "/" in label:
+            if self.directory != ".":
+                msg = (
+                    'Directory redundantly specified though directory='
+                    f'"{self.directory}" and label="{label}".  Please omit '
+                    '"/" in label.'
+                )
+                raise ValueError(msg)
             self.label = label
         else:
             self.prefix = label  # The label should only contain the prefix
 
         if isinstance(restart, bool):
-            if restart is True:
-                restart = self.label
-            else:
-                restart = None
+            restart = self.label if restart is True else None
 
         Calculator.__init__(
             self,

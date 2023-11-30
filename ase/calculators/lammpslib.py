@@ -28,7 +28,10 @@ from ase.utils import deprecated
 # this one may be moved to some more generic place
 @deprecated("Please use the technique in https://stackoverflow.com/a/26912166")
 def is_upper_triangular(arr, atol=1e-8):
-    """test for upper triangular matrix based on numpy"""
+    """test for upper triangular matrix based on numpy
+    .. deprecated:: 3.23.0
+        Please use the technique in https://stackoverflow.com/a/26912166
+    """
     # must be (n x n) matrix
     assert len(arr.shape) == 2
     assert arr.shape[0] == arr.shape[1]
@@ -47,6 +50,10 @@ def convert_cell(ase_cell):
     Convert a parallelepiped (forming right hand basis)
     to lower triangular matrix LAMMPS can accept. This
     function transposes cell matrix so the bases are column vectors
+
+    .. deprecated:: 3.23.0
+        Please use
+        :func:`~ase.calculators.lammps.coordinatetransform.calc_rotated_cell`.
     """
     cell = ase_cell.T
 

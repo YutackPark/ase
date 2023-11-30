@@ -371,6 +371,9 @@ class Phonons(Displacement):
             Key used to identify the file with Born charges for the unit cell
             in the JSON cache.
 
+        .. deprecated:: 3.22.1
+            Current implementation of non-analytical correction is likely
+            incorrect, see :issue:`941`
         """
 
         # Load file with Born charges and dielectric tensor for atoms in the

@@ -1,13 +1,44 @@
-import warnings
-from typing import IO, Callable, Optional, Union
+from typing import IO, Any, Callable, Dict, List, Optional, Union
 
 import numpy as np
 
 from ase import Atoms
 from ase.optimize.optimize import Optimizer
+from ase.utils import deprecated
+
+
+def _forbid_maxmove(args: List, kwargs: Dict[str, Any]) -> bool:
+    """Set maxstep with maxmove if not set."""
+    maxstep_index = 6
+    maxmove_index = 7
+
+    def _pop_arg(name: str) -> Any:
+        to_pop = None
+        if len(args) > maxmove_index:
+            to_pop = args[maxmove_index]
+            args[maxmove_index] = None
+
+        elif name in kwargs:
+            to_pop = kwargs[name]
+            del kwargs[name]
+        return to_pop
+
+    if len(args) > maxstep_index and args[maxstep_index] is None:
+        value = args[maxstep_index] = _pop_arg("maxmove")
+    elif kwargs.get("maxstep", None) is None:
+        value = kwargs["maxstep"] = _pop_arg("maxmove")
+    else:
+        return False
+
+    return value is not None
 
 
 class FIRE(Optimizer):
+    @deprecated(
+        "Use of `maxmove` is deprecated. Use `maxstep` instead.",
+        category=FutureWarning,
+        callback=_forbid_maxmove,
+    )
     def __init__(
         self,
         atoms: Atoms,
@@ -63,6 +94,8 @@ class FIRE(Optimizer):
             *r* that the optimizer will revert to, current energy *e* and
             energy of last step *e_last*. This is only called if e > e_last.
 
+        .. deprecated:: 3.19.3
+            Use of ``maxmove`` is deprecated; please use ``maxstep``.
         """
         Optimizer.__init__(self, atoms, restart, logfile, trajectory,
                            master, force_consistent=force_consistent)
@@ -73,12 +106,8 @@ class FIRE(Optimizer):
 
         if maxstep is not None:
             self.maxstep = maxstep
-        elif maxmove is not None:
-            self.maxstep = maxmove
-            warnings.warn('maxmove is deprecated; please use maxstep',
-                          np.VisibleDeprecationWarning)
         else:
-            self.maxstep = self.defaults['maxstep']
+            self.maxstep = self.defaults["maxstep"]
 
         self.dtmax = dtmax
         self.Nmin = Nmin
