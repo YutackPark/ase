@@ -22,7 +22,7 @@ def compare(atoms: Atoms, atoms_ref: Atoms):
         atoms_ref.get_scaled_positions())
 
 
-@pytest.mark.parametrize("masses", [False, True])
+@pytest.mark.parametrize('masses', [False, True])
 class _Base:
     def run(self, atoms_ref: Atoms, masses: bool):
         """Run tests"""
@@ -39,7 +39,7 @@ class _Base:
         # alphabetical order. To be consistent, here spiecies are also sorted.
         species = sorted(set(atoms_ref.get_chemical_symbols()))
         Z_of_type = {i + 1: atomic_numbers[s] for i, s in enumerate(species)}
-        atoms = read_lammps_data(buf, Z_of_type=Z_of_type, atom_style="atomic")
+        atoms = read_lammps_data(buf, Z_of_type=Z_of_type, atom_style='atomic')
         compare(atoms, atoms_ref)
 
     def check_masses2numbers(self, atoms_ref: Atoms):
@@ -47,49 +47,49 @@ class _Base:
         buf = io.StringIO()
         write_lammps_data(buf, atoms_ref, masses=True)
         buf.seek(0)
-        atoms = read_lammps_data(buf, atom_style="atomic")
+        atoms = read_lammps_data(buf, atom_style='atomic')
         compare(atoms, atoms_ref)
 
 
-@pytest.mark.parametrize("cubic", [False, True])
+@pytest.mark.parametrize('cubic', [False, True])
 class TestCubic(_Base):
     """Test cubic structures."""
 
     def test_bcc(self, cubic: bool, masses: bool):
         """Test bcc."""
-        atoms_ref = bulk("Li", "bcc", cubic=cubic)
+        atoms_ref = bulk('Li', 'bcc', cubic=cubic)
         self.run(atoms_ref, masses)
 
     def test_fcc(self, cubic: bool, masses: bool):
         """Test fcc."""
-        atoms_ref = bulk("Cu", "fcc", cubic=cubic)
+        atoms_ref = bulk('Cu', 'fcc', cubic=cubic)
         self.run(atoms_ref, masses)
 
     def test_rocksalt(self, cubic: bool, masses: bool):
         """Test rocksalt."""
-        atoms_ref = bulk("NaCl", "rocksalt", a=1.0, cubic=cubic)
+        atoms_ref = bulk('NaCl', 'rocksalt', a=1.0, cubic=cubic)
         self.run(atoms_ref, masses)
 
     def test_fluorite(self, cubic: bool, masses: bool):
         """Test fluorite."""
-        atoms_ref = bulk("CaF2", "fluorite", a=1.0, cubic=cubic)
+        atoms_ref = bulk('CaF2', 'fluorite', a=1.0, cubic=cubic)
         self.run(atoms_ref, masses)
 
 
-@pytest.mark.parametrize("orthorhombic", [False, True])
+@pytest.mark.parametrize('orthorhombic', [False, True])
 class TestOrthorhombic(_Base):
     """Test orthorhombic structures."""
 
     def test_hcp(self, orthorhombic: bool, masses: bool):
         """Test hcp."""
-        atoms_ref = bulk("Mg", "hcp", orthorhombic=orthorhombic)
+        atoms_ref = bulk('Mg', 'hcp', orthorhombic=orthorhombic)
         self.run(atoms_ref, masses)
 
 
-@pytest.mark.parametrize("atom_style", ["atomic", "charge", "full"])
+@pytest.mark.parametrize('atom_style', ['atomic', 'charge', 'full'])
 def test_atom_style(atom_style: str):
     """Test `atom_style`"""
-    atoms_ref = bulk("Cu", "fcc")
+    atoms_ref = bulk('Cu', 'fcc')
 
     # note that we should do `masses=True` to later guess atomic numbers
     buf = io.StringIO()
@@ -105,21 +105,21 @@ def test_atom_style(atom_style: str):
     atoms = read_lammps_data(buf, atom_style=atom_style)
     compare(atoms, atoms_ref)
 
-    if atom_style not in ["atomic", "full"]:
+    if atom_style not in ['atomic', 'full']:
         return
 
     # test if `atom_style` can be guessed from the length of fields
-    # remove comment in the "Atoms" line
-    buf = io.StringIO(re.sub(".*Atoms.*#.*", "Atoms", buf.getvalue()))
+    # remove comment in the 'Atoms' line
+    buf = io.StringIO(re.sub('.*Atoms.*#.*', 'Atoms', buf.getvalue()))
     atoms = read_lammps_data(buf, atom_style=None)
     compare(atoms, atoms_ref)
 
 
-@pytest.mark.parametrize("atom_style", ["atomic", "charge", "full"])
-@pytest.mark.parametrize("write_image_flags", [False, True])
+@pytest.mark.parametrize('atom_style', ['atomic', 'charge', 'full'])
+@pytest.mark.parametrize('write_image_flags', [False, True])
 def test_image_flags(write_image_flags: bool, atom_style: str):
     """Test if `wrap` and `write_image_flags` work correctly."""
-    atoms_ref = bulk("Ge")
+    atoms_ref = bulk('Ge')
 
     # shift atomic positions
     scaled_positions = atoms_ref.get_scaled_positions(wrap=False)

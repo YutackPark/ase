@@ -117,6 +117,8 @@ def parse_cif_loop_data(lines: List[str],
         if line.startswith('#'):
             continue
 
+        line = line.split(' #')[0]
+
         if line.startswith(';'):
             moretokens = [parse_multiline_string(lines, line)]
         else:
@@ -132,15 +134,16 @@ def parse_cif_loop_data(lines: List[str],
             for i, token in enumerate(tokens):
                 columns[i].append(convert_value(token))
         else:
-            warnings.warn('Wrong number {} of tokens, expected {}: {}'
-                          .format(len(tokens), ncolumns, tokens))
+            warnings.warn(f'Wrong number {len(tokens)} of tokens, '
+                          f'expected {ncolumns}: {tokens}')
 
         # (Due to continue statements we cannot move this to start of loop)
         tokens = []
 
     if tokens:
         assert len(tokens) < ncolumns
-        raise RuntimeError('CIF loop ended unexpectedly with incomplete row')
+        raise RuntimeError('CIF loop ended unexpectedly with incomplete row: '
+                           f'{tokens}, expected {ncolumns} tokens')
 
     return columns
 
@@ -392,15 +395,14 @@ class CIFBlock(collections.abc.Mapping):
                     setting = 2
                 else:
                     warnings.warn(
-                        'unexpected crystal system {!r} '
-                        'for space group {!r}'.format(
-                            setting_name, spacegroup))
+                        f'unexpected crystal system {repr(setting_name)} '
+                        f'for space group {repr(spacegroup)}')
             # FIXME - check for more crystal systems...
             else:
                 warnings.warn(
-                    'crystal system %r is not interpreted for space group %r. '
-                    'This may result in wrong setting!' % (
-                        setting_name, spacegroup))
+                    f'crystal system {repr(setting_name)} is not '
+                    f'interpreted for space group {repr(spacegroup)}. '
+                    'This may result in wrong setting!')
 
         spg = Spacegroup(spacegroup, setting)
         if no is not None:

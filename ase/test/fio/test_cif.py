@@ -61,7 +61,7 @@ _space_group_symop_operation_xyz
    '-x, -y, -z'
    '-x, -y, z'
    'x, y, -z'
-   '-x, y, -z'
+   '-x, y, -z'  # some comment
    'x, -y, z'
    'x, -y, -z'
    '-x, y, z'
