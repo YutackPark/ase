@@ -8,8 +8,6 @@ object.
 """
 import copy
 import numbers
-import warnings
-
 from math import cos, pi, sin
 
 import numpy as np
@@ -274,8 +272,10 @@ class Atoms:
     def set_calculator(self, calc=None):
         """Attach calculator object.
 
-        Please use the equivalent atoms.calc = calc instead of this
-        method."""
+        .. deprecated:: 3.20.0
+            Please use the equivalent ``atoms.calc = calc`` instead of this
+            method.
+        """
 
         self.calc = calc
 
@@ -283,8 +283,10 @@ class Atoms:
     def get_calculator(self):
         """Get currently attached calculator object.
 
-        Please use the equivalent atoms.calc instead of
-        atoms.get_calculator()."""
+        .. deprecated:: 3.20.0
+            Please use the equivalent ``atoms.calc`` instead of
+            ``atoms.get_calculator()``.
+        """
 
         return self.calc
 
@@ -302,12 +304,21 @@ class Atoms:
     @calc.deleter
     @deprecated('Please use atoms.calc = None', DeprecationWarning)
     def calc(self):
+        """Delete calculator
+
+        .. deprecated:: 3.20.0
+            Please use ``atoms.calc = None``
+        """
         self._calc = None
 
     @property
     @deprecated('Please use atoms.cell.rank instead', DeprecationWarning)
     def number_of_lattice_vectors(self):
-        """Number of (non-zero) lattice vectors."""
+        """Number of (non-zero) lattice vectors.
+
+        .. deprecated:: 3.21.0
+            Please use ``atoms.cell.rank`` instead
+        """
         return self.cell.rank
 
     def set_constraint(self, constraint=None):
@@ -422,6 +433,9 @@ class Atoms:
             [len(a), len(b), len(c), angle(b,c), angle(a,c), angle(a,b)]
 
         in degrees.
+
+        .. deprecated:: 3.21.0
+            Please use ``atoms.cell.cellpar()`` instead
         """
         return self.cell.cellpar()
 
@@ -430,7 +444,11 @@ class Atoms:
         """Get the three reciprocal lattice vectors as a 3x3 ndarray.
 
         Note that the commonly used factor of 2 pi for Fourier
-        transforms is not included here."""
+        transforms is not included here.
+
+        .. deprecated:: 3.21.0
+            Please use ``atoms.cell.reciprocal()``
+        """
         return self.cell.reciprocal()
 
     @property
@@ -964,13 +982,17 @@ class Atoms:
     def __len__(self):
         return len(self.arrays['positions'])
 
+    @deprecated(
+        "Please use len(self) or, if your atoms are distributed, "
+        "self.get_global_number_of_atoms.",
+        category=FutureWarning,
+    )
     def get_number_of_atoms(self):
-        """Deprecated, please do not use.
-
-        You probably want len(atoms).  Or if your atoms are distributed,
-        use (and see) get_global_number_of_atoms()."""
-        warnings.warn('Use get_global_number_of_atoms() instead',
-                      np.VisibleDeprecationWarning)
+        """
+        .. deprecated:: 3.18.1
+            You probably want ``len(atoms)``.  Or if your atoms are distributed,
+            use (and see) :func:`get_global_number_of_atoms()`.
+        """
         return len(self)
 
     def get_global_number_of_atoms(self):

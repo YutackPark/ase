@@ -389,6 +389,11 @@ class BaseNEB:
                 "directly call the idpp_interpolate function from ase.mep")
     def idpp_interpolate(self, traj='idpp.traj', log='idpp.log', fmax=0.1,
                          optimizer=MDMin, mic=False, steps=100):
+        """
+        .. deprecated:: 3.23.0
+            Please use :class:`~ase.mep.NEB`'s ``interpolate(method='idpp')``
+            method
+        """
         idpp_interpolate(self, traj=traj, log=log, fmax=fmax,
                          optimizer=optimizer, mic=mic, steps=steps)
 
@@ -998,6 +1003,10 @@ class IDPP(Calculator):
 @deprecated("SingleCalculatorNEB is deprecated. "
             "Please use NEB(allow_shared_calculator=True) instead.")
 class SingleCalculatorNEB(NEB):
+    """
+    .. deprecated:: 3.23.0
+        Please use ``NEB(allow_shared_calculator=True)`` instead
+    """
     def __init__(self, images, *args, **kwargs):
         kwargs["allow_shared_calculator"] = True
         super().__init__(images, *args, **kwargs)
@@ -1103,6 +1112,10 @@ class NEBTools:
     @deprecated('NEBTools.get_fit() is deprecated.  '
                 'Please use ase.utils.forcecurve.fit_images(images).')
     def get_fit(self):
+        """
+        .. deprecated:: 3.23.0
+            Please use ``ase.utils.forcecurve.fit_images(images)``
+        """
         return fit_images(self.images)
 
     def get_barrier(self, fit=True, raw=False):
@@ -1220,9 +1233,17 @@ class NEBTools:
 class NEBtools(NEBTools):
     @deprecated('NEBtools has been renamed; please use NEBTools.')
     def __init__(self, images):
+        """
+        .. deprecated:: 3.23.0
+            Please use :class:`~ase.mep.NEBTools`.
+        """
         NEBTools.__init__(self, images)
 
 
 @deprecated('Please use NEBTools.plot_band_from_fit.')
 def plot_band_from_fit(s, E, Sfit, Efit, lines, ax=None):
+    """
+    .. deprecated:: 3.23.0
+        Please use :meth:`NEBTools.plot_band_from_fit`.
+    """
     NEBTools.plot_band_from_fit(s, E, Sfit, Efit, lines, ax=None)

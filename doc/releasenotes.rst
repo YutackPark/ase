@@ -50,7 +50,7 @@ Git master branch
   configuration. This entry point only accepts objects of the type
   :class:`~ase.utils.plugins.ExternalIOFormat`.
 
-* :class:`ase.phonons.Displacement` now has a `comm` keyword argument to
+* :class:`ase.phonons.Displacement` now has a ``comm`` keyword argument to
   better support parallelization.
 
 * Fix :func:`ase.build.rotate.minimize_rotation_and_translation` for
@@ -142,6 +142,14 @@ Calculators:
 
 * Added an ``energies`` property to the ``lammpslib`` calculator (:mr:`2799`)
 
+* :func:`ase.calculator.lammpslib.is_upper_triangular` is deprecated. Use the
+  method outlined in
+  `this StackOverflow post <https://stackoverflow.com/a/26912166>`_ (:mr:`3102`)
+
+* :func:`ase.calculator.lammpslib.convert_cell` is deprecated. Please use
+  :func:`ase.calculators.lammps.coordinatetransform.calc_rotated_cell` instead.
+  (:mr:`3102`)
+
 * Fix ``lsubsrot`` typo in VASP calculator to ``lsubrot`` (:mr:`2762`)
 
 * Fix atomic polarizability for boron in
@@ -210,6 +218,9 @@ Algorithms:
   convergence status *after* logging and dumping for the corresponding step
   (:issue:`1339`; :mr:`3072`)
 
+* :class:`ExpCellFilter` is deprecated. Use :class:`FrechetCellFilter` instead.
+  (:mr:`2981`)
+
 Optimizers:
 
 * Add :class:`ase.optimize.climbfixinternals.BFGSClimbFixInternals` class for
@@ -217,7 +228,7 @@ Optimizers:
   (:mr:`2299`)
 
 * :func:`ase.optimize.optimize.Optimizers.irun` and
-  :func:`ase.optimize.optimize.Optimizers.run` now respect `steps=0` (:issue:`1183`; 
+  :func:`ase.optimize.optimize.Optimizers.run` now respect ``steps=0`` (:issue:`1183`; 
   :issue:`1258`; :mr:`2922`).
 
 * Added the ``.trajectory`` attribute to :class:`ase.optimize.optimize.Dynamics` 
@@ -282,6 +293,9 @@ I/O:
 
 * Add numerical stress skips for SCF re-initialization in
   :class:`ase.io.aims.AimsOutCalcChunk`.
+
+* Deprecated calling :func:`ase.io.aims.write_aims` with ``velocities``. Use
+  ``write_velocities`` instead (:mr:`2910`).
 
 * Fix ``ValueError`` that was raised when using quaternions with
   :func:`ase.io.lammpsrun.lammps_data_to_ase_atoms`.
@@ -605,7 +619,7 @@ Calculators:
   :class:`ase.calculators.socketio.SocketIOCalculator`.
 
 * :class:`~ase.calculators.vasp.Vasp` now uses the newer implementation
-  formerly known as Vasp2.
+  formerly known as ``Vasp2``. ``Vasp2`` is deprecated.
 
 * Added smooth cutoff option to :class:`ase.calculators.lj.LennardJones`.
   This makes the forces continuous as atoms move past the cutoff radius.
@@ -675,6 +689,9 @@ Version 3.19.3
 11 August 2020: :git:`3.19.3 <../3.19.3>`
 
  * Minor fix related to package version requirements on pypi.
+
+ * Deprecated calling the :class:`ase.optimize.fire.FIRE` constructor
+   with ``maxmove``; please use ``maxstep`` (:mr:`1725`).
 
 Version 3.20.0
 ==============
@@ -851,6 +868,9 @@ Version 3.19.2
   Update png writer to be compatible with matplotlib 3.3.0.
   Update incompatible calls to ``matplotlib.use()``.
 
+* Deprecated calling :class:`ase.calculators.vasp.vasp2.Vasp2` constructor
+  with directory in ``label`` parameter (:mr:`1940`)
+
 Version 3.19.1
 ==============
 
@@ -987,6 +1007,8 @@ Version 3.18.2
 * Fix an issue with the binary package (wheel) of 3.18.1.
   No bugfixes as such.
 
+* Deprecated ``ase.calculator.siesta.base_siesta``
+
 
 Version 3.18.1
 ==============
@@ -999,6 +1021,8 @@ Version 3.18.1
   Use ``atoms.pbc`` instead; this works the same as always.
   Also, the :class:`~ase.cell.Cell` object now exposes almost the entire
   ``ndarray`` interface.  For a list of smaller bugfixes, see the git log.
+
+* Deprecated ``ase.Atoms.get_number_of_atoms`` (:mr:`1295`)
 
 
 Version 3.18.0

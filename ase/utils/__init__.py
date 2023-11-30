@@ -104,7 +104,7 @@ def deprecated(
     ...     category=DeprecationWarning,
     ...     callback=alias_callback_factory("optimizable", "atoms")
     ... )
-    ... def function(atoms=None, optimizable=None):
+    ... def function(*, atoms=None, optimizable=None):
     ...     '''
     ...     .. deprecated:: 3.23.0
     ...         Calling this function with ``atoms`` is deprecated.
@@ -128,7 +128,7 @@ def deprecated(
         def deprecated_function(*args, **kwargs):
             _args = list(args)
             if callback(_args, kwargs):
-                warnings.warn(message, category=category)
+                warnings.warn(message, category=category, stacklevel=2)
 
             return func(*_args, **kwargs)
 
@@ -211,6 +211,9 @@ def convert_string_to_fd(name, world=None):
 
     Will open a file for writing with given name.  Use None for no output and
     '-' for sys.stdout.
+
+    .. deprecated:: 3.22.1
+        Please use e.g. :class:`ase.utils.IOContext` class instead.
     """
     if world is None:
         from ase.parallel import world

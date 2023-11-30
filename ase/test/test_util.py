@@ -133,6 +133,10 @@ def test_deprecated_devnull():
         devnull.tell()
 
 
+class TestDeprecationFunctional:
+    pass
+
+
 @pytest.mark.parametrize('v1, v2', [
     ('1', '2'),
     ('a', 'b'),
