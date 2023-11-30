@@ -16,7 +16,7 @@ class BFGS(Optimizer):
         self,
         atoms: Atoms,
         restart: Optional[str] = None,
-        logfile: Union[IO, str] = '-',
+        logfile: Optional[Union[IO, str]] = '-',
         trajectory: Optional[str] = None,
         append_trajectory: bool = False,
         maxstep: Optional[float] = None,
