@@ -22,8 +22,8 @@ from ase.calculators.lammps import convert
 
 def split_contents_by_section(raw_datafile_contents):
     # Remove comments
-    raw_datafile_contents = re.sub("#.*", "", raw_datafile_contents)
-    return re.split(r"^([A-Za-z]+\s*)$\n",
+    raw_datafile_contents = re.sub('#.*', '', raw_datafile_contents)
+    return re.split(r'^([A-Za-z]+\s*)$\n',
                     raw_datafile_contents, flags=re.MULTILINE)
 
 
@@ -47,11 +47,11 @@ def extract_cell(raw_datafile_contents):
     ignored even if they exist)
     """
     RE_CELL = re.compile(
-        r"""
+        r'''
             (\S+)\s+(\S+)\s+xlo\s+xhi\n
             (\S+)\s+(\S+)\s+ylo\s+yhi\n
             (\S+)\s+(\S+)\s+zlo\s+zhi\n
-        """,
+        ''',
         flags=re.VERBOSE,
     )
     xlo, xhi, ylo, yhi, zlo, zhi = map(
@@ -67,19 +67,19 @@ def extract_mass(raw_datafile_contents):
     """
     NOTE: Assumes that only a single atomic species is present
     """
-    masses_block = extract_section(raw_datafile_contents, "Masses")
+    masses_block = extract_section(raw_datafile_contents, 'Masses')
 
     if masses_block is None:
         return None
     else:
-        mass = re.match(r"\s*[0-9]+\s+(\S+)", masses_block).group(1)
+        mass = re.match(r'\s*[0-9]+\s+(\S+)', masses_block).group(1)
         return float(mass)
 
 
 def extract_atom_quantities(raw_datafile_contents):
 
     # Grab all atoms lines
-    atoms_block = extract_section(raw_datafile_contents, "Atoms")
+    atoms_block = extract_section(raw_datafile_contents, 'Atoms')
 
     # Now parse each individual atoms line for quantities
     charges = []
@@ -87,9 +87,9 @@ def extract_atom_quantities(raw_datafile_contents):
     travels = []
 
     RE_ATOM_LINE = re.compile(
-        r"\s*[0-9]+\s+[0-9]+\s+[0-9]+\s+(\S+)\s+"
-        r"(\S+)\s+(\S+)\s+(\S+)\s?"
-        r"([0-9-]+)?\s?([0-9-]+)?\s?([0-9-]+)?"
+        r'\s*[0-9]+\s+[0-9]+\s+[0-9]+\s+(\S+)\s+'
+        r'(\S+)\s+(\S+)\s+(\S+)\s?'
+        r'([0-9-]+)?\s?([0-9-]+)?\s?([0-9-]+)?'
     )
 
     for atom_line in atoms_block.splitlines():
@@ -108,10 +108,10 @@ def extract_velocities(raw_datafile_contents):
     """
     NOTE: Assumes metal units are used in data file
     """
-    velocities_block = extract_section(raw_datafile_contents, "Velocities")
+    velocities_block = extract_section(raw_datafile_contents, 'Velocities')
 
     RE_VELOCITY = re.compile(
-        r"\s*[0-9]+\s+(\S+)\s+(\S+)\s+(\S+)"
+        r'\s*[0-9]+\s+(\S+)\s+(\S+)\s+(\S+)'
     )
 
     # Now parse each individual line for velocity
@@ -121,7 +121,7 @@ def extract_velocities(raw_datafile_contents):
         velocities.append(list(map(float, v)))
 
     # Convert to ASE's velocity units (uses unusual unit of time)
-    velocities = convert(np.asarray(velocities), "velocity", "metal", "ASE")
+    velocities = convert(np.asarray(velocities), 'velocity', 'metal', 'ASE')
 
     return velocities
 
@@ -145,8 +145,8 @@ def lammpsdata_file_extracted_sections(lammpsdata):
 
     else:
         raise ValueError(
-            "Lammps data file content inputted in unsupported "
-            "object type {type(lammpsdata)}"
+            'Lammps data file content inputted in unsupported '
+            'object type {type(lammpsdata)}'
         )
 
     cell = extract_cell(raw_datafile_contents)
@@ -155,10 +155,10 @@ def lammpsdata_file_extracted_sections(lammpsdata):
     velocities = extract_velocities(raw_datafile_contents)
 
     return {
-        "cell": cell,
-        "mass": mass,
-        "charges": charges,
-        "positions": positions,
-        "travels": travels,
-        "velocities": velocities,
+        'cell': cell,
+        'mass': mass,
+        'charges': charges,
+        'positions': positions,
+        'travels': travels,
+        'velocities': velocities,
     }
