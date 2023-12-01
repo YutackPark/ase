@@ -8,6 +8,7 @@ from ase.data import atomic_numbers
 from ase.data.colors import jmol_colors
 from ase.geometry import complete_cell
 from ase.gui.colors import ColorWindow
+from ase.gui.i18n import ngettext
 from ase.gui.render import Render
 from ase.gui.repeat import Repeat
 from ase.gui.rotate import Rotate
@@ -121,13 +122,19 @@ class View:
 
         fname = self.images.filenames[frame]
         if fname is None:
-            title = 'ase.gui'
+            header = 'ase.gui'
         else:
-            title = basename(fname)
+            # fname is actually not necessarily the filename but may
+            # contain indexing like filename@0
+            header = basename(fname)
 
-        self.window.title = title
+        images_loaded_text = ngettext(
+            'one image loaded',
+            '{} images loaded',
+            len(self.images)
+        ).format(len(self.images))
 
-        self.call_observers()
+        self.window.title = f'{header} — {images_loaded_text}'
 
         if focus:
             self.focus()
@@ -554,8 +561,7 @@ class View:
 
     def draw_frame_number(self):
         x, y = self.window.size
-        self.window.text(x, y, '{}/{}'.format(self.frame,
-                                              len(self.images)),
+        self.window.text(x, y, '{}'.format(self.frame),
                          anchor='SE')
 
     def release(self, event):
