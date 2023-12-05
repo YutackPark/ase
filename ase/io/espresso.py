@@ -16,9 +16,9 @@ import operator as op
 import re
 import warnings
 from collections import OrderedDict
+from copy import deepcopy
 
 import numpy as np
-
 from ase.atoms import Atoms
 from ase.calculators.calculator import kpts2ndarray, kpts2sizeandoffsets
 from ase.calculators.singlepoint import (SinglePointDFTCalculator,
@@ -1107,7 +1107,7 @@ SSSP_VALENCE = [
     15.0, 32.0, 19.0, 12.0, 13.0, 14.0, 15.0, 16.0, 18.0]
 
 
-def construct_namelist(parameters=None, warn=False, **kwargs):
+def construct_namelist(parameters=None, keys=None, warn=False, **kwargs):
     """
     Construct an ordered Namelist containing all the parameters given (as
     a dictionary or kwargs). Keys will be inserted into their appropriate
@@ -1132,6 +1132,8 @@ def construct_namelist(parameters=None, warn=False, **kwargs):
     ----------
     parameters: dict
         Flat or nested set of input parameters.
+    keys: Namelist | dict
+        Namelist to use as a template for the output.
     warn: bool
         Enable warnings for unused keys.
 
@@ -1141,6 +1143,9 @@ def construct_namelist(parameters=None, warn=False, **kwargs):
         pw.x compatible namelist of input parameters.
 
     """
+
+    if keys is None:
+        keys = deepcopy(KEYS)
     # Convert everything to Namelist early to make case-insensitive
     if parameters is None:
         parameters = Namelist()
@@ -1162,9 +1167,9 @@ def construct_namelist(parameters=None, warn=False, **kwargs):
     input_namelist = Namelist()
 
     # Collect
-    for section in KEYS:
+    for section in keys:
         sec_list = Namelist()
-        for key in KEYS[section]:
+        for key in keys[section]:
             # Check all three separately and pop them all so that
             # we can check for missing values later
             value = None
@@ -1198,7 +1203,7 @@ def construct_namelist(parameters=None, warn=False, **kwargs):
     unused_keys = list(kwargs)
     # pass anything else already in a section
     for key, value in parameters.items():
-        if key in KEYS and isinstance(value, dict):
+        if key in keys and isinstance(value, dict):
             input_namelist[key].update(value)
         elif isinstance(value, dict):
             unused_keys.extend(list(value))
@@ -1294,6 +1299,37 @@ def format_atom_position(atom, crystal_coordinates, mask='', tidx=None):
     line_fmt += ' ' + mask + '\n'
     astr = line_fmt.format(**inps)
     return astr
+
+
+def namelist_to_string(input_parameters):
+    """Format a Namelist object as a string for writing to a file.
+    Assume sections are ordered (taken care of in namelist construction)
+    and that repr converts to a QE readable representation (except bools)
+
+    Parameters
+    ----------
+    input_parameters : Namelist | dict
+        Expecting a nested dictionary of sections and key-value data.
+
+    Returns
+    -------
+    pwi : List[str]
+        Input line for the namelist
+    """
+    pwi = []
+    for section in input_parameters:
+        pwi.append(f'&{section.upper()}\n')
+        for key, value in input_parameters[section].items():
+            if value is True:
+                pwi.append(f'   {key:16} = .true.\n')
+            elif value is False:
+                pwi.append(f'   {key:16} = .false.\n')
+            else:
+                # repr format to get quotes around strings
+                pwi.append(f'   {key:16} = {value!r}\n')
+        pwi.append('/\n')  # terminate section
+    pwi.append('\n')
+    return pwi
 
 
 def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
@@ -1479,22 +1515,7 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
         input_parameters['system']['ibrav'] = 0
 
     # Construct input file into this
-    pwi = []
-
-    # Assume sections are ordered (taken care of in namelist construction)
-    # and that repr converts to a QE readable representation (except bools)
-    for section in input_parameters:
-        pwi.append(f'&{section.upper()}\n')
-        for key, value in input_parameters[section].items():
-            if value is True:
-                pwi.append(f'   {key:16} = .true.\n')
-            elif value is False:
-                pwi.append(f'   {key:16} = .false.\n')
-            else:
-                # repr format to get quotes around strings
-                pwi.append(f'   {key:16} = {value!r}\n')
-        pwi.append('/\n')  # terminate section
-    pwi.append('\n')
+    pwi = namelist_to_string(input_parameters)
 
     # Pseudopotentials
     pwi.append('ATOMIC_SPECIES\n')
