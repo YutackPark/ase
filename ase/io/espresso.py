@@ -17,6 +17,7 @@ import re
 import warnings
 from collections import OrderedDict
 from copy import deepcopy
+from pathlib import Path
 
 import numpy as np
 from ase.atoms import Atoms
@@ -1324,6 +1325,8 @@ def namelist_to_string(input_parameters):
                 pwi.append(f'   {key:16} = .true.\n')
             elif value is False:
                 pwi.append(f'   {key:16} = .false.\n')
+            elif isinstance(value, Path):
+                pwi.append(f'   {key:16} = "{value}"\n')
             else:
                 # repr format to get quotes around strings
                 pwi.append(f'   {key:16} = {value!r}\n')
