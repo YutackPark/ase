@@ -43,7 +43,7 @@ def test_dcd(factory, factories):
                     'It should point to the main cp2k executable '
                     '(not the shell)')
 
-    calc = factory.calc(label='test_dcd', max_scf=1, inp=inp)
+    calc = factory.calc(label='test_dcd', inp=inp)
     h2 = molecule('H2', calculator=calc)
     h2.center(vacuum=2.0)
     h2.set_pbc(True)
