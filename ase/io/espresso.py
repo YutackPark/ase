@@ -15,11 +15,12 @@ ESPRESSO.
 import operator as op
 import re
 import warnings
-from collections import OrderedDict
+from collections import OrderedDict, defaultdict
 from copy import deepcopy
 from pathlib import Path
 
 import numpy as np
+
 from ase.atoms import Atoms
 from ase.calculators.calculator import kpts2ndarray, kpts2sizeandoffsets
 from ase.calculators.singlepoint import (SinglePointDFTCalculator,
@@ -28,7 +29,7 @@ from ase.constraints import FixAtoms, FixCartesian
 from ase.data import chemical_symbols
 from ase.dft.kpoints import kpoint_convert
 from ase.units import create_units
-from ase.utils import iofunction
+from ase.utils import reader, writer
 
 # Quantum ESPRESSO uses CODATA 2006 internally
 units = create_units('2006')
@@ -78,7 +79,7 @@ class Namelist(OrderedDict):
         return super().get(key.lower(), default)
 
 
-@iofunction('r')
+@reader
 def read_espresso_out(fileobj, index=slice(None), results_required=True):
     """Reads Quantum ESPRESSO output files.
 
@@ -520,7 +521,7 @@ def parse_position_line(line):
     return sym, float(x), float(y), float(z)
 
 
-@iofunction('r')
+@reader
 def read_espresso_in(fileobj):
     """Parse a Quantum ESPRESSO input files, '.in', '.pwi'.
 
@@ -583,12 +584,14 @@ def read_espresso_in(fileobj):
 
     symbols = [label_to_symbol(position[0]) for position in positions_card]
     positions = [position[1] for position in positions_card]
+    constraint_flags = [position[2] for position in positions_card]
     magmoms = [species_info[symbol]["magmom"] for symbol in symbols]
 
     # TODO: put more info into the atoms object
     # e.g magmom, forces.
     atoms = Atoms(symbols=symbols, positions=positions, cell=cell, pbc=True,
                   magmoms=magmoms)
+    atoms.set_constraint(convert_constraint_flags(constraint_flags))
 
     return atoms
 
@@ -609,7 +612,7 @@ def get_atomic_positions(lines, n_atoms, cell=None, alat=None):
 
     Returns
     -------
-    positions : list[(str, (float, float, float), (float, float, float))]
+    positions : list[(str, (float, float, float), (int, int, int))]
         A list of the ordered atomic positions in the format:
         label, (x, y, z), (if_x, if_y, if_z)
         Force multipliers are set to None if not present.
@@ -650,16 +653,14 @@ def get_atomic_positions(lines, n_atoms, cell=None, alat=None):
                 cell = np.identity(3) * alat
 
             positions = []
-            for _dummy in range(n_atoms):
+            for _ in range(n_atoms):
                 split_line = next(trimmed_lines).split()
                 # These can be fractions and other expressions
                 position = np.dot((infix_float(split_line[1]),
                                    infix_float(split_line[2]),
                                    infix_float(split_line[3])), cell)
                 if len(split_line) > 4:
-                    force_mult = (float(split_line[4]),
-                                  float(split_line[5]),
-                                  float(split_line[6]))
+                    force_mult = tuple(int(split_line[i]) for i in (4, 5, 6))
                 else:
                     force_mult = None
 
@@ -783,6 +784,67 @@ def get_cell_parameters(lines, alat=None):
             cell = np.array(cell) * cell_units
 
     return cell, cell_alat
+
+
+def convert_constraint_flags(constraint_flags):
+    """Convert Quantum ESPRESSO constraint flags to ASE Constraint objects.
+
+    Parameters
+    ----------
+    constraint_flags : list[tuple[int, int, int]]
+        List of constraint flags (0: fixed, 1: moved) for all the atoms.
+        If the flag is None, there are no constraints on the atom.
+
+    Returns
+    -------
+    constraints : list[FixAtoms | FixCartesian]
+        List of ASE Constraint objects.
+    """
+    constraints = []
+    for i, constraint in enumerate(constraint_flags):
+        if constraint is None:
+            continue
+        # mask: False (0): moved, True (1): fixed
+        mask = ~np.asarray(constraint, bool)
+        constraints.append(FixCartesian(i, mask))
+    return canonicalize_constraints(constraints)
+
+
+def canonicalize_constraints(constraints):
+    """Canonicalize ASE FixCartesian constraints.
+
+    If the given FixCartesian constraints share the same `mask`, they can be
+    merged into one. Further, if `mask == (True, True, True)`, they can be
+    converted as `FixAtoms`. This method "canonicalizes" FixCartesian objects
+    in such a way.
+
+    Parameters
+    ----------
+    constraints : List[FixCartesian]
+        List of ASE FixCartesian constraints.
+
+    Returns
+    -------
+    constrants_canonicalized : List[FixAtoms | FixCartesian]
+        List of ASE Constraint objects.
+    """
+    # https://docs.python.org/3/library/collections.html#defaultdict-examples
+    indices_for_masks = defaultdict(list)
+    for constraint in constraints:
+        # TODO: Present FixCartesian flips `mask` internally. (#1370)
+        key = tuple((~constraint.mask).tolist())
+        indices_for_masks[key].extend(constraint.index.tolist())
+
+    constraints_canonicalized = []
+    for mask, indices in indices_for_masks.items():
+        if mask == (False, False, False):  # no directions are fixed
+            continue
+        if mask == (True, True, True):  # all three directions are fixed
+            constraints_canonicalized.append(FixAtoms(indices))
+        else:
+            constraints_canonicalized.append(FixCartesian(indices, mask))
+
+    return constraints_canonicalized
 
 
 def str_to_value(string):
@@ -1335,6 +1397,7 @@ def namelist_to_string(input_parameters):
     return pwi
 
 
+@writer
 def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
                       kspacing=None, kpts=None, koffset=(0, 0, 0),
                       crystal_coordinates=False, **kwargs):
@@ -1372,8 +1435,8 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
 
     Parameters
     ----------
-    fd: file
-        A file like object to write the input file to.
+    fd: file | str
+        A file to which the input is written.
     atoms: Atoms
         A single atomistic configuration to write to `fd`.
     input_data: dict
@@ -1421,7 +1484,7 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
         if isinstance(constraint, FixAtoms):
             constraint_mask[constraint.index] = 0
         elif isinstance(constraint, FixCartesian):
-            constraint_mask[constraint.a] = constraint.mask
+            constraint_mask[constraint.index] = constraint.mask
         else:
             warnings.warn(f'Ignored unknown constraint {constraint}')
     masks = []
