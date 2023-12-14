@@ -6,13 +6,18 @@ Implemented:
 
 """
 
-import numpy as np
-from pytest import approx
+import io
 
-from ase import build, io
-from ase.io.espresso import (parse_position_line,
-                             get_atomic_species,
-                             read_fortran_namelist,
+import numpy as np
+import pytest
+
+import ase.build
+import ase.io
+from ase import Atoms
+from ase.calculators.calculator import compare_atoms
+from ase.constraints import FixAtoms, FixCartesian, FixScaled
+from ase.io.espresso import (get_atomic_species, parse_position_line,
+                             read_espresso_in, read_fortran_namelist,
                              write_espresso_in)
 
 # This file is parsed correctly by pw.x, even though things are
@@ -278,10 +283,10 @@ def test_pw_input():
     with open('pw_input.pwi', 'w') as pw_input_f:
         pw_input_f.write(pw_input_text)
 
-    pw_input_atoms = io.read('pw_input.pwi', format='espresso-in')
+    pw_input_atoms = ase.io.read('pw_input.pwi', format='espresso-in')
     assert len(pw_input_atoms) == 8
     assert (pw_input_atoms.get_initial_magnetic_moments()
-            == approx([5.12, 5.12, 5.12, 5.12, 5.12, 5.12, 0., 0.]))
+            == pytest.approx([5.12, 5.12, 5.12, 5.12, 5.12, 5.12, 0., 0.]))
 
 
 def test_get_atomic_species():
@@ -295,9 +300,10 @@ def test_get_atomic_species():
                                           n_species=data['system']['ntyp'])
 
     assert len(species_card) == 2
-    assert species_card[0] == ("H", approx(1.008), "H.pbe-rrkjus_psl.0.1.UPF")
-    assert species_card[1] == ("Fe", approx(55.845),
-                               "Fe.pbe-spn-rrkjus_psl.0.2.1.UPF")
+    assert species_card[0] == (
+        "H", pytest.approx(1.008), "H.pbe-rrkjus_psl.0.1.UPF")
+    assert species_card[1] == (
+        "Fe", pytest.approx(55.845), "Fe.pbe-spn-rrkjus_psl.0.2.1.UPF")
 
 
 def test_pw_output():
@@ -305,7 +311,7 @@ def test_pw_output():
     with open('pw_output.pwo', 'w') as pw_output_f:
         pw_output_f.write(pw_output_text)
 
-    pw_output_traj = io.read('pw_output.pwo', index=':')
+    pw_output_traj = ase.io.read('pw_output.pwo', index=':')
     assert len(pw_output_traj) == 2
     assert pw_output_traj[1].get_volume() > pw_output_traj[0].get_volume()
 
@@ -348,40 +354,124 @@ def test_pw_results_required():
         pw_output_f.write(pw_output_text)
 
     # ignore 'final coordinates' with no results
-    pw_output_traj = io.read('pw_output.pwo', index=':')
+    pw_output_traj = ase.io.read('pw_output.pwo', index=':')
     assert 'energy' in pw_output_traj[-1].calc.results
     assert len(pw_output_traj) == 2
     # include un-calculated final config
-    pw_output_traj = io.read('pw_output.pwo', index=':',
-                             results_required=False)
+    pw_output_traj = ase.io.read('pw_output.pwo', index=':',
+                                 results_required=False)
     assert len(pw_output_traj) == 3
     assert 'energy' not in pw_output_traj[-1].calc.results
     # get default index=-1 with results
-    pw_output_config = io.read('pw_output.pwo')
+    pw_output_config = ase.io.read('pw_output.pwo')
     assert 'energy' in pw_output_config.calc.results
     # get default index=-1 with no results "final coordinates'
-    pw_output_config = io.read('pw_output.pwo', results_required=False)
+    pw_output_config = ase.io.read('pw_output.pwo', results_required=False)
     assert 'energy' not in pw_output_config.calc.results
 
 
 def test_pw_input_write():
     """Write a structure and read it back."""
-    bulk = build.bulk('NiO', 'rocksalt', 4.813, cubic=True)
+    bulk = ase.build.bulk('NiO', 'rocksalt', 4.813, cubic=True)
     bulk.set_initial_magnetic_moments([2.2 if atom.symbol == 'Ni' else 0.0
                                        for atom in bulk])
 
+    fh = 'espresso_test.pwi'
     pseudos = {'Ni': 'potato', 'O': 'orange'}
 
-    bulk.write('espresso_test.pwi', pseudopotentials=pseudos)
-    readback = io.read('espresso_test.pwi')
+    write_espresso_in(fh, bulk, pseudopotentials=pseudos)
+    readback = read_espresso_in('espresso_test.pwi')
     assert np.allclose(bulk.positions, readback.positions)
 
     sections = {'system': {
         'lda_plus_u': True,
         'Hubbard_U(1)': 4.0,
         'Hubbard_U(2)': 0.0}}
-    with open('espresso_test.pwi', 'w') as fh:
-        write_espresso_in(fh, bulk, sections,
-                          pseudopotentials=pseudos)
-    readback = io.read('espresso_test.pwi')
+    write_espresso_in(fh, bulk, sections, pseudopotentials=pseudos)
+    readback = read_espresso_in('espresso_test.pwi')
     assert np.allclose(bulk.positions, readback.positions)
+
+
+class TestConstraints:
+    """Test if the constraint can be recovered when writing and reading.
+
+    Notes
+    -----
+    Linear constraints in the ATOMIC_POSITIONS block in the quantum ESPRESSO
+    `.pwi` format apply to Cartesian coordinates, regardless of whether the
+    atomic positions are written in the "angstrom" or the "crystal" units.
+    """
+
+    # TODO: test also mask for FixCartesian
+
+    @staticmethod
+    def _make_atoms_ref():
+        """water molecule"""
+        atoms = ase.build.molecule("H2O")
+        atoms.cell = 10.0 * np.eye(3)
+        atoms.pbc = True
+        atoms.set_initial_magnetic_moments(len(atoms) * [0.0])
+        return atoms
+
+    def _apply_write_read(self, constraint) -> Atoms:
+        atoms_ref = self._make_atoms_ref()
+        atoms_ref.set_constraint(constraint)
+
+        pseudopotentials = {
+            "H": "h_lda_v1.2.uspp.F.UPF",
+            "O": "o_lda_v1.2.uspp.F.UPF",
+        }
+        buf = io.StringIO()
+        write_espresso_in(buf, atoms_ref, pseudopotentials=pseudopotentials)
+        buf.seek(0)
+        atoms = read_espresso_in(buf)
+
+        assert not compare_atoms(atoms_ref, atoms)
+
+        print(atoms_ref.constraints, atoms.constraints)
+
+        return atoms
+
+    def test_fix_atoms(self):
+        """Test FixAtoms"""
+        constraint = FixAtoms(indices=(1, 2))
+        atoms = self._apply_write_read(constraint)
+
+        assert len(atoms.constraints) == 1
+        assert isinstance(atoms.constraints[0], FixAtoms)
+        assert all(atoms.constraints[0].index == constraint.index)
+
+    def test_fix_cartesian_line(self):
+        """Test FixCartesian along line"""
+        # moved only along the z direction
+        constraint = FixCartesian(0, mask=(1, 1, 0))
+        atoms = self._apply_write_read(constraint)
+
+        assert len(atoms.constraints) == 1
+        assert isinstance(atoms.constraints[0], FixCartesian)
+        assert all(atoms.constraints[0].index == constraint.index)
+
+    def test_fix_cartesian_plane(self):
+        """Test FixCartesian in plane"""
+        # moved only in the yz plane
+        constraint = FixCartesian((1, 2), mask=(1, 0, 0))
+        atoms = self._apply_write_read(constraint)
+
+        assert len(atoms.constraints) == 1
+        assert isinstance(atoms.constraints[0], FixCartesian)
+        assert all(atoms.constraints[0].index == constraint.index)
+
+    def test_fix_cartesian_multiple(self):
+        """Test multiple FixCartesian"""
+        constraint = [FixCartesian(1), FixCartesian(2)]
+        atoms = self._apply_write_read(constraint)
+
+        assert len(atoms.constraints) == 1
+        assert isinstance(atoms.constraints[0], FixAtoms)
+        assert atoms.constraints[0].index.tolist() == [1, 2]
+
+    def test_fix_scaled(self):
+        """Test FixScaled"""
+        constraint = FixScaled(0, mask=(1, 1, 0))
+        with pytest.raises(UserWarning):
+            self._apply_write_read(constraint)
