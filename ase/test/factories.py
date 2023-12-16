@@ -14,24 +14,54 @@ from ase.calculators.calculator import get_calculator_class
 from ase.calculators.names import (names as calculator_names,
                                    builtin)
 from ase.calculators.genericfileio import read_stdout
+from ase.config import Config
+from ase.utils import lazyproperty
 
 
 class NotInstalled(Exception):
     pass
 
 
-def get_testing_executables():
-    # TODO: better cross-platform support (namely Windows),
-    # and a cross-platform global config file like /etc/ase/ase.conf
-    paths = [Path.home() / '.config' / 'ase' / 'ase.conf']
-    try:
-        paths += [Path(x) for x in os.environ['ASE_CONFIG'].split(':')]
-    except KeyError:
-        pass
-    conf = configparser.ConfigParser()
-    conf['executables'] = {}
-    effective_paths = conf.read(paths)
-    return effective_paths, conf['executables']
+def please_install_ase_datafiles():
+    return ImportError("""\
+Could not import asetest package.  Please install ase-datafiles
+using e.g. "pip install ase-datafiles" to run calculator integration
+tests.""")
+
+
+class MachineInformation:
+    @lazyproperty
+    def datafiles_module(self):
+        try:
+            import asetest
+        except ModuleNotFoundError:
+            raise please_install_ase_datafiles()
+        return asetest
+
+    @lazyproperty
+    def datafile_config(self):
+        path = self.datafiles_module.paths.DataFiles().datapath
+        datafile_config = f"""\
+# Configuration for ase-datafiles
+
+[abinit]
+pp_paths=
+    {path}/abinit/GGA_FHI:
+    {path}/abinit/LDA_FHI:
+    {path}/abinit/LDA_PAW
+"""
+        return datafile_config
+
+    @lazyproperty
+    def cfg(self):
+        # First we load the usual configfile.
+        # But we don't want to run tests against the user's production
+        # configuration since that may be using other pseudopotentials
+        # than the ones we want.  Therefore, we override datafile paths.
+        from ase.config import Config
+        cfg = Config()
+        cfg.parser.read_string(self.datafile_config)
+        return cfg
 
 
 factory_classes = {}
@@ -59,9 +89,9 @@ def make_factory_fixture(name):
 
 @factory('abinit')
 class AbinitFactory:
-    def __init__(self, executable, pp_paths):
-        self.executable = executable
-        self.pp_paths = pp_paths
+    def __init__(self, section):
+        self.executable = section['binary']
+        self.pp_paths = section['pp_paths']
 
     def version(self):
         from ase.calculators.abinit import get_abinit_version
@@ -85,10 +115,8 @@ class AbinitFactory:
         return Abinit(profile=profile, **kw)
 
     @classmethod
-    def fromconfig(cls, config):
-        return AbinitFactory(
-            config.executables['abinit'], config.datafiles['abinit']
-        )
+    def fromconfig(cls, section):
+        return AbinitFactory(section)
 
     def socketio(self, unixsocket, **kwargs):
         kwargs = {
@@ -763,34 +791,21 @@ class Factories:
     }
 
     def __init__(self, requested_calculators):
-        configpaths, executables = get_testing_executables()
-        assert isinstance(executables, Mapping), executables
-        self.executable_config_paths = configpaths
-        self.executables = executables
+        self.machine_info = MachineInformation()
 
-        datafiles_module = None
-        datafiles = {}
-
-        try:
-            import asetest as datafiles_module
-        except ImportError:
-            pass
-        else:
-            datafiles.update(datafiles_module.datafiles.paths)
-            datafiles_module = datafiles_module
-
-        self.datafiles_module = datafiles_module
-        self.datafiles = datafiles
+        #self.datafiles_module = ...
+        #self.datafiles = ...
 
         factories = {}
 
         for name, cls in factory_classes.items():
+            cfg = self.machine_info.cfg
             try:
-                factory = cls.fromconfig(self)
-            except (NotInstalled, KeyError):
-                pass
-            else:
-                factories[name] = factory
+                section = cfg.parser[name]
+            except KeyError:
+                raise NotInstalled(name)
+
+            factories[name] = cls.fromconfig(section)
 
         self.factories = factories
 
