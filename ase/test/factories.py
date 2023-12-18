@@ -136,8 +136,8 @@ class AbinitFactory:
 @factory('aims')
 class AimsFactory:
     def __init__(self, cfg):
-        from ase.calculators.aims import AimsProfile
-        self._profile = AimsProfile(cfg.parser['aims']['binary'])
+        from ase.calculators.aims import AimsTemplate
+        self._profile = AimsTemplate().load_profile(cfg)
 
     def calc(self, **kwargs):
         from ase.calculators.aims import Aims
