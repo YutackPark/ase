@@ -481,6 +481,10 @@ class LammpsLibFactory:
         # package is not installed
         #
         # Set the path where LAMMPS will look for potential parameter files
+        try:
+            import lammps
+        except ModuleNotFoundError:
+            raise NotInstalled('lammps')
         self.potentials_path = cfg.parser['lammps']['potentials']
         os.environ['LAMMPS_POTENTIALS'] = str(self.potentials_path)
 
