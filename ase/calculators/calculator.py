@@ -936,7 +936,7 @@ class OldShellProfile:
         self.command = command
         self.prefix = prefix
 
-    def execute(self, directory):
+    def execute(self, calc):
         if self.command is None:
             raise EnvironmentError(
                 'Please set ${} environment variable '.format(
@@ -949,7 +949,7 @@ class OldShellProfile:
             command = command.replace('PREFIX', self.prefix)
 
         try:
-            proc = subprocess.Popen(command, shell=True, cwd=directory)
+            proc = subprocess.Popen(command, shell=True, cwd=calc.directory)
         except OSError as err:
             # Actually this may never happen with shell=True, since
             # probably the shell launches successfully.  But we soon want
@@ -976,14 +976,21 @@ class ArgvProfile:
         self.name = name
         self.argv = argv
 
-    def execute(self, directory, stdout_name=None):
-        directory = Path(directory).resolve()
-        if stdout_name is None:
-            stdout_name = f'{self.name}.out'
-        stdout_path = directory / f'{stdout_name}.out'
+    def execute(self, calc):
+        directory = Path(calc.directory).resolve()
+        if hasattr(calc, 'output_filename'):
+            stdout_path = calc.output_filename()
+        else:
+            stdout_path = directory / f'{self.name}.out'
         try:
             with open(stdout_path, 'w') as fd:
-                subprocess.run(self.argv, cwd=directory, check=True, stdout=fd)
+                argv = [*self.argv]
+                # XXX FIXME This is too hacky, we need a better way to
+                # combine installation info with programmatic modifications
+                # of argv with ArgvProfile.
+                if hasattr(calc, 'additional_argv'):
+                    argv += calc.additional_argv()
+                subprocess.run(argv, cwd=directory, check=True, stdout=fd)
         except subprocess.CalledProcessError as err:
             msg = (
                 f'Calculator {self.name} failed with args {self.argv} '
@@ -1034,7 +1041,7 @@ class FileIOCalculator(Calculator):
         # XXX deprecate me
         #
         # This is for calculators that invoke Popen directly on
-        # self.command instead of lettung us (superclass) do it.
+        # self.command instead of letting us (superclass) do it.
         return self.profile.command
 
     @command.setter
@@ -1042,10 +1049,11 @@ class FileIOCalculator(Calculator):
         self.profile.command = command
 
     def _initialize_profile(self, command):
-        if self.name in self.cfg.parser:
-            section = self.cfg.parser[self.name]
-            # XXX getargv() returns None if missing!
-            return ArgvProfile(self.name, section.getargv('argv'))
+        #if isinstance(command,
+        #if self.name in self.cfg.parser:
+        #    section = self.cfg.parser[self.name]
+        #    # XXX getargv() returns None if missing!
+        #    return ArgvProfile(self.name, section.getargv('argv'))
 
         if command is None:
             name = 'ASE_' + self.name.upper() + '_COMMAND'
@@ -1072,7 +1080,7 @@ class FileIOCalculator(Calculator):
         self.read_results()
 
     def execute(self):
-        self.profile.execute(self.directory)
+        self.profile.execute(self)
 
     def write_input(self, atoms, properties=None, system_changes=None):
         """Write input file(s).
