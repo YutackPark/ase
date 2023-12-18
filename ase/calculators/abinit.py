@@ -15,6 +15,7 @@ from ase.calculators.genericfileio import (
 )
 
 
+# XXX delete me (profile has version())
 def get_abinit_version(command):
     txt = check_output([command, '--version']).decode('ascii')
     # This allows trailing stuff like betas, rc and so
@@ -29,14 +30,21 @@ def get_abinit_version(command):
 
 
 class AbinitProfile(BaseProfile):
-    def __init__(self, binary, **kwargs):
+    def __init__(self, binary, *, pp_paths=None, **kwargs):
         super().__init__(**kwargs)
         self.binary = binary
+        # XXX pp_paths is a raw configstring when it gets here.
+        # All the config stuff should have been loaded somehow by now,
+        # so this should be refactored.º
+        if isinstance(pp_paths, str):
+            pp_paths = [path for path in pp_paths.splitlines() if path]
+        if pp_paths is None:
+            pp_paths = []
+        self.pp_paths = pp_paths
 
     def version(self):
-        return check_output(
-            self.binary + ['--version'], encoding='ascii'
-        ).strip()
+        argv = [self.binary, '--version']
+        return check_output(argv, encoding='ascii').strip()
 
     def get_calculator_command(self, inputfile):
         return [self.binary, str(inputfile)]
@@ -73,7 +81,7 @@ class AbinitTemplate(CalculatorTemplate):
     def write_input(self, profile, directory, atoms, parameters, properties):
         directory = Path(directory)
         parameters = dict(parameters)
-        pp_paths = parameters.pop('pp_paths', None)
+        pp_paths = parameters.pop('pp_paths', profile.pp_paths)
         assert pp_paths is not None
 
         kw = dict(xc='LDA', smearing=None, kpts=None, raw=None, pps='fhi')
