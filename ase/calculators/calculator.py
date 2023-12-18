@@ -961,7 +961,7 @@ class OldShellProfile:
         errorcode = proc.wait()
 
         if errorcode:
-            path = os.path.abspath(directory)
+            path = os.path.abspath(calc.directory)
             msg = (
                 'Calculator "{}" failed with command "{}" failed in '
                 '{} with error code {}'.format(
