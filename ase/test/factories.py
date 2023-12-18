@@ -30,7 +30,7 @@ tests.""")
 
 
 class MachineInformation:
-    @lazyproperty
+    @property
     def datafiles_module(self):
         try:
             import asetest
@@ -40,15 +40,31 @@ class MachineInformation:
 
     @lazyproperty
     def datafile_config(self):
+        # XXXX TODO avoid requiring the dummy [parallel] section
         path = self.datafiles_module.paths.DataFiles().datapath
         datafile_config = f"""\
+# Dummy parallel section (make this unnecessary)
+[parallel]
+
 # Configuration for ase-datafiles
 
 [abinit]
-pp_paths=
-    {path}/abinit/GGA_FHI:
-    {path}/abinit/LDA_FHI:
+pp_paths =
+    {path}/abinit/GGA_FHI
+    {path}/abinit/LDA_FHI
     {path}/abinit/LDA_PAW
+
+[elk]
+species_dir = {path}/elk
+
+[espresso]
+pseudo_path = {path}/espresso/gbrv-lda-espresso
+
+[lammps]
+potentials = {path}/lammps
+
+[openmx]
+data_path = {path}/openmx
 """
         return datafile_config
 
@@ -87,36 +103,23 @@ def make_factory_fixture(name):
     return _factory
 
 
+
 @factory('abinit')
 class AbinitFactory:
-    def __init__(self, section):
-        self.executable = section['binary']
-        self.pp_paths = section['pp_paths']
+    def __init__(self, cfg):
+        from ase.calculators.abinit import AbinitTemplate
+        self._profile = AbinitTemplate().load_profile(cfg)
 
     def version(self):
-        from ase.calculators.abinit import get_abinit_version
-
-        return get_abinit_version(self.executable)
+        return self._profile.version()
 
     def _base_kw(self):
-        return dict(
-            pp_paths=self.pp_paths, ecut=150, chksymbreak=0, toldfe=1e-3
-        )
+        return dict(ecut=150, chksymbreak=0, toldfe=1e-3)
 
     def calc(self, **kwargs):
-        from ase.calculators.abinit import Abinit, AbinitProfile
-
-        profile = AbinitProfile(self.executable)
-
-        kw = self._base_kw()
-        assert kw['pp_paths'] is not None
-        kw.update(kwargs)
-        assert kw['pp_paths'] is not None
-        return Abinit(profile=profile, **kw)
-
-    @classmethod
-    def fromconfig(cls, section):
-        return AbinitFactory(section)
+        from ase.calculators.abinit import Abinit
+        kwargs = {**self._base_kw(), **kwargs}
+        return Abinit(profile=self._profile, **kwargs)
 
     def socketio(self, unixsocket, **kwargs):
         kwargs = {
@@ -132,27 +135,19 @@ class AbinitFactory:
 
 @factory('aims')
 class AimsFactory:
-    def __init__(self, executable):
-        self.executable = executable
-        # XXX pseudo_dir
+    def __init__(self, cfg):
+        from ase.calculators.aims import AimsProfile
+        self._profile = AimsProfile(cfg.parser['aims']['binary'])
 
     def calc(self, **kwargs):
-        from ase.calculators.aims import Aims, AimsProfile
+        from ase.calculators.aims import Aims
 
         kwargs1 = dict(xc='LDA')
         kwargs1.update(kwargs)
-        profile = AimsProfile([self.executable])
-        return Aims(profile=profile, **kwargs1)
+        return Aims(profile=self._profile, **kwargs1)
 
     def version(self):
-        from ase.calculators.aims import get_aims_version
-
-        txt = read_stdout([self.executable])
-        return get_aims_version(txt)
-
-    @classmethod
-    def fromconfig(cls, config):
-        return cls(config.executables['aims'])
+        return self._profile.version()
 
     def socketio(self, unixsocket, **kwargs):
         return self.calc(**kwargs).socketio(unixsocket=unixsocket)
@@ -162,53 +157,43 @@ class AimsFactory:
 class AsapFactory:
     importname = 'asap3'
 
-    def calc(self, **kwargs):
-        from asap3 import EMT
-
-        return EMT(**kwargs)
-
-    def version(self):
-        import asap3
-
-        return asap3.__version__
-
-    @classmethod
-    def fromconfig(cls, config):
-        # XXXX TODO Clean this up.  Copy of GPAW.
-        # How do we design these things?
+    def __init__(self, cfg):
         import importlib.util
 
         spec = importlib.util.find_spec('asap3')
         if spec is None:
             raise NotInstalled('asap3')
-        return cls()
+
+    def _asap3(self):
+        import asap3
+        return asap3
+
+    def calc(self, **kwargs):
+        return self._asap3().EMT(**kwargs)
+
+    def version(self):
+        return self._asap3().__version__
 
 
 @factory('cp2k')
 class CP2KFactory:
-    def __init__(self, executable):
-        self.executable = executable
+    def __init__(self, cfg):
+        self.executable = cfg.parser['cp2k']['cp2k_shell']
 
     def version(self):
         from ase.calculators.cp2k import Cp2kShell
-
         shell = Cp2kShell(self.executable, debug=False)
         return shell.version
 
     def calc(self, **kwargs):
         from ase.calculators.cp2k import CP2K
-
         return CP2K(command=self.executable, **kwargs)
-
-    @classmethod
-    def fromconfig(cls, config):
-        return CP2KFactory(config.executables['cp2k'])
 
 
 @factory('castep')
 class CastepFactory:
-    def __init__(self, executable):
-        self.executable = executable
+    def __init__(self, cfg):
+        self.executable = cfg.parser['castep']['binary']
 
     def version(self):
         from ase.calculators.castep import get_castep_version
@@ -220,17 +205,13 @@ class CastepFactory:
 
         return Castep(castep_command=self.executable, **kwargs)
 
-    @classmethod
-    def fromconfig(cls, config):
-        return cls(config.executables['castep'])
-
 
 @factory('dftb')
 class DFTBFactory:
-    def __init__(self, executable, skt_paths):
-        self.executable = executable
-        assert len(skt_paths) == 1
-        self.skt_path = skt_paths[0]
+    def __init__(self, cfg):
+        self.executable = cfg.parser['dftb']['binary']
+        self.skt_path = cfg.parser['dftb']['skt_paths']  # multiple paths?
+        assert len(self.skt_paths) == 1  # XXX instructive error?
 
     def version(self):
         stdout = read_stdout([self.executable])
@@ -252,31 +233,23 @@ class DFTBFactory:
             Driver_='', Driver_Socket_='', Driver_Socket_File=unixsocket
         )
 
-    @classmethod
-    def fromconfig(cls, config):
-        return cls(config.executables['dftb'], config.datafiles['dftb'])
-
 
 @factory('dftd3')
 class DFTD3Factory:
-    def __init__(self, executable):
-        self.executable = executable
+    def __init__(self, cfg):
+        self.executable = cfg.parser['dftd3']['binary']
 
     def calc(self, **kwargs):
         from ase.calculators.dftd3 import DFTD3
 
         return DFTD3(command=self.executable, **kwargs)
 
-    @classmethod
-    def fromconfig(cls, config):
-        return cls(config.executables['dftd3'])
-
 
 @factory('elk')
 class ElkFactory:
-    def __init__(self, executable, species_dir):
-        self.executable = executable
-        self.species_dir = species_dir
+    def __init__(self, cfg):
+        self.executable = cfg.parser['elk']['binary']
+        self.species_dir = cfg.parser['elk']['species_dir']
 
     def version(self):
         output = read_stdout([self.executable])
@@ -289,95 +262,76 @@ class ElkFactory:
         command = f'{self.executable} > elk.out'
         return ELK(command=command, species_dir=self.species_dir, **kwargs)
 
-    @classmethod
-    def fromconfig(cls, config):
-        return cls(config.executables['elk'], config.datafiles['elk'][0])
-
 
 @factory('espresso')
 class EspressoFactory:
-    def __init__(self, executable, pseudo_dir):
-        self.executable = executable
-        self.pseudo_dir = pseudo_dir
+    def __init__(self, cfg):
+        from ase.calculators.espresso import EspressoTemplate
+        self._profile = EspressoTemplate().load_profile(cfg)
+        self._pseudo_path = Path(self._profile.pseudo_path)
 
     def _base_kw(self):
         from ase.units import Ry
 
         return dict(ecutwfc=300 / Ry)
 
-    def _profile(self):
-        from ase.calculators.espresso import EspressoProfile
-
-        return EspressoProfile(self.executable, self.pseudo_dir)
-
     def version(self):
-        return self._profile().version()
+        return self._profile.version()
 
-    def calc(self, **kwargs):
-        from ase.calculators.espresso import Espresso
-
+    @lazyproperty
+    def pseudopotentials(self):
         pseudopotentials = {}
-        for path in self.pseudo_dir.glob('*.UPF'):
+        for path in self._pseudo_path.glob('*.UPF'):
             fname = path.name
             # Names are e.g. si_lda_v1.uspp.F.UPF
             symbol = fname.split('_', 1)[0].capitalize()
             pseudopotentials[symbol] = fname
+        return pseudopotentials
 
-        kw = self._base_kw()
-        kw.update(kwargs)
+    def calc(self, **kwargs):
+        from ase.calculators.espresso import Espresso
+
+        kw = {**self._base_kw(), **kwargs}
 
         return Espresso(
-            profile=self._profile(), pseudopotentials=pseudopotentials, **kw
+            profile=self._profile,
+            pseudopotentials=self.pseudopotentials, **kw,
         )
 
     def socketio(self, unixsocket, **kwargs):
         return self.calc(**kwargs).socketio(unixsocket=unixsocket)
-
-    @classmethod
-    def fromconfig(cls, config):
-        paths = config.datafiles['espresso']
-        assert len(paths) == 1
-        return cls(config.executables['espresso'], paths[0])
 
 
 @factory('exciting')
 class ExcitingFactory:
     """Factory to run exciting tests."""
 
-    def __init__(self, executable):
-        self.executable = executable
+    def __init__(self, cfg):
+        from ase.calculators.exciting.exciting import (
+            ExcitingGroundStateTemplate)
+
+        # Where do species come from?  We do not have them in ase-datafiles.
+        # We should specify species_path.
+        self._profile = ExcitingGroundStateTemplate().load_profile(cfg)
 
     def calc(self, **kwargs):
         """Get instance of Exciting Ground state calculator."""
         from ase.calculators.exciting.exciting import (
-            ExcitingGroundStateCalculator,
-        )
+            ExcitingGroundStateCalculator)
 
         return ExcitingGroundStateCalculator(
-            ground_state_input=kwargs, species_path=self.species_path
-        )
-
-    def _profile(self):
-        """Get instance of ExcitingProfile."""
-        from ase.calculators.exciting.exciting import ExcitingProfile
-
-        return ExcitingProfile(
-            exciting_root=self.executable, species_path=self.species_path
+            ground_state_input=kwargs, species_path=self._profile.species_path
         )
 
     def version(self):
         """Get exciting executable version."""
-        return self._profile().version
-
-    @classmethod
-    def fromconfig(cls, config):
-        return cls(config.executables['exciting'])
+        return self._profile.version
 
 
 @factory('mopac')
 class MOPACFactory:
-    def __init__(self, executable):
-        self.executable = executable
+    def __init__(self, cfg):
+        self.executable = cfg.parser['mopac']['binary']
 
     def calc(self, **kwargs):
         from ase.calculators.mopac import MOPAC
@@ -385,12 +339,7 @@ class MOPACFactory:
         command = f'{self.executable} PREFIX.mop 2> /dev/null'
         return MOPAC(command=command, **kwargs)
 
-    @classmethod
-    def fromconfig(cls, config):
-        return cls(config.executables['mopac'])
-
     def version(self):
-
         cwd = Path('.').absolute()
         with tempfile.TemporaryDirectory() as directory:
             try:
@@ -406,8 +355,8 @@ class MOPACFactory:
 
 @factory('vasp')
 class VaspFactory:
-    def __init__(self, executable):
-        self.executable = executable
+    def __init__(self, cfg):
+        self.executable = cfg.parser['vasp']['binary']
 
     def version(self):
         from ase.calculators.vasp import get_vasp_version
@@ -429,14 +378,18 @@ class VaspFactory:
             )
         return Vasp(command=self.executable, **kwargs)
 
-    @classmethod
-    def fromconfig(cls, config):
-        return cls(config.executables['vasp'])
-
 
 @factory('gpaw')
 class GPAWFactory:
     importname = 'gpaw'
+
+    def __init__(self, cfg):
+        import importlib.util
+
+        spec = importlib.util.find_spec('gpaw')
+        # XXX should be made non-pytest dependent
+        if spec is None:
+            raise NotInstalled('gpaw')
 
     def calc(self, **kwargs):
         from gpaw import GPAW
@@ -448,39 +401,27 @@ class GPAWFactory:
 
         return gpaw.__version__
 
-    @classmethod
-    def fromconfig(cls, config):
-        import importlib.util
-
-        spec = importlib.util.find_spec('gpaw')
-        # XXX should be made non-pytest dependent
-        if spec is None:
-            raise NotInstalled('gpaw')
-        return cls()
-
 
 @factory('psi4')
 class Psi4Factory:
     importname = 'psi4'
+
+    def __init__(self, cfg):
+        try:
+            import psi4  # noqa
+        except ModuleNotFoundError:
+            raise NotInstalled('psi4')
 
     def calc(self, **kwargs):
         from ase.calculators.psi4 import Psi4
 
         return Psi4(**kwargs)
 
-    @classmethod
-    def fromconfig(cls, config):
-        try:
-            import psi4  # noqa
-        except ModuleNotFoundError:
-            raise NotInstalled('psi4')
-        return cls()
-
 
 @factory('gromacs')
 class GromacsFactory:
-    def __init__(self, executable):
-        self.executable = executable
+    def __init__(self, cfg):
+        self.executable = cfg.parser['gromacs']['binary']
 
     def version(self):
         from ase.calculators.gromacs import get_gromacs_version
@@ -492,29 +433,20 @@ class GromacsFactory:
 
         return Gromacs(command=self.executable, **kwargs)
 
-    @classmethod
-    def fromconfig(cls, config):
-        return cls(config.executables['gromacs'])
-
 
 class BuiltinCalculatorFactory:
+    def __init__(self, cfg):
+        self.cfg = cfg
+
     def calc(self, **kwargs):
         cls = get_calculator_class(self.name)
         return cls(**kwargs)
 
-    @classmethod
-    def fromconfig(cls, config):
-        return cls()
-
 
 @factory('eam')
 class EAMFactory(BuiltinCalculatorFactory):
-    def __init__(self, potentials_path):
-        self.potentials_path = potentials_path
-
-    @classmethod
-    def fromconfig(cls, config):
-        return cls(config.datafiles['lammps'][0])
+    def __init__(self, cfg):
+        self.potentials_path = cfg.parser['lammps']['potentials']
 
 
 @factory('emt')
@@ -524,10 +456,12 @@ class EMTFactory(BuiltinCalculatorFactory):
 
 @factory('lammpsrun')
 class LammpsRunFactory:
-    def __init__(self, executable, potentials_path):
-        self.executable = executable
-        os.environ['LAMMPS_POTENTIALS'] = str(potentials_path)
-        self.potentials_path = potentials_path
+    def __init__(self, cfg):
+        self.executable = cfg.parser['lammps']['binary']
+        self.potentials_path = cfg.parser['lammps']['potentials']
+        # XXX if lammps wants this variable set we should pass it to Popen.
+        # But if ASE wants it, it should be passed programmatically.
+        os.environ['LAMMPS_POTENTIALS'] = str(self.potentials_path)
 
     def version(self):
         stdout = read_stdout([self.executable])
@@ -539,19 +473,16 @@ class LammpsRunFactory:
 
         return LAMMPS(command=self.executable, **kwargs)
 
-    @classmethod
-    def fromconfig(cls, config):
-        return cls(
-            config.executables['lammpsrun'], config.datafiles['lammps'][0]
-        )
-
 
 @factory('lammpslib')
 class LammpsLibFactory:
-    def __init__(self, potentials_path):
+    def __init__(self, cfg):
+        # XXX FIXME need to stop gracefully if lammpslib python
+        # package is not installed
+        #
         # Set the path where LAMMPS will look for potential parameter files
-        os.environ['LAMMPS_POTENTIALS'] = str(potentials_path)
-        self.potentials_path = potentials_path
+        self.potentials_path = cfg.parser['lammps']['potentials']
+        os.environ['LAMMPS_POTENTIALS'] = str(self.potentials_path)
 
     def version(self):
         import lammps
@@ -576,16 +507,13 @@ class LammpsLibFactory:
 
         return LAMMPSlib(**kwargs)
 
-    @classmethod
-    def fromconfig(cls, config):
-        return cls(config.datafiles['lammps'][0])
-
 
 @factory('openmx')
 class OpenMXFactory:
-    def __init__(self, executable, data_path):
-        self.executable = executable
-        self.data_path = data_path
+    def __init__(self, cfg):
+        # XXX Cannot test this, is surely broken.
+        self.executable = cfg.parser['openmx']['binary']
+        self.data_path = cfg.parser['openmx'][0]
 
     def version(self):
         from ase.calculators.openmx.openmx import parse_omx_version
@@ -601,41 +529,25 @@ class OpenMXFactory:
             command=self.executable, data_path=str(self.data_path), **kwargs
         )
 
-    @classmethod
-    def fromconfig(cls, config):
-        return cls(
-            config.executables['openmx'],
-            data_path=config.datafiles['openmx'][0],
-        )
-
 
 @factory('octopus')
 class OctopusFactory:
-    def __init__(self, executable):
-        self.executable = executable
-
-    def _profile(self):
-        from ase.calculators.octopus import OctopusProfile
-
-        return OctopusProfile(self.executable)
+    def __init__(self, cfg):
+        from ase.calculators.octopus import OctopusTemplate
+        self._profile = OctopusTemplate().load_profile(cfg)
 
     def version(self):
-        return self._profile().version()
+        return self._profile.version()
 
     def calc(self, **kwargs):
         from ase.calculators.octopus import Octopus
-
-        return Octopus(profile=self._profile(), **kwargs)
-
-    @classmethod
-    def fromconfig(cls, config):
-        return cls(config.executables['octopus'])
+        return Octopus(profile=self._profile, **kwargs)
 
 
 @factory('orca')
 class OrcaFactory:
-    def __init__(self, executable):
-        self.executable = executable
+    def __init__(self, cfg):
+        self.executable = cfg.parser['orca']['binary']
 
     def _profile(self):
         from ase.calculators.orca import OrcaProfile
@@ -650,16 +562,12 @@ class OrcaFactory:
 
         return ORCA(**kwargs)
 
-    @classmethod
-    def fromconfig(cls, config):
-        return cls(config.executables['orca'])
-
 
 @factory('siesta')
 class SiestaFactory:
-    def __init__(self, executable, pseudo_path):
-        self.executable = executable
-        self.pseudo_path = pseudo_path
+    def __init__(self, cfg):
+        self.executable = cfg.parser['siesta']['binary']
+        self.pseudo_path = str(cfg.parser['siesta']['pseudo_path'])
 
     def version(self):
         from ase.calculators.siesta.siesta import get_siesta_version
@@ -689,18 +597,11 @@ class SiestaFactory:
             }
         }
 
-    @classmethod
-    def fromconfig(cls, config):
-        paths = config.datafiles['siesta']
-        assert len(paths) == 1
-        path = paths[0]
-        return cls(config.executables['siesta'], str(path))
-
 
 @factory('nwchem')
 class NWChemFactory:
-    def __init__(self, executable):
-        self.executable = executable
+    def __init__(self, cfg):
+        self.executable = cfg.parser['nwchem']['binary']
 
     def version(self):
         stdout = read_stdout([self.executable], createfile='nwchem.nw')
@@ -712,10 +613,13 @@ class NWChemFactory:
         return match.group(1)
 
     def calc(self, **kwargs):
+        from ase.calculators.calculator import ArgvProfile
         from ase.calculators.nwchem import NWChem
 
-        command = f'{self.executable} PREFIX.nwi > PREFIX.nwo'
-        return NWChem(command=command, **kwargs)
+        profile = ArgvProfile('nwchem', [self.executable])
+
+        # command = f'{self.executable} PREFIX.nwi > PREFIX.nwo'
+        return NWChem(profile=profile, **kwargs)
 
     def socketio_kwargs(self, unixsocket):
         return dict(
@@ -724,15 +628,14 @@ class NWChemFactory:
             driver={'socket': {'unix': unixsocket}},
         )
 
-    @classmethod
-    def fromconfig(cls, config):
-        return cls(config.executables['nwchem'])
-
 
 @factory('plumed')
 class PlumedFactory:
-    def __init__(self):
-        import plumed
+    def __init__(self, cfg):
+        try:
+            import plumed
+        except ModuleNotFoundError:
+            raise NotInstalled
 
         self.path = plumed.__spec__.origin
 
@@ -740,14 +643,6 @@ class PlumedFactory:
         from ase.calculators.plumed import Plumed
 
         return Plumed(**kwargs)
-
-    @classmethod
-    def fromconfig(cls, config):
-        spec = importlib.util.find_spec('plumed')
-        # XXX should be made non-pytest dependent
-        if spec is None:
-            raise NotInstalled('plumed')
-        return cls()
 
 
 legacy_factory_calculator_names = {
@@ -792,6 +687,7 @@ class Factories:
 
     def __init__(self, requested_calculators):
         self.machine_info = MachineInformation()
+        cfg = self.machine_info.cfg
 
         #self.datafiles_module = ...
         #self.datafiles = ...
@@ -799,13 +695,13 @@ class Factories:
         factories = {}
 
         for name, cls in factory_classes.items():
-            cfg = self.machine_info.cfg
             try:
-                section = cfg.parser[name]
+                factories[name] = cls(cfg)
             except KeyError:
-                raise NotInstalled(name)
-
-            factories[name] = cls.fromconfig(section)
+                # XXX FIXME too silent
+                pass
+            except NotInstalled:
+                pass
 
         self.factories = factories
 
