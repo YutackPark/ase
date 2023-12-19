@@ -22,25 +22,30 @@ class NotInstalled(Exception):
     pass
 
 
-def please_install_ase_datafiles():
-    return ImportError("""\
+
+
+class MachineInformation:
+    @staticmethod
+    def please_install_ase_datafiles():
+        return ImportError("""\
 Could not import asetest package.  Please install ase-datafiles
 using e.g. "pip install ase-datafiles" to run calculator integration
 tests.""")
 
-
-class MachineInformation:
-    @property
+    @lazyproperty
     def datafiles_module(self):
         try:
             import asetest
         except ModuleNotFoundError:
-            raise please_install_ase_datafiles()
+            return None
         return asetest
 
     @lazyproperty
     def datafile_config(self):
         # XXXX TODO avoid requiring the dummy [parallel] section
+        datafiles = self.datafiles_module
+        if datafiles is None:
+            return ''  # empty configfile
         path = self.datafiles_module.paths.DataFiles().datapath
         datafile_config = f"""\
 # Dummy parallel section (make this unnecessary)
@@ -267,8 +272,7 @@ class ElkFactory:
 class EspressoFactory:
     def __init__(self, cfg):
         from ase.calculators.espresso import EspressoTemplate
-        self._profile = EspressoTemplate().load_profile(cfg)
-        self._pseudo_path = Path(self._profile.pseudo_path)
+        self.profile = EspressoTemplate().load_profile(cfg)
 
     def _base_kw(self):
         from ase.units import Ry
@@ -276,12 +280,12 @@ class EspressoFactory:
         return dict(ecutwfc=300 / Ry)
 
     def version(self):
-        return self._profile.version()
+        return self.profile.version()
 
     @lazyproperty
     def pseudopotentials(self):
         pseudopotentials = {}
-        for path in self._pseudo_path.glob('*.UPF'):
+        for path in self.profile.pseudo_path.glob('*.UPF'):
             fname = path.name
             # Names are e.g. si_lda_v1.uspp.F.UPF
             symbol = fname.split('_', 1)[0].capitalize()
@@ -294,7 +298,7 @@ class EspressoFactory:
         kw = {**self._base_kw(), **kwargs}
 
         return Espresso(
-            profile=self._profile,
+            profile=self.profile,
             pseudopotentials=self.pseudopotentials, **kw,
         )
 
