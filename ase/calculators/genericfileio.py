@@ -181,8 +181,6 @@ class BaseProfile(ABC):
         parallel_info = parallel_info if parallel_info is not None else {}
         parallel_config.update(parallel_info)
 
-        print(section_name)
-        print(dict(cfg.parser[section_name]))
         return cls(
             **cfg.parser[section_name],
             parallel_info=parallel_config,
