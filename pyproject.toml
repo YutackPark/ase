@@ -24,7 +24,7 @@ classifiers = [
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Physics"
 ]
-requires-python = ">=3.8, <3.13"
+requires-python = ">=3.8"
 dependencies = ["numpy>=1.18.5", "scipy>=1.4.1", "matplotlib>=3.3.4"]
 
 [project.urls]
@@ -45,8 +45,6 @@ ase = [
     "db/templates/*",
     "db/static/*",
     "py.typed",
-    "pytest.ini",
-    "testdata/**"
 ]
 
 [tool.pytest.ini_options]
