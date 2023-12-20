@@ -72,6 +72,9 @@ potentials = {path}/lammps
 
 [openmx]
 data_path = {path}/openmx
+
+[siesta]
+pseudo_path = {path}/siesta
 """
         return datafile_config
 
