@@ -22,8 +22,6 @@ class NotInstalled(Exception):
     pass
 
 
-
-
 class MachineInformation:
     @staticmethod
     def please_install_ase_datafiles():
@@ -58,6 +56,10 @@ pp_paths =
     {path}/abinit/GGA_FHI
     {path}/abinit/LDA_FHI
     {path}/abinit/LDA_PAW
+
+
+[dftb]
+skt_paths = {path}/dftb
 
 [elk]
 species_dir = {path}/elk
@@ -216,7 +218,7 @@ class DFTBFactory:
     def __init__(self, cfg):
         self.executable = cfg.parser['dftb']['binary']
         self.skt_path = cfg.parser['dftb']['skt_paths']  # multiple paths?
-        assert len(self.skt_paths) == 1  # XXX instructive error?
+        # assert len(self.skt_paths) == 1  # XXX instructive error?
 
     def version(self):
         stdout = read_stdout([self.executable])
@@ -701,17 +703,21 @@ class Factories:
         #self.datafiles = ...
 
         factories = {}
+        why_not = {}
 
         for name, cls in factory_classes.items():
             try:
                 factories[name] = cls(cfg)
-            except KeyError:
+            except KeyError as err:
                 # XXX FIXME too silent
-                pass
-            except NotInstalled:
-                pass
+                why_not[name] = err
+            except NotInstalled as err:
+                why_not[name] = err
+            else:
+                why_not[name] = None
 
         self.factories = factories
+        self.why_not = why_not
 
         requested_calculators = set(requested_calculators)
         if 'auto' in requested_calculators:
@@ -729,6 +735,9 @@ class Factories:
 
     def installed(self, name):
         return name in self.builtin_calculators | set(self.factories)
+
+    def why_not_installed(self, name):
+        return self.why_not[name]
 
     def is_adhoc(self, name):
         return name not in factory_classes

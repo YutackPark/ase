@@ -88,7 +88,8 @@ def calculators_header(config):
         factory = factories.factories.get(name)
 
         if factory is None:
-            configinfo = 'not installed'
+            why_not = factories.why_not[name]
+            configinfo = f'not installed: {why_not}'
         else:
             # Some really ugly hacks here:
             if hasattr(factory, 'importname'):
