@@ -1,9 +1,7 @@
-import configparser
 import os
 import re
 from pathlib import Path
 import tempfile
-from typing import Mapping
 
 import importlib.util
 import pytest
@@ -84,7 +82,6 @@ pseudo_path = {path}/siesta
         # But we don't want to run tests against the user's production
         # configuration since that may be using other pseudopotentials
         # than the ones we want.  Therefore, we override datafile paths.
-        from ase.config import Config
         cfg = Config()
         cfg.parser.read_string(self.datafile_config)
         return cfg
@@ -111,7 +108,6 @@ def make_factory_fixture(name):
 
     _factory.__name__ = f'{name}_factory'
     return _factory
-
 
 
 @factory('abinit')
@@ -168,8 +164,6 @@ class AsapFactory:
     importname = 'asap3'
 
     def __init__(self, cfg):
-        import importlib.util
-
         spec = importlib.util.find_spec('asap3')
         if spec is None:
             raise NotInstalled('asap3')
@@ -393,8 +387,6 @@ class GPAWFactory:
     importname = 'gpaw'
 
     def __init__(self, cfg):
-        import importlib.util
-
         spec = importlib.util.find_spec('gpaw')
         # XXX should be made non-pytest dependent
         if spec is None:
@@ -491,7 +483,7 @@ class LammpsLibFactory:
         #
         # Set the path where LAMMPS will look for potential parameter files
         try:
-            import lammps
+            import lammps  # noqa: F401
         except ModuleNotFoundError:
             raise NotInstalled('lammps')
         self.potentials_path = cfg.parser['lammps']['potentials']
@@ -626,10 +618,7 @@ class NWChemFactory:
         return match.group(1)
 
     def calc(self, **kwargs):
-        # from ase.calculators.calculator import ArgvProfile
         from ase.calculators.nwchem import NWChem
-
-        #profile = ArgvProfile('nwchem', [self.executable])
 
         command = f'{self.executable} PREFIX.nwi > PREFIX.nwo'
         return NWChem(command=command, **kwargs)
@@ -701,9 +690,6 @@ class Factories:
     def __init__(self, requested_calculators):
         self.machine_info = MachineInformation()
         cfg = self.machine_info.cfg
-
-        #self.datafiles_module = ...
-        #self.datafiles = ...
 
         factories = {}
         why_not = {}

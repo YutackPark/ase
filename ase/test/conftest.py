@@ -93,7 +93,11 @@ def calculators_header(config):
         else:
             # Some really ugly hacks here:
             if hasattr(factory, 'importname'):
-                import importlib
+                pass
+                # We want an to report from where we import calculators
+                # that are defined in Python, but that's currently disabled.
+                #
+                # import importlib
                 # XXXX reenable me somehow
                 # module = importlib.import_module(factory.importname)
                 # configinfo = get_python_package_path_description(module)
@@ -286,7 +290,8 @@ def factory(request, factories):
         pytest.skip(f'Not installed: {name}')
     if not factories.enabled(name):
         pytest.skip(f'Not enabled: {name}')
-    #if name in factories.builtin_calculators & factories.datafile_calculators:
+    # TODO: nice reporting of installedness and configuration
+    # if name in factories.builtin_calculators & factories.datafile_calculators:
     #    if not factories.datafiles_module:
     #        pytest.skip('ase-datafiles package not installed')
     try:

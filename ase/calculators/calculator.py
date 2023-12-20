@@ -1049,8 +1049,9 @@ class FileIOCalculator(Calculator):
         self.profile.command = command
 
     def _initialize_profile(self, command):
-        #if isinstance(command,
-        #if self.name in self.cfg.parser:
+        # XXX Should be able to perform some kind of config lookup here.
+        # if isinstance(command,
+        # if self.name in self.cfg.parser:
         #    section = self.cfg.parser[self.name]
         #    # XXX getargv() returns None if missing!
         #    return ArgvProfile(self.name, section.getargv('argv'))

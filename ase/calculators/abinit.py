@@ -3,7 +3,6 @@
 http://www.abinit.org/
 """
 
-import re
 from pathlib import Path
 from subprocess import check_output
 
