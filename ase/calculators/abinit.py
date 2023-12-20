@@ -15,20 +15,6 @@ from ase.calculators.genericfileio import (
 )
 
 
-# XXX delete me (profile has version())
-def get_abinit_version(command):
-    txt = check_output([command, '--version']).decode('ascii')
-    # This allows trailing stuff like betas, rc and so
-    m = re.match(r'\s*(\d\.\d\.\d)', txt)
-    if m is None:
-        raise RuntimeError(
-            'Cannot recognize abinit version. ' 'Start of output: {}'.format(
-                txt[:40]
-            )
-        )
-    return m.group(1)
-
-
 class AbinitProfile(BaseProfile):
     def __init__(self, binary, *, pp_paths=None, **kwargs):
         super().__init__(**kwargs)
