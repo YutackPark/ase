@@ -157,10 +157,9 @@ def sessionlevel_testing_path():
 def testdir(tmp_path):
     # Pytest can on some systems provide a Path from pathlib2.  Normalize:
     path = Path(str(tmp_path))
+    print(f'Testdir: {path}')
     with workdir(path, mkdir=True):
         yield tmp_path
-    # We print the path so user can see where test failed, if it failed.
-    print(f'Testdir: {path}')
 
 
 @pytest.fixture
