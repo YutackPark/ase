@@ -23,23 +23,24 @@ class build_py(_build_py):
     def run(self):
         """Compile translation files (requires gettext)."""
         _build_py.run(self)
-        msgfmt = 'msgfmt'
-        status = os.system(msgfmt + ' -V')
+        msgfmt = "msgfmt"
+        status = os.system(msgfmt + " -V")
         if status == 0:
-            for pofile in sorted(glob('ase/gui/po/*/LC_MESSAGES/ag.po')):
+            for pofile in sorted(glob("ase/gui/po/*/LC_MESSAGES/ag.po")):
                 dirname = join(self.build_lib, os.path.dirname(pofile))
                 if not os.path.isdir(dirname):
                     os.makedirs(dirname)
-                mofile = join(dirname, 'ag.mo')
+                mofile = join(dirname, "ag.mo")
                 print()
-                print(f'Compile {pofile}')
-                status = os.system('%s -cv %s --output-file=%s 2>&1' %
-                                   (msgfmt, pofile, mofile))
-                assert status == 0, 'msgfmt failed!'
+                print(f"Compile {pofile}")
+                status = os.system(
+                    "%s -cv %s --output-file=%s 2>&1" % (msgfmt, pofile, mofile)
+                )
+                assert status == 0, "msgfmt failed!"
                 self.mofiles.append(mofile)
 
     def get_outputs(self, *args, **kwargs):
         return _build_py.get_outputs(self, *args, **kwargs) + self.mofiles
 
 
-setup(cmdclass={'build_py': build_py})
+setup(cmdclass={"build_py": build_py})
