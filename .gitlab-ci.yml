@@ -120,6 +120,7 @@ calculators-lite:
   image: registry.gitlab.com/ase/ase:ase-full-monty
   script:
     - pip install --no-deps --editable .
+    - export ASE_CONFIG_PATH=/home/ase/aseconfig.ini
     - >
       ase test calculator --calculators=auto --coverage
       --pytest -m calculator_lite --color=yes --durations=20 -v
