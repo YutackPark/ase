@@ -621,13 +621,13 @@ class NWChemFactory:
         return match.group(1)
 
     def calc(self, **kwargs):
-        from ase.calculators.calculator import ArgvProfile
+        # from ase.calculators.calculator import ArgvProfile
         from ase.calculators.nwchem import NWChem
 
-        profile = ArgvProfile('nwchem', [self.executable])
+        #profile = ArgvProfile('nwchem', [self.executable])
 
-        # command = f'{self.executable} PREFIX.nwi > PREFIX.nwo'
-        return NWChem(profile=profile, **kwargs)
+        command = f'{self.executable} PREFIX.nwi > PREFIX.nwo'
+        return NWChem(command=command, **kwargs)
 
     def socketio_kwargs(self, unixsocket):
         return dict(
