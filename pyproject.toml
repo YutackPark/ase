@@ -25,7 +25,11 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Physics"
 ]
 requires-python = ">=3.8"
-dependencies = ["numpy>=1.18.5", "scipy>=1.4.1", "matplotlib>=3.3.4"]
+dependencies = [
+    "numpy>=1.18.5",  # June 2020
+    "scipy>=1.4.1",  # December 2019
+    "matplotlib>=3.3.4"  # January 2021 (3.3.0 is July 2020)
+]
 
 [project.urls]
 homepage = "https://wiki.fysik.dtu.dk/ase/"
