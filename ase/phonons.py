@@ -575,14 +575,59 @@ class Phonons(Displacement):
         return self.C_N
 
     def get_band_structure(self, path, modes=False, born=False, verbose=True):
-        omega_kl = self.band_structure(path.kpts, modes, born, verbose)
+        """Calculate and return the phonon band structure.
+
+        This method computes the phonon band structure for a given path
+        in reciprocal space. It is a wrapper around the internal
+        `band_structure` method of the `Phonons` class. The method can
+        optionally calculate and return phonon modes.
+
+        Parameters:
+
+        path : BandPath object
+            The BandPath object defining the path in the reciprocal
+            space over which the phonon band structure is calculated.
+        modes : bool, optional
+            If True, phonon modes will also be calculated and returned.
+            Defaults to False.
+        born : bool, optional
+            If True, includes the effect of Born effective charges in
+            the phonon calculations.
+            Defaults to False.
+        verbose : bool, optional
+            If True, enables verbose output during the calculation.
+            Defaults to True.
+
+        Returns:
+
+        BandStructure or tuple of (BandStructure, ndarray)
+            If `modes` is False, returns a `BandStructure` object
+            containing the phonon band structure. If `modes` is True,
+            returns a tuple, where the first element is the
+            `BandStructure` object and the second element is an ndarray
+            of phonon modes.
+
+        Example:
+
+        >>> from ase.dft.kpoints import BandPath
+        >>> path = BandPath(...)  # Define the band path
+        >>> phonons = Phonons(...)
+        >>> bs, modes = phonons.get_band_structure(path, modes=True)
+        """
+        result = self.band_structure(path.kpts,
+                                     modes=modes,
+                                     born=born,
+                                     verbose=verbose)
         if modes:
-            assert 0
-            omega_kl, modes = omega_kl
+            omega_kl, omega_modes = result
+        else:
+            omega_kl = result
 
         from ase.spectrum.band_structure import BandStructure
         bs = BandStructure(path, energies=omega_kl[None])
-        return bs
+
+        # Return based on the modes flag
+        return (bs, omega_modes) if modes else bs
 
     def compute_dynamical_matrix(self, q_scaled: np.ndarray, D_N: np.ndarray):
         """ Computation of the dynamical matrix in momentum space D_ab(q).
