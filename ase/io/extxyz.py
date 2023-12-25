@@ -904,13 +904,13 @@ def write_xyz(fileobj, images, comment='', columns=None,
                 if isinstance(c0, FixAtoms):
                     cnstr = np.ones((natoms,), dtype=bool)
                     for idx in c0.index:
-                        cnstr[idx] = False
+                        cnstr[idx] = False  # cnstr: atoms that can be moved
                 elif isinstance(c0, FixCartesian):
                     masks = np.ones((natoms, 3), dtype=bool)
                     for i in range(len(cnstr)):
                         idx = cnstr[i].index
                         masks[idx] = cnstr[i].mask
-                    cnstr = masks
+                    cnstr = ~masks  # cnstr: coordinates that can be moved
             else:
                 fr_cols.remove('move_mask')
 
