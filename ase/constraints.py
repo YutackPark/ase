@@ -811,11 +811,11 @@ class FixCartesian(IndexedConstraint):
     ----------
     a : Sequence[int]
         Indices of atoms to be fixed.
-    mask : tuple[int, int, int]
-        Cartesian directions to be fixed. (0: unfixed, 1: fixed)
+    mask : tuple[bool, bool, bool], default: (True, True, True)
+        Cartesian directions to be fixed. (False: unfixed, True: fixed)
     """
 
-    def __init__(self, a, mask=(1, 1, 1)):
+    def __init__(self, a, mask=(True, True, True)):
         super().__init__(indices=a)
         self.mask = np.asarray(mask, bool)
 
@@ -849,11 +849,11 @@ class FixScaled(IndexedConstraint):
     ----------
     a : Sequence[int]
         Indices of atoms to be fixed.
-    mask : tuple[int, int, int]
-        Cell directions to be fixed. (0: unfixed, 1: fixed)
+    mask : tuple[bool, bool, bool], default: (True, True, True)
+        Cell directions to be fixed. (False: unfixed, True: fixed)
     """
 
-    def __init__(self, a, mask=(1, 1, 1), cell=None):
+    def __init__(self, a, mask=(True, True, True), cell=None):
         # XXX The unused cell keyword is there for compatibility
         # with old trajectory files.
         super().__init__(indices=a)
