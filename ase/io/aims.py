@@ -281,8 +281,6 @@ def write_aims(
         Use of ``velocities`` is deprecated, please use ``write_velocities``.
     """
 
-    from ase.constraints import FixAtoms, FixCartesian
-
     if scaled and not np.all(atoms.pbc):
         raise ValueError(
             "Requesting scaled for a calculation where scaled=True, but "
@@ -319,16 +317,15 @@ def write_aims(
         for n, vector in enumerate(atoms.get_cell()):
             fd.write("lattice_vector ")
             for i in range(3):
-                fd.write("%16.16f " % vector[i])
+                fd.write(f"{vector[i]:16.16f} ")
             fd.write("\n")
-    fix_cart = np.zeros([len(atoms), 3])
 
-    if atoms.constraints:
-        for constr in atoms.constraints:
-            if isinstance(constr, FixAtoms):
-                fix_cart[constr.index] = [1, 1, 1]
-            elif isinstance(constr, FixCartesian):
-                fix_cart[constr.index] = constr.mask.astype(int)
+    fix_cart = np.zeros((len(atoms), 3), dtype=bool)
+    for constr in atoms.constraints:
+        if isinstance(constr, FixAtoms):
+            fix_cart[constr.index] = (True, True, True)
+        elif isinstance(constr, FixCartesian):
+            fix_cart[constr.index] = constr.mask
 
     if ghosts is None:
         ghosts = np.zeros(len(atoms))
@@ -348,10 +345,10 @@ def write_aims(
         fd.write(atomstring)
         if scaled:
             for pos in scaled_positions[i]:
-                fd.write("%16.16f " % pos)
+                fd.write(f"{pos:16.16f} ")
         else:
             for pos in atom.position:
-                fd.write("%16.16f " % pos)
+                fd.write(f"{pos:16.16f} ")
         fd.write(atom.symbol)
         fd.write("\n")
         # (1) all coords are constrained:
@@ -364,16 +361,13 @@ def write_aims(
                 if xyz[n]:
                     fd.write(f"    constrain_relaxation {'xyz'[n]}\n")
         if atom.charge:
-            fd.write("    initial_charge %16.6f\n" % atom.charge)
+            fd.write(f"    initial_charge {atom.charge:16.6f}\n")
         if atom.magmom:
-            fd.write("    initial_moment %16.6f\n" % atom.magmom)
+            fd.write(f"    initial_moment {atom.magmom:16.6f}\n")
 
         if write_velocities and atoms.get_velocities() is not None:
-            fd.write(
-                "    velocity {:.16f} {:.16f} {:.16f}\n".format(
-                    *atoms.get_velocities()[i] / v_unit
-                )
-            )
+            v = atoms.get_velocities()[i] / v_unit
+            fd.write(f"    velocity {v[0]:.16f} {v[1]:.16f} {v[2]:.16f}\n")
 
     if geo_constrain:
         for line in get_sym_block(atoms):
