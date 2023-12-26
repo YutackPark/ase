@@ -1,7 +1,16 @@
 from dataclasses import dataclass
 
-# requires external program
-# 
+
+# Note: There could be more than one "calculator" for any given code;
+# for example Espresso can work both as GenericFileIOCalculator and
+# SocketIOCalculator, or as part of some DFTD3 combination.
+#
+# Also, DFTD3 is one external code but can be invoked alone (as PureDFTD3)
+# as well as together with a DFT code (the main DFTD3 calculator).
+#
+# The current CodeMetadata object only specifies a single calculator class.
+# We should be wary of these invisible "one-to-one" restrictions.
+
 
 @dataclass
 class CodeMetadata:
@@ -29,8 +38,10 @@ class CodeMetadata:
     def _description(self):
         yield self.name
         yield f'Name:     {self.longname}'
-        yield f'Location: {self.modulename}.{self.classname}'
+        yield f'Import:   {self.modulename}.{self.classname}'
         yield f'Type:     {self.calculator_type()}'
+        yield ''
+        yield from self._config_description()
 
     def description(self):
         tokens = [*self._description()]
@@ -70,6 +81,23 @@ class CodeMetadata:
         mro = self.calculator_class().__mro__
         return f'BAD: Not a proper calculator (superclasses: {mro})'
 
+    def _config_description(self):
+        from ase.config import cfg
+        if self.name not in cfg:
+            yield f'Not configured: No [{self.name}] section in configuration'
+            return
+
+        yield 'Configured by section [{self.name}]'
+
+    def profile(self):
+        cls = self.calculator_class()
+        calc = cls()
+        return calc.profile
+
+    #def configuration_info(self):
+    #    profile = self.profile()
+    #    if hasattr(profile, 'get_calculator_command
+
 
 R = CodeMetadata.register
 
@@ -96,7 +124,7 @@ R('elk', 'ELK', 'ase.calculators.elk.ELK')
 R('espresso', 'Quantum Espresso', 'ase.calculators.espresso.Espresso')
 R('exciting', 'Exciting',
   'ase.calculators.exciting.exciting.ExcitingGroundStateCalculator')
-R('ff', 'FF', 'ase.calculators.ff.ForceField')
+# internal: R('ff', 'FF', 'ase.calculators.ff.ForceField')
 # fleur <- external nowadays
 R('gamess_us', 'GAMESS-US', 'ase.calculators.gamess_us.GAMESSUS')
 R('gaussian', 'Gaussian', 'ase.calculators.gaussian.Gaussian')
