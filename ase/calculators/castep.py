@@ -32,8 +32,7 @@ from typing import List, Set
 
 import numpy as np
 
-import ase
-import ase.units as units
+from ase import Atoms, units
 from ase.calculators.calculator import (PropertyNotImplementedError,
                                         compare_atoms, kpts2sizeandoffsets)
 from ase.calculators.general import Calculator
@@ -74,7 +73,7 @@ def _self_getter(getf):
 
 def _parse_tss_block(value, scaled=False):
     # Parse the assigned value for a Transition State Search structure block
-    is_atoms = isinstance(value, ase.atoms.Atoms)
+    is_atoms = isinstance(value, Atoms)
     try:
         is_strlist = all(map(lambda x: isinstance(x, str), value))
     except TypeError:
@@ -1379,12 +1378,13 @@ End CASTEP Interface Documentation
             # set_calculator also set atoms in the calculator.
             if self.atoms:
                 constraints = self.atoms.constraints
-            atoms = ase.atoms.Atoms(species,
-                                    cell=lattice_real,
-                                    constraint=constraints,
-                                    pbc=True,
-                                    scaled_positions=positions_frac,
-                                    )
+            atoms = Atoms(
+                species,
+                cell=lattice_real,
+                constraint=constraints,
+                pbc=True,
+                scaled_positions=positions_frac,
+            )
             if custom_species is not None:
                 atoms.new_array('castep_custom_species',
                                 np.array(custom_species))
@@ -1975,9 +1975,9 @@ End CASTEP Interface Documentation
             return
         elif attr in ['atoms', 'cell', 'param']:
             if value is not None:
-                if attr == 'atoms' and not isinstance(value, ase.atoms.Atoms):
+                if attr == 'atoms' and not isinstance(value, Atoms):
                     raise TypeError(
-                        f'{value} is not an instance of ase.atoms.Atoms.')
+                        f'{value} is not an instance of Atoms.')
                 elif attr == 'cell' and not isinstance(value, CastepCell):
                     raise TypeError(
                         f'{value} is not an instance of CastepCell.')
