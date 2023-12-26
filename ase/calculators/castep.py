@@ -1274,22 +1274,8 @@ End CASTEP Interface Documentation
                     line = out.readline()
 
                     if 'Charge' in line:
-                        # skip the next separator line
-                        line = out.readline()
-                        while True:
-                            line = out.readline()
-                            fields = line.split()
-                            if len(fields) == 1:
-                                break
-
-                            # the check for len==7 is due to CASTEP 18
-                            # outformat changes
-                            if spin_polarized:
-                                if len(fields) != 7:
-                                    spins.append(float(fields[-1]))
-                                    mulliken_charges.append(float(fields[-2]))
-                            else:
-                                mulliken_charges.append(float(fields[-1]))
+                        mulliken_charges, spins = _read_mulliken_charges(
+                            out, spin_polarized)
 
                 # There is actually no good reason to get out of the loop
                 # already at this point... or do I miss something?
@@ -2219,6 +2205,29 @@ def _read_forces(out, n_atoms):
         line = out.readline()
         fields = line.split()
     return forces, constraints
+
+
+def _read_mulliken_charges(out, spin_polarized):
+    """Read a block for Mulliken charges from a .castep file."""
+    mulliken_charges = []
+    spins = []
+    # skip the next separator line
+    line = out.readline()
+    while True:
+        line = out.readline()
+        fields = line.split()
+        if len(fields) == 1:
+            break
+
+        # the check for len==7 is due to CASTEP 18
+        # outformat changes
+        if spin_polarized:
+            if len(fields) != 7:
+                spins.append(float(fields[-1]))
+                mulliken_charges.append(float(fields[-2]))
+        else:
+            mulliken_charges.append(float(fields[-1]))
+    return mulliken_charges, spins
 
 
 def _get_indices_to_sort_back(symbols, species):

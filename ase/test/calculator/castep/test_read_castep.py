@@ -2,7 +2,11 @@
 from io import StringIO
 
 import numpy as np
-from ase.calculators.castep import _read_forces, _get_indices_to_sort_back
+from ase.calculators.castep import (
+    _read_forces,
+    _read_mulliken_charges,
+    _get_indices_to_sort_back,
+)
 from ase.constraints import FixAtoms, FixCartesian
 
 
@@ -63,6 +67,51 @@ def test_constrainted_forces():
     assert all(constraints[0].index == constraints_ref[0].index)
     assert all(constraints[1].index == constraints_ref[1].index)
     assert all(constraints[1].mask == constraints_ref[1].mask)
+
+
+# bulk("AlP", "zincblende", a=5.43)
+MULLIKEN_SPIN_UNPOLARIZED = """\
+     Atomic Populations (Mulliken)
+     -----------------------------
+Species          Ion     s       p       d       f      Total   Charge (e)
+==========================================================================
+  Al              1     0.935   1.361   0.000   0.000   2.296     0.704
+  P               1     1.665   4.039   0.000   0.000   5.704    -0.704
+==========================================================================
+"""
+
+# bulk("MnTe", "zincblende", a=6.34)
+MULLIKEN_SPIN_POLARIZED = """\
+     Atomic Populations (Mulliken)
+     -----------------------------
+Species          Ion Spin      s       p       d       f      Total   Charge(e)   Spin(hbar/2)
+==============================================================================================
+  Mn              1   up:     1.436   3.596   4.918   0.000   9.950    -0.114        4.785
+                  1   dn:     1.293   3.333   0.538   0.000   5.164
+  Te              1   up:     0.701   2.229   0.000   0.000   2.929     0.114       -0.027
+                  1   dn:     0.763   2.194   0.000   0.000   2.956
+==============================================================================================
+"""  # noqa: E501
+
+
+def test_mulliken_spin_unpolarized():
+    """Test if the Atomic Populations block can be parsed correctly."""
+    out = StringIO(MULLIKEN_SPIN_UNPOLARIZED)
+    for _ in range(3):
+        out.readline()
+    charges, magmoms = _read_mulliken_charges(out, spin_polarized=False)
+    np.testing.assert_allclose(charges, [+0.704, -0.704])
+    np.testing.assert_allclose(magmoms, [])
+
+
+def test_mulliken_spin_polarized():
+    """Test if the Atomic Populations block can be parsed correctly."""
+    out = StringIO(MULLIKEN_SPIN_POLARIZED)
+    for _ in range(3):
+        out.readline()
+    charges, magmoms = _read_mulliken_charges(out, spin_polarized=True)
+    np.testing.assert_allclose(charges, [-0.114, +0.114])
+    np.testing.assert_allclose(magmoms, [+4.785, -0.027])
 
 
 def test_get_indices_to_sort_back():
