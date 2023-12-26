@@ -76,12 +76,12 @@ R = CodeMetadata.register
 
 R('abinit', 'Abinit', 'ase.calculators.abinit.Abinit')
 R('ace', 'ACE molecule', 'ase.calculators.acemolecule.ACE')
-# R('acn', 'ACN force field', 'ase.calculators.acn.ACN')
+# internal: R('acn', 'ACN force field', 'ase.calculators.acn.ACN')
 R('aims', 'FHI-Aims', 'ase.calculators.aims.Aims')
 R('amber', 'Amber', 'ase.calculators.amber.Amber')
 R('castep', 'Castep', 'ase.calculators.castep.Castep')
-# combine_mm
-# counterions
+# internal: combine_mm
+# internal: counterions
 R('cp2k', 'CP2K', 'ase.calculators.cp2k.CP2K')
 R('crystal', 'Crystap', 'ase.calculators.crystal.CRYSTAL')
 R('demon', 'deMon', 'ase.calculators.demon.Demon')
@@ -90,9 +90,9 @@ R('dftb', 'DFTB+', 'ase.calculators.dftb.Dftb')
 R('dftd3', 'DFT-D3', 'ase.calculators.dftd3.DFTD3')
 # R('dftd3-pure', 'DFT-D3 (pure)', 'ase.calculators.dftd3.puredftd3')
 R('dmol', 'DMol3', 'ase.calculators.dmol.DMol3')
-R('eam', 'EAM', 'ase.calculators.eam.EAM')
+# internal: R('eam', 'EAM', 'ase.calculators.eam.EAM')
 R('elk', 'ELK', 'ase.calculators.elk.ELK')
-R('emt', 'EMT potential', 'ase.calculators.emt.EMT')
+# internal: R('emt', 'EMT potential', 'ase.calculators.emt.EMT')
 R('espresso', 'Quantum Espresso', 'ase.calculators.espresso.Espresso')
 R('exciting', 'Exciting',
   'ase.calculators.exciting.exciting.ExcitingGroundStateCalculator')
@@ -103,18 +103,21 @@ R('gaussian', 'Gaussian', 'ase.calculators.gaussian.Gaussian')
 R('gromacs', 'Gromacs', 'ase.calculators.gromacs.Gromacs')
 R('gulp', 'GULP', 'ase.calculators.gulp.GULP')
 # h2morse.py really?
-R('harmonic', 'Harmonic potential',
-  'ase.calculators.harmonic.HarmonicCalculator')
-R('idealgas', 'Ideal gas (dummy)', 'ase.calculators.idealgas.IdealGas')
+# internal: R('harmonic', 'Harmonic potential',
+#  'ase.calculators.harmonic.HarmonicCalculator')
+# internal: R('idealgas', 'Ideal gas (dummy)',
+#             'ase.calculators.idealgas.IdealGas')
 # XXX cannot import without kimpy installed, fixme:
 # R('kim', 'OpenKIM', 'ase.calculators.kim.kim.KIM')
 R('lammpslib', 'Lammps (python library)', 'ase.calculators.lammpslib.LAMMPSlib')
 R('lammpsrun', 'Lammps (external)', 'ase.calculators.lammpsrun.LAMMPS')
-R('lj', 'Lennard–Jones potential', 'ase.calculators.lj.LennardJones')
-# loggingcalc.py
-# mixing.py
+# internal: R('lj', 'Lennard–Jones potential',
+#             'ase.calculators.lj.LennardJones')
+# internal: loggingcalc.py
+# internal: mixing.py
 R('mopac', 'MOPAC', 'ase.calculators.mopac.MOPAC')
-R('morse', 'Morse potential', 'ase.calculators.morse.MorsePotential')
+# internal: R('morse', 'Morse potential',
+# 'ase.calculators.morse.MorsePotential')
 R('nwchem', 'NWChem', 'ase.calculators.nwchem.NWChem')
 R('octopus', 'Octopus', 'ase.calculators.octopus.Octopus')
 R('onetep', 'Onetep', 'ase.calculators.onetep.Onetep')
@@ -123,14 +126,14 @@ R('orca', 'ORCA', 'ase.calculators.orca.ORCA')
 R('plumed', 'Plumed', 'ase.calculators.plumed.Plumed')
 R('psi4', 'Psi4', 'ase.calculators.psi4.Psi4')
 R('qchem', 'QChem', 'ase.calculators.qchem.QChem')
-# qmmm.py
+# internal: qmmm.py
 R('siesta', 'SIESTA', 'ase.calculators.siesta.Siesta')
-# test.py
-R('tip3p', 'TIP3P', 'ase.calculators.tip3p.TIP3P')
-R('tip4p', 'TIP4P', 'ase.calculators.tip4p.TIP4P')
+# internal: test.py
+# internal: R('tip3p', 'TIP3P', 'ase.calculators.tip3p.TIP3P')
+# internal: R('tip4p', 'TIP4P', 'ase.calculators.tip4p.TIP4P')
 R('turbomole', 'Turbomole', 'ase.calculators.turbomole.Turbomole')
 R('vasp', 'VASP', 'ase.calculators.vasp.Vasp')
-# vdwcorrection
+# internal: vdwcorrection
 
 
 def list_codes():
