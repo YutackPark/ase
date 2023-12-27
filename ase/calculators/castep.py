@@ -15,6 +15,7 @@ Contributors:
 
 import difflib
 import glob
+import io
 import json
 import os
 import re
@@ -37,7 +38,7 @@ from ase.calculators.calculator import (PropertyNotImplementedError,
                                         compare_atoms, kpts2sizeandoffsets)
 from ase.calculators.general import Calculator
 from ase.config import cfg
-from ase.constraints import FixAtoms, FixCartesian
+from ase.constraints import FixConstraint, FixAtoms, FixCartesian
 from ase.dft.kpoints import BandPath
 from ase.io.castep import read_bands, read_param
 from ase.parallel import paropen
@@ -2135,9 +2136,9 @@ ppwarning = ('Warning: PP files have neither been '
              'accordingly!')
 
 
-def _read_forces(out, n_atoms):
+def _read_forces(out: io.TextIOBase, n_atoms: int):
     """Read a block for atomic forces from a .castep file."""
-    constraints = []
+    constraints: List[FixConstraint] = []
     forces = []
     while True:
         line = out.readline()
@@ -2162,7 +2163,7 @@ def _read_forces(out, n_atoms):
     return forces, constraints
 
 
-def _read_mulliken_charges(out):
+def _read_mulliken_charges(out: io.TextIOBase):
     """Read a block for Mulliken charges from a .castep file."""
     for i in range(3):
         line = out.readline()
@@ -2183,7 +2184,7 @@ def _read_mulliken_charges(out):
     return {k: np.array(v) for k, v in results.items()}
 
 
-def _read_hirshfeld_charges(out):
+def _read_hirshfeld_charges(out: io.TextIOBase):
     """Read a block for Hirshfeld charges from a .castep file."""
     for i in range(3):
         line = out.readline()
