@@ -494,6 +494,8 @@ End CASTEP Interface Documentation
         # initialize the ase.calculators.general calculator
         Calculator.__init__(self)
 
+        self.results = {}  # TODO: remove once inheriting BaseCalculator
+
         from ase.io.castep import write_cell
         self._write_cell = write_cell
 
@@ -592,8 +594,6 @@ End CASTEP Interface Documentation
 
         # Mulliken charges
         self._mulliken_charges = None
-        # Hirshfeld charges
-        self._hirshfeld_charges = None
 
         self._number_of_cell_constraints = None
         self._output_verbosity = None
@@ -959,7 +959,6 @@ End CASTEP Interface Documentation
         spin_polarized = False
         calculate_hirshfeld = False
         mulliken_analysis = False
-        hirshfeld_analysis = False
         kpoints = None
 
         positions_frac_list = []
@@ -974,25 +973,6 @@ End CASTEP Interface Documentation
                 line = out.readline()
                 if not line or out.tell() > record_end:
                     break
-                elif 'Hirshfeld Analysis' in line:
-                    hirshfeld_charges = []
-
-                    hirshfeld_analysis = True
-                    # skip the separating line
-                    line = out.readline()
-                    # this is the headline
-                    line = out.readline()
-
-                    if 'Charge' in line:
-                        # skip the next separator line
-                        line = out.readline()
-                        while True:
-                            line = out.readline()
-                            fields = line.split()
-                            if len(fields) == 1:
-                                break
-                            else:
-                                hirshfeld_charges.append(float(fields[-1]))
                 elif 'stress calculation' in line:
                     if line.split()[-1].strip() == 'on':
                         self.param.calculate_stress = True
@@ -1277,6 +1257,9 @@ End CASTEP Interface Documentation
                         mulliken_charges, spins = _read_mulliken_charges(
                             out, spin_polarized)
 
+                elif 'Hirshfeld Analysis' in line:
+                    self.results.update(_read_hirshfeld_charges(out))
+
                 # There is actually no good reason to get out of the loop
                 # already at this point... or do I miss something?
                 # elif 'BFGS: Final Configuration:' in line:
@@ -1329,11 +1312,6 @@ End CASTEP Interface Documentation
             mulliken_charges_atoms = np.array(mulliken_charges)
         else:
             mulliken_charges_atoms = np.zeros(len(positions_frac))
-
-        if hirshfeld_analysis:
-            hirshfeld_charges_atoms = np.array(hirshfeld_charges)
-        else:
-            hirshfeld_charges_atoms = None
 
         if calculate_hirshfeld:
             hirsh_atoms = np.array(hirsh_volrat)
@@ -1392,7 +1370,6 @@ End CASTEP Interface Documentation
         self._hirsh_volrat = hirsh_atoms
         self._spins = spins_atoms
         self._mulliken_charges = mulliken_charges_atoms
-        self._hirshfeld_charges = hirshfeld_charges_atoms
 
         if self._warnings:
             warnings.warn(f'WARNING: {castep_file} contains warnings')
@@ -1434,11 +1411,14 @@ End CASTEP Interface Documentation
         """
         return self._mulliken_charges
 
+    # TODO: deprecate once inheriting BaseCalculator
     def get_hirshfeld_charges(self):
         """
         Return the charges from a Hirshfeld analysis.
         """
-        return self._hirshfeld_charges
+        if 'hirshfeld_charges' in self.results:
+            return self.results['hirshfeld_charges']
+        return None
 
     def get_total_time(self):
         """
@@ -1959,7 +1939,7 @@ End CASTEP Interface Documentation
             else:
                 self.__dict__[attr] = value
             return
-        elif attr in ['atoms', 'cell', 'param']:
+        elif attr in ['atoms', 'cell', 'param', 'results']:
             if value is not None:
                 if attr == 'atoms' and not isinstance(value, Atoms):
                     raise TypeError(
@@ -2228,6 +2208,21 @@ def _read_mulliken_charges(out, spin_polarized):
         else:
             mulliken_charges.append(float(fields[-1]))
     return mulliken_charges, spins
+
+
+def _read_hirshfeld_charges(out):
+    """Read a block for Hirshfeld charges from a .castep file."""
+    for _ in range(3):
+        out.readline()
+    hirshfeld_charges = []
+    while True:
+        line = out.readline()
+        fields = line.split()
+        if len(fields) == 1:
+            break
+        hirshfeld_charges.append(float(fields[-1]))
+    results = {'hirshfeld_charges': np.array(hirshfeld_charges)}
+    return results
 
 
 def _get_indices_to_sort_back(symbols, species):
