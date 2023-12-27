@@ -958,12 +958,9 @@ End CASTEP Interface Documentation
         # Hirshfeld volumes are calculated
         spin_polarized = False
         calculate_hirshfeld = False
-        mulliken_analysis = False
         kpoints = None
 
         positions_frac_list = []
-        mulliken_charges = []
-        spins = []
 
         out.seek(record_start)
         while True:
@@ -1245,17 +1242,7 @@ End CASTEP Interface Documentation
 
                 # extract info from the Mulliken analysis
                 elif 'Atomic Populations' in line:
-                    # sometimes this appears twice in a castep file
-
-                    mulliken_analysis = True
-                    # skip the separating line
-                    line = out.readline()
-                    # this is the headline
-                    line = out.readline()
-
-                    if 'Charge' in line:
-                        mulliken_charges, spins = _read_mulliken_charges(
-                            out, spin_polarized)
+                    self.results.update(_read_mulliken_charges(out))
 
                 elif 'Hirshfeld Analysis' in line:
                     self.results.update(_read_hirshfeld_charges(out))
@@ -1291,32 +1278,13 @@ End CASTEP Interface Documentation
         if not species:
             species = prev_species
 
-        if not spin_polarized:
-            # set to zero spin if non-spin polarized calculation
-            spins = np.zeros(len(positions_frac))
-        elif len(spins) != len(positions_frac):
-            warnings.warn('Spins could not be read for the atoms despite'
-                          ' spin-polarized calculation; spins will be ignored')
-            spins = np.zeros(len(positions_frac))
-
         positions_frac_atoms = np.array(positions_frac)
         forces_atoms = np.array(forces)
-        spins_atoms = np.array(spins)
-
-        if mulliken_analysis:
-            if len(mulliken_charges) != len(positions_frac):
-                warnings.warn(
-                    'Mulliken charges could not be read for the atoms;'
-                    ' charges will be ignored')
-                mulliken_charges = np.zeros(len(positions_frac))
-            mulliken_charges_atoms = np.array(mulliken_charges)
-        else:
-            mulliken_charges_atoms = np.zeros(len(positions_frac))
 
         if calculate_hirshfeld:
             hirsh_atoms = np.array(hirsh_volrat)
         else:
-            hirsh_atoms = np.zeros_like(spins)
+            hirsh_atoms = np.zeros(len(positions_frac))
 
         if self.atoms and not self._set_atoms:
             # compensate for internal reordering of atoms by CASTEP
@@ -1327,9 +1295,16 @@ End CASTEP Interface Documentation
             forces_atoms = forces_atoms[indices]
             if iprint > 1 and calculate_hirshfeld:
                 hirsh_atoms = hirsh_atoms[indices]
-            mulliken_charges_atoms = mulliken_charges_atoms[indices]
-            if spin_polarized:
-                spins_atoms = spins_atoms[indices]
+            keys = [
+                'charges',
+                'magmoms',
+                'hirshfeld_charges',
+                'hirshfeld_magmoms',
+            ]
+            for k in keys:
+                if k not in self.results:
+                    continue
+                self.results[k] = self.results[k][indices]
 
             self.atoms.set_scaled_positions(positions_frac_atoms)
 
@@ -1353,14 +1328,14 @@ End CASTEP Interface Documentation
                 atoms.new_array('castep_custom_species',
                                 np.array(custom_species))
 
-            if self.param.spin_polarized:
-                # only set magnetic moments if this was a spin polarized
-                # calculation
-                # this one fails as is
-                atoms.set_initial_magnetic_moments(magmoms=spins_atoms)
+            k = 'charges'
+            if k in self.results:
+                atoms.set_initial_charges(charges=self.results[k])
 
-            if mulliken_analysis:
-                atoms.set_initial_charges(charges=mulliken_charges_atoms)
+            k = 'magmoms'
+            if k in self.results:
+                atoms.set_initial_magnetic_moments(magmoms=self.results[k])
+
             atoms.calc = self
 
         self._kpoints = kpoints
@@ -1368,8 +1343,6 @@ End CASTEP Interface Documentation
         # stress in .castep file is given in GPa:
         self._stress = np.array(stress) * units.GPa
         self._hirsh_volrat = hirsh_atoms
-        self._spins = spins_atoms
-        self._mulliken_charges = mulliken_charges_atoms
 
         if self._warnings:
             warnings.warn(f'WARNING: {castep_file} contains warnings')
@@ -1399,17 +1372,19 @@ End CASTEP Interface Documentation
         """
         return self._hirsh_volrat
 
+    # TODO: deprecate once inheriting BaseCalculator
     def get_spins(self):
         """
         Return the spins from a plane-wave Mulliken analysis.
         """
-        return self._spins
+        return self.results['magmoms']
 
+    # TODO: deprecate once inheriting BaseCalculator
     def get_mulliken_charges(self):
         """
         Return the charges from a plane-wave Mulliken analysis.
         """
-        return self._mulliken_charges
+        return self.results['charges']
 
     # TODO: deprecate once inheriting BaseCalculator
     def get_hirshfeld_charges(self):
@@ -2187,27 +2162,25 @@ def _read_forces(out, n_atoms):
     return forces, constraints
 
 
-def _read_mulliken_charges(out, spin_polarized):
+def _read_mulliken_charges(out):
     """Read a block for Mulliken charges from a .castep file."""
-    mulliken_charges = []
-    spins = []
-    # skip the next separator line
-    line = out.readline()
+    for i in range(3):
+        line = out.readline()
+        if i == 1:
+            spin_polarized = 'Spin' in line
+    results = defaultdict(list)
     while True:
         line = out.readline()
         fields = line.split()
         if len(fields) == 1:
             break
-
-        # the check for len==7 is due to CASTEP 18
-        # outformat changes
         if spin_polarized:
-            if len(fields) != 7:
-                spins.append(float(fields[-1]))
-                mulliken_charges.append(float(fields[-2]))
+            if len(fields) != 7:  # due to CASTEP 18 outformat changes
+                results['charges'].append(float(fields[-2]))
+                results['magmoms'].append(float(fields[-1]))
         else:
-            mulliken_charges.append(float(fields[-1]))
-    return mulliken_charges, spins
+            results['charges'].append(float(fields[-1]))
+    return {k: np.array(v) for k, v in results.items()}
 
 
 def _read_hirshfeld_charges(out):

@@ -98,21 +98,19 @@ Species          Ion Spin      s       p       d       f      Total   Charge(e) 
 def test_mulliken_spin_unpolarized():
     """Test if the Atomic Populations block can be parsed correctly."""
     out = StringIO(MULLIKEN_SPIN_UNPOLARIZED)
-    for _ in range(3):
-        out.readline()
-    charges, magmoms = _read_mulliken_charges(out, spin_polarized=False)
-    np.testing.assert_allclose(charges, [+0.704, -0.704])
-    np.testing.assert_allclose(magmoms, [])
+    out.readline()  # read header
+    results = _read_mulliken_charges(out)
+    np.testing.assert_allclose(results['charges'], [+0.704, -0.704])
+    assert 'magmoms' not in results
 
 
 def test_mulliken_spin_polarized():
     """Test if the Atomic Populations block can be parsed correctly."""
     out = StringIO(MULLIKEN_SPIN_POLARIZED)
-    for _ in range(3):
-        out.readline()
-    charges, magmoms = _read_mulliken_charges(out, spin_polarized=True)
-    np.testing.assert_allclose(charges, [-0.114, +0.114])
-    np.testing.assert_allclose(magmoms, [+4.785, -0.027])
+    out.readline()  # read header
+    results = _read_mulliken_charges(out)
+    np.testing.assert_allclose(results['charges'], [-0.114, +0.114])
+    np.testing.assert_allclose(results['magmoms'], [+4.785, -0.027])
 
 
 HIRSHFELD_SPIN_UNPOLARIZED = """\
