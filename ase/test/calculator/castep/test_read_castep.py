@@ -5,6 +5,7 @@ import numpy as np
 from ase.calculators.castep import (
     _read_forces,
     _read_mulliken_charges,
+    _read_hirshfeld_charges,
     _get_indices_to_sort_back,
 )
 from ase.constraints import FixAtoms, FixCartesian
@@ -112,6 +113,25 @@ def test_mulliken_spin_polarized():
     charges, magmoms = _read_mulliken_charges(out, spin_polarized=True)
     np.testing.assert_allclose(charges, [-0.114, +0.114])
     np.testing.assert_allclose(magmoms, [+4.785, -0.027])
+
+
+HIRSHFELD_SPIN_UNPOLARIZED = """\
+     Hirshfeld Analysis
+     ------------------
+Species   Ion     Hirshfeld Charge (e)
+======================================
+  Al       1                 0.18
+  P        1                -0.18
+======================================
+"""
+
+
+def test_hirshfeld_spin_unpolarized():
+    """Test if the Hirshfeld Analysis block can be parsed correctly."""
+    out = StringIO(HIRSHFELD_SPIN_UNPOLARIZED)
+    out.readline()  # read header
+    results = _read_hirshfeld_charges(out)
+    np.testing.assert_allclose(results['hirshfeld_charges'], [+0.18, -0.18])
 
 
 def test_get_indices_to_sort_back():
