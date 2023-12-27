@@ -24,7 +24,7 @@ import sys
 import tempfile
 import time
 import warnings
-from collections import namedtuple
+from collections import defaultdict, namedtuple
 from copy import deepcopy
 from itertools import product
 from pathlib import Path
@@ -2212,17 +2212,22 @@ def _read_mulliken_charges(out, spin_polarized):
 
 def _read_hirshfeld_charges(out):
     """Read a block for Hirshfeld charges from a .castep file."""
-    for _ in range(3):
-        out.readline()
-    hirshfeld_charges = []
+    for i in range(3):
+        line = out.readline()
+        if i == 1:
+            spin_polarized = 'Spin' in line
+    results = defaultdict(list)
     while True:
         line = out.readline()
         fields = line.split()
         if len(fields) == 1:
             break
-        hirshfeld_charges.append(float(fields[-1]))
-    results = {'hirshfeld_charges': np.array(hirshfeld_charges)}
-    return results
+        if spin_polarized:
+            results['hirshfeld_charges'].append(float(fields[-2]))
+            results['hirshfeld_magmoms'].append(float(fields[-1]))
+        else:
+            results['hirshfeld_charges'].append(float(fields[-1]))
+    return {k: np.array(v) for k, v in results.items()}
 
 
 def _get_indices_to_sort_back(symbols, species):

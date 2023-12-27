@@ -125,6 +125,16 @@ Species   Ion     Hirshfeld Charge (e)
 ======================================
 """
 
+HIRSHFELD_SPIN_POLARIZED = """\
+     Hirshfeld Analysis
+     ------------------
+Species   Ion     Hirshfeld Charge (e)  Spin (hbar/2)
+===================================================
+  Mn       1                 0.06        4.40
+  Te       1                -0.06        0.36
+===================================================
+"""
+
 
 def test_hirshfeld_spin_unpolarized():
     """Test if the Hirshfeld Analysis block can be parsed correctly."""
@@ -132,6 +142,16 @@ def test_hirshfeld_spin_unpolarized():
     out.readline()  # read header
     results = _read_hirshfeld_charges(out)
     np.testing.assert_allclose(results['hirshfeld_charges'], [+0.18, -0.18])
+    assert 'hirshfeld_magmoms' not in results
+
+
+def test_hirshfeld_spin_polarized():
+    """Test if the Hirshfeld Analysis block can be parsed correctly."""
+    out = StringIO(HIRSHFELD_SPIN_POLARIZED)
+    out.readline()  # read header
+    results = _read_hirshfeld_charges(out)
+    np.testing.assert_allclose(results['hirshfeld_charges'], [+0.06, -0.06])
+    np.testing.assert_allclose(results['hirshfeld_magmoms'], [+4.40, +0.36])
 
 
 def test_get_indices_to_sort_back():
