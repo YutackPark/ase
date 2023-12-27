@@ -25,7 +25,6 @@ class CodeMetadata:
         from importlib import import_module
         module = import_module(self.modulename)
         cls = getattr(module, self.classname)
-        # assert cls.name == self.name, f'{cls.name} vs {self.name}'
         return cls
 
     @classmethod
@@ -36,25 +35,24 @@ class CodeMetadata:
         return code
 
     def _description(self):
-        yield self.name
         yield f'Name:     {self.longname}'
         yield f'Import:   {self.modulename}.{self.classname}'
         yield f'Type:     {self.calculator_type()}'
         yield ''
         yield from self._config_description()
 
-    def description(self):
-        tokens = [*self._description()]
-        tokens[1:] = [f'  {token}' for token in tokens[1:]]
-        return '\n'.join(tokens)
+    def description(self, indent=''):
+        return '\n'.join(indent + line for line in self._description())
 
     def is_legacy_fileio(self):
         from ase.calculators.calculator import FileIOCalculator
         return issubclass(self.calculator_class(), FileIOCalculator)
 
     def is_generic_fileio(self):
-        from ase.calculators.genericfileio import GenericFileIOCalculator
-        return issubclass(self.calculator_class(), GenericFileIOCalculator)
+        from ase.calculators.genericfileio import CalculatorTemplate
+        # It is nicer to check for the template class, since it has the name,
+        # but then calculator_class() should be renamed.
+        return issubclass(self.calculator_class(), CalculatorTemplate)
 
     def is_calculator_oldbase(self):
         from ase.calculators.calculator import Calculator
@@ -65,6 +63,8 @@ class CodeMetadata:
         return issubclass(self.calculator_class(), BaseCalculator)
 
     def calculator_type(self):
+        from ase.calculators.genericfileio import GenericFileIOCalculator
+        cls = self.calculator_class()
 
         if self.is_generic_fileio():
             return 'GenericFileIOCalculator'
@@ -75,103 +75,133 @@ class CodeMetadata:
         if self.is_calculator_oldbase():
             return 'Calculator (legacy base class)'
 
-        if self.is_base_calculator:
+        if self.is_base_calculator():
             return 'Base calculator'
 
-        mro = self.calculator_class().__mro__
-        return f'BAD: Not a proper calculator (superclasses: {mro})'
+        return f'BAD: Not a proper calculator (superclasses: {cls.__mro__})'
+
+    def profile(self):
+        from ase.calculators.genericfileio import CalculatorTemplate
+        from ase.config import cfg
+        cls = self.calculator_class()
+        if issubclass(cls, CalculatorTemplate):
+            return cls().load_profile(cfg)
+        else:
+            raise NotImplementedError('profile() not implemented')
 
     def _config_description(self):
+        from ase.calculators.genericfileio import BadConfiguration
         from ase.config import cfg
-        if self.name not in cfg:
+
+        parser = cfg.parser
+        if self.name not in parser:
             yield f'Not configured: No [{self.name}] section in configuration'
             return
 
-        yield 'Configured by section [{self.name}]'
-
-    def profile(self):
-        cls = self.calculator_class()
-        calc = cls()
-        return calc.profile
-
-    #def configuration_info(self):
-    #    profile = self.profile()
-    #    if hasattr(profile, 'get_calculator_command
-
-
-R = CodeMetadata.register
-
-
-R('abinit', 'Abinit', 'ase.calculators.abinit.Abinit')
-R('ace', 'ACE molecule', 'ase.calculators.acemolecule.ACE')
-# internal: R('acn', 'ACN force field', 'ase.calculators.acn.ACN')
-R('aims', 'FHI-Aims', 'ase.calculators.aims.Aims')
-R('amber', 'Amber', 'ase.calculators.amber.Amber')
-R('castep', 'Castep', 'ase.calculators.castep.Castep')
-# internal: combine_mm
-# internal: counterions
-R('cp2k', 'CP2K', 'ase.calculators.cp2k.CP2K')
-R('crystal', 'Crystap', 'ase.calculators.crystal.CRYSTAL')
-R('demon', 'deMon', 'ase.calculators.demon.Demon')
-R('demonnano', 'deMon-nano', 'ase.calculators.demonnano.DemonNano')
-R('dftb', 'DFTB+', 'ase.calculators.dftb.Dftb')
-R('dftd3', 'DFT-D3', 'ase.calculators.dftd3.DFTD3')
-# R('dftd3-pure', 'DFT-D3 (pure)', 'ase.calculators.dftd3.puredftd3')
-R('dmol', 'DMol3', 'ase.calculators.dmol.DMol3')
-# internal: R('eam', 'EAM', 'ase.calculators.eam.EAM')
-R('elk', 'ELK', 'ase.calculators.elk.ELK')
-# internal: R('emt', 'EMT potential', 'ase.calculators.emt.EMT')
-R('espresso', 'Quantum Espresso', 'ase.calculators.espresso.Espresso')
-R('exciting', 'Exciting',
-  'ase.calculators.exciting.exciting.ExcitingGroundStateCalculator')
-# internal: R('ff', 'FF', 'ase.calculators.ff.ForceField')
-# fleur <- external nowadays
-R('gamess_us', 'GAMESS-US', 'ase.calculators.gamess_us.GAMESSUS')
-R('gaussian', 'Gaussian', 'ase.calculators.gaussian.Gaussian')
-R('gromacs', 'Gromacs', 'ase.calculators.gromacs.Gromacs')
-R('gulp', 'GULP', 'ase.calculators.gulp.GULP')
-# h2morse.py really?
-# internal: R('harmonic', 'Harmonic potential',
-#  'ase.calculators.harmonic.HarmonicCalculator')
-# internal: R('idealgas', 'Ideal gas (dummy)',
-#             'ase.calculators.idealgas.IdealGas')
-# XXX cannot import without kimpy installed, fixme:
-# R('kim', 'OpenKIM', 'ase.calculators.kim.kim.KIM')
-R('lammpslib', 'Lammps (python library)', 'ase.calculators.lammpslib.LAMMPSlib')
-R('lammpsrun', 'Lammps (external)', 'ase.calculators.lammpsrun.LAMMPS')
-# internal: R('lj', 'Lennard–Jones potential',
-#             'ase.calculators.lj.LennardJones')
-# internal: loggingcalc.py
-# internal: mixing.py
-R('mopac', 'MOPAC', 'ase.calculators.mopac.MOPAC')
-# internal: R('morse', 'Morse potential',
-# 'ase.calculators.morse.MorsePotential')
-R('nwchem', 'NWChem', 'ase.calculators.nwchem.NWChem')
-R('octopus', 'Octopus', 'ase.calculators.octopus.Octopus')
-R('onetep', 'Onetep', 'ase.calculators.onetep.Onetep')
-R('openmx', 'OpenMX', 'ase.calculators.openmx.OpenMX')
-R('orca', 'ORCA', 'ase.calculators.orca.ORCA')
-R('plumed', 'Plumed', 'ase.calculators.plumed.Plumed')
-R('psi4', 'Psi4', 'ase.calculators.psi4.Psi4')
-R('qchem', 'QChem', 'ase.calculators.qchem.QChem')
-# internal: qmmm.py
-R('siesta', 'SIESTA', 'ase.calculators.siesta.Siesta')
-# internal: test.py
-# internal: R('tip3p', 'TIP3P', 'ase.calculators.tip3p.TIP3P')
-# internal: R('tip4p', 'TIP4P', 'ase.calculators.tip4p.TIP4P')
-R('turbomole', 'Turbomole', 'ase.calculators.turbomole.Turbomole')
-R('vasp', 'VASP', 'ase.calculators.vasp.Vasp')
-# internal: vdwcorrection
-
-
-def list_codes():
-    for code in CodeMetadata.codes.values():
         try:
-            print(code.description())
+            profile = self.profile()
+        except BadConfiguration as ex:
+            yield f'Error in configuration section [{self.name}]'
+            yield 'Missing or bad parameters:'
+            yield f'  {ex}'
+            return
+        except NotImplementedError as ex:
+            yield f'N/A: {ex}'
+            return
+
+        yield f'Configured by section [{self.name}]:'
+        configvars = vars(profile)
+        for name in sorted(configvars):
+            yield(f'  {name} = {configvars[name]}')
+
+        return
+
+
+
+def register_codes():
+    reg = CodeMetadata.register
+
+    reg('abinit', 'Abinit', 'ase.calculators.abinit.AbinitTemplate')
+    reg('ace', 'ACE molecule', 'ase.calculators.acemolecule.ACE')
+    # internal: reg('acn', 'ACN force field', 'ase.calculators.acn.ACN')
+    reg('aims', 'FHI-Aims', 'ase.calculators.aims.AimsTemplate')
+    reg('amber', 'Amber', 'ase.calculators.amber.Amber')
+    reg('castep', 'Castep', 'ase.calculators.castep.Castep')
+    # internal: combine_mm
+    # internal: counterions
+    reg('cp2k', 'CP2K', 'ase.calculators.cp2k.CP2K')
+    reg('crystal', 'Crystap', 'ase.calculators.crystal.CRYSTAL')
+    reg('demon', 'deMon', 'ase.calculators.demon.Demon')
+    reg('demonnano', 'deMon-nano', 'ase.calculators.demonnano.DemonNano')
+    reg('dftb', 'DFTB+', 'ase.calculators.dftb.Dftb')
+    reg('dftd3', 'DFT-D3', 'ase.calculators.dftd3.DFTD3')
+    # reg('dftd3-pure', 'DFT-D3 (pure)', 'ase.calculators.dftd3.puredftd3')
+    reg('dmol', 'DMol3', 'ase.calculators.dmol.DMol3')
+    # internal: reg('eam', 'EAM', 'ase.calculators.eam.EAM')
+    reg('elk', 'ELK', 'ase.calculators.elk.ELK')
+    # internal: reg('emt', 'EMT potential', 'ase.calculators.emt.EMT')
+    reg('espresso', 'Quantum Espresso',
+        'ase.calculators.espresso.EspressoTemplate')
+    reg('exciting', 'Exciting',
+        'ase.calculators.exciting.exciting.ExcitingGroundStateTemplate')
+    # internal: reg('ff', 'FF', 'ase.calculators.ff.ForceField')
+    # fleur <- external nowadays
+    reg('gamess_us', 'GAMESS-US', 'ase.calculators.gamess_us.GAMESSUS')
+    reg('gaussian', 'Gaussian', 'ase.calculators.gaussian.Gaussian')
+    reg('gromacs', 'Gromacs', 'ase.calculators.gromacs.Gromacs')
+    reg('gulp', 'GULP', 'ase.calculators.gulp.GULP')
+    # h2morse.py do we need a specific H2 morse calculator when we have morse??
+    # internal: reg('harmonic', 'Harmonic potential',
+    #  'ase.calculators.harmonic.HarmonicCalculator')
+    # internal: reg('idealgas', 'Ideal gas (dummy)',
+    #             'ase.calculators.idealgas.IdealGas')
+    # XXX cannot import without kimpy installed, fixme:
+    # reg('kim', 'OpenKIM', 'ase.calculators.kim.kim.KIM')
+    reg('lammpslib', 'Lammps (python library)',
+        'ase.calculators.lammpslib.LAMMPSlib')
+    reg('lammpsrun', 'Lammps (external)', 'ase.calculators.lammpsrun.LAMMPS')
+    # internal: reg('lj', 'Lennard–Jones potential',
+    #             'ase.calculators.lj.LennardJones')
+    # internal: loggingcalc.py
+    # internal: mixing.py
+    reg('mopac', 'MOPAC', 'ase.calculators.mopac.MOPAC')
+    # internal: reg('morse', 'Morse potential',
+    # 'ase.calculators.morse.MorsePotential')
+    reg('nwchem', 'NWChem', 'ase.calculators.nwchem.NWChem')
+    reg('octopus', 'Octopus', 'ase.calculators.octopus.OctopusTemplate')
+    reg('onetep', 'Onetep', 'ase.calculators.onetep.OnetepTemplate')
+    reg('openmx', 'OpenMX', 'ase.calculators.openmx.OpenMX')
+    reg('orca', 'ORCA', 'ase.calculators.orca.OrcaTemplate')
+    reg('plumed', 'Plumed', 'ase.calculators.plumed.Plumed')
+    reg('psi4', 'Psi4', 'ase.calculators.psi4.Psi4')
+    reg('qchem', 'QChem', 'ase.calculators.qchem.QChem')
+    # internal: qmmm.py
+    reg('siesta', 'SIESTA', 'ase.calculators.siesta.Siesta')
+    # internal: test.py
+    # internal: reg('tip3p', 'TIP3P', 'ase.calculators.tip3p.TIP3P')
+    # internal: reg('tip4p', 'TIP4P', 'ase.calculators.tip4p.TIP4P')
+    reg('turbomole', 'Turbomole', 'ase.calculators.turbomole.Turbomole')
+    reg('vasp', 'VASP', 'ase.calculators.vasp.Vasp')
+    # internal: vdwcorrection
+
+
+register_codes()
+
+
+def list_codes(names):
+    for name in names:
+        code = CodeMetadata.codes[name]
+        try:
+            print(code.name)
+            print(code.description(indent='  '))
         except Exception as ex:
             raise RuntimeError(code) from ex
         print()
 
 
 if __name__ == '__main__':
-    list_codes()
+    import sys
+    thecodes = sys.argv[1:]
+    if not thecodes:
+        thecodes = CodeMetadata.codes
+    list_codes(thecodes)
