@@ -1359,48 +1359,16 @@ End CASTEP Interface Documentation
             # compensate for internal reordering of atoms by CASTEP
             # using the fact that the order is kept within each species
 
-            # positions_frac_ase = self.atoms.get_scaled_positions(wrap=False)
-            atoms_assigned = [False] * len(self.atoms)
+            indices = _get_indices_to_sort_back(self.atoms.symbols, species)
+            positions_frac_atoms = positions_frac_atoms[indices]
+            forces_atoms = forces_atoms[indices]
+            if iprint > 1 and calculate_hirshfeld:
+                hirsh_atoms = hirsh_atoms[indices]
+            mulliken_charges_atoms = mulliken_charges_atoms[indices]
+            if spin_polarized:
+                spins_atoms = spins_atoms[indices]
 
-            # positions_frac_castep_init = np.array(positions_frac_list[0])
-            positions_frac_castep = np.array(positions_frac_list[-1])
-
-            # species_castep = list(species)
-            forces_castep = np.array(forces)
-            hirsh_castep = np.array(hirsh_volrat)
-            spins_castep = np.array(spins)
-            mulliken_charges_castep = np.array(mulliken_charges_atoms)
-
-            # go through the atoms position list and replace
-            # with the corresponding one from the
-            # castep file corresponding atomic number
-            for iase in range(n_atoms):
-                for icastep in range(n_atoms):
-                    if (species[icastep] == self.atoms[iase].symbol
-                            and not atoms_assigned[icastep]):
-                        positions_frac_atoms[iase] = \
-                            positions_frac_castep[icastep]
-                        forces_atoms[iase] = np.array(forces_castep[icastep])
-                        if iprint > 1 and calculate_hirshfeld:
-                            hirsh_atoms[iase] = np.array(hirsh_castep[icastep])
-                        if spin_polarized:
-                            # reordering not necessary in case all spins == 0
-                            spins_atoms[iase] = np.array(spins_castep[icastep])
-                        mulliken_charges_atoms[iase] = np.array(
-                            mulliken_charges_castep[icastep])
-                        atoms_assigned[icastep] = True
-                        break
-
-            if not all(atoms_assigned):
-                not_assigned = [i for (i, assigned)
-                                in zip(range(len(atoms_assigned)),
-                                       atoms_assigned) if not assigned]
-                warnings.warn(
-                    '%s atoms not assigned. '
-                    ' DEBUGINFO: The following atoms where not assigned: %s' %
-                    (atoms_assigned.count(False), not_assigned))
-            else:
-                self.atoms.set_scaled_positions(positions_frac_atoms)
+            self.atoms.set_scaled_positions(positions_frac_atoms)
 
         else:
             # If no atoms, object has been previously defined
@@ -2251,6 +2219,21 @@ def _read_forces(out, n_atoms):
         line = out.readline()
         fields = line.split()
     return forces, constraints
+
+
+def _get_indices_to_sort_back(symbols, species):
+    """Get indices to sort spicies in .castep back to atoms.symbols."""
+    uniques = np.unique(symbols)
+    indices = np.full(len(symbols), -1, dtype=int)
+    for unique in uniques:
+        where_symbols = [i for i, s in enumerate(symbols) if s == unique]
+        where_species = [j for j, s in enumerate(species) if s == unique]
+        for i, j in zip(where_symbols, where_species):
+            indices[i] = j
+    if -1 in indices:
+        not_assigned = [_ for _ in indices if _ == -1]
+        raise RuntimeError(f'Atoms {not_assigned} where not assigned.')
+    return indices
 
 
 def get_castep_version(castep_command):
