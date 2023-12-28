@@ -5,6 +5,7 @@ import numpy as np
 from ase.calculators.castep import (
     _read_forces,
     _read_mulliken_charges,
+    _read_hirshfeld_details,
     _read_hirshfeld_charges,
     _get_indices_to_sort_back,
 )
@@ -111,6 +112,68 @@ def test_mulliken_spin_polarized():
     results = _read_mulliken_charges(out)
     np.testing.assert_allclose(results['charges'], [-0.114, +0.114])
     np.testing.assert_allclose(results['magmoms'], [+4.785, -0.027])
+
+
+HIRSHFELD_DETAILS = """\
+ Species     1,  Atom     1  :  Al
+  Fractional coordinates :
+                                        0.000000000   0.000000000   0.000000000
+  Cartesian coordinates (A) :
+                                        0.000000000   0.000000000   0.000000000
+  Free atom total nuclear charge (e) :
+                                        3.000000000
+  Free atom total electronic charge on real space grid (e) :
+                                       -3.000000000
+  SCF total electronic charge on real space grid (e) :
+                                       -8.000000000
+  cut-off radius for r-integrals :
+                                       10.000000000
+  Free atom volume (Bohr**3) :
+                                       67.048035000
+  Hirshfeld total electronic charge (e) :
+                                       -2.821040742
+  Hirshfeld net atomic charge (e) :
+                                        0.178959258
+  Hirshfeld atomic volume (Bohr**3) :
+                                       61.353953500
+  Hirshfeld / free atomic volume :
+                                        0.915074595
+
+ Species     2,  Atom     1  :  P
+  Fractional coordinates :
+                                        0.250000000   0.250000000   0.250000000
+  Cartesian coordinates (A) :
+                                        1.357500000   1.357500000   1.357500000
+  Free atom total nuclear charge (e) :
+                                        5.000000000
+  Free atom total electronic charge on real space grid (e) :
+                                       -5.000000000
+  SCF total electronic charge on real space grid (e) :
+                                       -8.000000000
+  cut-off radius for r-integrals :
+                                       10.000000000
+  Free atom volume (Bohr**3) :
+                                       70.150468179
+  Hirshfeld total electronic charge (e) :
+                                       -5.178959258
+  Hirshfeld net atomic charge (e) :
+                                       -0.178959258
+  Hirshfeld atomic volume (Bohr**3) :
+                                       66.452900385
+  Hirshfeld / free atomic volume :
+                                        0.947290904
+
+"""
+
+
+def test_hirshfeld_details():
+    """Test if the Hirshfeld block of ispin > 1 can be parsed correctly."""
+    out = StringIO(HIRSHFELD_DETAILS)
+    results = _read_hirshfeld_details(out, 2)
+    np.testing.assert_allclose(
+        results['hirshfeld_volume_ratios'],
+        [0.915074595, 0.947290904],
+    )
 
 
 HIRSHFELD_SPIN_UNPOLARIZED = """\

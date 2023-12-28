@@ -953,12 +953,10 @@ End CASTEP Interface Documentation
         # the user configures CASTEP to print them in the outfile
         # stress = []
         stress = np.zeros([3, 3])
-        hirsh_volrat = []
 
         # Two flags to check whether spin-polarized or not, and whether
         # Hirshfeld volumes are calculated
         spin_polarized = False
-        calculate_hirshfeld = False
         kpoints = None
 
         positions_frac_list = []
@@ -1179,29 +1177,6 @@ End CASTEP Interface Documentation
                 elif re.search(r'\**.* Forces \**', line):
                     forces, constraints = _read_forces(out, n_atoms)
 
-                # add support for Hirshfeld analysis
-                elif 'Hirshfeld / free atomic volume :' in line:
-                    # if we are here, then params must be able to cope with
-                    # Hirshfeld flag (if castep_keywords.py matches employed
-                    # castep version)
-                    calculate_hirshfeld = True
-                    hirsh_volrat = []
-                    while True:
-                        line = out.readline()
-                        fields = line.split()
-                        if len(fields) == 1:
-                            break
-                    for n in range(n_atoms):
-                        hirsh_atom = float(fields[0])
-                        hirsh_volrat.append(hirsh_atom)
-                        while True:
-                            line = out.readline()
-                            if 'Hirshfeld / free atomic volume :' in line or\
-                               'Hirshfeld Analysis' in line:
-                                break
-                        line = out.readline()
-                        fields = line.split()
-
                 elif '***************** Stress Tensor *****************'\
                      in line or\
                      '*********** Symmetrised Stress Tensor ***********'\
@@ -1245,6 +1220,10 @@ End CASTEP Interface Documentation
                 elif 'Atomic Populations' in line:
                     self.results.update(_read_mulliken_charges(out))
 
+                # extract detailed Hirshfeld analysis (iprint > 1)
+                elif 'Hirshfeld total electronic charge (e)' in line:
+                    self.results.update(_read_hirshfeld_details(out, n_atoms))
+
                 elif 'Hirshfeld Analysis' in line:
                     self.results.update(_read_hirshfeld_charges(out))
 
@@ -1282,11 +1261,6 @@ End CASTEP Interface Documentation
         positions_frac_atoms = np.array(positions_frac)
         forces_atoms = np.array(forces)
 
-        if calculate_hirshfeld:
-            hirsh_atoms = np.array(hirsh_volrat)
-        else:
-            hirsh_atoms = np.zeros(len(positions_frac))
-
         if self.atoms and not self._set_atoms:
             # compensate for internal reordering of atoms by CASTEP
             # using the fact that the order is kept within each species
@@ -1294,11 +1268,10 @@ End CASTEP Interface Documentation
             indices = _get_indices_to_sort_back(self.atoms.symbols, species)
             positions_frac_atoms = positions_frac_atoms[indices]
             forces_atoms = forces_atoms[indices]
-            if iprint > 1 and calculate_hirshfeld:
-                hirsh_atoms = hirsh_atoms[indices]
             keys = [
                 'charges',
                 'magmoms',
+                'hirshfeld_volume_ratios',
                 'hirshfeld_charges',
                 'hirshfeld_magmoms',
             ]
@@ -1343,7 +1316,6 @@ End CASTEP Interface Documentation
         self._forces = forces_atoms
         # stress in .castep file is given in GPa:
         self._stress = np.array(stress) * units.GPa
-        self._hirsh_volrat = hirsh_atoms
 
         if self._warnings:
             warnings.warn(f'WARNING: {castep_file} contains warnings')
@@ -1367,11 +1339,13 @@ End CASTEP Interface Documentation
                 warnings.warn('Could not load .bands file, eigenvalues and '
                               'Fermi energy are unknown')
 
+    # TODO: deprecate once inheriting BaseCalculator
     def get_hirsh_volrat(self):
         """
-        Return the Hirshfeld volumes.
+        Return the Hirshfeld volume ratios.
         """
-        return self._hirsh_volrat
+        k = 'hirshfeld_volume_ratios'
+        return self.results[k] if k in self.results else None
 
     # TODO: deprecate once inheriting BaseCalculator
     def get_spins(self):
@@ -1392,9 +1366,8 @@ End CASTEP Interface Documentation
         """
         Return the charges from a Hirshfeld analysis.
         """
-        if 'hirshfeld_charges' in self.results:
-            return self.results['hirshfeld_charges']
-        return None
+        k = 'hirshfeld_charges'
+        return self.results[k] if k in self.results else None
 
     def get_total_time(self):
         """
@@ -2181,6 +2154,21 @@ def _read_mulliken_charges(out: io.TextIOBase):
                 results['magmoms'].append(float(fields[-1]))
         else:
             results['charges'].append(float(fields[-1]))
+    return {k: np.array(v) for k, v in results.items()}
+
+
+def _read_hirshfeld_details(out: io.TextIOBase, n_atoms: int):
+    """Read the Hirshfeld analysis when iprint > 1 from a .castep file."""
+    results = defaultdict(list)
+    for _ in range(n_atoms):
+        while True:
+            line = out.readline()
+            if line.strip() == '':
+                break  # end for each atom
+            if 'Hirshfeld / free atomic volume :' in line:
+                line = out.readline()
+                fields = line.split()
+                results['hirshfeld_volume_ratios'].append(float(fields[0]))
     return {k: np.array(v) for k, v in results.items()}
 
 
