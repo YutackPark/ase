@@ -82,10 +82,14 @@ class CodeMetadata:
 
     def profile(self):
         from ase.calculators.genericfileio import CalculatorTemplate
+        from ase.calculators.calculator import (FileIOCalculator,
+                                                NewArgvProfile)
         from ase.config import cfg
         cls = self.calculator_class()
         if issubclass(cls, CalculatorTemplate):
             return cls().load_profile(cfg)
+        elif issubclass(cls, FileIOCalculator):
+            return NewArgvProfile.from_config_section(cfg.parser[self.name])
         else:
             raise NotImplementedError('profile() not implemented')
 

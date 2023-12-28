@@ -1025,6 +1025,9 @@ class FileIOCalculator(Calculator):
         super().__init__(restart, ignore_bad_restart_file, label, atoms,
                          **kwargs)
 
+        #if profile is None and command is None and self.name in self.cfg:
+        #    profile = NewArgvProfile.from_config_section(self.cfg[self.name])
+
         if profile is None:
             profile = self._initialize_profile(command)
         self.profile = profile
@@ -1086,3 +1089,33 @@ class FileIOCalculator(Calculator):
 
     def read_results(self):
         """Read energy, forces, ... from output file(s)."""
+
+
+
+class NewArgvProfile:
+    def __init__(self, argv):
+        self.argv = argv
+
+    def execute(self, directory, stdout_name):
+        directory = Path(directory).resolve()
+        #if stdout_name is None:
+        #    stdout_name = f'{self.name}.out'
+        stdout_path = directory / f'{stdout_name}.out'
+        try:
+            with open(stdout_path, 'w') as fd:
+                subprocess.run(self.argv, cwd=directory, check=True, stdout=fd)
+        except subprocess.CalledProcessError as err:
+            msg = (
+                f'Calculator {self.name} failed with args {self.argv} '
+                f'in directory {directory}'
+            )
+            raise CalculationFailed(msg) from err
+        return stdout_path
+
+    @classmethod
+    def from_config_section(cls, section):
+        try:
+            return cls(section['argv'])
+        except KeyError as err:
+            from ase.calculators.genericfileio import BadConfiguration
+            raise BadConfiguration(*err.args)
