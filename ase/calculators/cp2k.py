@@ -4,11 +4,11 @@ https://www.cp2k.org/
 Author: Ole Schuett <ole.schuett@mat.ethz.ch>
 """
 
-
 import os
 import os.path
 import subprocess
 from warnings import warn
+from contextlib import AbstractContextManager
 
 import numpy as np
 
@@ -19,7 +19,7 @@ from ase.config import cfg
 from ase.units import Rydberg
 
 
-class CP2K(Calculator):
+class CP2K(Calculator, AbstractContextManager):
     """ASE-Calculator for CP2K.
 
     CP2K is a program to perform atomistic and molecular simulations of solid
@@ -50,6 +50,15 @@ class CP2K(Calculator):
     ``cp2k_shell``. To run a parallelized simulation use something like this::
 
         CP2K.command="env OMP_NUM_THREADS=2 mpiexec -np 4 cp2k_shell.psmp"
+
+    The CP2K-shell can be shut down by calling :meth:`close`.
+    The close method will be called automatically when using the calculator as
+    part of a with statement::
+
+        with CP2K() as calc:
+            calc.get_potential_energy(atoms)
+
+    The shell will be restarted if you call the calculator object again.
 
     Arguments:
 
@@ -202,17 +211,25 @@ class CP2K(Calculator):
         super().__init__(restart=restart,
                          ignore_bad_restart_file=ignore_bad_restart_file,
                          label=label, atoms=atoms, **kwargs)
-
-        self._shell = Cp2kShell(self.command, self._debug)
-
         if restart is not None:
             self.read(restart)
 
+        # Start the shell by default, which is how SocketIOCalculator
+        self._shell = Cp2kShell(self.command, self._debug)
+
     def __del__(self):
-        """Release force_env and terminate cp2k_shell child process"""
-        if self._shell:
-            self._release_force_env()
-            del self._shell
+        """Terminate cp2k_shell child process"""
+        self.close()
+
+    def __exit__(self, __exc_type, __exc_value, __traceback):
+        self.close()
+
+    def close(self):
+        """Close the attached shell"""
+        if self._shell is not None:
+            self._shell.close()
+            self._shell = None
+            self._force_env_id = None  # Force env must be recreated
 
     def set(self, **kwargs):
         """Set parameters like set(key1=value1, key2=value2, ...)."""
@@ -252,6 +269,10 @@ class CP2K(Calculator):
         if not properties:
             properties = ['energy']
         Calculator.calculate(self, atoms, properties, system_changes)
+
+        # Start the shell if needed
+        if self._shell is None:
+            self._shell = Cp2kShell(self.command, self._debug)
 
         if self._debug:
             print("system_changes:", system_changes)
@@ -308,7 +329,7 @@ class CP2K(Calculator):
         self._shell.expect('* READY')
 
         stress = np.array([float(x) for x in line.split()]).reshape(3, 3)
-        assert np.all(stress == np.transpose(stress))   # should be symmetric
+        assert np.all(stress == np.transpose(stress))  # should be symmetric
         # Convert 3x3 stress tensor to Voigt form as required by ASE
         stress = np.array([stress[0, 0], stress[1, 1], stress[2, 2],
                            stress[1, 2], stress[0, 2], stress[0, 1]])
@@ -511,16 +532,19 @@ class Cp2kShell:
 
     def __del__(self):
         """Terminate cp2k_shell child process"""
+        self.close()
+
+    def close(self):
+        """Terminate cp2k_shell child process"""
         if self.isready:
             self.send('EXIT')
             self._child.communicate()
             rtncode = self._child.wait()
             assert rtncode == 0  # child process exited properly?
-        else:
-            if hasattr(self, '_child'):
-                warn('CP2K-shell not ready, sending SIGTERM.', RuntimeWarning)
-                self._child.terminate()
-                self._child.communicate()
+        elif getattr(self, '_child', None) is not None:
+            warn('CP2K-shell not ready, sending SIGTERM.', RuntimeWarning)
+            self._child.terminate()
+            self._child.communicate()
         self._child = None
         self.version = None
         self.isready = False
