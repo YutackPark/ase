@@ -78,7 +78,7 @@ Listed in alphabetical order, for want of a better approach.
    validation techniques, and includes a Monte Carlo module with
    support for many different thermodynamic ensembles.
 
- * `matgl` <https://github.com/materialsvirtuallab/matgl>:
+ * `matgl <https://github.com/materialsvirtuallab/matgl>`_:
    Graph deep learning library for materials
 
  * `NequIP <https://github.com/mir-group/nequip>`_:
