@@ -18,7 +18,7 @@ from ase.calculators.calculator import compare_atoms
 from ase.constraints import FixAtoms, FixCartesian, FixScaled
 from ase.io.espresso import (get_atomic_species, parse_position_line,
                              read_espresso_in, read_fortran_namelist,
-                             write_espresso_in)
+                             write_espresso_in, write_fortran_namelist)
 
 # This file is parsed correctly by pw.x, even though things are
 # scattered all over the place with some namelist edge cases
@@ -390,6 +390,103 @@ def test_pw_input_write():
     write_espresso_in(fh, bulk, sections, pseudopotentials=pseudos)
     readback = read_espresso_in('espresso_test.pwi')
     assert np.allclose(bulk.positions, readback.positions)
+
+
+def test_write_fortran_namelist_pw():
+    fd = io.StringIO()
+    input_data = {
+        "calculation": "scf",
+        "ecutwfc": 30.0,
+        "ibrav": 0,
+        "nat": 10,
+        "nbnd": 8,
+        "conv_thr": 1e-6,
+        "random": True}
+    binary = "pw"
+    write_fortran_namelist(fd, input_data, binary)
+    result = fd.getvalue()
+    assert "scf" in result
+    assert "ibrav" in result
+    assert "conv_thr" in result
+    assert result.endswith("EOF")
+    fd.seek(0)
+    reread = read_fortran_namelist(fd)
+    assert reread != input_data
+
+
+def test_write_fortran_namelist_fields():
+    fd = io.StringIO()
+    input_data = {
+        "INPUT": {
+            "amass": 28.0855,
+            "niter_ph": 50,
+            "tr2_ph": 1e-6,
+            "flfrc": "silicon.fc"},
+    }
+    binary = "q2r"
+    write_fortran_namelist(
+        fd,
+        input_data,
+        binary,
+        additional_fields="test1\ntest2\ntest3\n")
+    result = fd.getvalue()
+    expected = ("&INPUT\n"
+                "   flfrc            = 'silicon.fc'\n"
+                "   amass            = 28.0855\n"
+                "   niter_ph         = 50\n"
+                "   tr2_ph           = 1e-06\n"
+                "/\n"
+                "test1\n"
+                "test2\n"
+                "test3\n"
+                "EOF")
+    assert result == expected
+
+
+def test_write_fortran_namelist_list_fields():
+    fd = io.StringIO()
+    input_data = {
+        "PRESS_AI": {
+            "amass": 28.0855,
+            "niter_ph": 50,
+            "tr2_ph": 1e-6,
+            "flfrc": "silicon.fc"},
+    }
+    binary = "cp"
+    write_fortran_namelist(
+        fd,
+        input_data,
+        binary,
+        additional_fields=[
+            "test1",
+            "test2",
+            "test3"],
+        ion_dynamics='bfgs')
+    result = fd.getvalue()
+    expected = ("&CONTROL\n"
+                "/\n"
+                "&SYSTEM\n"
+                "/\n"
+                "&ELECTRONS\n"
+                "/\n"
+                "&IONS\n"
+                "   ion_dynamics     = 'bfgs'\n"
+                "/\n"
+                "&CELL\n"
+                "/\n"
+                "&PRESS_AI\n"
+                "   amass            = 28.0855\n"
+                "   niter_ph         = 50\n"
+                "   tr2_ph           = 1e-06\n"
+                "   flfrc            = 'silicon.fc'\n"
+                "/\n"
+                "&WANNIER\n"
+                "/\n"
+                "test1\n"
+                "test2\n"
+                "test3\n"
+                "EOF")
+    assert result == expected
 
 
 class TestConstraints:
