@@ -1506,7 +1506,7 @@ def write_espresso_ph(
         fd.write("\n")
 
 
-def read_espresso_ph(fd):
+def read_espresso_ph(fileobj):
     """
     Function that reads the output of a ph.x calculation.
     It returns a dictionary where each q-point is a key and
@@ -1536,7 +1536,7 @@ def read_espresso_ph(fd):
 
     Parameters
     ----------
-    fd
+    fileobj
         The file descriptor of the output file.
 
     Returns
@@ -1615,7 +1615,7 @@ def read_espresso_ph(fd):
     }
 
     results = {}
-    fdo_lines = [i for i in fd.read().splitlines() if i]
+    fdo_lines = [i for i in fileobj.read().splitlines() if i]
     n_lines = len(fdo_lines)
 
     for idx, line in enumerate(fdo_lines):
