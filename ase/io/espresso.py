@@ -23,7 +23,8 @@ import numpy as np
 
 from ase.atoms import Atoms
 from ase.calculators.calculator import kpts2ndarray, kpts2sizeandoffsets
-from ase.calculators.singlepoint import SinglePointDFTCalculator, SinglePointKPoint
+from ase.calculators.singlepoint import (SinglePointDFTCalculator,
+                                         SinglePointKPoint)
 from ase.constraints import FixAtoms, FixCartesian
 from ase.data import chemical_symbols
 from ase.dft.kpoints import kpoint_convert
@@ -1895,6 +1896,7 @@ def write_fortran_namelist(
 
     fd.write("EOF")
 
+
 @deprecated('Please use ase.io.espresso.write_fortran_namelist.',
             DeprecationWarning)
 def construct_namelist(parameters=None, keys=None, warn=False, **kwargs):
@@ -2007,6 +2009,7 @@ def construct_namelist(parameters=None, keys=None, warn=False, **kwargs):
         warnings.warn('Unused keys: {}'.format(', '.join(unused_keys)))
 
     return input_namelist
+
 
 @deprecated('Please use the .to_string() method of Namelist instead.',
             DeprecationWarning)
