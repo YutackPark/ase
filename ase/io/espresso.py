@@ -1920,7 +1920,7 @@ def construct_namelist(parameters=None, keys=None, warn=False, **kwargs):
         kwargs[key] > parameters[key] > parameters[section][key]
     Only the highest priority item will be included.
 
-    .. deprecated:: 3.21.0
+    .. deprecated:: 3.23.0
         Please use :func:`ase.io.espresso.write_fortran_namelist` instead.
 
     Parameters
@@ -2018,7 +2018,7 @@ def namelist_to_string(input_parameters):
     Assume sections are ordered (taken care of in namelist construction)
     and that repr converts to a QE readable representation (except bools)
 
-    .. deprecated:: 3.21.0
+    .. deprecated:: 3.23.0
         Please use the :meth:`ase.io.espresso.Namelist.to_string` method
         instead.
 
