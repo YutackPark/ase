@@ -38,7 +38,7 @@ from ase.calculators.calculator import (PropertyNotImplementedError,
                                         compare_atoms, kpts2sizeandoffsets)
 from ase.calculators.general import Calculator
 from ase.config import cfg
-from ase.constraints import FixCartesian
+from ase.constraints import FixAtoms, FixCartesian
 from ase.dft.kpoints import BandPath
 from ase.io.castep import read_bands, read_param
 from ase.parallel import paropen
@@ -1195,45 +1195,12 @@ End CASTEP Interface Documentation
                 elif 'dispersion corrected est. 0K energy' in line:
                     self._dispcorr_energy_0K = float(line.split()[-2])
 
-                # remember to remove constraint labels in force components
-                # (lacking a space behind the actual floating point number in
-                # the CASTEP output)
-                elif '******************** Forces *********************'\
-                     in line or\
-                     '************** Symmetrised Forces ***************'\
-                     in line or\
-                     '************** Constrained Symmetrised Forces ****'\
-                     '**********'\
-                     in line or\
-                     '******************** Constrained Forces **********'\
-                     '**********'\
-                     in line or\
-                     '******************* Unconstrained Forces *********'\
-                     '**********'\
-                     in line:
-                    fix = []
-                    fix_cart = []
-                    forces = []
-                    while True:
-                        line = out.readline()
-                        fields = line.split()
-                        if len(fields) == 7:
-                            break
-                    for n in range(n_atoms):
-                        consd = np.array([0, 0, 0])
-                        fxyz = [0, 0, 0]
-                        for (i, force_component) in enumerate(fields[-4:-1]):
-                            if force_component.count("(cons'd)") > 0:
-                                consd[i] = 1
-                            fxyz[i] = float(force_component.replace(
-                                "(cons'd)", ''))
-                        if consd.all():
-                            fix.append(n)
-                        elif consd.any():
-                            fix_cart.append(FixCartesian(n, consd))
-                        forces.append(fxyz)
-                        line = out.readline()
-                        fields = line.split()
+                # ******************** Forces *********************
+                # ************** Symmetrised Forces ***************
+                # ******************** Constrained Forces ********************
+                # ******************* Unconstrained Forces *******************
+                elif re.search(r'\**.* Forces \**', line):
+                    forces, constraints = _read_forces(out, n_atoms)
 
                 # add support for Hirshfeld analysis
                 elif 'Hirshfeld / free atomic volume :' in line:
@@ -1444,8 +1411,6 @@ End CASTEP Interface Documentation
             # set_calculator also set atoms in the calculator.
             if self.atoms:
                 constraints = self.atoms.constraints
-            else:
-                constraints = []
             atoms = ase.atoms.Atoms(species,
                                     cell=lattice_real,
                                     constraint=constraints,
@@ -2259,6 +2224,33 @@ ppwarning = ('Warning: PP files have neither been '
              'linked nor copied to the working directory. Make '
              'sure to set the evironment variable PSPOT_DIR '
              'accordingly!')
+
+
+def _read_forces(out, n_atoms):
+    """Read a block for atomic forces from a .castep file."""
+    constraints = []
+    forces = []
+    while True:
+        line = out.readline()
+        fields = line.split()
+        if len(fields) == 7:
+            break
+    for n in range(n_atoms):
+        consd = np.array([0, 0, 0])
+        fxyz = [0.0, 0.0, 0.0]
+        for i, force_component in enumerate(fields[-4:-1]):
+            if force_component.count("(cons'd)") > 0:
+                consd[i] = 1
+            # remove constraint labels in force components
+            fxyz[i] = float(force_component.replace("(cons'd)", ''))
+        if consd.all():
+            constraints.append(FixAtoms(n))
+        elif consd.any():
+            constraints.append(FixCartesian(n, consd))
+        forces.append(fxyz)
+        line = out.readline()
+        fields = line.split()
+    return forces, constraints
 
 
 def get_castep_version(castep_command):
