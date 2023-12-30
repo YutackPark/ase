@@ -1,8 +1,10 @@
 from io import StringIO
 
 import numpy as np
-from ase.io.espresso import (PH_KEYS, construct_namelist, read_espresso_ph,
+from ase.io.espresso import (read_espresso_ph,
                              read_fortran_namelist, write_espresso_ph)
+
+from ase.io.espresso import Namelist
 
 
 def test_write_espresso_ph_single():
@@ -22,7 +24,8 @@ def test_write_espresso_ph_single():
 
     qpts = (0.5, -0.1, 1 / 3)
 
-    input_data = construct_namelist(input_data, PH_KEYS)
+    input_data = Namelist(input_data)
+    input_data.to_nested('ph')
 
     string_io = StringIO()
 
@@ -68,7 +71,8 @@ def test_write_espresso_ph_list():
 
     string_io = StringIO()
 
-    input_data = construct_namelist(input_data, PH_KEYS)
+    input_data = Namelist(input_data)
+    input_data.to_nested('ph')
 
     write_espresso_ph(string_io, input_data=input_data, qpts=qpts)
 
@@ -110,7 +114,8 @@ def test_write_espresso_ph_nat_todo():
 
     qpts = [(0.5, -0.1, 1 / 3, 1), (0.1, 0.2, 0.3, -1), (0.2, 0.3, 0.4, 4)]
 
-    input_data = construct_namelist(input_data, PH_KEYS)
+    input_data = Namelist(input_data)
+    input_data.to_nested('ph')
 
     string_io = StringIO()
 
