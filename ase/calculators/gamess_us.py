@@ -69,9 +69,17 @@ class GAMESSUS(FileIOCalculator):
         ecp: dict
             A per-index or per-element dictionary of ECP specifications.
         """
+
+        # Backward compatibility fix:
+        if command is None and 'ASE_GAMESSUS_COMMAND' in self.cfg:
+            command = self.cfg['ASE_GAMESSUS_COMMAND']
+
         FileIOCalculator.__init__(self, restart, ignore_bad_restart_file,
                                   label, atoms, command, **kwargs)
         self.userscr = userscr
+
+    def _get_name(self):
+        return 'gamess_us'
 
     def calculate(self, *args, **kwargs):
         if self.userscr is None:
