@@ -1921,7 +1921,7 @@ def construct_namelist(parameters=None, keys=None, warn=False, **kwargs):
     Only the highest priority item will be included.
 
     .. deprecated:: 3.23.0
-        Please use :func:`ase.io.espresso.write_fortran_namelist` instead.
+        Please use :class:`ase.io.espresso.Namelist` instead.
 
     Parameters
     ----------
