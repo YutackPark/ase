@@ -1441,7 +1441,7 @@ def write_espresso_ph(
         fd,
         input_data=None,
         qpts=None,
-        nat_todo=None,
+        nat_todo_indices=None,
         **kwargs) -> None:
     """
     Function that write the input file for a ph.x calculation. Normal namelist
@@ -1454,8 +1454,9 @@ def write_espresso_ph(
     q-point). Finally if ldisp is set to True, the above is discarded and the
     q-points are read from the nq1, nq2, nq3 cards in the input_data dictionary.
 
-    Additionally, a nat_todo kwargs (list[int]) can be specified in the kwargs.
-    It will be used if nat_todo is set to True in the input_data dictionary.
+    Additionally, a nat_todo_indices kwargs (list[int]) can be specified in the
+    kwargs. It will be used if nat_todo is set to True in the input_data
+    dictionary.
 
     Globally, this function follows the convention set in the ph.x documentation
     (https://www.quantum-espresso.org/Doc/INPUT_PH.html)
@@ -1470,7 +1471,7 @@ def write_espresso_ph(
 
         - input_data: dict
         - qpts: list[list[float]] | list[tuple[float]] | list[float]
-        - nat_todo: list[int]
+        - nat_todo_indices: list[int]
 
     Returns
     -------
@@ -1501,7 +1502,7 @@ def write_espresso_ph(
     else:
         fd.write(f"{qpts[0]:0.8f} {qpts[1]:0.8f} {qpts[2]:0.8f}\n")
     if inp_nat_todo:
-        tmp = [str(i) for i in nat_todo]
+        tmp = [str(i) for i in nat_todo_indices]
         fd.write(" ".join(tmp))
         fd.write("\n")
 

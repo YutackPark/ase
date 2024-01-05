@@ -123,7 +123,7 @@ def test_write_espresso_ph_nat_todo():
         string_io,
         input_data=input_data,
         qpts=qpts,
-        nat_todo=[
+        nat_todo_indices=[
             1,
             2,
             3])
