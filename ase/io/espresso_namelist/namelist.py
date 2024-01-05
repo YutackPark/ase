@@ -14,7 +14,7 @@ class Namelist(UserDict):
     def __setitem__(self, key, value):
         super().__setitem__(
             key.lower(), Namelist(value) if isinstance(
-                value, (dict, MutableMapping)) else value, )
+                value, MutableMapping) else value)
 
     def __delitem__(self, key):
         super().__delitem__(key.lower())

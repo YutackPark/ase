@@ -18,8 +18,7 @@ from ase.calculators.calculator import compare_atoms
 from ase.constraints import FixAtoms, FixCartesian, FixScaled
 from ase.io.espresso import (get_atomic_species, parse_position_line,
                              read_espresso_in, read_fortran_namelist,
-                             write_espresso_in, write_fortran_namelist,
-                             Namelist)
+                             write_espresso_in, write_fortran_namelist)
 
 # This file is parsed correctly by pw.x, even though things are
 # scattered all over the place with some namelist edge cases
