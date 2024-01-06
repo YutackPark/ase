@@ -967,16 +967,7 @@ End CASTEP Interface Documentation
                 elif 'Number of kpoints used' in line:
                     kpoints = int(line.split('=')[-1].strip())
                 elif 'Unit Cell' in line:
-                    lattice_real = []
-                    while True:
-                        line = out.readline()
-                        fields = line.split()
-                        if len(fields) == 6:
-                            break
-                    for i in range(3):
-                        lattice_real.append([float(f) for f in fields[0:3]])
-                        line = out.readline()
-                        fields = line.split()
+                    lattice_real = _read_unit_cell(out)
                 elif 'Cell Contents' in line:
                     while True:
                         line = out.readline()
@@ -2086,6 +2077,21 @@ def _read_header(out: io.TextIOBase):
             parameters['mixing_scheme'] = line.split()[-1]
 
     return parameters
+
+
+def _read_unit_cell(out: io.TextIOBase):
+    """Read a Unit Cell block from a .castep file."""
+    while True:
+        line = out.readline()
+        fields = line.split()
+        if len(fields) == 6:
+            break
+    lattice_real = []
+    for _ in range(3):
+        lattice_real.append([float(f) for f in fields[0:3]])
+        line = out.readline()
+        fields = line.split()
+    return np.array(lattice_real)
 
 
 def _read_forces(out: io.TextIOBase, n_atoms: int):

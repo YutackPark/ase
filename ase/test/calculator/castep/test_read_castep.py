@@ -4,6 +4,7 @@ from io import StringIO
 import numpy as np
 from ase.calculators.castep import (
     _read_header,
+    _read_unit_cell,
     _read_forces,
     _read_stress,
     _read_mulliken_charges,
@@ -236,6 +237,31 @@ def test_header_detailed():
         'mixing_scheme': 'Broyden',
     }
     assert parameters == parameters_ref
+
+
+UNIT_CELL = """\
+                           -------------------------------
+                                      Unit Cell
+                           -------------------------------
+        Real Lattice(A)              Reciprocal Lattice(1/A)
+    -0.0287130     2.6890780     2.6889378       -1.148709953   1.163162213   1.161190328
+     2.6890780    -0.0287130     2.6889378        1.163162214  -1.148709951   1.161190326
+     2.6938401     2.6938401    -0.0335277        1.159077172   1.159077170  -1.146760802
+"""  # noqa: E501
+
+
+def test_unit_cell():
+    """Test if the Unit Cell block can be parsed correctly."""
+    out = StringIO(UNIT_CELL)
+    out.readline()
+    out.readline()
+    cell = _read_unit_cell(out)
+    cell_ref = [
+        [-0.0287130, +2.6890780, +2.6889378],
+        [+2.6890780, -0.0287130, +2.6889378],
+        [+2.6938401, +2.6938401, -0.0335277],
+    ]
+    np.testing.assert_allclose(cell, cell_ref)
 
 
 FORCES = """\
