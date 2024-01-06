@@ -29,7 +29,7 @@ from collections import defaultdict, namedtuple
 from copy import deepcopy
 from itertools import product
 from pathlib import Path
-from typing import List, Set
+from typing import Any, Dict, List, Set
 
 import numpy as np
 
@@ -954,14 +954,21 @@ End CASTEP Interface Documentation
         # stress = []
         stress = np.zeros([3, 3])
 
-        # Two flags to check whether spin-polarized or not, and whether
-        # Hirshfeld volumes are calculated
-        spin_polarized = False
         kpoints = None
 
         positions_frac_list = []
 
         out.seek(record_start)
+
+        # read header
+        parameters_header = _read_header(out)
+        if 'cut_off_energy' in parameters_header:
+            self._cut_off_energy = parameters_header['cut_off_energy']
+            if 'basis_precision' in parameters_header:
+                del parameters_header['cut_off_energy']  # avoid conflict
+        for k, v in parameters_header.items():
+            setattr(self.param, k, v)
+
         while True:
             # TODO: add a switch if we have a geometry optimization: record
             # atoms objects for intermediate steps.
@@ -969,109 +976,6 @@ End CASTEP Interface Documentation
                 line = out.readline()
                 if not line or out.tell() > record_end:
                     break
-                elif 'stress calculation' in line:
-                    if line.split()[-1].strip() == 'on':
-                        self.param.calculate_stress = True
-                elif 'basis set accuracy' in line:
-                    self.param.basis_precision = line.split()[-1]
-                elif 'plane wave basis set cut-off' in line:
-                    # NB this is set as a private "result" attribute to avoid
-                    # conflict with input option basis_precision
-                    cutoff = float(line.split()[-2])
-                    self._cut_off_energy = cutoff
-                    if self.param.basis_precision.value is None:
-                        self.param.cut_off_energy = cutoff
-                elif 'total energy / atom convergence tol.' in line:
-                    elec_energy_tol = float(line.split()[-2])
-                    self.param.elec_energy_tol = elec_energy_tol
-                elif 'convergence tolerance window' in line:
-                    elec_convergence_win = int(line.split()[-2])
-                    self.param.elec_convergence_win = elec_convergence_win
-                elif re.match(r'\sfinite basis set correction\s*:', line):
-                    finite_basis_corr = line.split()[-1]
-                    fbc_possibilities = {'none': 0,
-                                         'manual': 1, 'automatic': 2}
-                    fbc = fbc_possibilities[finite_basis_corr]
-                    self.param.finite_basis_corr = fbc
-                elif 'Treating system as non-metallic' in line:
-                    self.param.fix_occupancy = True
-                elif 'max. number of SCF cycles:' in line:
-                    max_no_scf = float(line.split()[-1])
-                    self.param.max_scf_cycles = max_no_scf
-                elif 'density-mixing scheme' in line:
-                    mixing_scheme = line.split()[-1]
-                    self.param.mixing_scheme = mixing_scheme
-                elif 'dump wavefunctions every' in line:
-                    no_dump_cycles = float(line.split()[-3])
-                    self.param.num_dump_cycles = no_dump_cycles
-                elif 'optimization strategy' in line:
-                    lspl = line.split(":")
-                    if lspl[0].strip() != 'optimization strategy':
-                        # This can happen in iprint: 3 calculations
-                        continue
-                    if 'memory' in line:
-                        self.param.opt_strategy = 'Memory'
-                    if 'speed' in line:
-                        self.param.opt_strategy = 'Speed'
-                elif 'calculation limited to maximum' in line:
-                    calc_limit = float(line.split()[-2])
-                    self.param.run_time = calc_limit
-                elif 'type of calculation' in line:
-                    lspl = line.split(":")
-                    if lspl[0].strip() != 'type of calculation':
-                        # This can happen in iprint: 3 calculations
-                        continue
-                    calc_type = lspl[-1]
-                    calc_type = re.sub(r'\s+', ' ', calc_type)
-                    calc_type = calc_type.strip()
-                    if calc_type != 'single point energy':
-                        calc_type_possibilities = {
-                            'geometry optimization': 'GeometryOptimization',
-                            'band structure': 'BandStructure',
-                            'molecular dynamics': 'MolecularDynamics',
-                            'optical properties': 'Optics',
-                            'phonon calculation': 'Phonon',
-                            'E-field calculation': 'Efield',
-                            'Phonon followed by E-field': 'Phonon+Efield',
-                            'transition state search': 'TransitionStateSearch',
-                            'Magnetic Resonance': 'MagRes',
-                            'Core level spectra': 'Elnes',
-                            'Electronic Spectroscopy': 'ElectronicSpectroscopy'
-                        }
-                        ctype = calc_type_possibilities[calc_type]
-                        self.param.task = ctype
-                elif 'using functional' in line:
-                    used_functional = line.split(":")[-1]
-                    used_functional = re.sub(r'\s+', ' ', used_functional)
-                    used_functional = used_functional.strip()
-                    if used_functional != 'Local Density Approximation':
-                        used_functional_possibilities = {
-                            'Perdew Wang (1991)': 'PW91',
-                            'Perdew Burke Ernzerhof': 'PBE',
-                            'revised Perdew Burke Ernzerhof': 'RPBE',
-                            'PBE with Wu-Cohen exchange': 'WC',
-                            'PBE for solids (2008)': 'PBESOL',
-                            'Hartree-Fock': 'HF',
-                            'Hartree-Fock +': 'HF-LDA',
-                            'Screened Hartree-Fock': 'sX',
-                            'Screened Hartree-Fock + ': 'sX-LDA',
-                            'hybrid PBE0': 'PBE0',
-                            'hybrid B3LYP': 'B3LYP',
-                            'hybrid HSE03': 'HSE03',
-                            'hybrid HSE06': 'HSE06'
-                        }
-                        used_func = used_functional_possibilities[
-                            used_functional]
-                        self.param.xc_functional = used_func
-                elif 'output verbosity' in line:
-                    iprint = int(line.split()[-1][1])
-                    if int(iprint) != 1:
-                        self.param.iprint = iprint
-                elif 'treating system as spin-polarized' in line:
-                    spin_polarized = True
-                    self.param.spin_polarized = spin_polarized
-                elif 'treating system as non-spin-polarized' in line:
-                    spin_polarized = False
                 elif 'Number of kpoints used' in line:
                     kpoints = int(line.split('=')[-1].strip())
                 elif 'Unit Cell' in line:
@@ -2107,6 +2011,119 @@ ppwarning = ('Warning: PP files have neither been '
              'linked nor copied to the working directory. Make '
              'sure to set the evironment variable PSPOT_DIR '
              'accordingly!')
+
+
+def _read_header(out: io.TextIOBase):
+    """Read the header blocks from a .castep file.
+
+    Returns
+    -------
+    parameters : dict
+        Dictionary storing keys and values of a .param file.
+    """
+    read_title = False
+    parameters: Dict[str, Any] = {}
+    while True:
+        line = out.readline()
+        if len(line) == 0:  # end of file
+            break
+        if re.search(r'^\s*\*+$', line) and read_title:  # end of header
+            break
+
+        if re.search(r'\**.* Title \**', line):
+            read_title = True
+
+        # General Parameters
+
+        elif 'output verbosity' in line:
+            parameters['iprint'] = int(line.split()[-1][1])
+        elif re.match(r'\stype of calculation\s*:', line):
+            parameters['task'] = {
+                'single point energy': 'SinglePoint',
+                'geometry optimization': 'GeometryOptimization',
+                'band structure': 'BandStructure',
+                'molecular dynamics': 'MolecularDynamics',
+                'optical properties': 'Optics',
+                'phonon calculation': 'Phonon',
+                'E-field calculation': 'Efield',
+                'Phonon followed by E-field': 'Phonon+Efield',
+                'transition state search': 'TransitionStateSearch',
+                'Magnetic Resonance': 'MagRes',
+                'Core level spectra': 'Elnes',
+                'Electronic Spectroscopy': 'ElectronicSpectroscopy',
+            }[line.split(':')[-1].strip()]
+        elif 'stress calculation' in line:
+            parameters['calculate_stress'] = {
+                'on': True,
+                'off': False,
+            }[line.split()[-1]]
+        elif 'calculation limited to maximum' in line:
+            parameters['run_time'] = float(line.split()[-2])
+        elif re.match(r'\soptimization strategy\s*:', line):
+            parameters['opt_strategy'] = {
+                'maximize speed(+++)': 'Speed',
+                'minimize memory(---)': 'Memory',
+                'balance speed and memory': 'Default',
+            }[line.split(':')[-1].strip()]
+
+        # Exchange-Correlation Parameters
+
+        elif re.match(r'\susing functional\s*:', line):
+            parameters['xc_functional'] = {
+                'Local Density Approximation': 'LDA',
+                'Perdew Wang (1991)': 'PW91',
+                'Perdew Burke Ernzerhof': 'PBE',
+                'revised Perdew Burke Ernzerhof': 'RPBE',
+                'PBE with Wu-Cohen exchange': 'WC',
+                'PBE for solids (2008)': 'PBESOL',
+                'Hartree-Fock': 'HF',
+                'Hartree-Fock +': 'HF-LDA',
+                'Screened Hartree-Fock': 'sX',
+                'Screened Hartree-Fock + ': 'sX-LDA',
+                'hybrid PBE0': 'PBE0',
+                'hybrid B3LYP': 'B3LYP',
+                'hybrid HSE03': 'HSE03',
+                'hybrid HSE06': 'HSE06',
+                'RSCAN': 'RSCAN',
+            }[line.split(':')[-1].strip()]
+
+        # Basis Set Parameters
+
+        elif 'basis set accuracy' in line:
+            parameters['basis_precision'] = line.split()[-1]
+        elif 'plane wave basis set cut-off' in line:
+            parameters['cut_off_energy'] = float(line.split()[-2])
+        elif re.match(r'\sfinite basis set correction\s*:', line):
+            parameters['finite_basis_corr'] = {
+                'none': 0,
+                'manual': 1,
+                'automatic': 2,
+            }[line.split()[-1]]
+
+        # Electronic Parameters
+
+        elif 'treating system as spin-polarized' in line:
+            parameters['spin_polarized'] = True
+
+        # Electronic Minimization Parameters
+
+        elif 'Treating system as non-metallic' in line:
+            parameters['fix_occupancy'] = True
+        elif 'total energy / atom convergence tol.' in line:
+            parameters['elec_energy_tol'] = float(line.split()[-2])
+        elif 'convergence tolerance window' in line:
+            parameters['elec_convergence_win'] = int(line.split()[-2])
+        elif 'max. number of SCF cycles:' in line:
+            parameters['max_scf_cycles'] = float(line.split()[-1])
+        elif 'dump wavefunctions every' in line:
+            parameters['num_dump_cycles'] = float(line.split()[-3])
+
+        # Density Mixing Parameters
+
+        elif 'density-mixing scheme' in line:
+            parameters['mixing_scheme'] = line.split()[-1]
+
+    return parameters
 
 
 def _read_forces(out: io.TextIOBase, n_atoms: int):
