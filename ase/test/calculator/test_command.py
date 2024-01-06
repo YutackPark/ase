@@ -5,7 +5,6 @@ import pytest
 
 from ase import Atoms
 from ase.calculators.calculator import CalculatorSetupError
-from ase.config import Config, cfg
 
 
 """

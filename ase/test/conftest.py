@@ -10,6 +10,7 @@ import numpy as np
 import pytest
 
 import ase
+from ase.config import Config, cfg
 from ase.dependencies import all_dependencies
 from ase.test.factories import (CalculatorInputs, NoSuchCalculator,
                                 factory_classes, get_factories,
@@ -295,7 +296,6 @@ def pytest_generate_tests(metafunc):
 
 @pytest.fixture
 def override_config(monkeypatch):
-    from ase.config import Config, cfg
     parser = Config().parser
     monkeypatch.setattr(cfg, 'parser', parser)
     return cfg
@@ -356,7 +356,6 @@ binary = /home/ase/calculators/octopus/bin/octopus
 [siesta]
 binary = /home/ase/calculators/siesta/bin/siesta
 """
-    from ase.config import Config
 
     override_config.parser.read_string(dummy_config)
 
