@@ -980,7 +980,6 @@ End CASTEP Interface Documentation
                     kpoints = int(line.split('=')[-1].strip())
                 elif 'Unit Cell' in line:
                     lattice_real = []
-                    lattice_reci = []
                     while True:
                         line = out.readline()
                         fields = line.split()
@@ -988,7 +987,6 @@ End CASTEP Interface Documentation
                             break
                     for i in range(3):
                         lattice_real.append([float(f) for f in fields[0:3]])
-                        lattice_reci.append([float(f) for f in fields[3:7]])
                         line = out.readline()
                         fields = line.split()
                 elif 'Cell Contents' in line:
@@ -1102,7 +1100,6 @@ End CASTEP Interface Documentation
                       or 'BFGS: improving iteration' in line):
                     if n_cell_const < 6:
                         lattice_real = []
-                        lattice_reci = []
                     # backup previous configuration first:
                     # for highly symmetric systems (where essentially only the
                     # stress is optimized, but the atomic positions) positions
