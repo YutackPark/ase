@@ -941,7 +941,6 @@ End CASTEP Interface Documentation
         # could be generalized as well to extract trajectory from file
         # holding several outputs
         n_cell_const = 0
-        forces = []
 
         kpoints = None
 
@@ -1067,6 +1066,7 @@ End CASTEP Interface Documentation
                 # ******************* Unconstrained Forces *******************
                 elif re.search(r'\**.* Forces \**', line):
                     forces, constraints = _read_forces(out, n_atoms)
+                    self.results['forces'] = np.array(forces)
 
                 # ***************** Stress Tensor *****************
                 # *********** Symmetrised Stress Tensor ***********
@@ -1087,7 +1087,6 @@ End CASTEP Interface Documentation
                         prev_positions_frac = deepcopy(positions_frac)
                     species = []
                     positions_frac = []
-                    forces = []
 
                     self.results = {}
 
@@ -1134,7 +1133,6 @@ End CASTEP Interface Documentation
             species = prev_species
 
         positions_frac_atoms = np.array(positions_frac)
-        forces_atoms = np.array(forces)
 
         if self.atoms and not self._set_atoms:
             # compensate for internal reordering of atoms by CASTEP
@@ -1142,8 +1140,8 @@ End CASTEP Interface Documentation
 
             indices = _get_indices_to_sort_back(self.atoms.symbols, species)
             positions_frac_atoms = positions_frac_atoms[indices]
-            forces_atoms = forces_atoms[indices]
             keys = [
+                'forces',
                 'charges',
                 'magmoms',
                 'hirshfeld_volume_ratios',
@@ -1188,7 +1186,6 @@ End CASTEP Interface Documentation
             atoms.calc = self
 
         self._kpoints = kpoints
-        self._forces = forces_atoms
 
         if self._warnings:
             warnings.warn(f'WARNING: {castep_file} contains warnings')
@@ -1398,7 +1395,7 @@ End CASTEP Interface Documentation
     def get_forces(self, atoms):
         """Run CASTEP calculation if needed and return forces."""
         self.update(atoms)
-        return np.array(self._forces)
+        return self.results.get('forces')
 
     @_self_getter
     def get_total_energy(self, atoms):
