@@ -598,8 +598,6 @@ End CASTEP Interface Documentation
 
         self._number_of_cell_constraints = None
         self._output_verbosity = None
-        self._stress = None
-        self._pressure = None
         self._unit_cell = None
         self._kpoints = None
 
@@ -945,15 +943,6 @@ End CASTEP Interface Documentation
         n_cell_const = 0
         forces = []
 
-        # HOTFIX:
-        # we have to initialize the _stress variable as a zero array
-        # otherwise the calculator crashes upon pickling trajectories
-        # Alternative would be to raise a NotImplementedError() which
-        # is also kind of not true, since we can extract stresses if
-        # the user configures CASTEP to print them in the outfile
-        # stress = []
-        stress = np.zeros([3, 3])
-
         kpoints = None
 
         positions_frac_list = []
@@ -1079,23 +1068,11 @@ End CASTEP Interface Documentation
                 elif re.search(r'\**.* Forces \**', line):
                     forces, constraints = _read_forces(out, n_atoms)
 
-                elif '***************** Stress Tensor *****************'\
-                     in line or\
-                     '*********** Symmetrised Stress Tensor ***********'\
-                     in line:
-                    stress = []
-                    while True:
-                        line = out.readline()
-                        fields = line.split()
-                        if len(fields) == 6:
-                            break
-                    for n in range(3):
-                        stress.append([float(s) for s in fields[2:5]])
-                        line = out.readline()
-                        fields = line.split()
-                    line = out.readline()
-                    if "Pressure:" in line:
-                        self._pressure = float(line.split()[-2]) * units.GPa
+                # ***************** Stress Tensor *****************
+                # *********** Symmetrised Stress Tensor ***********
+                elif re.search(r'\**.* Stress Tensor \**', line):
+                    self.results.update(_read_stress(out))
+
                 elif ('BFGS: starting iteration' in line
                       or 'BFGS: improving iteration' in line):
                     if n_cell_const < 6:
@@ -1112,10 +1089,7 @@ End CASTEP Interface Documentation
                     positions_frac = []
                     forces = []
 
-                    # HOTFIX:
-                    # Same reason for the stress initialization as before
-                    # stress = []
-                    stress = np.zeros([3, 3])
+                    self.results = {}
 
                 # extract info from the Mulliken analysis
                 elif 'Atomic Populations' in line:
@@ -1215,8 +1189,6 @@ End CASTEP Interface Documentation
 
         self._kpoints = kpoints
         self._forces = forces_atoms
-        # stress in .castep file is given in GPa:
-        self._stress = np.array(stress) * units.GPa
 
         if self._warnings:
             warnings.warn(f'WARNING: {castep_file} contains warnings')
@@ -1486,19 +1458,17 @@ End CASTEP Interface Documentation
     def get_stress(self, atoms):
         """Return the stress."""
         self.update(atoms)
+        if 'stress' not in self.results:
+            return None
         # modification: we return the Voigt form directly to get rid of the
         # annoying user warnings
-        stress = np.array(
-            [self._stress[0, 0], self._stress[1, 1], self._stress[2, 2],
-             self._stress[1, 2], self._stress[0, 2], self._stress[0, 1]])
-        # return self._stress
-        return stress
+        return self.results['stress'].reshape(9)[[0, 4, 8, 5, 2, 1]]
 
     @_self_getter
     def get_pressure(self, atoms):
         """Return the pressure."""
         self.update(atoms)
-        return self._pressure
+        return self.results.get('pressure')
 
     @_self_getter
     def get_unit_cell(self, atoms):
@@ -2146,6 +2116,27 @@ def _read_forces(out: io.TextIOBase, n_atoms: int):
         line = out.readline()
         fields = line.split()
     return forces, constraints
+
+
+def _read_stress(out: io.TextIOBase):
+    """Read a block for the stress tensor from a .castep file."""
+    while True:
+        line = out.readline()
+        fields = line.split()
+        if len(fields) == 6:
+            break
+    results = {}
+    stress = []
+    for _ in range(3):
+        stress.append([float(s) for s in fields[2:5]])
+        line = out.readline()
+        fields = line.split()
+    # stress in .castep file is given in GPa
+    results['stress'] = np.array(stress) * units.GPa
+    line = out.readline()
+    if "Pressure:" in line:
+        results['pressure'] = float(line.split()[-2]) * units.GPa
+    return results
 
 
 def _read_mulliken_charges(out: io.TextIOBase):

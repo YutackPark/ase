@@ -5,12 +5,14 @@ import numpy as np
 from ase.calculators.castep import (
     _read_header,
     _read_forces,
+    _read_stress,
     _read_mulliken_charges,
     _read_hirshfeld_details,
     _read_hirshfeld_charges,
     _get_indices_to_sort_back,
 )
 from ase.constraints import FixAtoms, FixCartesian
+from ase.units import GPa
 
 HEADER = """\
  ************************************ Title ************************************
@@ -293,6 +295,39 @@ def test_constrainted_forces():
     assert all(constraints[0].index == constraints_ref[0].index)
     assert all(constraints[1].index == constraints_ref[1].index)
     assert all(constraints[1].mask == constraints_ref[1].mask)
+
+
+STRESS = """\
+ ***************** Stress Tensor *****************
+ *                                               *
+ *          Cartesian components (GPa)           *
+ * --------------------------------------------- *
+ *             x             y             z     *
+ *                                               *
+ *  x     -0.006786     -0.035244      0.023931  *
+ *  y     -0.035244     -0.006786      0.023931  *
+ *  z      0.023931      0.023931     -0.011935  *
+ *                                               *
+ *  Pressure:    0.0085                          *
+ *                                               *
+ *************************************************
+"""
+
+
+def test_stress():
+    """Test if the Stress Tensor block can be parsed correctly."""
+    out = StringIO(STRESS)
+    out.readline()
+    results = _read_stress(out)
+    stress_ref = [
+        [-0.006786, -0.035244, +0.023931],
+        [-0.035244, -0.006786, +0.023931],
+        [+0.023931, +0.023931, -0.011935],
+    ]
+    stress_ref = np.array(stress_ref) * GPa
+    pressure_ref = 0.0085 * GPa
+    np.testing.assert_allclose(results['stress'], stress_ref)
+    np.testing.assert_allclose(results['pressure'], pressure_ref)
 
 
 # bulk("AlP", "zincblende", a=5.43)
