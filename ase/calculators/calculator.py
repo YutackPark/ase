@@ -1042,11 +1042,6 @@ class FileIOCalculator(Calculator):
         self.profile.command = command
 
     def _initialize_profile(self, command):
-        if self.name in self.cfg.parser:
-            section = self.cfg.parser[self.name]
-            # XXX getargv() returns None if missing!
-            return ArgvProfile(self.name, section.getargv('argv'))
-
         if command is None:
             name = 'ASE_' + self.name.upper() + '_COMMAND'
             command = self.cfg.get(name)
@@ -1055,6 +1050,11 @@ class FileIOCalculator(Calculator):
             # XXX issue a FutureWarning if this causes the command
             # to no longer be None
             command = self._legacy_default_command
+
+        if command is None and self.name in self.cfg.parser:
+            section = self.cfg.parser[self.name]
+            # XXX getargv() returns None if missing!
+            return ArgvProfile(self.name, section.getargv('argv'))
 
         if command is None:
             raise EnvironmentError(
