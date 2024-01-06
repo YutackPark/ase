@@ -294,7 +294,15 @@ def pytest_generate_tests(metafunc):
 
 
 @pytest.fixture
-def config_file(tmp_path, monkeypatch):
+def override_config(monkeypatch):
+    from ase.config import Config, cfg
+    parser = Config().parser
+    monkeypatch.setattr(cfg, 'parser', parser)
+    return cfg
+
+
+@pytest.fixture
+def config_file(tmp_path, monkeypatch, override_config):
     dummy_config = """\
 [parallel]
 runner = mpirun
@@ -350,15 +358,7 @@ binary = /home/ase/calculators/siesta/bin/siesta
 """
     from ase.config import Config
 
-    config_file_name = tmp_path / "ase.conf"
-    with open(config_file_name, "w") as f:
-        f.write(dummy_config)
-    monkeypatch.setenv("ASE_CONFIG_PATH", config_file_name.as_posix())
-    cfg = Config()
-    monkeypatch.setattr(
-        "ase.calculators.genericfileio.GenericFileIOCalculator.cfg", cfg
-    )
-    monkeypatch.setattr("ase.calculators.calculator.FileIOCalculator.cfg", cfg)
+    override_config.parser.read_string(dummy_config)
 
 
 class CLI:

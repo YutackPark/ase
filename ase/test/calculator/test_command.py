@@ -288,13 +288,6 @@ def test_nocommand_default(name, monkeypatch, override_config):
     assert intercept_command(name) == default_commands[name]
 
 
-@pytest.fixture
-def override_config(monkeypatch):
-    parser = Config().parser
-    monkeypatch.setattr(cfg, 'parser', parser)
-    return cfg
-
-
 @pytest.mark.parametrize('name', calculators_which_raise)
 def test_nocommand_raise(name, monkeypatch, override_config):
     if name in envvars:
