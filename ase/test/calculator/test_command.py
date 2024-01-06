@@ -296,7 +296,7 @@ def override_config(monkeypatch):
 
 
 @pytest.mark.parametrize('name', calculators_which_raise)
-def test_nocommand_raise(name, monkeypatch):
+def test_nocommand_raise(name, monkeypatch, override_config):
     if name in envvars:
         monkeypatch.delenv(envvars[name], raising=False)
 
