@@ -5,6 +5,8 @@ import pytest
 
 from ase import Atoms
 from ase.calculators.calculator import CalculatorSetupError
+from ase.config import Config, cfg
+
 
 """
 These tests monkeypatch Popen so as to abort execution and verify that
@@ -279,11 +281,18 @@ calculators_which_raise = [
 
 
 @pytest.mark.parametrize('name', list(default_commands))
-def test_nocommand_default(name, monkeypatch):
+def test_nocommand_default(name, monkeypatch, override_config):
     if name in envvars:
         monkeypatch.delenv(envvars[name], raising=False)
 
     assert intercept_command(name) == default_commands[name]
+
+
+@pytest.fixture
+def override_config(monkeypatch):
+    parser = Config().parser
+    monkeypatch.setattr(cfg, 'parser', parser)
+    return cfg
 
 
 @pytest.mark.parametrize('name', calculators_which_raise)
