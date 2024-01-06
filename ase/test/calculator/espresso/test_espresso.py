@@ -78,7 +78,6 @@ def test_dipole(espresso_factory):
 
 
 def test_warn_label(config_file):
-    print()
     with pytest.warns(FutureWarning):
         Espresso(label='hello')
 
