@@ -1248,8 +1248,7 @@ End CASTEP Interface Documentation
         """
         Return the Hirshfeld volume ratios.
         """
-        k = 'hirshfeld_volume_ratios'
-        return self.results[k] if k in self.results else None
+        return self.results.get('hirshfeld_volume_ratios')
 
     # TODO: deprecate once inheriting BaseCalculator
     def get_spins(self):
@@ -1270,8 +1269,7 @@ End CASTEP Interface Documentation
         """
         Return the charges from a Hirshfeld analysis.
         """
-        k = 'hirshfeld_charges'
-        return self.results[k] if k in self.results else None
+        return self.results.get('hirshfeld_charges')
 
     def get_total_time(self):
         """
