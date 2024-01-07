@@ -220,6 +220,7 @@ Contents
 .. |DeePMD-kit| image:: static/deepmd-kit.png
    :target: https://github.com/deepmodeling/deepmd-kit
    :align: middle
+   :height: 75px
 .. |deMon| image:: static/demon.png
    :target: ase/calculators/demon.html
    :align: middle
