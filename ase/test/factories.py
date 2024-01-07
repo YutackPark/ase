@@ -551,7 +551,7 @@ class LammpsLibFactory:
     @classmethod
     def fromconfig(cls, config):
         try:
-            import lammps
+            import lammps  # noqa
         except ModuleNotFoundError:
             raise NotInstalled('lammps not installed: no lammps python module')
         return cls(config.datafiles['lammps'][0])
