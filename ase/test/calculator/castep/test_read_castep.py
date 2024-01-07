@@ -5,6 +5,7 @@ import numpy as np
 from ase.calculators.castep import (
     _read_header,
     _read_unit_cell,
+    _read_fractional_coordinates,
     _read_forces,
     _read_stress,
     _read_mulliken_charges,
@@ -262,6 +263,33 @@ def test_unit_cell():
         [+2.6938401, +2.6938401, -0.0335277],
     ]
     np.testing.assert_allclose(cell, cell_ref)
+
+
+FRACTIONAL_COORDINATES = """\
+            xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+            x  Element         Atom        Fractional coordinates of atoms  x
+            x                 Number           u          v          w      x
+            x---------------------------------------------------------------x
+            x  Si                1        -0.000000  -0.000000   0.000000   x
+            x  Si                2         0.249983   0.249983   0.254121   x
+            xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+"""
+
+
+def test_fractional_coordinates():
+    """Test if fractional coordinates can be parsed correctly."""
+    out = StringIO(FRACTIONAL_COORDINATES)
+    out.readline()
+    out.readline()
+    species, custom_species, positions_frac = \
+        _read_fractional_coordinates(out, 2)
+    positions_frac_ref = [
+        [-0.000000, -0.000000, -0.000000],
+        [+0.249983, +0.249983, +0.254121],
+    ]
+    np.testing.assert_array_equal(species, ['Si', 'Si'])
+    assert custom_species is None
+    np.testing.assert_allclose(positions_frac, positions_frac_ref)
 
 
 FORCES = """\

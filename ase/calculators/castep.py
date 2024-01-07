@@ -29,7 +29,7 @@ from collections import defaultdict, namedtuple
 from copy import deepcopy
 from itertools import product
 from pathlib import Path
-from typing import Any, Dict, List, Set
+from typing import Any, Dict, List, Optional, Set
 
 import numpy as np
 
@@ -944,8 +944,6 @@ End CASTEP Interface Documentation
 
         kpoints = None
 
-        positions_frac_list = []
-
         out.seek(record_start)
 
         # read header
@@ -979,28 +977,8 @@ End CASTEP Interface Documentation
                         if len(fields) == 0:
                             break
                 elif 'Fractional coordinates of atoms' in line:
-                    species = []
-                    custom_species = None  # A CASTEP special thing
-                    positions_frac = []
-                    # positions_cart = []
-                    while True:
-                        line = out.readline()
-                        fields = line.split()
-                        if len(fields) == 7:
-                            break
-                    for n in range(n_atoms):
-                        spec_custom = fields[1].split(':', 1)
-                        elem = spec_custom[0]
-                        if len(spec_custom) > 1 and custom_species is None:
-                            # Add it to the custom info!
-                            custom_species = list(species)
-                        species.append(elem)
-                        if custom_species is not None:
-                            custom_species.append(fields[1])
-                        positions_frac.append([float(s) for s in fields[3:6]])
-                        line = out.readline()
-                        fields = line.split()
-                    positions_frac_list.append(positions_frac)
+                    species, custom_species, positions_frac = \
+                        _read_fractional_coordinates(out, n_atoms)
                 elif 'Files used for pseudopotentials' in line:
                     while True:
                         line = out.readline()
@@ -2119,6 +2097,31 @@ def _read_forces(out: io.TextIOBase, n_atoms: int):
         line = out.readline()
         fields = line.split()
     return forces, constraints
+
+
+def _read_fractional_coordinates(out: io.TextIOBase, n_atoms: int):
+    """Read fractional coordinates from a .castep file."""
+    species: List[str] = []
+    custom_species: Optional[List[str]] = None  # A CASTEP special thing
+    positions_frac: List[List[float]] = []
+    while True:
+        line = out.readline()
+        fields = line.split()
+        if len(fields) == 7:
+            break
+    for _ in range(n_atoms):
+        spec_custom = fields[1].split(':', 1)
+        elem = spec_custom[0]
+        if len(spec_custom) > 1 and custom_species is None:
+            # Add it to the custom info!
+            custom_species = list(species)
+        species.append(elem)
+        if custom_species is not None:
+            custom_species.append(fields[1])
+        positions_frac.append([float(s) for s in fields[3:6]])
+        line = out.readline()
+        fields = line.split()
+    return species, custom_species, positions_frac
 
 
 def _read_stress(out: io.TextIOBase):
