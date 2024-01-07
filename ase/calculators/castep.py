@@ -1952,6 +1952,9 @@ def _read_header(out: io.TextIOBase):
     parameters : dict
         Dictionary storing keys and values of a .param file.
     """
+    def _parse_on_off(_: str):
+        return {'on': True, 'off': False}[_]
+
     read_title = False
     parameters: Dict[str, Any] = {}
     while True:
@@ -1984,10 +1987,7 @@ def _read_header(out: io.TextIOBase):
                 'Electronic Spectroscopy': 'ElectronicSpectroscopy',
             }[line.split(':')[-1].strip()]
         elif 'stress calculation' in line:
-            parameters['calculate_stress'] = {
-                'on': True,
-                'off': False,
-            }[line.split()[-1]]
+            parameters['calculate_stress'] = _parse_on_off(line.split()[-1])
         elif 'calculation limited to maximum' in line:
             parameters['run_time'] = float(line.split()[-2])
         elif re.match(r'\soptimization strategy\s*:', line):
@@ -2016,6 +2016,26 @@ def _read_header(out: io.TextIOBase):
                 'hybrid HSE03': 'HSE03',
                 'hybrid HSE06': 'HSE06',
                 'RSCAN': 'RSCAN',
+            }[line.split(':')[-1].strip()]
+        elif 'DFT+D: Semi-empirical dispersion correction' in line:
+            parameters['sedc_apply'] = _parse_on_off(line.split()[-1])
+        elif 'SEDC with' in line:
+            parameters['sedc_scheme'] = {
+                'OBS correction scheme': 'OBS',
+                'G06 correction scheme': 'G06',
+                'D3 correction scheme': 'D3',
+                'D3(BJ) correction scheme': 'D3-BJ',
+                'D4 correction scheme': 'D4',
+                'JCHS correction scheme': 'JCHS',
+                'TS correction scheme': 'TS',
+                'TSsurf correction scheme': 'TSSURF',
+                'TS+SCS correction scheme': 'TSSCS',
+                'aperiodic TS+SCS correction scheme': 'ATSSCS',
+                'aperiodic MBD@SCS method': 'AMBD',
+                'MBD@SCS method': 'MBD',
+                'aperiodic MBD@rsSCS method': 'AMBD*',
+                'MBD@rsSCS method': 'MBD*',
+                'XDM correction scheme': 'XDM',
             }[line.split(':')[-1].strip()]
 
         # Basis Set Parameters
