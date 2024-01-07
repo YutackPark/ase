@@ -14,7 +14,7 @@ class Namelist(UserDict):
     def __setitem__(self, key, value):
         super().__setitem__(
             key.lower(), Namelist(value) if isinstance(
-                value, (dict, MutableMapping)) else value, )
+                value, MutableMapping) else value)
 
     def __delitem__(self, key):
         super().__delitem__(key.lower())
@@ -73,6 +73,11 @@ class Namelist(UserDict):
             section: self.pop(section, {}) for section in keys
         }
 
+        constructed_namelist.update({
+            key: value for key, value in self.items()
+            if isinstance(value, Namelist)
+        })
+
         unused_keys = []
         for arg_key in list(self):
             section = Namelist.search_key(arg_key, keys)
@@ -86,6 +91,11 @@ class Namelist(UserDict):
             section = Namelist.search_key(arg_key, keys)
             value = kwargs.pop(arg_key)
             if section:
+                warnings.warn(
+                    ("Use of kwarg(s) as keyword(s) is deprecated,"
+                     "use input_data instead"),
+                    DeprecationWarning,
+                )
                 constructed_namelist[section][arg_key] = value
             else:
                 unused_keys.append(arg_key)
@@ -101,7 +111,7 @@ class Namelist(UserDict):
 
             def sorting_rule(item):
                 return keys[section].index(item.split('(')[0]) if item.split(
-                    '(')[0] in keys[section] else float('inf')
+                    '(')[0] in keys.get(section, {}) else float('inf')
 
             for key in sorted(constructed_namelist[section], key=sorting_rule):
                 sorted_section[key] = constructed_namelist[section][key]

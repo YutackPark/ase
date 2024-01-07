@@ -1852,7 +1852,7 @@ def write_fortran_namelist(
         fd,
         input_data=None,
         binary='pw',
-        additional_fields=None,
+        additional_cards=None,
         **kwargs) -> None:
     """
     Function which writes input for simple espresso binaries.
@@ -1873,7 +1873,7 @@ def write_fortran_namelist(
         A flat or nested dictionary with input parameters for the binary.x
     binary: str
         Name of the binary
-    additional_fields: str | list[str]
+    additional_cards: str | list[str]
         Additional fields to be written at the end of the input file, after
         the namelist. It is expected to be a string or a list of strings.
 
@@ -1888,17 +1888,17 @@ def write_fortran_namelist(
 
     fd.write(pwi)
 
-    if additional_fields:
-        if isinstance(additional_fields, list):
-            additional_fields = "\n".join(additional_fields)
-            additional_fields += "\n"
+    if additional_cards:
+        if isinstance(additional_cards, list):
+            additional_cards = "\n".join(additional_cards)
+            additional_cards += "\n"
 
-        fd.write(additional_fields)
+        fd.write(additional_cards)
 
     fd.write("EOF")
 
 
-@deprecated('Please use ase.io.espresso.write_fortran_namelist.',
+@deprecated('Please use the ase.io.espresso.Namelist class',
             DeprecationWarning)
 def construct_namelist(parameters=None, keys=None, warn=False, **kwargs):
     """
@@ -1922,7 +1922,7 @@ def construct_namelist(parameters=None, keys=None, warn=False, **kwargs):
     Only the highest priority item will be included.
 
     .. deprecated:: 3.23.0
-        Please use :func:`ase.io.espresso.write_fortran_namelist` instead.
+        Please use :class:`ase.io.espresso.Namelist` instead.
 
     Parameters
     ----------
