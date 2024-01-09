@@ -40,13 +40,18 @@ def run(calc):
     assert poly[0] == pytest.approx(20.0, abs=2.5)  # bond stiffness
 
 
+calc = pytest.mark.calculator
+
+
 @pytest.mark.filterwarnings('ignore:Subprocess exited')
 @pytest.mark.calculator_lite
-@pytest.mark.calculator('abinit')
-@pytest.mark.calculator('espresso', ecutwfc=30)
-@pytest.mark.calculator('nwchem')
-@pytest.mark.calculator('aims')
-@pytest.mark.calculator('siesta')
+@calc('abinit')
+@calc('espresso',
+      input_data={"system": {"ecutwfc": 30}},
+      marks=[pytest.mark.filterwarnings('ignore:DeprecationWarning')])
+@calc('nwchem')
+@calc('aims')
+@calc('siesta')
 # @pytest.mark.calculator('dftb', Hamiltonian_MaxAngularMomentum_H='"s"')
 def test_socketio_h2(factory):
     """SocketIO integration test; fit coarse binding curve of H2 molecule."""

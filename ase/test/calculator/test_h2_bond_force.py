@@ -34,7 +34,8 @@ calc = pytest.mark.calculator
 
 @calc('abinit', chksymtnons=0)
 @calc('cp2k')
-@calc('espresso', tprnfor=True)
+@calc('espresso', input_data={"control": {"tprnfor": True}},
+      marks=[pytest.mark.filterwarnings('ignore:DeprecationWarning')])
 @calc('gpaw', mode='pw', symmetry='off', txt=None)
 @calc('mopac', method='PM7', task='1SCF UHF GRADIENTS')
 @calc('nwchem')
