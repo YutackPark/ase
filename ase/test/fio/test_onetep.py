@@ -2043,7 +2043,7 @@ def test_onetep_nested_include_input(datadir):
 
 
 test_output = """
-Linear-Scaling Ab Initio Total Energy Program
+|Linear-Scaling Ab Initio Total Energy Program|
 --------------------------------------------------------------------------------
 ---------------------------------- INPUT FILE ----------------------------------
 --------------------------------------------------------------------------------
@@ -2169,7 +2169,7 @@ def test_onetep_output():
 
 
 test_geom = """
-Linear-Scaling Ab Initio Total Energy Program
+|Linear-Scaling Ab Initio Total Energy Program|
 --------------------------------------------------------------------------------
 ---------------------------------- INPUT FILE ----------------------------------
 --------------------------------------------------------------------------------

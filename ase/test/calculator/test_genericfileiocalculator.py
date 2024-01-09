@@ -1,10 +1,9 @@
 """Test suite for ase.calculators.GenericFileIOCalculator"""
 
-from unittest.mock import patch, PropertyMock
-
 import pytest
 
 from ase.calculators.genericfileio import GenericFileIOCalculator
+from ase.config import Config, cfg
 
 
 @pytest.mark.parametrize(
@@ -40,27 +39,24 @@ from ase.calculators.genericfileio import GenericFileIOCalculator
     ],
 )
 def test_run_command(
-    tmp_path, dummy_template, calculator_kwargs, result_command
+        tmp_path, dummy_template, calculator_kwargs, result_command,
+        monkeypatch,
 ):
     """A test for the command creator from the config file"""
 
-    from ase.config import Config
-
-    mock_config = {
+    mock_config = Config()
+    mock_config.parser.update({
         "parallel": {"binary": "mpirun", "nprocs_kwarg_trans": "-np"},
         "dummy": {
             "exc": "dummy.x",
         },
-    }
+    })
 
-    with patch.object(
-        Config, "parser", return_value=mock_config, new_callable=PropertyMock
-    ):
-
-        calc = GenericFileIOCalculator(
-            template=dummy_template,
-            profile=None,
-            directory=tmp_path,
-            **calculator_kwargs
-        )
-        assert calc.profile.get_command(inputfile="") == result_command
+    monkeypatch.setattr(cfg, 'parser', mock_config.parser)
+    calc = GenericFileIOCalculator(
+        template=dummy_template,
+        profile=None,
+        directory=tmp_path,
+        **calculator_kwargs
+    )
+    assert calc.profile.get_command(inputfile="") == result_command

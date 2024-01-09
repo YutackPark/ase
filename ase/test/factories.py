@@ -485,7 +485,7 @@ class LammpsLibFactory:
         try:
             import lammps  # noqa: F401
         except ModuleNotFoundError:
-            raise NotInstalled('lammps')
+            raise NotInstalled('missing python wrappers: cannot import lammps')
         self.potentials_path = cfg.parser['lammps']['potentials']
         os.environ['LAMMPS_POTENTIALS'] = str(self.potentials_path)
 

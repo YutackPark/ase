@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pytest
 
-import ase
+from ase.build import bulk
 from ase.dft.kpoints import BandPath
 from ase.calculators.castep import (Castep, CastepCell, CastepKeywords,
                                     CastepOption, CastepParam, make_cell_dict,
@@ -281,7 +281,7 @@ def test_workflow(testing_calculator):
     c._find_pspots = True
     c.set_label('test_label_pspots')
 
-    atoms = ase.build.bulk('Ag')
+    atoms = bulk('Ag')
     atoms.calc = c
 
     # Should find them automatically!
@@ -322,7 +322,7 @@ def test_set_kpoints(testing_calculator):
     c.set_kpts({'size': (2, 2, 4), 'even': False})
     assert c.cell.kpoint_mp_grid.value == '3 3 5'
     assert c.cell.kpoint_mp_offset.value == '0.0 0.0 0.0'
-    atoms = ase.build.bulk('Ag')
+    atoms = bulk('Ag')
     atoms.calc = c
     c.set_kpts({'density': 10, 'gamma': False, 'even': None})
     assert c.cell.kpoint_mp_grid.value == '27 27 27'
@@ -337,7 +337,7 @@ def test_band_structure_setup(testing_calculator):
 
     c = testing_calculator
 
-    atoms = ase.build.bulk('Ag')
+    atoms = bulk('Ag')
     bp = BandPath(cell=atoms.cell,
                   path='GX',
                   special_points={'G': [0, 0, 0], 'X': [0.5, 0, 0.5]})

@@ -7,6 +7,7 @@ import os
 import re
 import warnings
 from copy import deepcopy
+from typing import List, Tuple
 
 import numpy as np
 
@@ -162,18 +163,12 @@ def write_castep_cell(fd, atoms, positions_frac=False, force_write=False,
                           its contents will be used as magnetic moments.
     """
 
-    if atoms is None:
-        warnings.warn('Atoms object not initialized')
-        return False
     if isinstance(atoms, list):
         if len(atoms) > 1:
             atoms = atoms[-1]
 
     # Header
-    fd.write('#######################################################\n')
-    fd.write(f'#CASTEP cell file: {fd.name}\n')
-    fd.write('#Created using the Atomic Simulation Environment (ASE)#\n')
-    fd.write('#######################################################\n\n')
+    fd.write('# written by ASE\n\n')
 
     # To write this we simply use the existing Castep calculator, or create
     # one
@@ -216,7 +211,7 @@ def write_castep_cell(fd, atoms, positions_frac=False, force_write=False,
             custom_mass = masses[i]
 
             # build record of different masses for each species
-            if species not in custom_masses.keys():
+            if species not in custom_masses:
 
                 # build dictionary of positions of all species with
                 # same name and mass value ideally there should only
@@ -312,86 +307,76 @@ def write_castep_cell(fd, atoms, positions_frac=False, force_write=False,
 
     setattr(cell, pos_keyword, pos_block)
 
-    constraints = atoms.constraints
-    if len(constraints):
-        _supported_constraints = (FixAtoms, FixedPlane, FixedLine,
-                                  FixCartesian)
-
-        constr_block = []
-
-        for constr in constraints:
-            if not isinstance(constr, _supported_constraints):
-                warnings.warn(
-                    'Warning: you have constraints in your atoms, that are '
-                    'not supported by the CASTEP ase interface')
-                break
-            species_indices = atoms.symbols.species_indices()
-            if isinstance(constr, FixAtoms):
-                for i in constr.index:
-                    try:
-                        symbol = atoms.get_chemical_symbols()[i]
-                        nis = species_indices[i] + 1
-                    except KeyError:
-                        raise RuntimeError('Unrecognized index in'
-                                           + f' constraint {constr}')
-                    for j in range(3):
-                        L = '%6d %3s %3d   ' % (len(constr_block) + 1,
-                                                symbol,
-                                                nis)
-                        L += ['1 0 0', '0 1 0', '0 0 1'][j]
-                        constr_block += [L]
-
-            elif isinstance(constr, FixCartesian):
-                n = constr.a
-                symbol = atoms.get_chemical_symbols()[n]
-                nis = species_indices[n] + 1
-
-                for i, m in enumerate(constr.mask):
-                    if m == 1:
-                        continue
-                    L = '%6d %3s %3d   ' % (len(constr_block) + 1, symbol, nis)
-                    L += ' '.join(['1' if j == i else '0' for j in range(3)])
-                    constr_block += [L]
-
-            elif isinstance(constr, FixedPlane):
-                n = constr.a
-                symbol = atoms.get_chemical_symbols()[n]
-                nis = species_indices[n] + 1
-
-                L = '%6d %3s %3d   ' % (len(constr_block) + 1, symbol, nis)
-                L += ' '.join([str(d) for d in constr.dir])
-                constr_block += [L]
-
-            elif isinstance(constr, FixedLine):
-                n = constr.a
-                symbol = atoms.get_chemical_symbols()[n]
-                nis = species_indices[n] + 1
-
-                direction = constr.dir
-                ((i1, v1), (i2, v2)) = sorted(enumerate(direction),
-                                              key=lambda x: abs(x[1]),
-                                              reverse=True)[:2]
-                n1 = np.zeros(3)
-                n1[i2] = v1
-                n1[i1] = -v2
-                n1 = n1 / np.linalg.norm(n1)
-
-                n2 = np.cross(direction, n1)
-
-                l1 = '%6d %3s %3d   %f %f %f' % (len(constr_block) + 1,
-                                                 symbol, nis,
-                                                 n1[0], n1[1], n1[2])
-                l2 = '%6d %3s %3d   %f %f %f' % (len(constr_block) + 2,
-                                                 symbol, nis,
-                                                 n2[0], n2[1], n2[2])
-
-                constr_block += [l1, l2]
-
+    constr_block = _make_block_ionic_constraints(atoms)
+    if constr_block:
         cell.ionic_constraints = constr_block
 
     write_freeform(fd, cell)
 
+
+def _make_block_ionic_constraints(atoms: ase.Atoms) -> List[str]:
+    constr_block: List[str] = []
+    species_indices = atoms.symbols.species_indices()
+    for constr in atoms.constraints:
+        if not _is_constraint_valid(constr, len(atoms)):
+            continue
+        for i in constr.index:
+            symbol = atoms.get_chemical_symbols()[i]
+            nis = species_indices[i] + 1
+            if isinstance(constr, FixAtoms):
+                for j in range(3):  # constraint for all three directions
+                    ic = len(constr_block) + 1
+                    line = f'{ic:6d} {symbol:3s} {nis:3d}   '
+                    line += ['1 0 0', '0 1 0', '0 0 1'][j]
+                    constr_block.append(line)
+            elif isinstance(constr, FixCartesian):
+                for j, m in enumerate(constr.mask):
+                    if m == 1:  # not constrained
+                        continue
+                    ic = len(constr_block) + 1
+                    line = f'{ic:6d} {symbol:3s} {nis:3d}   '
+                    line += ['1 0 0', '0 1 0', '0 0 1'][j]
+                    constr_block.append(line)
+            elif isinstance(constr, FixedPlane):
+                ic = len(constr_block) + 1
+                line = f'{ic:6d} {symbol:3s} {nis:3d}   '
+                line += ' '.join([str(d) for d in constr.dir])
+                constr_block.append(line)
+            elif isinstance(constr, FixedLine):
+                for direction in _calc_normal_vectors(constr):
+                    ic = len(constr_block) + 1
+                    line = f'{ic:6d} {symbol:3s} {nis:3d}   '
+                    line += ' '.join(str(_) for _ in direction)
+                    constr_block.append(line)
+    return constr_block
+
+
+def _is_constraint_valid(constraint, natoms: int) -> bool:
+    supported_constraints = (FixAtoms, FixedPlane, FixedLine, FixCartesian)
+    if not isinstance(constraint, supported_constraints):
+        warnings.warn(f'{constraint} is not supported by ASE CASTEP, skipped')
+        return False
+    if any(i < 0 or i >= natoms for i in constraint.index):
+        warnings.warn(f'{constraint} contains invalid indices, skipped')
+        return False
     return True
+
+
+def _calc_normal_vectors(constr: FixedLine) -> Tuple[np.ndarray, np.ndarray]:
+    direction = constr.dir
+
+    i2, i1 = np.argsort(np.abs(direction))[1:]
+    v1 = direction[i1]
+    v2 = direction[i2]
+    n1 = np.zeros(3)
+    n1[i2] = v1
+    n1[i1] = -v2
+    n1 = n1 / np.linalg.norm(n1)
+
+    n2 = np.cross(direction, n1)
+    n2 = n2 / np.linalg.norm(n2)
+
+    return n1, n2
 
 
 def read_freeform(fd):
@@ -774,14 +759,11 @@ def read_castep_cell(fd, index=None, calculator_args={}, find_spg=False,
                     'to atoms %s' %
                     (absolute_nr))
                 continue
-            constraint = ase.constraints.FixedLine(
-                a=absolute_nr,
-                direction=direction)
+            constraint = FixedLine(indices=absolute_nr, direction=direction)
             constraints.append(constraint)
         elif len(value) == 1:
-            constraint = ase.constraints.FixedPlane(
-                a=absolute_nr,
-                direction=np.array(value[0], dtype=np.float32))
+            direction = np.array(value[0], dtype=float)
+            constraint = FixedPlane(indices=absolute_nr, direction=direction)
             constraints.append(constraint)
         else:
             warnings.warn(
@@ -792,8 +774,7 @@ def read_castep_cell(fd, index=None, calculator_args={}, find_spg=False,
     # we need to sort the fixed atoms list in order not to raise an assertion
     # error in FixAtoms
     if fixed_atoms:
-        constraints.append(
-            ase.constraints.FixAtoms(indices=sorted(fixed_atoms)))
+        constraints.append(FixAtoms(indices=sorted(fixed_atoms)))
     if constraints:
         atoms.set_constraint(constraints)
 

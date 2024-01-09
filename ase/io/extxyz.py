@@ -682,10 +682,7 @@ def read_xyz(fileobj, index=-1, properties_parser=key_val_str_to_dict):
        is serialised as JSON.
 
     The extended XYZ format is also supported by the
-    the `Ovito <http://www.ovito.org>`_ visualisation tool
-    (from `v2.4 beta
-    <http://www.ovito.org/index.php/component/content/article?id=25>`_
-    onwards).
+    the `Ovito <https://www.ovito.org>`_ visualisation tool.
     """  # noqa: E501
 
     if not isinstance(index, int) and not isinstance(index, slice):

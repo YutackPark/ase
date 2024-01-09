@@ -40,7 +40,7 @@ Supported calculators
 
 The calculators can be divided in four groups:
 
-1) Abacus_, AMS_, Asap_, BigDFT_, DeePMD-kit_, DFTD3_, DFTD4_, DFTK_, FLEUR_, GPAW_, Hotbit_, TBLite_, and XTB_
+1) Abacus_, ALIGNN_, AMS_, Asap_, BigDFT_, CHGNet_, DeePMD-kit_, DFTD3_, DFTD4_, DFTK_, FLEUR_, GPAW_, Hotbit_, M3GNet_, MACE_, TBLite_, and XTB_
    have their own native or external ASE interfaces.
 
 2) ABINIT, AMBER, CP2K, CASTEP, deMon2k, DFTB+, ELK, EXCITING, FHI-aims, GAUSSIAN,
@@ -66,9 +66,11 @@ The calculators can be divided in four groups:
 name                                      description
 ========================================= ===========================================
 Abacus_                                   DFT supporting both pw and lcao basis
+ALIGNN_                                   Atomistic Line Graph Neural Network force field
 AMS_                                      Amsterdam Modeling Suite
 Asap_                                     Highly efficient EMT code
 BigDFT_                                   Wavelet based code for DFT
+CHGNet_                                   Universal neural network  potential for charge-informed atomistics
 DeePMD-kit_                               A deep learning package for many-body potential energy representation
 DFTD3_                                    London-dispersion correction
 DFTD4_                                    Charge-dependent London-dispersion correction
@@ -76,6 +78,8 @@ DFTK_                                     Plane-wave code for DFT and related mo
 FLEUR_                                    Full Potential LAPW code
 GPAW_                                     Real-space/plane-wave/LCAO PAW code
 Hotbit_                                   DFT based tight binding
+M3GNet_                                   Materials 3-body Graph Network universal potential
+MACE_                                     Many-body potential using higher-order equivariant message passing
 TBLite_                                   Light-weight tight-binding framework
 XTB_                                      Semiemprical extended tight-binding program package
 :mod:`~ase.calculators.abinit`            Plane-wave pseudopotential code
@@ -139,9 +143,11 @@ The calculators included in ASE are used like this:
 where ``abc`` is the module name and ``ABC`` is the class name.
 
 .. _Abacus: https://gitlab.com/1041176461/ase-abacus
+.. _ALIGNN: https://github.com/usnistgov/alignn?tab=readme-ov-file#alignnff
 .. _AMS: https://www.scm.com/doc/plams/examples/AMSCalculator/ASECalculator.html#asecalculatorexample
 .. _Asap: https://wiki.fysik.dtu.dk/asap
 .. _BigDFT: https://l_sim.gitlab.io/bigdft-suite/tutorials/Interoperability-Simulation.html#ASE-Interoperability
+.. _CHGNet: https://github.com/CederGroupHub/chgnet/blob/e2a2b82bf2c64e5a3d39cd75d0addfa864a2771a/chgnet/model/dynamics.py#L63
 .. _GPAW: https://wiki.fysik.dtu.dk/gpaw
 .. _Hotbit: https://github.com/pekkosk/hotbit
 .. _DFTK: https://dftk.org
@@ -149,6 +155,8 @@ where ``abc`` is the module name and ``ABC`` is the class name.
 .. _DFTD4: https://github.com/dftd4/dftd4/tree/main/python
 .. _DFTD3: https://dftd3.readthedocs.io/en/latest/api/python.html#module-dftd3.ase
 .. _FLEUR: https://github.com/JuDFTteam/ase-fleur
+.. _M3GNet: https://matgl.ai/matgl.ext.html#class-matglextasem3gnetcalculatorpotential-potential-state_attr-torchtensor--none--none-stress_weight-float--10-kwargs
+.. _MACE: https://mace-docs.readthedocs.io/en/latest/guide/ase.html
 .. _TBLite: https://tblite.readthedocs.io/en/latest/users/ase.html
 .. _XTB: https://xtb-python.readthedocs.io/en/latest/ase-calculator.html
 

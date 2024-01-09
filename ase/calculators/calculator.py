@@ -1065,6 +1065,11 @@ class FileIOCalculator(Calculator):
             # to no longer be None
             command = self._legacy_default_command
 
+        if command is None and self.name in self.cfg.parser:
+            section = self.cfg.parser[self.name]
+            # XXX getargv() returns None if missing!
+            return ArgvProfile(self.name, section.getargv('argv'))
+
         if command is None:
             raise EnvironmentError(
                 f'No configuration of {self.name}.  '
