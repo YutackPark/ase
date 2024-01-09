@@ -22,7 +22,7 @@ def _calculate(code, name):
 @calc('aims')
 @calc('cp2k')
 @calc('espresso', input_data = {"system": {"ecutwfc" : 300 / Ry}},
-      marks=[filterwarnings('ignore:DeprecationWarning')])
+      marks=[filterwarnings('ignore::DeprecationWarning')])
 @calc('gpaw', symmetry='off', mode='pw', txt='gpaw.txt', mixer={'beta': 0.6},
       marks=[filterwarnings('ignore:.*?ignore_bad_restart_file'),
              filterwarnings('ignore:convert_string_to_fd')])

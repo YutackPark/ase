@@ -48,7 +48,7 @@ calc = pytest.mark.calculator
 @calc('abinit')
 @calc('espresso',
       input_data={"system": {"ecutwfc": 30}},
-      marks=[pytest.mark.filterwarnings('ignore:DeprecationWarning')])
+      marks=[pytest.mark.filterwarnings('ignore::DeprecationWarning')])
 @calc('nwchem')
 @calc('aims')
 @calc('siesta')
