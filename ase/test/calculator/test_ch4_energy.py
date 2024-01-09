@@ -21,7 +21,7 @@ def _calculate(code, name):
 @calc('abinit', ecut=300, chksymbreak=0, toldfe=1e-4)
 @calc('aims')
 @calc('cp2k')
-@calc('espresso', input_data = {"system": {"ecutwfc" : 300 / Ry}},
+@calc('espresso', input_data={"system": {"ecutwfc": 300 / Ry}},
       marks=[filterwarnings('ignore::DeprecationWarning')])
 @calc('gpaw', symmetry='off', mode='pw', txt='gpaw.txt', mixer={'beta': 0.6},
       marks=[filterwarnings('ignore:.*?ignore_bad_restart_file'),

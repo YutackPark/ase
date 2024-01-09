@@ -36,6 +36,7 @@ def verify(calc):
     assert calc.get_number_of_spins() is not None
     assert calc.get_k_point_weights() is not None
 
+
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
 @pytest.mark.calculator_lite
 def test_main(espresso_factory):
@@ -43,6 +44,7 @@ def test_main(espresso_factory):
     atoms.calc = espresso_factory.calc()
     atoms.get_potential_energy()
     verify(atoms.calc)
+
 
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
 @pytest.mark.calculator_lite
@@ -54,6 +56,7 @@ def test_smearing(espresso_factory):
     atoms.calc = espresso_factory.calc(input_data=input_data)
     atoms.get_potential_energy()
     verify(atoms.calc)
+
 
 @pytest.mark.filterwarnings("ignore::DeprecationWarning")
 @pytest.mark.calculator_lite
