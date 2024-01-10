@@ -1267,10 +1267,10 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
     input_parameters = Namelist(input_data)
     input_parameters.to_nested('pw', **kwargs)
 
-    input_parameters['control'].setdefault(
-        'pseudo_dir',
-        kwargs.pop('pseudo_path')
-    )
+    pseudo_dir = kwargs.pop('_pseudo_dir', None)
+    
+    if pseudo_dir:
+        input_parameters['control'].setdefault('pseudo_dir', pseudo_dir)
 
     # Convert ase constraints to QE constraints
     # Nx3 array of force multipliers matches what QE uses

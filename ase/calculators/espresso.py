@@ -30,10 +30,10 @@ compatibility_msg = (
 
 
 class EspressoProfile(BaseProfile):
-    def __init__(self, binary, pseudo_path, **kwargs):
+    def __init__(self, binary, pseudo_dir, **kwargs):
         super().__init__(**kwargs)
         self.binary = binary
-        self.pseudo_path = pseudo_path
+        self.pseudo_dir = pseudo_dir
 
     @staticmethod
     def parse_version(stdout):
@@ -73,7 +73,7 @@ class EspressoTemplate(CalculatorTemplate):
             atoms,
             format='espresso-in',
             properties=properties,
-            pseudo_path=str(profile.pseudo_path),
+            _pseudo_dir=str(profile.pseudo_dir),
             **parameters,
         )
 

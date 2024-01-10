@@ -7,7 +7,7 @@ from ase.config import Config
 def test_socketio_mpi_generator():
     cfg = Config()
     cfg.parser["parallel"] = {"binary": "mpirun"}
-    cfg.parser["espresso"] = {"binary": "pw.x", "pseudo_path": "test"}
+    cfg.parser["espresso"] = {"binary": "pw.x", "pseudo_dir": "test"}
     cfg.parser["abinit"] = {"binary": "abinit"}
 
     for temp_class in [EspressoTemplate, AbinitTemplate]:
