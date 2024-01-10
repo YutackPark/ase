@@ -23,8 +23,7 @@ import numpy as np
 from ase import Atoms
 from ase.calculators.calculator import (FileIOCalculator, Parameters,
                                         ReadError, all_changes)
-from ase.calculators.siesta.import_functions import (get_valence_charge,
-                                                     read_rho,
+from ase.calculators.siesta.import_functions import (read_rho,
                                                      read_vca_synth_block)
 from ase.calculators.siesta.parameters import PAOBasisBlock, format_fdf
 from ase.data import atomic_numbers

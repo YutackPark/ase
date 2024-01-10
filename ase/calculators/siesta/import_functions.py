@@ -44,17 +44,6 @@ def read_rho(fname):
     return rho
 
 
-def get_valence_charge(filename):
-    """ Read the valence charge from '.psf'-file."""
-    with open(filename) as fd:
-        fd.readline()
-        fd.readline()
-        fd.readline()
-        valence = -float(fd.readline().split()[-1])
-
-    return valence
-
-
 def read_vca_synth_block(filename, species_number=None):
     """ Read the SyntheticAtoms block from the output of the
     'fractional' siesta utility.
