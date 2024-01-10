@@ -29,8 +29,7 @@ from ase.calculators.siesta.import_functions import (get_valence_charge,
 from ase.calculators.siesta.parameters import PAOBasisBlock, format_fdf
 from ase.data import atomic_numbers
 from ase.io.siesta import read_siesta_xv
-from ase.io.siesta_input import (
-    get_species, write_kpts, make_xyz_constraints)
+from ase.io.siesta_input import SiestaInput
 from ase.units import Bohr, Ry, eV
 from ase.utils import deprecated
 
@@ -328,7 +327,8 @@ class Siesta(FileIOCalculator):
             Parameters :
                 - atoms : An Atoms object.
         """
-        return get_species(atoms, list(self['species']), self['basis_set'])
+        return SiestaInput.get_species(
+            atoms, list(self['species']), self['basis_set'])
 
     @deprecated(
         "The keyword 'UNPOLARIZED' has been deprecated,"
@@ -578,7 +578,7 @@ class Siesta(FileIOCalculator):
 
             if self["kpts"] is not None:
                 kpts = np.array(self['kpts'])
-                write_kpts(fd, kpts)
+                SiestaInput.write_kpts(fd, kpts)
 
             if self['bandpath'] is not None:
                 lines = bandpath2bandpoints(self['bandpath'])
@@ -733,7 +733,7 @@ class Siesta(FileIOCalculator):
         fd.write('%block Zmatrix\n')
         fd.write('  cartesian\n')
         fstr = "{:5d}" + "{:20.10f}" * 3 + "{:3d}" * 3 + "{:7d} {:s}\n"
-        a2constr = make_xyz_constraints(atoms)
+        a2constr = SiestaInput.make_xyz_constraints(atoms)
         a2p, a2s = atoms.get_positions(), atoms.get_chemical_symbols()
         for ia, (sp, xyz, ccc, sym) in enumerate(zip(species_numbers,
                                                      a2p,
