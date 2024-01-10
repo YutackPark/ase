@@ -748,7 +748,7 @@ class Siesta(FileIOCalculator):
         fd.write('%block Zmatrix\n')
         fd.write('  cartesian\n')
         fstr = "{:5d}" + "{:20.10f}" * 3 + "{:3d}" * 3 + "{:7d} {:s}\n"
-        a2constr = self.make_xyz_constraints(atoms)
+        a2constr = make_xyz_constraints(atoms)
         a2p, a2s = atoms.get_positions(), atoms.get_chemical_symbols()
         for ia, (sp, xyz, ccc, sym) in enumerate(zip(species_numbers,
                                                      a2p,
@@ -765,42 +765,6 @@ class Siesta(FileIOCalculator):
             fd.write('     %.4f  %.4f  %.4f\n' % origin)
             fd.write('%endblock AtomicCoordinatesOrigin\n')
             fd.write('\n')
-
-    def make_xyz_constraints(self, atoms: Atoms):
-        """ Create coordinate-resolved list of constraints [natoms, 0:3]
-        The elements of the list must be integers 0 or 1
-          1 -- means that the coordinate will be updated during relaxation
-          0 -- mains that the coordinate will be fixed during relaxation
-        """
-        import sys
-
-        from ase.constraints import (FixAtoms, FixCartesian, FixedLine,
-                                     FixedPlane)
-
-        a2c = np.ones((len(atoms), 3), dtype=int)  # (0: fixed, 1: updated)
-        for c in atoms.constraints:
-            if isinstance(c, FixAtoms):
-                a2c[c.get_indices()] = 0
-            elif isinstance(c, FixedLine):
-                norm_dir = c.dir / np.linalg.norm(c.dir)
-                if not is_along_cartesian(norm_dir):
-                    raise RuntimeError(
-                        'norm_dir: {} -- must be one of the Cartesian axes...'
-                        .format(norm_dir))
-                a2c[c.get_indices()] = norm_dir.round().astype(int)
-            elif isinstance(c, FixedPlane):
-                norm_dir = c.dir / np.linalg.norm(c.dir)
-                if not is_along_cartesian(norm_dir):
-                    raise RuntimeError(
-                        'norm_dir: {} -- must be one of the Cartesian axes...'
-                        .format(norm_dir))
-                a2c[c.get_indices()] = abs(1 - norm_dir.round().astype(int))
-            elif isinstance(c, FixCartesian):
-                a2c[c.get_indices()] = c.mask.astype(int)
-            else:
-                warnings.warn('Constraint {} is ignored at {}'
-                              .format(str(c), sys._getframe().f_code))
-        return a2c
 
     def _write_species(self, fd, atoms):
         """Write input related the different species.
@@ -1303,3 +1267,40 @@ def get_species(atoms, species, basis_set):
     all_species = default_species + non_default_species
 
     return all_species, species_numbers
+
+
+def make_xyz_constraints(atoms: Atoms):
+    """ Create coordinate-resolved list of constraints [natoms, 0:3]
+    The elements of the list must be integers 0 or 1
+      1 -- means that the coordinate will be updated during relaxation
+      0 -- mains that the coordinate will be fixed during relaxation
+    """
+    import sys
+
+    from ase.constraints import (FixAtoms, FixCartesian, FixedLine,
+                                 FixedPlane)
+
+    a2c = np.ones((len(atoms), 3), dtype=int)  # (0: fixed, 1: updated)
+    for c in atoms.constraints:
+        if isinstance(c, FixAtoms):
+            a2c[c.get_indices()] = 0
+        elif isinstance(c, FixedLine):
+            norm_dir = c.dir / np.linalg.norm(c.dir)
+            if not is_along_cartesian(norm_dir):
+                raise RuntimeError(
+                    'norm_dir: {} -- must be one of the Cartesian axes...'
+                    .format(norm_dir))
+            a2c[c.get_indices()] = norm_dir.round().astype(int)
+        elif isinstance(c, FixedPlane):
+            norm_dir = c.dir / np.linalg.norm(c.dir)
+            if not is_along_cartesian(norm_dir):
+                raise RuntimeError(
+                    'norm_dir: {} -- must be one of the Cartesian axes...'
+                    .format(norm_dir))
+            a2c[c.get_indices()] = abs(1 - norm_dir.round().astype(int))
+        elif isinstance(c, FixCartesian):
+            a2c[c.get_indices()] = c.mask.astype(int)
+        else:
+            warnings.warn('Constraint {} is ignored at {}'
+                          .format(str(c), sys._getframe().f_code))
+    return a2c
