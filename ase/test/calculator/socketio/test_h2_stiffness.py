@@ -42,13 +42,12 @@ def run(calc):
 
 calc = pytest.mark.calculator
 
+#marks=[pytest.mark.filterwarnings('ignore::DeprecationWarning')])
 
 @pytest.mark.filterwarnings('ignore:Subprocess exited')
 @pytest.mark.calculator_lite
 @calc('abinit')
-@calc('espresso',
-      input_data={"system": {"ecutwfc": 30}},
-      marks=[pytest.mark.filterwarnings('ignore::DeprecationWarning')])
+@calc('espresso', input_data={"system": {"ecutwfc": 30}})
 @calc('nwchem')
 @calc('aims')
 @calc('siesta')

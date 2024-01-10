@@ -73,7 +73,7 @@ class EspressoTemplate(CalculatorTemplate):
             atoms,
             format='espresso-in',
             properties=properties,
-            pseudo_dir=str(profile.pseudo_path),
+            pseudo_path=str(profile.pseudo_path),
             **parameters,
         )
 

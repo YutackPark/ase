@@ -272,11 +272,6 @@ class EspressoFactory:
         self.executable = executable
         self.pseudo_dir = pseudo_dir
 
-    def _base_kw(self):
-        from ase.units import Ry
-
-        return dict(ecutwfc=300 / Ry)
-
     def _profile(self):
         from ase.calculators.espresso import EspressoProfile
 
@@ -287,7 +282,8 @@ class EspressoFactory:
 
     def calc(self, **kwargs):
         from ase.calculators.espresso import Espresso
-        print('should be it')
+        from ase.io.espresso import Namelist
+
         pseudopotentials = {}
         for path in self.pseudo_dir.glob('*.UPF'):
             fname = path.name
@@ -295,11 +291,13 @@ class EspressoFactory:
             symbol = fname.split('_', 1)[0].capitalize()
             pseudopotentials[symbol] = fname
 
-        kw = self._base_kw()
-        kw.update(kwargs)
+        input_data = Namelist(kwargs.get("input_data"))
+        input_data.to_nested()
+        input_data["system"].setdefault("ecutwfc", 22.05)
 
         return Espresso(
-            profile=self._profile(), pseudopotentials=pseudopotentials, **kw
+            profile=self._profile(), pseudopotentials=pseudopotentials,
+            input_data=input_data
         )
 
     def socketio(self, unixsocket, **kwargs):
