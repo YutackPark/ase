@@ -694,14 +694,15 @@ class Siesta(FileIOCalculator):
             An atoms object.
         """
         af = self.parameters["atomic_coord_format"].lower()
+        species, species_numbers = self.species(atoms)
         if af == 'xyz':
-            self._write_atomic_coordinates_xyz(fd, atoms)
+            self._write_atomic_coordinates_xyz(fd, atoms, species_numbers)
         elif af == 'zmatrix':
-            self._write_atomic_coordinates_zmatrix(fd, atoms)
+            self._write_atomic_coordinates_zmatrix(fd, atoms, species_numbers)
         else:
             raise RuntimeError(f'Unknown atomic_coord_format: {af}')
 
-    def _write_atomic_coordinates_xyz(self, fd, atoms: Atoms):
+    def _write_atomic_coordinates_xyz(self, fd, atoms: Atoms, species_numbers):
         """Write atomic coordinates.
 
         Parameters
@@ -711,7 +712,6 @@ class Siesta(FileIOCalculator):
         atoms : Atoms
             An atoms object.
         """
-        species, species_numbers = self.species(atoms)
         fd.write('\n')
         fd.write('AtomicCoordinatesFormat  Ang\n')
         fd.write('%block AtomicCoordinatesAndAtomicSpecies\n')
@@ -732,7 +732,8 @@ class Siesta(FileIOCalculator):
             fd.write('%endblock AtomicCoordinatesOrigin\n')
             fd.write('\n')
 
-    def _write_atomic_coordinates_zmatrix(self, fd, atoms: Atoms):
+    def _write_atomic_coordinates_zmatrix(
+            self, fd, atoms: Atoms, species_numbers):
         """Write atomic coordinates in Z-matrix format.
 
         Parameters
@@ -742,7 +743,6 @@ class Siesta(FileIOCalculator):
         atoms : Atoms
             An atoms object.
         """
-        species, species_numbers = self.species(atoms)
         fd.write('\n')
         fd.write('ZM.UnitsLength   Ang\n')
         fd.write('%block Zmatrix\n')
