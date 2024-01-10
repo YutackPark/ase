@@ -822,30 +822,6 @@ class Siesta(FileIOCalculator):
                 else:
                     shutil.copy(pseudopotential, pseudo_targetpath)
 
-            if spec['excess_charge'] is not None:
-                atomic_number += 200
-                n_atoms = sum(np.array(species_numbers) == species_number)
-
-                paec = float(spec['excess_charge']) / n_atoms
-                vc = get_valence_charge(pseudopotential)
-                fraction = float(vc + paec) / vc
-                pseudo_head = name[:-4]
-                fractional_command = self.cfg['SIESTA_UTIL_FRACTIONAL']
-                cmd = '{} {} {:.7f}'.format(fractional_command,
-                                            pseudo_head,
-                                            fraction)
-                os.system(cmd)
-
-                pseudo_head += '-Fraction-%.5f' % fraction
-                synth_pseudo = pseudo_head + '.psf'
-                synth_block_filename = pseudo_head + '.synth'
-                os.remove(name)
-                shutil.copyfile(synth_pseudo, name)
-                synth_block = read_vca_synth_block(
-                    synth_block_filename,
-                    species_number=species_number)
-                synth_blocks.append(synth_block)
-
             if len(synth_blocks) > 0:
                 fd.write(format_fdf('SyntheticAtoms', list(synth_blocks)))
 
