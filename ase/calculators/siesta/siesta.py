@@ -630,7 +630,7 @@ class Siesta(FileIOCalculator):
 
             if self["kpts"] is not None:
                 kpts = np.array(self['kpts'])
-                self._write_kpts(fd, kpts)
+                write_kpts(fd, kpts)
 
             if self['bandpath'] is not None:
                 lines = bandpath2bandpoints(self['bandpath'])
@@ -838,35 +838,6 @@ class Siesta(FileIOCalculator):
                 warnings.warn('Constraint {} is ignored at {}'
                               .format(str(c), sys._getframe().f_code))
         return a2c
-
-    def _write_kpts(self, fd, kpts):
-        """Write kpts.
-
-        Parameters:
-            - f : Open filename.
-        """
-        fd.write('\n')
-        fd.write('#KPoint grid\n')
-        fd.write('%block kgrid_Monkhorst_Pack\n')
-
-        for i in range(3):
-            s = ''
-            if i < len(kpts):
-                number = kpts[i]
-                displace = 0.0
-            else:
-                number = 1
-                displace = 0
-            for j in range(3):
-                if j == i:
-                    write_this = number
-                else:
-                    write_this = 0
-                s += '     %d  ' % write_this
-            s += '%1.1f\n' % displace
-            fd.write(s)
-        fd.write('%endblock kgrid_Monkhorst_Pack\n')
-        fd.write('\n')
 
     def _write_species(self, fd, atoms):
         """Write input related the different species.
@@ -1299,3 +1270,33 @@ class Siesta3_2(Siesta):
             'SpinOrbit' if needed.
         """
         Siesta.__init__(self, *args, **kwargs)
+
+
+def write_kpts(fd, kpts):
+    """Write kpts.
+
+    Parameters:
+        - f : Open filename.
+    """
+    fd.write('\n')
+    fd.write('#KPoint grid\n')
+    fd.write('%block kgrid_Monkhorst_Pack\n')
+
+    for i in range(3):
+        s = ''
+        if i < len(kpts):
+            number = kpts[i]
+            displace = 0.0
+        else:
+            number = 1
+            displace = 0
+        for j in range(3):
+            if j == i:
+                write_this = number
+            else:
+                write_this = 0
+            s += '     %d  ' % write_this
+        s += '%1.1f\n' % displace
+        fd.write(s)
+    fd.write('%endblock kgrid_Monkhorst_Pack\n')
+    fd.write('\n')
