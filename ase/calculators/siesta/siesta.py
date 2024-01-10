@@ -343,44 +343,7 @@ class Siesta(FileIOCalculator):
             Parameters :
                 - atoms : An Atoms object.
         """
-        # For each element use default species from the species input, or set
-        # up a default species  from the general default parameters.
-        symbols = np.array(atoms.get_chemical_symbols())
-        tags = atoms.get_tags()
-        species = list(self['species'])
-        default_species = [
-            s for s in species
-            if (s['tag'] is None) and s['symbol'] in symbols]
-        default_symbols = [s['symbol'] for s in default_species]
-        for symbol in symbols:
-            if symbol not in default_symbols:
-                spec = Species(symbol=symbol,
-                               basis_set=self['basis_set'],
-                               tag=None)
-                default_species.append(spec)
-                default_symbols.append(symbol)
-        assert len(default_species) == len(np.unique(symbols))
-
-        # Set default species as the first species.
-        species_numbers = np.zeros(len(atoms), int)
-        i = 1
-        for spec in default_species:
-            mask = symbols == spec['symbol']
-            species_numbers[mask] = i
-            i += 1
-
-        # Set up the non-default species.
-        non_default_species = [s for s in species if s['tag'] is not None]
-        for spec in non_default_species:
-            mask1 = (tags == spec['tag'])
-            mask2 = (symbols == spec['symbol'])
-            mask = np.logical_and(mask1, mask2)
-            if sum(mask) > 0:
-                species_numbers[mask] = i
-                i += 1
-        all_species = default_species + non_default_species
-
-        return all_species, species_numbers
+        return get_species(atoms, list(self['species']), self['basis_set'])
 
     @deprecated(
         "The keyword 'UNPOLARIZED' has been deprecated,"
@@ -1300,3 +1263,43 @@ def write_kpts(fd, kpts):
         fd.write(s)
     fd.write('%endblock kgrid_Monkhorst_Pack\n')
     fd.write('\n')
+
+
+def get_species(atoms, species, basis_set):
+    # For each element use default species from the species input, or set
+    # up a default species  from the general default parameters.
+    symbols = np.array(atoms.get_chemical_symbols())
+    tags = atoms.get_tags()
+    default_species = [
+        s for s in species
+        if (s['tag'] is None) and s['symbol'] in symbols]
+    default_symbols = [s['symbol'] for s in default_species]
+    for symbol in symbols:
+        if symbol not in default_symbols:
+            spec = Species(symbol=symbol,
+                           basis_set=basis_set,
+                           tag=None)
+            default_species.append(spec)
+            default_symbols.append(symbol)
+    assert len(default_species) == len(np.unique(symbols))
+
+    # Set default species as the first species.
+    species_numbers = np.zeros(len(atoms), int)
+    i = 1
+    for spec in default_species:
+        mask = symbols == spec['symbol']
+        species_numbers[mask] = i
+        i += 1
+
+    # Set up the non-default species.
+    non_default_species = [s for s in species if s['tag'] is not None]
+    for spec in non_default_species:
+        mask1 = (tags == spec['tag'])
+        mask2 = (symbols == spec['symbol'])
+        mask = np.logical_and(mask1, mask2)
+        if sum(mask) > 0:
+            species_numbers[mask] = i
+            i += 1
+    all_species = default_species + non_default_species
+
+    return all_species, species_numbers
