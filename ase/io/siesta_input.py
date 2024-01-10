@@ -5,9 +5,10 @@ import numpy as np
 from ase import Atoms
 from ase.calculators.siesta.parameters import Species
 
+
 class SiestaInput:
-    @staticmethod
-    def is_along_cartesian(norm_dir: np.ndarray) -> bool:
+    @classmethod
+    def is_along_cartesian(cls, norm_dir: np.ndarray) -> bool:
         """Return whether `norm_dir` is along a Cartesian coordidate."""
         directions = [
             [+1, 0, 0],
@@ -22,8 +23,8 @@ class SiestaInput:
                 return True
         return False
 
-    @staticmethod
-    def write_kpts(fd, kpts):
+    @classmethod
+    def write_kpts(cls, fd, kpts):
         """Write kpts.
 
         Parameters:
@@ -52,8 +53,8 @@ class SiestaInput:
         fd.write('%endblock kgrid_Monkhorst_Pack\n')
         fd.write('\n')
 
-    @staticmethod
-    def get_species(atoms, species, basis_set):
+    @classmethod
+    def get_species(cls, atoms, species, basis_set):
         # For each element use default species from the species input, or set
         # up a default species  from the general default parameters.
         symbols = np.array(atoms.get_chemical_symbols())
@@ -92,8 +93,8 @@ class SiestaInput:
 
         return all_species, species_numbers
 
-    @staticmethod
-    def make_xyz_constraints(atoms: Atoms):
+    @classmethod
+    def make_xyz_constraints(cls, atoms: Atoms):
         """ Create coordinate-resolved list of constraints [natoms, 0:3]
         The elements of the list must be integers 0 or 1
           1 -- means that the coordinate will be updated during relaxation
@@ -110,14 +111,14 @@ class SiestaInput:
                 a2c[c.get_indices()] = 0
             elif isinstance(c, FixedLine):
                 norm_dir = c.dir / np.linalg.norm(c.dir)
-                if not is_along_cartesian(norm_dir):
+                if not cls.is_along_cartesian(norm_dir):
                     raise RuntimeError(
                         'norm_dir: {} -- must be one of the Cartesian axes...'
                         .format(norm_dir))
                 a2c[c.get_indices()] = norm_dir.round().astype(int)
             elif isinstance(c, FixedPlane):
                 norm_dir = c.dir / np.linalg.norm(c.dir)
-                if not is_along_cartesian(norm_dir):
+                if not cls.is_along_cartesian(norm_dir):
                     raise RuntimeError(
                         'norm_dir: {} -- must be one of the Cartesian axes...'
                         .format(norm_dir))
