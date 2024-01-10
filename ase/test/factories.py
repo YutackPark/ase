@@ -287,7 +287,7 @@ class EspressoFactory:
 
     def calc(self, **kwargs):
         from ase.calculators.espresso import Espresso
-
+        print('should be it')
         pseudopotentials = {}
         for path in self.pseudo_dir.glob('*.UPF'):
             fname = path.name
