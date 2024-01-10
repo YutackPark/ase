@@ -628,7 +628,9 @@ class Siesta(FileIOCalculator):
             if 'density' in properties:
                 fd.write(format_fdf('SaveRho', True))
 
-            self._write_kpts(fd)
+            if self["kpts"] is not None:
+                kpts = np.array(self['kpts'])
+                self._write_kpts(fd, kpts)
 
             if self['bandpath'] is not None:
                 lines = bandpath2bandpoints(self['bandpath'])
@@ -837,15 +839,12 @@ class Siesta(FileIOCalculator):
                               .format(str(c), sys._getframe().f_code))
         return a2c
 
-    def _write_kpts(self, fd):
+    def _write_kpts(self, fd, kpts):
         """Write kpts.
 
         Parameters:
             - f : Open filename.
         """
-        if self["kpts"] is None:
-            return
-        kpts = np.array(self['kpts'])
         fd.write('\n')
         fd.write('#KPoint grid\n')
         fd.write('%block kgrid_Monkhorst_Pack\n')
