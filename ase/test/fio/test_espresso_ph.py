@@ -15,7 +15,7 @@ def test_write_espresso_ph_single():
         "outdir": "/path/to/outdir",
         "eth_rps": 0.1,
         "qplot": False,
-        "ldisp": True,
+        "ldisp": False,
         "trans": True,
         "tr2_ph": 1e-12,
         "alpha_mix(1)": 0.1,
@@ -42,7 +42,7 @@ def test_write_espresso_ph_single():
         "   trans            = .true.\n"
         "   eth_rps          = 0.1\n"
         "   qplot            = .false.\n"
-        "   ldisp            = .true.\n"
+        "   ldisp            = .false.\n"
         "   nat_todo         = 0\n"
         "/\n"
         "0.50000000 -0.10000000 0.33333333\n"

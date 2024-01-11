@@ -181,11 +181,18 @@ class BaseProfile(ABC):
         parallel_info = parallel_info if parallel_info is not None else {}
         parallel_config.update(parallel_info)
 
-        return cls(
-            **cfg.parser[section_name],
-            parallel_info=parallel_config,
-            parallel=parallel,
-        )
+        try:
+            return cls(
+                **cfg.parser[section_name],
+                parallel_info=parallel_config,
+                parallel=parallel,
+            )
+        except TypeError as err:
+            raise BadConfiguration(*err.args)
+
+
+class BadConfiguration(Exception):
+    pass
 
 
 def read_stdout(args, createfile=None):

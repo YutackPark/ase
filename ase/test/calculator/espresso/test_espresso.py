@@ -35,6 +35,7 @@ def verify(calc):
     assert calc.get_k_point_weights() is not None
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 @pytest.mark.calculator_lite
 def test_main(espresso_factory):
     atoms = bulk('Si')
@@ -43,6 +44,7 @@ def test_main(espresso_factory):
     verify(atoms.calc)
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 @pytest.mark.calculator_lite
 def test_smearing(espresso_factory):
     atoms = bulk('Cu')
@@ -54,6 +56,7 @@ def test_smearing(espresso_factory):
     verify(atoms.calc)
 
 
+@pytest.mark.filterwarnings("ignore::DeprecationWarning")
 @pytest.mark.calculator_lite
 def test_dipole(espresso_factory):
     atoms = molecule('H2O', cell=[10, 10, 10])
