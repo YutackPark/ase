@@ -1025,9 +1025,6 @@ class FileIOCalculator(Calculator):
         super().__init__(restart, ignore_bad_restart_file, label, atoms,
                          **kwargs)
 
-        #if profile is None and command is None and self.name in self.cfg:
-        #    profile = NewArgvProfile.from_config_section(self.cfg[self.name])
-
         if profile is None:
             profile = self._initialize_profile(command)
         self.profile = profile
@@ -1091,14 +1088,17 @@ class FileIOCalculator(Calculator):
         """Read energy, forces, ... from output file(s)."""
 
 
-
 class NewArgvProfile:
+    """Temporary copy of ArgvProfile for refactoring.
+
+    We need to solve a problem where some codes need to append to argv
+    in ways that are not easily supported"""
     def __init__(self, argv):
         self.argv = argv
 
     def execute(self, directory, stdout_name):
         directory = Path(directory).resolve()
-        #if stdout_name is None:
+        # if stdout_name is None:
         #    stdout_name = f'{self.name}.out'
         stdout_path = directory / f'{stdout_name}.out'
         try:

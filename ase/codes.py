@@ -59,7 +59,6 @@ class CodeMetadata:
         return issubclass(self.calculator_class(), BaseCalculator)
 
     def calculator_type(self):
-        from ase.calculators.genericfileio import GenericFileIOCalculator
         cls = self.calculator_class()
 
         if self.is_generic_fileio():
@@ -112,7 +111,7 @@ class CodeMetadata:
         yield f'Configured by section [{self.name}]:'
         configvars = vars(profile)
         for name in sorted(configvars):
-            yield(f'  {name} = {configvars[name]}')
+            yield f'  {name} = {configvars[name]}'
 
         return
 
@@ -120,6 +119,7 @@ class CodeMetadata:
 def register_codes():
 
     codes = {}
+
     def reg(name, *args):
         code = CodeMetadata.define_code(name, *args)
         codes[name] = code
