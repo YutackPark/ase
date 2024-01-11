@@ -82,7 +82,7 @@ pseudo_path = {path}/siesta
         # But we don't want to run tests against the user's production
         # configuration since that may be using other pseudopotentials
         # than the ones we want.  Therefore, we override datafile paths.
-        cfg = Config()
+        cfg = Config.read()
         cfg.parser.read_string(self.datafile_config)
         return cfg
 
