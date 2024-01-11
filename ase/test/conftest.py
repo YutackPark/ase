@@ -32,7 +32,7 @@ helpful_message = """\
 
 
 @pytest.fixture(scope='session')
-def cfg():
+def testconfig():
     from ase.test.factories import MachineInformation
     return MachineInformation().cfg
 

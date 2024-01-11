@@ -32,9 +32,9 @@ inp = """\
 
 
 @pytest.fixture
-def cp2k_main(cfg):
+def cp2k_main(testconfig):
     try:
-        return cfg.parser['cp2k']['cp2k_main']
+        return testconfig.parser['cp2k']['cp2k_main']
     except KeyError:
         pytest.skip("""\
 Missing cp2k configuration.  Requires:
