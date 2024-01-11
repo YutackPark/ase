@@ -67,8 +67,20 @@ def read_openmx(filename=None, debug=False):
                           dat_data=dat_data, band_data=band_data)
 
     atoms = Atoms(**atomic_formula)
-    atoms.calc = OpenMX(**parameters)
-    atoms.calc.results = results
+
+    # XXX Creating OpenMX out of parameters directly is a security problem
+    # since the data comes from files, and the files may contain
+    # malicious content that would be interpreted as 'command'
+    from ase.calculators.calculator import all_properties
+    from ase.calculators.singlepoint import SinglePointDFTCalculator
+    common_properties = set(all_properties) & set(results)
+    results = {key: results[key] for key in common_properties}
+
+    atoms.calc = SinglePointDFTCalculator(
+        atoms, **results)
+
+    # atoms.calc = OpenMX(**parameters)
+    # atoms.calc.results = results
     return atoms
 
 

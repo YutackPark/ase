@@ -208,11 +208,14 @@ class LAMMPS(Calculator):
 
     def get_lammps_command(self):
         cmd = self.parameters.get('command')
-        if cmd is None:
-            envvar = f'ASE_{self.name.upper()}_COMMAND'
-            cmd = os.environ.get(envvar)
 
         if cmd is None:
+            from ase.config import cfg
+            envvar = f'ASE_{self.name.upper()}_COMMAND'
+            cmd = cfg.get(envvar)
+
+        if cmd is None:
+            # TODO deprecate and remove guesswork
             cmd = 'lammps'
 
         opts = self.parameters.get('lammps_options')

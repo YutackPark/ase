@@ -31,18 +31,26 @@ inp = """\
 """
 
 
+@pytest.fixture
+def cp2k_main(testconfig):
+    try:
+        return testconfig.parser['cp2k']['cp2k_main']
+    except KeyError:
+        pytest.skip("""\
+Missing cp2k configuration.  Requires:
+
+    [cp2k]
+    cp2k_main = /path/to/cp2k
+""")
+
+# XXX multi-line skip messages are ugly since they mess up the
+# pytest -r s listing.  Should we write a more terse message?
+# Let's do it when calculator factory reporting is user friendly.
+
+
 @pytest.mark.calculator_lite
 @pytest.mark.calculator('cp2k')
-def test_dcd(factory, factories):
-    # (Should the cp2k_main executable live on the cp2k factory?)
-    exes = factories.executables
-
-    cp2k_main = exes.get('cp2k_main')
-    if cp2k_main is None:
-        pytest.skip('Please define "cp2k_main" in testing executables.  '
-                    'It should point to the main cp2k executable '
-                    '(not the shell)')
-
+def test_dcd(factory, cp2k_main):
     calc = factory.calc(label='test_dcd', inp=inp)
     h2 = molecule('H2', calculator=calc)
     h2.center(vacuum=2.0)

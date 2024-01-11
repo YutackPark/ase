@@ -31,6 +31,12 @@ helpful_message = """\
 """
 
 
+@pytest.fixture(scope='session')
+def testconfig():
+    from ase.test.factories import MachineInformation
+    return MachineInformation().cfg
+
+
 def pytest_report_header(config, startdir):
     yield from library_header()
     yield ''
@@ -52,8 +58,10 @@ def calculators_header(config):
     except NoSuchCalculator as err:
         pytest.exit(f'No such calculator: {err}')
 
-    configpaths = factories.executable_config_paths
-    module = factories.datafiles_module
+    machine_info = factories.machine_info
+    configpaths = machine_info.cfg.paths
+    # XXX FIXME may not be installed
+    module = machine_info.datafiles_module
 
     yield ''
     yield 'Calculators'
@@ -81,13 +89,19 @@ def calculators_header(config):
         factory = factories.factories.get(name)
 
         if factory is None:
-            configinfo = 'not installed'
+            why_not = factories.why_not[name]
+            configinfo = f'not installed: {why_not}'
         else:
             # Some really ugly hacks here:
             if hasattr(factory, 'importname'):
-                import importlib
-                module = importlib.import_module(factory.importname)
-                configinfo = get_python_package_path_description(module)
+                pass
+                # We want an to report from where we import calculators
+                # that are defined in Python, but that's currently disabled.
+                #
+                # import importlib
+                # XXXX reenable me somehow
+                # module = importlib.import_module(factory.importname)
+                # configinfo = get_python_package_path_description(module)
             else:
                 configtokens = []
                 for varname, variable in vars(factory).items():
@@ -149,10 +163,9 @@ def sessionlevel_testing_path():
 def testdir(tmp_path):
     # Pytest can on some systems provide a Path from pathlib2.  Normalize:
     path = Path(str(tmp_path))
+    print(f'Testdir: {path}')
     with workdir(path, mkdir=True):
         yield tmp_path
-    # We print the path so user can see where test failed, if it failed.
-    print(f'Testdir: {path}')
 
 
 @pytest.fixture
@@ -250,6 +263,9 @@ orca_factory = make_factory_fixture('orca')
 def make_dummy_factory(name):
     @factory_deco(name)
     class Factory:
+        def __init__(self, cfg):
+            self.cfg = cfg
+
         def calc(self, **kwargs):
             from ase.calculators.calculator import get_calculator_class
             cls = get_calculator_class(name)
@@ -275,10 +291,14 @@ def factory(request, factories):
         pytest.skip(f'Not installed: {name}')
     if not factories.enabled(name):
         pytest.skip(f'Not enabled: {name}')
-    if name in factories.builtin_calculators & factories.datafile_calculators:
-        if not factories.datafiles_module:
-            pytest.skip('ase-datafiles package not installed')
-    factory = factories[name]
+    # TODO: nice reporting of installedness and configuration
+    # if name in factories.builtin_calculators & factories.datafile_calculators:
+    #    if not factories.datafiles_module:
+    #        pytest.skip('ase-datafiles package not installed')
+    try:
+        factory = factories[name]
+    except KeyError:
+        pytest.skip(f'Not configured: {name}')
     return CalculatorInputs(factory, kwargs)
 
 

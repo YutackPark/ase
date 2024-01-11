@@ -23,9 +23,7 @@ def test_version(version, txt):
 
 
 def test_version_integration(espresso_factory):
-    profile = EspressoProfile(espresso_factory.executable,
-                              espresso_factory.pseudo_dir)
-    version = profile.version()
+    version = espresso_factory.profile.version()
     assert version[0].isdigit()
 
 
