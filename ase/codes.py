@@ -14,8 +14,6 @@ from dataclasses import dataclass
 
 @dataclass
 class CodeMetadata:
-    codes = {}
-
     name: str
     longname: str
     modulename: str
@@ -28,11 +26,9 @@ class CodeMetadata:
         return cls
 
     @classmethod
-    def register(cls, name, longname, importpath):
+    def define_code(cls, name, longname, importpath):
         modulename, classname = importpath.rsplit('.', 1)
-        code = cls(name, longname, modulename, classname)
-        cls.codes[name] = code
-        return code
+        return cls(name, longname, modulename, classname)
 
     def _description(self):
         yield f'Name:     {self.longname}'
@@ -121,9 +117,12 @@ class CodeMetadata:
         return
 
 
-
 def register_codes():
-    reg = CodeMetadata.register
+
+    codes = {}
+    def reg(name, *args):
+        code = CodeMetadata.define_code(name, *args)
+        codes[name] = code
 
     reg('abinit', 'Abinit', 'ase.calculators.abinit.AbinitTemplate')
     reg('ace', 'ACE molecule', 'ase.calculators.acemolecule.ACE')
@@ -187,14 +186,15 @@ def register_codes():
     reg('turbomole', 'Turbomole', 'ase.calculators.turbomole.Turbomole')
     reg('vasp', 'VASP', 'ase.calculators.vasp.Vasp')
     # internal: vdwcorrection
+    return codes
 
 
-register_codes()
+codes = register_codes()
 
 
 def list_codes(names):
     for name in names:
-        code = CodeMetadata.codes[name]
+        code = codes[name]
         try:
             print(code.name)
             print(code.description(indent='  '))
@@ -205,7 +205,7 @@ def list_codes(names):
 
 if __name__ == '__main__':
     import sys
-    thecodes = sys.argv[1:]
-    if not thecodes:
-        thecodes = CodeMetadata.codes
-    list_codes(thecodes)
+    names = sys.argv[1:]
+    if not names:
+        names = [*codes]
+    list_codes(names)
