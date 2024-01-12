@@ -124,7 +124,7 @@ class SiestaInput:
                         .format(norm_dir))
                 a2c[c.get_indices()] = abs(1 - norm_dir.round().astype(int))
             elif isinstance(c, FixCartesian):
-                a2c[c.get_indices()] = c.mask.astype(int)
+                a2c[c.get_indices()] = 1 - c.mask.astype(int)
             else:
                 warnings.warn('Constraint {} is ignored at {}'
                               .format(str(c), sys._getframe().f_code))
