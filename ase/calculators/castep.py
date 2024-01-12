@@ -485,7 +485,14 @@ End CASTEP Interface Documentation
         '_try_reuse',
         '_pedantic']
 
-    implemented_properties = ['energy', 'free_energy']
+    implemented_properties = [
+        'energy',
+        'free_energy',
+        'forces',
+        'stress',
+        'charges',
+        'magmoms',
+    ]
 
     # specific to this calculator
     implemented_properties += [
@@ -496,6 +503,10 @@ End CASTEP Interface Documentation
         'free_energy_with_dispersion_correction',
         'energy_zero_with_dispersion_correction',
         'energy_with_finite_basis_set_correction',
+        'pressure',
+        'hirshfeld_volume_ratios',
+        'hirshfeld_charges',
+        'hirshfeld_magmoms',
     ]
 
     def __init__(self, directory='CASTEP', label='castep',
@@ -586,19 +597,11 @@ End CASTEP Interface Documentation
         ###################################
         self.atoms = None
         # initialize result variables
-        self._forces = None
         self._eigenvalues = None
         self._efermi = None
         self._ibz_kpts = None
         self._ibz_weights = None
         self._band_structure = None
-
-        # spins and hirshfeld volumes
-        self._spins = None
-        self._hirsh_volrat = None
-
-        # Mulliken charges
-        self._mulliken_charges = None
 
         self._number_of_cell_constraints = None
         self._output_verbosity = None
@@ -1159,13 +1162,8 @@ End CASTEP Interface Documentation
                 atoms.new_array('castep_custom_species',
                                 np.array(custom_species))
 
-            k = 'charges'
-            if k in self.results:
-                atoms.set_initial_charges(charges=self.results[k])
-
-            k = 'magmoms'
-            if k in self.results:
-                atoms.set_initial_magnetic_moments(magmoms=self.results[k])
+            atoms.set_initial_charges(self.results.get('charges'))
+            atoms.set_initial_magnetic_moments(self.results.get('magmoms'))
 
             atoms.calc = self
 
@@ -1451,13 +1449,13 @@ End CASTEP Interface Documentation
     def get_charges(self, atoms):
         """Run CASTEP calculation if needed and return Mulliken charges."""
         self.update(atoms)
-        return np.array(self._mulliken_charges)
+        return self.results.get('charges')
 
     @_self_getter
     def get_magnetic_moments(self, atoms):
         """Run CASTEP calculation if needed and return Mulliken charges."""
         self.update(atoms)
-        return np.array(self._spins)
+        return self.results.get('magmoms')
 
     def set_atoms(self, atoms):
         """Sets the atoms for the calculator and vice versa."""
