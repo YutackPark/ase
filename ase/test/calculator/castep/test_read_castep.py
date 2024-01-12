@@ -12,6 +12,7 @@ from ase.calculators.castep import (
     _read_hirshfeld_details,
     _read_hirshfeld_charges,
     _get_indices_to_sort_back,
+    _set_energy_and_free_energy,
 )
 from ase.constraints import FixAtoms, FixCartesian
 from ase.units import GPa
@@ -538,3 +539,80 @@ def test_get_indices_to_sort_back():
     assert [species[_] for _ in indices_ref] == symbols
     indices = _get_indices_to_sort_back(symbols, species)
     assert indices.tolist() == indices_ref
+
+
+def test_energy_and_free_energy_metallic():
+    """Test if `energy` and `free_energy` is set correctly.
+
+    This test is made based on the following output obtained for Si.
+    ```
+    Final energy, E             =  -340.9490879813     eV
+    Final free energy (E-TS)    =  -340.9490902954     eV
+    (energies not corrected for finite basis set)
+
+    NB est. 0K energy (E-0.5TS)      =  -340.9490891384     eV
+
+    (SEDC) Total Energy Correction : -0.567289E+00 eV
+
+    Dispersion corrected final energy*, Ecor          =  -341.5163768370     eV
+    Dispersion corrected final free energy* (Ecor-TS) =  -341.5163791511     eV
+    NB dispersion corrected est. 0K energy* (Ecor-0.5TS) =  -341.5163779940     eV
+     For future reference: finite basis dEtot/dlog(Ecut) =      -0.487382eV
+     Total energy corrected for finite basis set =    -341.516014 eV
+    ```
+    """  # noqa: E501
+    results = {
+        'energy_without_dispersion_correction': -340.9490879813,
+        'free_energy_without_dispersion_correction': -340.9490902954,
+        'energy_zero_without_dispersion_correction': -340.9490891384,
+    }
+    results.update(results)
+    _set_energy_and_free_energy(results)
+    assert results['energy'] == -340.9490891384
+    assert results['free_energy'] == -340.9490902954
+
+    results_dispersion_correction = {
+        'energy_with_dispersion_correction': -341.5163768370,
+        'free_energy_with_dispersion_correction': -341.5163791511,
+        'energy_zero_with_dispersion_correction': -341.5163779940,
+    }
+    results.update(results_dispersion_correction)
+    _set_energy_and_free_energy(results)
+    assert results['energy'] == -341.5163779940
+    assert results['free_energy'] == -341.5163791511
+
+    results.update({'energy_with_finite_basis_set_correction': -341.516014})
+    _set_energy_and_free_energy(results)
+    assert results['energy'] == -341.5163779940
+    assert results['free_energy'] == -341.5163791511
+
+
+def test_energy_and_free_energy_non_metallic():
+    """Test if `energy` and `free_energy` is set correctly.
+
+    This test is made based on the following output obtained for Si.
+    ```
+    Final energy =  -340.9491006696     eV
+    (energy not corrected for finite basis set)
+
+    (SEDC) Total Energy Correction : -0.567288E+00 eV
+
+    Dispersion corrected final energy* =  -341.5163888035     eV
+     For future reference: finite basis dEtot/dlog(Ecut) =      -0.487570eV
+     Total energy corrected for finite basis set =    -341.516024 eV
+    ```
+    """
+    results = {'energy_without_dispersion_correction': -340.9491006696}
+    _set_energy_and_free_energy(results)
+    assert results['energy'] == -340.9491006696
+    assert results['free_energy'] == -340.9491006696
+
+    results.update({'energy_with_dispersion_correction': -341.5163888035})
+    _set_energy_and_free_energy(results)
+    assert results['energy'] == -341.5163888035
+    assert results['free_energy'] == -341.5163888035
+
+    results.update({'energy_with_finite_basis_set_correction': -341.516024})
+    _set_energy_and_free_energy(results)
+    assert results['energy'] == -341.516024
+    assert results['free_energy'] == -341.5163888035

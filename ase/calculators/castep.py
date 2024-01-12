@@ -485,6 +485,19 @@ End CASTEP Interface Documentation
         '_try_reuse',
         '_pedantic']
 
+    implemented_properties = ['energy', 'free_energy']
+
+    # specific to this calculator
+    implemented_properties += [
+        'energy_without_dispersion_correction',
+        'free_energy_without_dispersion_correction',
+        'energy_zero_without_dispersion_correction',
+        'energy_with_dispersion_correction',
+        'free_energy_with_dispersion_correction',
+        'energy_zero_with_dispersion_correction',
+        'energy_with_finite_basis_set_correction',
+    ]
+
     def __init__(self, directory='CASTEP', label='castep',
                  castep_command=None, check_castep_version=False,
                  castep_pp_path=None, find_pspots=False, keyword_tolerance=1,
@@ -574,20 +587,11 @@ End CASTEP Interface Documentation
         self.atoms = None
         # initialize result variables
         self._forces = None
-        self._energy_total = None
-        self._energy_free = None
-        self._energy_0K = None
-        self._energy_total_corr = None
         self._eigenvalues = None
         self._efermi = None
         self._ibz_kpts = None
         self._ibz_weights = None
         self._band_structure = None
-
-        # dispersion corrections
-        self._dispcorr_energy_total = None
-        self._dispcorr_energy_free = None
-        self._dispcorr_energy_0K = None
 
         # spins and hirshfeld volumes
         self._spins = None
@@ -1010,24 +1014,33 @@ End CASTEP Interface Documentation
                             break
                 elif 'Number of cell constraints' in line:
                     n_cell_const = int(line.split()[4])
+
                 elif 'Final energy' in line:
-                    self._energy_total = float(line.split()[-2])
+                    key = 'energy_without_dispersion_correction'
+                    self.results[key] = float(line.split()[-2])
                 elif 'Final free energy' in line:
-                    self._energy_free = float(line.split()[-2])
+                    key = 'free_energy_without_dispersion_correction'
+                    self.results[key] = float(line.split()[-2])
                 elif 'NB est. 0K energy' in line:
-                    self._energy_0K = float(line.split()[-2])
-                # check if we had a finite basis set correction
-                elif 'Total energy corrected for finite basis set' in line:
-                    self._energy_total_corr = float(line.split()[-2])
+                    key = 'energy_zero_without_dispersion_correction'
+                    self.results[key] = float(line.split()[-2])
 
                 # Add support for dispersion correction
                 # filtering due to SEDC is done in get_potential_energy
                 elif 'Dispersion corrected final energy' in line:
-                    self._dispcorr_energy_total = float(line.split()[-2])
+                    key = 'energy_with_dispersion_correlation'
+                    self.results[key] = float(line.split()[-2])
                 elif 'Dispersion corrected final free energy' in line:
-                    self._dispcorr_energy_free = float(line.split()[-2])
-                elif 'dispersion corrected est. 0K energy' in line:
-                    self._dispcorr_energy_0K = float(line.split()[-2])
+                    key = 'free_energy_with_dispersion_correlation'
+                    self.results[key] = float(line.split()[-2])
+                elif 'NB dispersion corrected est. 0K energy' in line:
+                    key = 'energy_zero_with_dispersion_correlation'
+                    self.results[key] = float(line.split()[-2])
+
+                # check if we had a finite basis set correction
+                elif 'Total energy corrected for finite basis set' in line:
+                    key = 'energy_with_finite_basis_set_correction'
+                    self.results[key] = float(line.split()[-2])
 
                 # ******************** Forces *********************
                 # ************** Symmetrised Forces ***************
@@ -1093,6 +1106,8 @@ End CASTEP Interface Documentation
 
         if _close:
             out.close()
+
+        _set_energy_and_free_energy(self.results)
 
         # in highly summetric crystals, positions and symmetry are only printed
         # upon init, hence we here restore these original values
@@ -1370,55 +1385,33 @@ End CASTEP Interface Documentation
     def get_total_energy(self, atoms):
         """Run CASTEP calculation if needed and return total energy."""
         self.update(atoms)
-        return self._energy_total
+        return self.results.get('energy_without_dispersion_correction')
 
     @_self_getter
     def get_total_energy_corrected(self, atoms):
         """Run CASTEP calculation if needed and return total energy."""
         self.update(atoms)
-        return self._energy_total_corr
+        return self.results.get('energy_with_finite_basis_set_correction')
 
     @_self_getter
     def get_free_energy(self, atoms):
         """Run CASTEP calculation if needed and return free energy.
            Only defined with smearing."""
         self.update(atoms)
-        return self._energy_free
+        return self.results.get('free_energy_without_dispersion_correction')
 
     @_self_getter
     def get_0K_energy(self, atoms):
         """Run CASTEP calculation if needed and return 0K energy.
            Only defined with smearing."""
         self.update(atoms)
-        return self._energy_0K
+        return self.results.get('energy_zero_without_dispersion_correction')
 
     @_self_getter
     def get_potential_energy(self, atoms, force_consistent=False):
-        # here for compatibility with ase/calculators/general.py
-        # but accessing only _name variables
-        """Return the total potential energy."""
         self.update(atoms)
-        if force_consistent:
-            # Assumption: If no dispersion correction is applied, then the
-            # respective value will default to None as initialized.
-            if self._dispcorr_energy_free is not None:
-                return self._dispcorr_energy_free
-            else:
-                return self._energy_free
-        else:
-            if self._energy_0K is not None:
-                if self._dispcorr_energy_0K is not None:
-                    return self._dispcorr_energy_0K
-                else:
-                    return self._energy_0K
-            else:
-                if self._dispcorr_energy_total is not None:
-                    return self._dispcorr_energy_total
-                else:
-                    if self._energy_total_corr is not None:
-                        return self._energy_total_corr
-                    else:
-                        return self._energy_total
+        name = 'free_energy' if force_consistent else 'energy'
+        return self.results.get(name)
 
     @_self_getter
     def get_stress(self, atoms):
@@ -2234,6 +2227,31 @@ def _get_indices_to_sort_back(symbols, species):
         not_assigned = [_ for _ in indices if _ == -1]
         raise RuntimeError(f'Atoms {not_assigned} where not assigned.')
     return indices
+
+
+def _set_energy_and_free_energy(results: Dict[str, Any]):
+    """Set values referred to as `energy` and `free_energy`."""
+    if 'energy_with_dispersion_correction' in results:
+        suffix = '_with_dispersion_correction'
+    else:
+        suffix = '_without_dispersion_correction'
+
+    if 'free_energy' + suffix in results:  # metallic
+        keye = 'energy_zero' + suffix
+        keyf = 'free_energy' + suffix
+    else:  # non-metallic
+        # The finite basis set correction is applied to the energy at finite T
+        # (not the energy at 0 K). We should hence refer to the corrected value
+        # as `energy` only when the free energy is unavailable, i.e., only when
+        # FIX_OCCUPANCY : TRUE and thus no smearing is applied.
+        if 'energy_with_finite_basis_set_correction' in results:
+            keye = 'energy_with_finite_basis_set_correction'
+        else:
+            keye = 'energy' + suffix
+        keyf = 'energy' + suffix
+
+    results['energy'] = results[keye]
+    results['free_energy'] = results[keyf]
 
 
 def get_castep_version(castep_command):
