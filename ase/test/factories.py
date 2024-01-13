@@ -694,13 +694,16 @@ class Factories:
         factories = {}
         why_not = {}
 
+        from ase.calculators.genericfileio import BadConfiguration
         for name, cls in factory_classes.items():
             try:
                 factories[name] = cls(cfg)
             except KeyError as err:
                 # XXX FIXME too silent
                 why_not[name] = err
-            except NotInstalled as err:
+            except (NotInstalled, BadConfiguration) as err:
+                # FIXME: we should have exactly one kind of error
+                # for 'not installed'
                 why_not[name] = err
             else:
                 why_not[name] = None
