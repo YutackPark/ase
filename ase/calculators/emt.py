@@ -61,13 +61,12 @@ class EMT(Calculator):
         Calculator.__init__(self, **kwargs)
 
     def initialize(self, atoms):
-        self.par = {}
         self.rc = 0.0
-        self.numbers = atoms.get_atomic_numbers()
-        if self.parameters.asap_cutoff:
+        numbers = atoms.get_atomic_numbers()
+        if self.parameters['asap_cutoff']:
             relevant_pars = {}
             for symb, p in parameters.items():
-                if atomic_numbers[symb] in self.numbers:
+                if atomic_numbers[symb] in numbers:
                     relevant_pars[symb] = p
         else:
             relevant_pars = parameters
@@ -75,39 +74,42 @@ class EMT(Calculator):
         rc = self.rc = beta * maxseq * 0.5 * (sqrt(3) + sqrt(4))
         rr = rc * 2 * sqrt(4) / (sqrt(3) + sqrt(4))
         self.acut = np.log(9999.0) / (rr - rc)
-        if self.parameters.asap_cutoff:
+        if self.parameters['asap_cutoff']:
             self.rc_list = self.rc * 1.045
         else:
             self.rc_list = self.rc + 0.5
-        for Z in self.numbers:
-            if Z not in self.par:
-                sym = chemical_symbols[Z]
-                if sym not in parameters:
-                    raise NotImplementedError('No EMT-potential for {}'
-                                              .format(sym))
-                p = parameters[sym]
-                s0 = p[1] * Bohr
-                eta2 = p[3] / Bohr
-                kappa = p[4] / Bohr
-                x = eta2 * beta * s0
-                gamma1 = 0.0
-                gamma2 = 0.0
-                for i, n in enumerate([12, 6, 24]):
-                    r = s0 * beta * sqrt(i + 1)
-                    x = n / (12 * (1.0 + exp(self.acut * (r - rc))))
-                    gamma1 += x * exp(-eta2 * (r - beta * s0))
-                    gamma2 += x * exp(-kappa / beta * (r - beta * s0))
 
-                self.par[Z] = {'E0': p[0],
-                               's0': s0,
-                               'V0': p[2],
-                               'eta2': eta2,
-                               'kappa': kappa,
-                               'lambda': p[5] / Bohr,
-                               'n0': p[6] / Bohr**3,
-                               'rc': rc,
-                               'gamma1': gamma1,
-                               'gamma2': gamma2}
+        self.par = {}
+        for Z in numbers:
+            if Z in self.par:
+                continue  # already stored
+            sym = chemical_symbols[Z]
+            if sym not in parameters:
+                raise NotImplementedError(f'No EMT-potential for {sym}')
+            p = parameters[sym]
+            s0 = p[1] * Bohr
+            eta2 = p[3] / Bohr
+            kappa = p[4] / Bohr
+            x = eta2 * beta * s0
+            gamma1 = 0.0
+            gamma2 = 0.0
+            for i, n in enumerate([12, 6, 24]):
+                r = s0 * beta * sqrt(i + 1)
+                x = n / (12 * (1.0 + exp(self.acut * (r - rc))))
+                gamma1 += x * exp(-eta2 * (r - beta * s0))
+                gamma2 += x * exp(-kappa / beta * (r - beta * s0))
+            self.par[Z] = {
+                'E0': p[0],
+                's0': s0,
+                'V0': p[2],
+                'eta2': eta2,
+                'kappa': kappa,
+                'lambda': p[5] / Bohr,
+                'n0': p[6] / Bohr**3,
+                'rc': rc,
+                'gamma1': gamma1,
+                'gamma2': gamma2,
+            }
 
         self.ksi = {}
         for s1, p1 in self.par.items():
