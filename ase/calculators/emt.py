@@ -90,14 +90,7 @@ class EMT(Calculator):
             s0 = p[1] * Bohr
             eta2 = p[3] / Bohr
             kappa = p[4] / Bohr
-            x = eta2 * beta * s0
-            gamma1 = 0.0
-            gamma2 = 0.0
-            for i, n in enumerate([12, 6, 24]):
-                r = s0 * beta * sqrt(i + 1)
-                x = n / (12 * (1.0 + exp(self.acut * (r - rc))))
-                gamma1 += x * exp(-eta2 * (r - beta * s0))
-                gamma2 += x * exp(-kappa / beta * (r - beta * s0))
+            gamma1, gamma2 = self._calc_gammas(s0, eta2, kappa)
             self.par[Z] = {
                 'E0': p[0],
                 's0': s0,
@@ -125,6 +118,15 @@ class EMT(Calculator):
 
         self.nl = NeighborList([0.5 * self.rc_list] * len(atoms),
                                self_interaction=False)
+
+    def _calc_gammas(self, s0, eta2, kappa):
+        n = np.array([12, 6, 24])  # numbers of 1, 2, 3NN sites in fcc
+        r = beta * s0 * np.sqrt([1.0, 2.0, 3.0])  # distances of 1, 2, 3NNs
+        w = 1.0 / (1.0 + np.exp(self.acut * (r - self.rc)))
+        x = n * w / 12.0
+        gamma1 = x @ np.exp(-eta2 * (r - beta * s0))
+        gamma2 = x @ np.exp(-kappa / beta * (r - beta * s0))
+        return gamma1, gamma2
 
     def calculate(self, atoms=None, properties=['energy'],
                   system_changes=all_changes):
