@@ -377,9 +377,12 @@ def test_stress():
     out.readline()
     results = _read_stress(out)
     stress_ref = [
-        [-0.006786, -0.035244, +0.023931],
-        [-0.035244, -0.006786, +0.023931],
-        [+0.023931, +0.023931, -0.011935],
+        -0.006786,
+        -0.006786,
+        -0.011935,
+        +0.023931,
+        +0.023931,
+        -0.035244,
     ]
     stress_ref = np.array(stress_ref) * GPa
     pressure_ref = 0.0085 * GPa
