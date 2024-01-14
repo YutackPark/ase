@@ -34,9 +34,11 @@ from typing import Any, Dict, List, Optional, Set
 import numpy as np
 
 from ase import Atoms, units
-from ase.calculators.calculator import (PropertyNotImplementedError,
-                                        compare_atoms, kpts2sizeandoffsets)
-from ase.calculators.general import Calculator
+from ase.calculators.calculator import (
+    BaseCalculator,
+    compare_atoms,
+    kpts2sizeandoffsets,
+)
 from ase.config import cfg
 from ase.constraints import FixConstraint, FixAtoms, FixCartesian
 from ase.dft.kpoints import BandPath
@@ -103,7 +105,7 @@ def _parse_tss_block(value, scaled=False):
         return text_block
 
 
-class Castep(Calculator):
+class Castep(BaseCalculator):
     r"""
 CASTEP Interface Documentation
 
@@ -514,12 +516,7 @@ End CASTEP Interface Documentation
                  castep_pp_path=None, find_pspots=False, keyword_tolerance=1,
                  castep_keywords=None, **kwargs):
 
-        self.__name__ = 'Castep'
-
-        # initialize the ase.calculators.general calculator
-        Calculator.__init__(self)
-
-        self.results = {}  # TODO: remove once inheriting BaseCalculator
+        self.results = {}
 
         from ase.io.castep import write_cell
         self._write_cell = write_cell
@@ -646,6 +643,22 @@ End CASTEP Interface Documentation
                 self.cut_off_energy = value
             else:  # the general case
                 self.__setattr__(keyword, value)
+
+        # TODO: to be self.use_cache = True after revising `__setattr__`
+        self.__dict__['use_cache'] = True
+
+    def set_atoms(self, atoms):
+        self.atoms = atoms
+
+    def get_atoms(self):
+        if self.atoms is None:
+            raise ValueError('Calculator has no atoms')
+        atoms = self.atoms.copy()
+        atoms.calc = self
+        return atoms
+
+    def _get_name(self) -> str:
+        return self.__class__.__name__
 
     def band_structure(self, bandfile=None):
         from ase.spectrum.band_structure import BandStructure
@@ -1353,32 +1366,6 @@ End CASTEP Interface Documentation
             else:
                 self.cell.species_pot = (elem, pps[0])
 
-    @property
-    def name(self):
-        """Return the name of the calculator (string).  """
-        return self.__name__
-
-    def get_property(self, name, atoms=None, allow_calculation=True):
-        # High-level getter for compliance with the database module...
-        # in principle this would not be necessary any longer if we properly
-        # based this class on `Calculator`
-        if name == 'forces':
-            return self.get_forces(atoms)
-        elif name == 'energy':
-            return self.get_potential_energy(atoms)
-        elif name == 'stress':
-            return self.get_stress(atoms)
-        elif name == 'charges':
-            return self.get_charges(atoms)
-        else:
-            raise PropertyNotImplementedError
-
-    @_self_getter
-    def get_forces(self, atoms):
-        """Run CASTEP calculation if needed and return forces."""
-        self.update(atoms)
-        return self.results.get('forces')
-
     @_self_getter
     def get_total_energy(self, atoms):
         """Run CASTEP calculation if needed and return total energy."""
@@ -1406,22 +1393,6 @@ End CASTEP Interface Documentation
         return self.results.get('energy_zero_without_dispersion_correction')
 
     @_self_getter
-    def get_potential_energy(self, atoms, force_consistent=False):
-        self.update(atoms)
-        name = 'free_energy' if force_consistent else 'energy'
-        return self.results.get(name)
-
-    @_self_getter
-    def get_stress(self, atoms):
-        """Return the stress."""
-        self.update(atoms)
-        if 'stress' not in self.results:
-            return None
-        # modification: we return the Voigt form directly to get rid of the
-        # annoying user warnings
-        return self.results['stress'].reshape(9)[[0, 4, 8, 5, 2, 1]]
-
-    @_self_getter
     def get_pressure(self, atoms):
         """Return the pressure."""
         self.update(atoms)
@@ -1445,32 +1416,14 @@ End CASTEP Interface Documentation
         self.update(atoms)
         return self._number_of_cell_constraints
 
-    @_self_getter
-    def get_charges(self, atoms):
-        """Run CASTEP calculation if needed and return Mulliken charges."""
-        self.update(atoms)
-        return self.results.get('charges')
-
-    @_self_getter
-    def get_magnetic_moments(self, atoms):
-        """Run CASTEP calculation if needed and return Mulliken charges."""
-        self.update(atoms)
-        return self.results.get('magmoms')
-
-    def set_atoms(self, atoms):
-        """Sets the atoms for the calculator and vice versa."""
-        atoms.pbc = [True, True, True]
-        self.__dict__['atoms'] = atoms.copy()
-        self.atoms._calc = self
-
     def update(self, atoms):
         """Checks if atoms object or calculator changed and
         runs calculation if so.
         """
-        if self.calculation_required(atoms):
-            self.calculate(atoms)
+        if self.calculation_required(atoms, None):
+            self.calculate(atoms, [], [])
 
-    def calculation_required(self, atoms, _=None):
+    def calculation_required(self, atoms, properties):
         """Checks wether anything changed in the atoms object or CASTEP
         settings since the last calculation using this instance.
         """
@@ -1488,7 +1441,7 @@ End CASTEP Interface Documentation
             return True
         return False
 
-    def calculate(self, atoms):
+    def calculate(self, atoms, properties, system_changes):
         """Write all necessary input file and call CASTEP."""
         self.prepare_input_files(atoms, force_write=self._force_write)
         if not self._prepare_input_only:
@@ -2150,6 +2103,7 @@ def _read_stress(out: io.TextIOBase):
         fields = line.split()
     # stress in .castep file is given in GPa
     results['stress'] = np.array(stress) * units.GPa
+    results['stress'] = results['stress'].reshape(9)[[0, 4, 8, 5, 2, 1]]
     line = out.readline()
     if "Pressure:" in line:
         results['pressure'] = float(line.split()[-2]) * units.GPa
