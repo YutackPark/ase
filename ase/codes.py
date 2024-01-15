@@ -133,7 +133,7 @@ def register_codes():
     # internal: combine_mm
     # internal: counterions
     reg('cp2k', 'CP2K', 'ase.calculators.cp2k.CP2K')
-    reg('crystal', 'Crystap', 'ase.calculators.crystal.CRYSTAL')
+    reg('crystal', 'CRYSTAL', 'ase.calculators.crystal.CRYSTAL')
     reg('demon', 'deMon', 'ase.calculators.demon.Demon')
     reg('demonnano', 'deMon-nano', 'ase.calculators.demonnano.DemonNano')
     reg('dftb', 'DFTB+', 'ase.calculators.dftb.Dftb')
