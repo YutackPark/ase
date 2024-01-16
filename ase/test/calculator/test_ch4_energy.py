@@ -1,7 +1,6 @@
 import pytest
 
 from ase.build import molecule
-from ase.units import Ry
 from ase.utils import workdir
 
 calc = pytest.mark.calculator
