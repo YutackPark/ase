@@ -7,13 +7,11 @@ Run pw.x jobs.
 import os
 import warnings
 
-from ase.calculators.genericfileio import (
-    CalculatorTemplate,
-    GenericFileIOCalculator,
-    read_stdout,
-    BaseProfile,
-)
+from ase.calculators.genericfileio import (BaseProfile, CalculatorTemplate,
+                                           GenericFileIOCalculator,
+                                           read_stdout)
 from ase.io import read, write
+from ase.io.espresso import Namelist
 
 compatibility_msg = (
     'Espresso calculator is being restructured.  Please use e.g. '
@@ -68,10 +66,11 @@ class EspressoTemplate(CalculatorTemplate):
 
     def write_input(self, profile, directory, atoms, parameters, properties):
         dst = directory / self.inputname
-        # Warning: for now the pseudo_dir set in EspressoProfile will overwrite
-        # the one provided in the input_data, is this what we want?
-        input_data = parameters.pop("input_data", {})
-        input_data["pseudo_dir"] = str(profile.pseudo_dir)
+
+        input_data = Namelist(parameters.pop("input_data", None))
+        input_data.to_nested("pw")
+        input_data["control"].setdefault("pseudo_dir", str(profile.pseudo_dir))
+
         parameters["input_data"] = input_data
 
         write(

@@ -11,7 +11,7 @@ from ase.build import bulk
 ref_stress = np.array([-0.22, -0.17, -0.17,
                        -0.17, 0.18, 0.18])
 
-calc = pytest.mark.calculator_lite
+calc = pytest.mark.calculator
 
 
 @calc('aims', compute_analytical_stress=True)
