@@ -291,13 +291,13 @@ class EspressoFactory:
             symbol = fname.split('_', 1)[0].capitalize()
             pseudopotentials[symbol] = fname
 
-        input_data = Namelist(kwargs.get("input_data"))
+        input_data = Namelist(kwargs.pop("input_data", None))
         input_data.to_nested()
         input_data["system"].setdefault("ecutwfc", 22.05)
 
         return Espresso(
             profile=self._profile(), pseudopotentials=pseudopotentials,
-            input_data=input_data
+            input_data=input_data, **kwargs
         )
 
     def socketio(self, unixsocket, **kwargs):
