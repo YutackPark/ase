@@ -11,7 +11,7 @@ from ase.build import bulk
 ref_stress = np.array([-0.22, -0.17, -0.17,
                        -0.17, 0.18, 0.18])
 
-calc = pytest.mark.calculator
+calc = pytest.mark.calculator_lite
 
 
 @calc('aims', compute_analytical_stress=True)
@@ -20,10 +20,7 @@ calc = pytest.mark.calculator
 @calc('espresso',
       input_data={"control": {"tprnfor": True,
                               "tstress": True},
-                  "system": {"ecutwfc": 350 / u.Ry,
-                             "occupations": "smearing",
-                             "smearing": "gaussian",
-                             "degauss": 0.005}})
+                  "system": {"ecutwfc": 350 / u.Ry}})
 @calc('siesta')
 def test_si_stress(factory):
     atoms = bulk('Si')

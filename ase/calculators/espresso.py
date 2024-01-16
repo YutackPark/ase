@@ -68,12 +68,17 @@ class EspressoTemplate(CalculatorTemplate):
 
     def write_input(self, profile, directory, atoms, parameters, properties):
         dst = directory / self.inputname
+        # Warning: for now the pseudo_dir set in EspressoProfile will overwrite
+        # the one provided in the input_data, is this what we want?
+        input_data = parameters.pop("input_data", {})
+        input_data["pseudo_dir"] = str(profile.pseudo_dir)
+        parameters["input_data"] = input_data
+
         write(
             dst,
             atoms,
             format='espresso-in',
             properties=properties,
-            _pseudo_dir=str(profile.pseudo_dir),
             **parameters,
         )
 
