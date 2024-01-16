@@ -1268,7 +1268,7 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
     input_parameters.to_nested('pw', **kwargs)
 
     pseudo_dir = kwargs.pop('_pseudo_dir', None)
-    
+
     if pseudo_dir:
         input_parameters['control'].setdefault('pseudo_dir', pseudo_dir)
 

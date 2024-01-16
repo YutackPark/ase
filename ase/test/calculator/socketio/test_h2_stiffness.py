@@ -42,7 +42,8 @@ def run(calc):
 
 calc = pytest.mark.calculator
 
-#marks=[pytest.mark.filterwarnings('ignore::DeprecationWarning')])
+# marks=[pytest.mark.filterwarnings('ignore::DeprecationWarning')])
+
 
 @pytest.mark.filterwarnings('ignore:Subprocess exited')
 @pytest.mark.calculator_lite
