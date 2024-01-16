@@ -3,6 +3,7 @@
 https://nwchemgit.github.io
 """
 import os
+from pathlib import Path
 
 import numpy as np
 
@@ -167,6 +168,15 @@ class NWChem(FileIOCalculator):
                                   label, atoms, command, **kwargs)
         self.calc = None
 
+    def additional_argv(self):
+        return [self.input_filename()]
+
+    def input_filename(self):
+        return f'{self.prefix}.nwi'
+
+    def output_filename(self):
+        return f'{self.prefix}.nwo'
+
     def write_input(self, atoms, properties=None, system_changes=None):
         FileIOCalculator.write_input(self, atoms, properties, system_changes)
 
@@ -176,11 +186,12 @@ class NWChem(FileIOCalculator):
         os.makedirs(perm, exist_ok=True)
         os.makedirs(scratch, exist_ok=True)
 
-        io.write(self.label + '.nwi', atoms, properties=properties,
+        io.write(Path(self.directory) / self.input_filename(),
+                 atoms, properties=properties,
                  label=self.label, **self.parameters)
 
     def read_results(self):
-        output = io.read(self.label + '.nwo')
+        output = io.read(self.output_filename())
         self.calc = output.calc
         self.results = output.calc.results
 

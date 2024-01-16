@@ -3,8 +3,6 @@
 
 """Atomic Simulation Environment."""
 
-from importlib.metadata import version
-
 # import ase.parallel early to avoid circular import problems when
 # ase.parallel does "from gpaw.mpi import world":
 import ase.parallel  # noqa
@@ -12,6 +10,6 @@ from ase.atom import Atom
 from ase.atoms import Atoms
 
 __all__ = ['Atoms', 'Atom']
-__version__ = version("ase")
+__version__ = '3.23.0b1'    # Change also in project.toml
 
 ase.parallel  # silence pyflakes

@@ -5,6 +5,7 @@ Run pw.x jobs.
 
 
 import os
+from pathlib import Path
 import warnings
 
 from ase.calculators.genericfileio import (BaseProfile, CalculatorTemplate,
@@ -31,7 +32,7 @@ class EspressoProfile(BaseProfile):
     def __init__(self, binary, pseudo_dir, **kwargs):
         super().__init__(**kwargs)
         self.binary = binary
-        self.pseudo_dir = pseudo_dir
+        self.pseudo_dir = Path(pseudo_dir)
 
     @staticmethod
     def parse_version(stdout):

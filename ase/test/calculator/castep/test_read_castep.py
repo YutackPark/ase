@@ -4,13 +4,18 @@ from io import StringIO
 import numpy as np
 from ase.calculators.castep import (
     _read_header,
+    _read_unit_cell,
+    _read_fractional_coordinates,
     _read_forces,
+    _read_stress,
     _read_mulliken_charges,
     _read_hirshfeld_details,
     _read_hirshfeld_charges,
     _get_indices_to_sort_back,
+    _set_energy_and_free_energy,
 )
 from ase.constraints import FixAtoms, FixCartesian
+from ase.units import GPa
 
 HEADER = """\
  ************************************ Title ************************************
@@ -209,6 +214,7 @@ def test_header():
         'iprint': 1,
         'calculate_stress': False,
         'xc_functional': 'LDA',
+        'sedc_apply': False,
         'basis_precision': 'FINE',
         'finite_basis_corr': 0,
         'elec_energy_tol': 1e-5,
@@ -227,6 +233,7 @@ def test_header_detailed():
         'calculate_stress': False,
         'opt_strategy': 'Default',
         'xc_functional': 'LDA',
+        'sedc_apply': False,
         'cut_off_energy': 180.0,
         'finite_basis_corr': 0,
         'elec_energy_tol': 1e-5,
@@ -234,6 +241,58 @@ def test_header_detailed():
         'mixing_scheme': 'Broyden',
     }
     assert parameters == parameters_ref
+
+
+UNIT_CELL = """\
+                           -------------------------------
+                                      Unit Cell
+                           -------------------------------
+        Real Lattice(A)              Reciprocal Lattice(1/A)
+    -0.0287130     2.6890780     2.6889378       -1.148709953   1.163162213   1.161190328
+     2.6890780    -0.0287130     2.6889378        1.163162214  -1.148709951   1.161190326
+     2.6938401     2.6938401    -0.0335277        1.159077172   1.159077170  -1.146760802
+"""  # noqa: E501
+
+
+def test_unit_cell():
+    """Test if the Unit Cell block can be parsed correctly."""
+    out = StringIO(UNIT_CELL)
+    out.readline()
+    out.readline()
+    cell = _read_unit_cell(out)
+    cell_ref = [
+        [-0.0287130, +2.6890780, +2.6889378],
+        [+2.6890780, -0.0287130, +2.6889378],
+        [+2.6938401, +2.6938401, -0.0335277],
+    ]
+    np.testing.assert_allclose(cell, cell_ref)
+
+
+FRACTIONAL_COORDINATES = """\
+            xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+            x  Element         Atom        Fractional coordinates of atoms  x
+            x                 Number           u          v          w      x
+            x---------------------------------------------------------------x
+            x  Si                1        -0.000000  -0.000000   0.000000   x
+            x  Si                2         0.249983   0.249983   0.254121   x
+            xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+"""
+
+
+def test_fractional_coordinates():
+    """Test if fractional coordinates can be parsed correctly."""
+    out = StringIO(FRACTIONAL_COORDINATES)
+    out.readline()
+    out.readline()
+    species, custom_species, positions_frac = \
+        _read_fractional_coordinates(out, 2)
+    positions_frac_ref = [
+        [-0.000000, -0.000000, -0.000000],
+        [+0.249983, +0.249983, +0.254121],
+    ]
+    np.testing.assert_array_equal(species, ['Si', 'Si'])
+    assert custom_species is None
+    np.testing.assert_allclose(positions_frac, positions_frac_ref)
 
 
 FORCES = """\
@@ -293,6 +352,42 @@ def test_constrainted_forces():
     assert all(constraints[0].index == constraints_ref[0].index)
     assert all(constraints[1].index == constraints_ref[1].index)
     assert all(constraints[1].mask == constraints_ref[1].mask)
+
+
+STRESS = """\
+ ***************** Stress Tensor *****************
+ *                                               *
+ *          Cartesian components (GPa)           *
+ * --------------------------------------------- *
+ *             x             y             z     *
+ *                                               *
+ *  x     -0.006786     -0.035244      0.023931  *
+ *  y     -0.035244     -0.006786      0.023931  *
+ *  z      0.023931      0.023931     -0.011935  *
+ *                                               *
+ *  Pressure:    0.0085                          *
+ *                                               *
+ *************************************************
+"""
+
+
+def test_stress():
+    """Test if the Stress Tensor block can be parsed correctly."""
+    out = StringIO(STRESS)
+    out.readline()
+    results = _read_stress(out)
+    stress_ref = [
+        -0.006786,
+        -0.006786,
+        -0.011935,
+        +0.023931,
+        +0.023931,
+        -0.035244,
+    ]
+    stress_ref = np.array(stress_ref) * GPa
+    pressure_ref = 0.0085 * GPa
+    np.testing.assert_allclose(results['stress'], stress_ref)
+    np.testing.assert_allclose(results['pressure'], pressure_ref)
 
 
 # bulk("AlP", "zincblende", a=5.43)
@@ -447,3 +542,80 @@ def test_get_indices_to_sort_back():
     assert [species[_] for _ in indices_ref] == symbols
     indices = _get_indices_to_sort_back(symbols, species)
     assert indices.tolist() == indices_ref
+
+
+def test_energy_and_free_energy_metallic():
+    """Test if `energy` and `free_energy` is set correctly.
+
+    This test is made based on the following output obtained for Si.
+    ```
+    Final energy, E             =  -340.9490879813     eV
+    Final free energy (E-TS)    =  -340.9490902954     eV
+    (energies not corrected for finite basis set)
+
+    NB est. 0K energy (E-0.5TS)      =  -340.9490891384     eV
+
+    (SEDC) Total Energy Correction : -0.567289E+00 eV
+
+    Dispersion corrected final energy*, Ecor          =  -341.5163768370     eV
+    Dispersion corrected final free energy* (Ecor-TS) =  -341.5163791511     eV
+    NB dispersion corrected est. 0K energy* (Ecor-0.5TS) =  -341.5163779940     eV
+     For future reference: finite basis dEtot/dlog(Ecut) =      -0.487382eV
+     Total energy corrected for finite basis set =    -341.516014 eV
+    ```
+    """  # noqa: E501
+    results = {
+        'energy_without_dispersion_correction': -340.9490879813,
+        'free_energy_without_dispersion_correction': -340.9490902954,
+        'energy_zero_without_dispersion_correction': -340.9490891384,
+    }
+    results.update(results)
+    _set_energy_and_free_energy(results)
+    assert results['energy'] == -340.9490891384
+    assert results['free_energy'] == -340.9490902954
+
+    results_dispersion_correction = {
+        'energy_with_dispersion_correction': -341.5163768370,
+        'free_energy_with_dispersion_correction': -341.5163791511,
+        'energy_zero_with_dispersion_correction': -341.5163779940,
+    }
+    results.update(results_dispersion_correction)
+    _set_energy_and_free_energy(results)
+    assert results['energy'] == -341.5163779940
+    assert results['free_energy'] == -341.5163791511
+
+    results.update({'energy_with_finite_basis_set_correction': -341.516014})
+    _set_energy_and_free_energy(results)
+    assert results['energy'] == -341.5163779940
+    assert results['free_energy'] == -341.5163791511
+
+
+def test_energy_and_free_energy_non_metallic():
+    """Test if `energy` and `free_energy` is set correctly.
+
+    This test is made based on the following output obtained for Si.
+    ```
+    Final energy =  -340.9491006696     eV
+    (energy not corrected for finite basis set)
+
+    (SEDC) Total Energy Correction : -0.567288E+00 eV
+
+    Dispersion corrected final energy* =  -341.5163888035     eV
+     For future reference: finite basis dEtot/dlog(Ecut) =      -0.487570eV
+     Total energy corrected for finite basis set =    -341.516024 eV
+    ```
+    """
+    results = {'energy_without_dispersion_correction': -340.9491006696}
+    _set_energy_and_free_energy(results)
+    assert results['energy'] == -340.9491006696
+    assert results['free_energy'] == -340.9491006696
+
+    results.update({'energy_with_dispersion_correction': -341.5163888035})
+    _set_energy_and_free_energy(results)
+    assert results['energy'] == -341.5163888035
+    assert results['free_energy'] == -341.5163888035
+
+    results.update({'energy_with_finite_basis_set_correction': -341.516024})
+    _set_energy_and_free_energy(results)
+    assert results['energy'] == -341.516024
+    assert results['free_energy'] == -341.5163888035

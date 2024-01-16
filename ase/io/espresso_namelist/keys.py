@@ -367,7 +367,7 @@ dynmat_keys = {
 q2r_keys = {"input": ["fildyn", "flfrc", "zasr", "loto_2d", "write_lr"]}
 
 dos_keys = {
-    "&dos": [
+    "dos": [
         "prefix",
         "outdir",
         "bz_sum",
@@ -382,7 +382,7 @@ dos_keys = {
 
 
 bands_keys = {
-    "&bands": [
+    "bands": [
         "prefix",
         "outdir",
         "filband",

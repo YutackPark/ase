@@ -20,7 +20,6 @@ from copy import deepcopy
 from pathlib import Path
 
 import numpy as np
-
 from ase.atoms import Atoms
 from ase.calculators.calculator import kpts2ndarray, kpts2sizeandoffsets
 from ase.calculators.singlepoint import (SinglePointDFTCalculator,
@@ -28,8 +27,8 @@ from ase.calculators.singlepoint import (SinglePointDFTCalculator,
 from ase.constraints import FixAtoms, FixCartesian
 from ase.data import chemical_symbols
 from ase.dft.kpoints import kpoint_convert
-from ase.io.espresso_namelist.namelist import Namelist
 from ase.io.espresso_namelist.keys import pw_keys
+from ase.io.espresso_namelist.namelist import Namelist
 from ase.units import create_units
 from ase.utils import deprecated, reader, writer
 
@@ -1493,13 +1492,13 @@ def write_espresso_ph(
     qplot = input_ph.get("qplot", False)
     ldisp = input_ph.get("ldisp", False)
 
-    if qplot and ldisp:
+    if qplot:
         fd.write(f"{len(qpts)}\n")
         for qpt in qpts:
             fd.write(
                 f"{qpt[0]:0.8f} {qpt[1]:0.8f} {qpt[2]:0.8f} {qpt[3]:1d}\n"
             )
-    else:
+    elif not (qplot or ldisp):
         fd.write(f"{qpts[0]:0.8f} {qpts[1]:0.8f} {qpts[2]:0.8f}\n")
     if inp_nat_todo:
         tmp = [str(i) for i in nat_todo_indices]
@@ -1552,7 +1551,7 @@ def read_espresso_ph(fileobj):
     DIEL = r"(?i)^\s*Dielectric\s*constant\s*in\s*cartesian\s*axis\s*$"
     BORN = r"(?i)^\s*Effective\s*charges\s*\(d\s*Force\s*/\s*dE\)"
     POLA = r"(?i)^\s*Polarizability\s*(a.u.)\^3"
-    MODE = r"(?i)^\s*(mode\s*#\s*\d\s*)+"
+    REPR = r"(?i)^\s*There\s*are\s*\d+\s*irreducible\s*representations\s*$"
     EQPOINTS = r"(?i)^\s*Number\s*of\s*q\s*in\s*the\s*star\s*=\s*"
     DIAG = r"(?i)^\s*Diagonalizing\s*the\s*dynamical\s*matrix\s*$"
     MODE_SYM = r"(?i)^\s*Mode\s*symmetry,\s*"
@@ -1571,7 +1570,7 @@ def read_espresso_ph(fileobj):
         BORN: [],
         BORN_DFPT: [],
         POLA: [],
-        MODE: [],
+        REPR: [],
         EQPOINTS: [],
         DIAG: [],
         MODE_SYM: [],
@@ -1588,7 +1587,7 @@ def read_espresso_ph(fileobj):
         BORN: "borneffcharge",
         BORN_DFPT: "borneffcharge_dfpt",
         POLA: "polarizability",
-        MODE: "modes",
+        REPR: "representations",
         EQPOINTS: "eqpoints",
         DIAG: "freqs",
         MODE_SYM: "mode_symmetries",
@@ -1605,7 +1604,7 @@ def read_espresso_ph(fileobj):
         BORN: True,
         BORN_DFPT: True,
         POLA: True,
-        MODE: False,
+        REPR: True,
         EQPOINTS: True,
         DIAG: True,
         MODE_SYM: True,
@@ -1628,15 +1627,33 @@ def read_espresso_ph(fileobj):
 
     def _read_qpoints(idx):
         match = re.findall(freg, fdo_lines[idx])
-        return tuple(float(x) for x in match)
+        return tuple(round(float(x), 7) for x in match)
 
     def _read_kpoints(idx):
         n_kpts = int(re.findall(freg, fdo_lines[idx])[0])
         kpts = []
         for line in fdo_lines[idx + 2: idx + 2 + n_kpts]:
             if bool(re.search(r"^\s*k\(.*wk", line)):
-                kpts.append([float(x) for x in re.findall(freg, line)[1:]])
+                kpts.append([round(float(x), 7)
+                            for x in re.findall(freg, line)[1:]])
         return np.array(kpts)
+
+    def _read_repr(idx):
+        n_repr, curr, n = int(re.findall(freg, fdo_lines[idx])[0]), 0, 0
+        representations = {}
+        while idx + n < n_lines:
+            if re.search(r"^\s*Representation.*modes", fdo_lines[idx + n]):
+                curr = int(re.findall(freg, fdo_lines[idx + n])[0])
+                representations[curr] = {"done": False, "modes": []}
+            if re.search(r"Calculated\s*using\s*symmetry", fdo_lines[idx + n]) \
+                    or re.search(r"-\s*Done\s*$", fdo_lines[idx + n]):
+                representations[curr]["done"] = True
+            if re.search(r"(?i)^\s*(mode\s*#\s*\d\s*)+", fdo_lines[idx + n]):
+                representations[curr]["modes"] = _read_modes(idx + n)
+                if curr == n_repr:
+                    break
+            n += 1
+        return representations
 
     def _read_modes(idx):
         n = 1
@@ -1644,7 +1661,7 @@ def read_espresso_ph(fileobj):
         modes = []
         while not modes or bool(re.match(r"^\s*\(", fdo_lines[idx + n])):
             tmp = re.findall(freg, fdo_lines[idx + n])
-            modes.append([float(x) for x in tmp])
+            modes.append([round(float(x), 5) for x in tmp])
             n += 1
         return np.hsplit(np.array(modes), n_modes)
 
@@ -1682,7 +1699,7 @@ def read_espresso_ph(fileobj):
         epsil = np.zeros((3, 3))
         for n in range(1, 4):
             tmp = re.findall(freg, fdo_lines[idx + n])
-            epsil[n - 1] = [float(x) for x in tmp]
+            epsil[n - 1] = [round(float(x), 9) for x in tmp]
         return epsil
 
     def _read_born(idx):
@@ -1691,9 +1708,9 @@ def read_espresso_ph(fileobj):
         while idx + n < n_lines:
             if re.search(r"^\s*atom\s*\d\s*\S", fdo_lines[idx + n]):
                 pass
-            elif re.search(r"^\s*E(x|y|z)\s*\(", fdo_lines[idx + n]):
+            elif re.search(r"^\s*E\*?(x|y|z)\s*\(", fdo_lines[idx + n]):
                 tmp = re.findall(freg, fdo_lines[idx + n])
-                born.append([float(x) for x in tmp])
+                born.append([round(float(x), 5) for x in tmp])
             else:
                 break
             n += 1
@@ -1708,7 +1725,7 @@ def read_espresso_ph(fileobj):
                 pass
             elif re.search(r"^\s*P(x|y|z)\s*\(", fdo_lines[idx + n]):
                 tmp = re.findall(freg, fdo_lines[idx + n])
-                born.append([float(x) for x in tmp])
+                born.append([round(float(x), 5) for x in tmp])
             else:
                 break
             n += 1
@@ -1719,7 +1736,7 @@ def read_espresso_ph(fileobj):
         pola = np.zeros((3, 3))
         for n in range(1, 4):
             tmp = re.findall(freg, fdo_lines[idx + n])[:3]
-            pola[n - 1] = [float(x) for x in tmp]
+            pola[n - 1] = [round(float(x), 2) for x in tmp]
         return pola
 
     def _read_positions(idx):
@@ -1729,7 +1746,8 @@ def read_espresso_ph(fileobj):
         while re.findall(r"^\s*\d+", fdo_lines[idx + n]):
             symbols.append(fdo_lines[idx + n].split()[1])
             positions.append(
-                [float(x) for x in re.findall(freg, fdo_lines[idx + n])[-3:]]
+                [round(float(x), 5)
+                 for x in re.findall(freg, fdo_lines[idx + n])[-3:]]
             )
             n += 1
         atoms = Atoms(positions=positions, symbols=symbols)
@@ -1737,15 +1755,14 @@ def read_espresso_ph(fileobj):
         return atoms
 
     def _read_alat(idx):
-        return float(re.findall(freg, fdo_lines[idx])[1])
+        return round(float(re.findall(freg, fdo_lines[idx])[1]), 5)
 
     def _read_cell(idx):
         cell = []
         n = 1
         while re.findall(r"^\s*a\(\d\)", fdo_lines[idx + n]):
-            cell.append(
-                [float(x) for x in re.findall(freg, fdo_lines[idx + n])[-3:]]
-            )
+            cell.append([round(float(x), 4)
+                         for x in re.findall(freg, fdo_lines[idx + n])[-3:]])
             n += 1
         return np.array(cell)
 
@@ -1808,7 +1825,7 @@ def read_espresso_ph(fileobj):
         BORN: _read_born,
         BORN_DFPT: _read_born_dfpt,
         POLA: _read_pola,
-        MODE: _read_modes,
+        REPR: _read_repr,
         EQPOINTS: _read_eqpoints,
         DIAG: _read_freqs,
         MODE_SYM: _read_sym,

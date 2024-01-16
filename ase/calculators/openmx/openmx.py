@@ -34,6 +34,7 @@ from ase.calculators.openmx.default_settings import default_dictionary
 from ase.calculators.openmx.parameters import OpenMXParameters
 from ase.calculators.openmx.reader import get_file_name, read_openmx
 from ase.calculators.openmx.writer import write_openmx
+from ase.config import cfg
 from ase.geometry import cell_to_cellpar
 
 
@@ -308,7 +309,7 @@ class OpenMX(FileIOCalculator):
         See base FileIOCalculator for documentation.
         """
         if self.parameters.data_path is None:
-            if 'OPENMX_DFT_DATA_PATH' not in os.environ:
+            if 'OPENMX_DFT_DATA_PATH' not in cfg:
                 warnings.warn('Please either set OPENMX_DFT_DATA_PATH as an'
                               'enviroment variable or specify "data_path" as'
                               'a keyword argument')
@@ -470,7 +471,7 @@ class OpenMX(FileIOCalculator):
             self.command = 'openmx'
         # run processes specified by the system variable OPENMX_COMMAND
         if processes is None:
-            command += os.environ.get('OPENMX_COMMAND')
+            command += cfg.get('OPENMX_COMMAND')
             if command is None:
                 warnings.warn('Either specify OPENMX_COMMAND as an environment\
                 variable or specify processes as a keyword argument')

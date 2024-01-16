@@ -238,7 +238,7 @@ def write_dlp4(fd: IO, atoms: Atoms,
                          "Supported pbc are 000, 110, and 111.")
 
     print(f"{title:72s}", file=fd)
-    print(f"{levcfg:10d}{imcon:10d}{natoms:10d}", file=fd)
+    print(f"{levcfg:10d}{imcon:10d} {natoms}", file=fd)
 
     if imcon > 0:
         for row in atoms.get_cell():
