@@ -63,7 +63,7 @@ skt_paths = {path}/dftb
 species_dir = {path}/elk
 
 [espresso]
-pseudo_path = {path}/espresso/gbrv-lda-espresso
+pseudo_dir = {path}/espresso/gbrv-lda-espresso
 
 [lammps]
 potentials = {path}/lammps
@@ -273,18 +273,13 @@ class EspressoFactory:
         from ase.calculators.espresso import EspressoTemplate
         self.profile = EspressoTemplate().load_profile(cfg)
 
-    def _base_kw(self):
-        from ase.units import Ry
-
-        return dict(ecutwfc=300 / Ry)
-
     def version(self):
-        return self.profile.version()
+        return self.profile().version()
 
     @lazyproperty
     def pseudopotentials(self):
         pseudopotentials = {}
-        for path in self.profile.pseudo_path.glob('*.UPF'):
+        for path in self.profile.pseudo_dir.glob('*.UPF'):
             fname = path.name
             # Names are e.g. si_lda_v1.uspp.F.UPF
             symbol = fname.split('_', 1)[0].capitalize()
@@ -293,12 +288,15 @@ class EspressoFactory:
 
     def calc(self, **kwargs):
         from ase.calculators.espresso import Espresso
+        from ase.io.espresso import Namelist
 
-        kw = {**self._base_kw(), **kwargs}
+        input_data = Namelist(kwargs.pop("input_data", None))
+        input_data.to_nested()
+        input_data["system"].setdefault("ecutwfc", 22.05)
 
         return Espresso(
-            profile=self.profile,
-            pseudopotentials=self.pseudopotentials, **kw,
+            profile=self.profile, pseudopotentials=self.pseudopotentials,
+            input_data=input_data, **kwargs
         )
 
     def socketio(self, unixsocket, **kwargs):

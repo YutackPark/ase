@@ -8,13 +8,11 @@ import os
 from pathlib import Path
 import warnings
 
-from ase.calculators.genericfileio import (
-    CalculatorTemplate,
-    GenericFileIOCalculator,
-    read_stdout,
-    BaseProfile,
-)
+from ase.calculators.genericfileio import (BaseProfile, CalculatorTemplate,
+                                           GenericFileIOCalculator,
+                                           read_stdout)
 from ase.io import read, write
+from ase.io.espresso import Namelist
 
 compatibility_msg = (
     'Espresso calculator is being restructured.  Please use e.g. '
@@ -31,10 +29,10 @@ compatibility_msg = (
 
 
 class EspressoProfile(BaseProfile):
-    def __init__(self, binary, pseudo_path, **kwargs):
+    def __init__(self, binary, pseudo_dir, **kwargs):
         super().__init__(**kwargs)
         self.binary = binary
-        self.pseudo_path = Path(pseudo_path)
+        self.pseudo_dir = Path(pseudo_dir)
 
     @staticmethod
     def parse_version(stdout):
@@ -69,12 +67,18 @@ class EspressoTemplate(CalculatorTemplate):
 
     def write_input(self, profile, directory, atoms, parameters, properties):
         dst = directory / self.inputname
+
+        input_data = Namelist(parameters.pop("input_data", None))
+        input_data.to_nested("pw")
+        input_data["control"].setdefault("pseudo_dir", str(profile.pseudo_dir))
+
+        parameters["input_data"] = input_data
+
         write(
             dst,
             atoms,
             format='espresso-in',
             properties=properties,
-            pseudo_dir=str(profile.pseudo_path),
             **parameters,
         )
 

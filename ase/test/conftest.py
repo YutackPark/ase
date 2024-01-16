@@ -349,7 +349,7 @@ binary = /usr/bin/elk-lapw
 
 [espresso]
 binary = /home/ase/calculators/espresso/bin/pw.x
-pseudo_path = /home/ase/.local/lib/python3.10/site-packages/asetest/\
+pseudo_dir = /home/ase/.local/lib/python3.10/site-packages/asetest/\
 datafiles/espresso/gbrv-lda-espresso
 
 [exciting]
