@@ -821,15 +821,12 @@ def write_xyz(fileobj, images, comment='', columns=None,
         natoms = len(atoms)
 
         if columns is None:
-            fr_cols = None
-        else:
-            fr_cols = columns[:]
-
-        if fr_cols is None:
             fr_cols = (['symbols', 'positions']
-                       + [key for key in atoms.arrays.keys() if
+                       + [key for key in atoms.arrays if
                           key not in ['symbols', 'positions', 'numbers',
                                       'species', 'pos']])
+        else:
+            fr_cols = columns[:]
 
         if vec_cell:
             plain = True
@@ -877,7 +874,7 @@ def write_xyz(fileobj, images, comment='', columns=None,
         if fr_cols[0] in atoms.arrays:
             symbols = atoms.arrays[fr_cols[0]]
         else:
-            symbols = atoms.get_chemical_symbols()
+            symbols = [*atoms.symbols]
 
         if natoms > 0 and not isinstance(symbols[0], str):
             raise ValueError('First column must be symbols-like')
@@ -891,10 +888,11 @@ def write_xyz(fileobj, images, comment='', columns=None,
         if vec_cell:
             nPBC = 0
             for i, b in enumerate(atoms.pbc):
-                if b:
-                    nPBC += 1
-                    symbols.append('VEC' + str(nPBC))
-                    pos = np.vstack((pos, atoms.cell[i]))
+                if not b:
+                    continue
+                nPBC += 1
+                symbols.append('VEC' + str(nPBC))
+                pos = np.vstack((pos, atoms.cell[i]))
             # add to natoms
             natoms += nPBC
             if pos.shape != (natoms, 3) or pos.dtype.kind != 'f':
