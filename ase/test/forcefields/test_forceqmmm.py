@@ -390,7 +390,7 @@ def test_export_xyz(at0, testdir):
     original_region = qmmm.get_region_from_masks()
     assert all(original_region == read_atoms.get_array("region"))
 
-    assert "forces" in read_atoms.arrays
+    assert "forces" in read_atoms.calc.results
     # absolute tolerance for comparing forces close to zero
     np.testing.assert_allclose(forces, read_atoms.get_forces(), atol=1.0e-6)
 
