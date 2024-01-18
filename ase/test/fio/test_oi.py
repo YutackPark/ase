@@ -9,11 +9,6 @@ from ase.io import iread, read, write
 from ase.io.formats import all_formats, ioformats
 
 try:
-    import matplotlib
-except ImportError:
-    matplotlib = 0
-
-try:
     import netCDF4
 except ImportError:
     netCDF4 = 0
@@ -83,9 +78,6 @@ def all_tested_formats():
 
     # Let's not worry about these.
     skip += ['postgresql', 'trj', 'vti', 'vtu', 'mysql']
-
-    if not matplotlib:
-        skip += ['eps', 'png']
 
     if not netCDF4:
         skip += ['netcdftrajectory']
