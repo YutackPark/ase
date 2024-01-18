@@ -1,5 +1,4 @@
 import os
-import sys
 import zlib
 from pathlib import Path
 import shutil
@@ -203,10 +202,8 @@ def tkinter():
 
 @pytest.fixture(autouse=True)
 def _plt_close_figures():
+    import matplotlib.pyplot as plt
     yield
-    plt = sys.modules.get('matplotlib.pyplot')
-    if plt is None:
-        return
     fignums = plt.get_fignums()
     for fignum in fignums:
         plt.close(fignum)
@@ -214,18 +211,12 @@ def _plt_close_figures():
 
 @pytest.fixture(scope='session', autouse=True)
 def _plt_use_agg():
-    try:
-        import matplotlib
-    except ImportError:
-        pass
-    else:
-        matplotlib.use('Agg')
+    import matplotlib
+    matplotlib.use('Agg')
 
 
 @pytest.fixture(scope='session')
 def plt(_plt_use_agg):
-    pytest.importorskip('matplotlib')
-
     import matplotlib.pyplot as plt
     return plt
 

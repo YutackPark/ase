@@ -138,6 +138,7 @@ class ColorWindow:
 
     def update_colormap(self, cmap=None, N=26):
         "Called by gui when colormap has changed"
+        import matplotlib
         if cmap is None:
             cmap = self.cmaps[1].value
         try:
@@ -152,14 +153,8 @@ class ColorWindow:
             colorscale = [f'#{int(red):02X}AA00'
                           for red in np.linspace(0, 230, N)]
         else:
-            try:
-                import matplotlib
-                import pylab as plt
-                cmap = plt.cm.get_cmap(cmap)
-                colorscale = [matplotlib.colors.rgb2hex(c[:3]) for c in
-                              cmap(np.linspace(0, 1, N))]
-            except (ImportError, ValueError) as e:
-                raise RuntimeError('Can not load colormap {}: {}'.format(
-                    cmap, str(e)))
+            cmap_obj = matplotlib.colormaps[cmap]
+            colorscale = [matplotlib.colors.rgb2hex(c[:3]) for c in
+                          cmap_obj(np.linspace(0, 1, N))]
         self.gui.colormode_data = colorscale, mn, mx
         self.gui.draw()

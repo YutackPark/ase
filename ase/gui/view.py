@@ -359,8 +359,8 @@ class View:
             scalars = np.ma.array(self.get_color_scalars())
             indices = np.clip(((scalars - cmin) / (cmax - cmin) * N +
                                0.5).astype(int),
-                              0, N - 1)
-        return [colorswhite[i] for i in indices.filled(N)]
+                              0, N - 1).filled(N)
+        return [colorswhite[i] for i in indices]
 
     def get_color_scalars(self, frame=None):
         if self.colormode == 'tag':
