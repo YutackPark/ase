@@ -782,7 +782,10 @@ def write_vasp(
         )
 
     # Write atomic positions in scaled or cartesian coordinates
-    coord = atoms.get_scaled_positions() if direct else atoms.positions
+    if direct:
+        coord = atoms.get_scaled_positions(wrap=False)
+    else:
+        coord = atoms.positions
 
     # Convert ASE constraints to VASP POSCAR constraints
     constraints_present = atoms.constraints and not ignore_constraints
