@@ -16,7 +16,6 @@ from ase.calculators.singlepoint import SinglePointCalculator
 from ase.constraints import FixAtoms, FixCartesian
 from ase.io import extxyz
 from ase.io.extxyz import escape
-from ase.stress import full_3x3_to_voigt_6_stress
 
 # array data of shape (N, 1) squeezed down to shape (N, ) -- bug fixed
 # in commit r4541

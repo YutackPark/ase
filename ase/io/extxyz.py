@@ -21,7 +21,6 @@ from ase.calculators.singlepoint import SinglePointCalculator
 from ase.constraints import FixAtoms, FixCartesian
 from ase.io.formats import index2range
 from ase.io.utils import ImageIterator
-from ase.parallel import paropen
 from ase.spacegroup.spacegroup import Spacegroup
 from ase.utils import reader, writer
 
@@ -470,7 +469,6 @@ def _read_xyz_frame(lines, natoms, properties_parser=key_val_str_to_dict,
     if symbols is not None:
         symbols = [s.capitalize() for s in symbols]
 
-
     atoms = Atoms(numbers if numbers is not None else symbols,
                   positions=arrays.pop('positions', None),
                   charges=arrays.pop('initial_charges', None),
@@ -499,7 +497,6 @@ def set_calc_and_arrays(atoms, arrays):
     results = {}
 
     for name, array in arrays.items():
-        from ase.calculators.calculator import all_properties
         if name in all_properties:
             results[name] = array
         else:
