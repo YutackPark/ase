@@ -23,7 +23,7 @@ from ase.io.formats import index2range
 from ase.io.utils import ImageIterator
 from ase.parallel import paropen
 from ase.spacegroup.spacegroup import Spacegroup
-from ase.utils import reader
+from ase.utils import reader, writer
 
 __all__ = ['read_xyz', 'write_xyz', 'iread_xyz']
 
@@ -795,10 +795,10 @@ def output_column_format(atoms, columns, arrays,
     return comment_str, property_ncols, dtype, fmt
 
 
+@writer
 def write_xyz(fileobj, images, comment='', columns=None,
               write_info=True,
-              write_results=True, plain=False, vec_cell=False,
-              append=False):
+              write_results=True, plain=False, vec_cell=False):
     """
     Write output in extended XYZ format
 
@@ -808,17 +808,11 @@ def write_xyz(fileobj, images, comment='', columns=None,
     calculator attached to this Atoms. The `plain` argument
     can be used to write a simple XYZ file with no additional information.
     `vec_cell` can be used to write the cell vectors as additional
-    pseudo-atoms. If `append` is set to True, the file is for append (mode `a`),
-    otherwise it is overwritten (mode `w`).
+    pseudo-atoms.
 
     See documentation for :func:`read_xyz()` for further details of the extended
     XYZ file format.
     """
-    if isinstance(fileobj, str):
-        mode = 'w'
-        if append:
-            mode = 'a'
-        fileobj = paropen(fileobj, mode)
 
     if hasattr(images, 'get_positions'):
         images = [images]
