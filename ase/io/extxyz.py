@@ -933,12 +933,8 @@ def write_xyz(fileobj, images, comment='', columns=None,
 
         if write_results:
             for key in per_atom_results:
-                if key not in fr_cols:
-                    fr_cols += [key]
-                else:
-                    warnings.warn('write_xyz() overwriting array "{}" present '
-                                  'in atoms.arrays with stored results '
-                                  'from calculator'.format(key))
+                assert key not in fr_cols
+                fr_cols += [key]
             arrays.update(per_atom_results)
 
         comm, ncols, dtype, fmt = output_column_format(atoms,
