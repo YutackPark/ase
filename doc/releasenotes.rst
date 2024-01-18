@@ -221,6 +221,9 @@ Algorithms:
 * :class:`ExpCellFilter` is deprecated. Use :class:`FrechetCellFilter` instead.
   (:mr:`2981`)
 
+* Fix inconsistency of ``mask`` in :class:`FixCartesian` between the argument
+  and the attribute. (:mr:`3195`)
+
 Optimizers:
 
 * Add :class:`ase.optimize.climbfixinternals.BFGSClimbFixInternals` class for

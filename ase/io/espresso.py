@@ -813,8 +813,7 @@ def canonicalize_constraints(constraints):
     # https://docs.python.org/3/library/collections.html#defaultdict-examples
     indices_for_masks = defaultdict(list)
     for constraint in constraints:
-        # TODO: Present FixCartesian flips `mask` internally. (#1370)
-        key = tuple((~constraint.mask).tolist())
+        key = tuple((constraint.mask).tolist())
         indices_for_masks[key].extend(constraint.index.tolist())
 
     constraints_canonicalized = []
@@ -1269,20 +1268,19 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
     # Convert ase constraints to QE constraints
     # Nx3 array of force multipliers matches what QE uses
     # Do this early so it is available when constructing the atoms card
-    constraint_mask = np.ones((len(atoms), 3), dtype='int')
+    moved = np.ones((len(atoms), 3), dtype=bool)
     for constraint in atoms.constraints:
         if isinstance(constraint, FixAtoms):
-            constraint_mask[constraint.index] = 0
+            moved[constraint.index] = False
         elif isinstance(constraint, FixCartesian):
-            constraint_mask[constraint.index] = constraint.mask
+            moved[constraint.index] = ~constraint.mask
         else:
             warnings.warn(f'Ignored unknown constraint {constraint}')
     masks = []
     for atom in atoms:
         # only inclued mask if something is fixed
-        if not all(constraint_mask[atom.index]):
-            mask = ' {mask[0]} {mask[1]} {mask[2]}'.format(
-                mask=constraint_mask[atom.index])
+        if not all(moved[atom.index]):
+            mask = ' {:d} {:d} {:d}'.format(*moved[atom.index])
         else:
             mask = ''
         masks.append(mask)

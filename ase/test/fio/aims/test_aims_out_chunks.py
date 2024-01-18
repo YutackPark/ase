@@ -172,7 +172,7 @@ def test_header_constraints(header_chunk):
     assert len(header_chunk.constraints) == 2
     assert header_chunk.constraints[0].index == 0
     assert header_chunk.constraints[1].index == 1
-    assert np.all(header_chunk.constraints[0].mask == [False, False, True])
+    assert np.all(header_chunk.constraints[0].mask == [True, True, False])
 
 
 def test_header_initial_atoms(header_chunk, initial_cell, initial_positions):
@@ -290,7 +290,7 @@ def test_header_transfer_constraints(empty_calc_chunk):
     assert len(empty_calc_chunk.constraints) == 2
     assert empty_calc_chunk.constraints[0].index == 0
     assert empty_calc_chunk.constraints[1].index == 1
-    assert np.all(empty_calc_chunk.constraints[0].mask == [False, False, True])
+    assert np.all(empty_calc_chunk.constraints[0].mask == [True, True, False])
 
 
 def test_header_transfer_initial_cell(empty_calc_chunk, initial_cell):

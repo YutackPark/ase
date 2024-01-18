@@ -1,12 +1,15 @@
+"""SiestaInput"""
 import warnings
 
 import numpy as np
 
 from ase import Atoms
 from ase.calculators.siesta.parameters import Species
+from ase.constraints import FixAtoms, FixCartesian, FixedLine, FixedPlane
 
 
 class SiestaInput:
+    """SiestaInput"""
     @classmethod
     def is_along_cartesian(cls, norm_dir: np.ndarray) -> bool:
         """Return whether `norm_dir` is along a Cartesian coordidate."""
@@ -47,8 +50,8 @@ class SiestaInput:
                     write_this = number
                 else:
                     write_this = 0
-                s += '     %d  ' % write_this
-            s += '%1.1f\n' % displace
+                s += f'     {write_this:d}  '
+            s += f'{displace:1.1f}\n'
             fd.write(s)
         fd.write('%endblock kgrid_Monkhorst_Pack\n')
         fd.write('\n')
@@ -83,8 +86,8 @@ class SiestaInput:
         # Set up the non-default species.
         non_default_species = [s for s in species if s['tag'] is not None]
         for spec in non_default_species:
-            mask1 = (tags == spec['tag'])
-            mask2 = (symbols == spec['symbol'])
+            mask1 = tags == spec['tag']
+            mask2 = symbols == spec['symbol']
             mask = np.logical_and(mask1, mask2)
             if sum(mask) > 0:
                 species_numbers[mask] = i
@@ -100,32 +103,28 @@ class SiestaInput:
           1 -- means that the coordinate will be updated during relaxation
           0 -- mains that the coordinate will be fixed during relaxation
         """
-        import sys
-
-        from ase.constraints import (FixAtoms, FixCartesian, FixedLine,
-                                     FixedPlane)
-
-        a2c = np.ones((len(atoms), 3), dtype=int)  # (0: fixed, 1: updated)
-        for c in atoms.constraints:
-            if isinstance(c, FixAtoms):
-                a2c[c.get_indices()] = 0
-            elif isinstance(c, FixedLine):
-                norm_dir = c.dir / np.linalg.norm(c.dir)
+        moved = np.ones((len(atoms), 3), dtype=int)  # (0: fixed, 1: updated)
+        for const in atoms.constraints:
+            if isinstance(const, FixAtoms):
+                moved[const.get_indices()] = 0
+            elif isinstance(const, FixedLine):
+                norm_dir = const.dir / np.linalg.norm(const.dir)
                 if not cls.is_along_cartesian(norm_dir):
                     raise RuntimeError(
-                        'norm_dir: {} -- must be one of the Cartesian axes...'
-                        .format(norm_dir))
-                a2c[c.get_indices()] = norm_dir.round().astype(int)
-            elif isinstance(c, FixedPlane):
-                norm_dir = c.dir / np.linalg.norm(c.dir)
+                        f'norm_dir {norm_dir} is not one of the Cartesian axes'
+                    )
+                norm_dir = norm_dir.round().astype(int)
+                moved[const.get_indices()] = norm_dir
+            elif isinstance(const, FixedPlane):
+                norm_dir = const.dir / np.linalg.norm(const.dir)
                 if not cls.is_along_cartesian(norm_dir):
                     raise RuntimeError(
-                        'norm_dir: {} -- must be one of the Cartesian axes...'
-                        .format(norm_dir))
-                a2c[c.get_indices()] = abs(1 - norm_dir.round().astype(int))
-            elif isinstance(c, FixCartesian):
-                a2c[c.get_indices()] = c.mask.astype(int)
+                        f'norm_dir {norm_dir} is not one of the Cartesian axes'
+                    )
+                norm_dir = norm_dir.round().astype(int)
+                moved[const.get_indices()] = abs(1 - norm_dir)
+            elif isinstance(const, FixCartesian):
+                moved[const.get_indices()] = 1 - const.mask.astype(int)
             else:
-                warnings.warn('Constraint {} is ignored at {}'
-                              .format(str(c), sys._getframe().f_code))
-        return a2c
+                warnings.warn(f'Constraint {str(const)} is ignored')
+        return moved

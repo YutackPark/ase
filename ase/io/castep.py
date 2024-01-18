@@ -331,7 +331,7 @@ def _make_block_ionic_constraints(atoms: ase.Atoms) -> List[str]:
                     constr_block.append(line)
             elif isinstance(constr, FixCartesian):
                 for j, m in enumerate(constr.mask):
-                    if m == 1:  # not constrained
+                    if m == 0:  # not constrained
                         continue
                     ic = len(constr_block) + 1
                     line = f'{ic:6d} {symbol:3s} {nis:3d}   '
