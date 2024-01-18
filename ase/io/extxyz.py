@@ -889,21 +889,17 @@ def write_xyz(fileobj, images, comment='', columns=None,
 
         # if vec_cell add cell information as pseudo-atoms
         if vec_cell:
-            pbc = list(atoms.get_pbc())
-            cell = atoms.get_cell()
-
-            if True in pbc:
-                nPBC = 0
-                for i, b in enumerate(pbc):
-                    if b:
-                        nPBC += 1
-                        symbols.append('VEC' + str(nPBC))
-                        pos = np.vstack((pos, cell[i]))
-                # add to natoms
-                natoms += nPBC
-                if pos.shape != (natoms, 3) or pos.dtype.kind != 'f':
-                    raise ValueError(
-                        'Pseudo Atoms containing cell have bad coords')
+            nPBC = 0
+            for i, b in enumerate(atoms.pbc):
+                if b:
+                    nPBC += 1
+                    symbols.append('VEC' + str(nPBC))
+                    pos = np.vstack((pos, atoms.cell[i]))
+            # add to natoms
+            natoms += nPBC
+            if pos.shape != (natoms, 3) or pos.dtype.kind != 'f':
+                raise ValueError(
+                    'Pseudo Atoms containing cell have bad coords')
 
         # Move mask
         if 'move_mask' in fr_cols:
