@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+# from . import kimpy
 import kimpy
 import numpy as np
 from kimpy import neighlist

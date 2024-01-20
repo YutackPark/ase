@@ -8,11 +8,55 @@ University of Minnesota
 import functools
 from abc import ABC
 
-import kimpy
 import numpy as np
 
 from .exceptions import (KIMModelInitializationError, KIMModelNotFound,
                          KIMModelParameterError, KimpyError)
+
+
+# We do not like to import optional modules like kimpy at module level.
+# Therefore we define wrapper classes that defer stuff.
+
+class LazyKimpyImport:
+    def __getattr__(self, attr):
+        return getattr(self._kimpy, attr)
+
+    @functools.cached_property
+    def _kimpy(self):
+        import kimpy
+        return kimpy
+
+
+class Wrappers:
+    @property
+    def collections_create(self):
+        return functools.partial(check_call, kimpy.collections.create)
+
+    @property
+    def model_create(self):
+        return functools.partial(check_call, kimpy.model.create)
+
+    @property
+    def simulator_model_create(self):
+        return functools.partial(check_call, kimpy.simulator_model.create)
+
+    @property
+    def get_species_name(self):
+        return functools.partial(
+            check_call, kimpy.species_name.get_species_name)
+
+    @property
+    def get_number_of_species_names(self):
+        return functools.partial(
+            check_call, kimpy.species_name.get_number_of_species_names)
+
+    @property
+    def collection_item_type_portableModel(self):
+        return kimpy.collection_item_type.portableModel
+
+
+kimpy = LazyKimpyImport()
+wrappers = Wrappers()
 
 # Function used for casting parameter/extent indices to C-compatible ints
 c_int = np.intc
@@ -61,21 +105,6 @@ def check_call_wrapper(func):
     return myfunc
 
 
-# kimpy methods
-collections_create = functools.partial(check_call, kimpy.collections.create)
-model_create = functools.partial(check_call, kimpy.model.create)
-simulator_model_create = functools.partial(
-    check_call, kimpy.simulator_model.create)
-get_species_name = functools.partial(
-    check_call, kimpy.species_name.get_species_name)
-get_number_of_species_names = functools.partial(
-    check_call, kimpy.species_name.get_number_of_species_names
-)
-
-# kimpy attributes (here to avoid importing kimpy in higher-level modules)
-collection_item_type_portableModel = kimpy.collection_item_type.portableModel
-
-
 class ModelCollections:
     """
     KIM Portable Models and Simulator Models are installed/managed into
@@ -87,7 +116,7 @@ class ModelCollections:
     """
 
     def __init__(self):
-        self.collection = collections_create()
+        self.collection = wrappers.collections_create()
 
     def __enter__(self):
         return self
@@ -123,7 +152,7 @@ class PortableModel:
         self.debug = debug
 
         # Create KIM API Model object
-        units_accepted, self.kim_model = model_create(
+        units_accepted, self.kim_model = wrappers.model_create(
             kimpy.numbering.zeroBased,
             kimpy.length_unit.A,
             kimpy.energy_unit.eV,
@@ -206,10 +235,10 @@ class PortableModel:
         """
         species = []
         codes = []
-        num_kim_species = get_number_of_species_names()
+        num_kim_species = wrappers.get_number_of_species_names()
 
         for i in range(num_kim_species):
-            species_name = get_species_name(i)
+            species_name = wrappers.get_species_name(i)
 
             species_is_supported, code = self.get_species_support_and_code(
                 species_name)
@@ -685,7 +714,7 @@ class SimulatorModel:
     def __init__(self, model_name):
         # Create a KIM API Simulator Model object for this model
         self.model_name = model_name
-        self.simulator_model = simulator_model_create(self.model_name)
+        self.simulator_model = wrappers.simulator_model_create(self.model_name)
 
         # Need to close template map in order to access simulator
         # model metadata
