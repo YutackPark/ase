@@ -637,6 +637,8 @@ def test_read_espresso_ph_complex():
     assert np.unique(results[(-0.25, 0.25, -0.25)]["freqs"])[1] == 6.338040
     assert len(results[(-0.25, 0.25, -0.25)]["eqpoints"]) == 8
     assert results[(-0.25, 0.25, -0.25)]["atoms"].symbols == ["Al"]
+    assert results[(0, 0, 0)]["qnum"] == 1
+    assert results[(-0.25, 0.25, -0.25)]["qnum"] == 2
 
     for i in np.arange(0.005, 0.055, 0.005):
         assert results[(-0.25, 0.25, -0.25)]["ep_data"][round(i, 3)]

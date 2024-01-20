@@ -1835,9 +1835,9 @@ def read_espresso_ph(fileobj):
 
     iblocks = np.append(output[QPOINTS], n_lines)
 
-    for past, future in zip(iblocks[:-1], iblocks[1:]):
+    for qnum, (past, future) in enumerate(zip(iblocks[:-1], iblocks[1:])):
         qpoint = _read_qpoints(past)
-        results[qpoint] = {}
+        results[qpoint] = {"qnum": qnum + 1}
         for prop in properties:
             p = (past < output[prop]) & (output[prop] < future)
             selected = output[prop][p]
