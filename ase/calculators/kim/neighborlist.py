@@ -1,8 +1,7 @@
 from collections import defaultdict
 
-import kimpy
+from .kimpy_wrappers import kimpy
 import numpy as np
-from kimpy import neighlist
 
 from ase import Atom
 from ase.neighborlist import neighbor_list
@@ -358,11 +357,11 @@ class KimpyNeighborList(NeighborList):
             debug,
         )
 
-        self.neigh = neighlist.NeighList()
+        self.neigh = kimpy.neighlist.NeighList()
 
         compute_args.set_callback_pointer(
             kimpy.compute_callback_name.GetNeighborList,
-            neighlist.get_neigh_kim(),
+            kimpy.neighlist.get_neigh_kim(),
             self.neigh,
         )
 
@@ -381,7 +380,7 @@ class KimpyNeighborList(NeighborList):
         pbc = np.asarray(pbc, dtype=c_int)
         contributing_coords = np.asarray(contributing_coords, dtype=c_double)
 
-        return neighlist.create_paddings(
+        return kimpy.neighlist.create_paddings(
             self.influence_dist,
             cell,
             pbc,
