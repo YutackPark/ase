@@ -14,10 +14,9 @@ from .exceptions import (KIMModelInitializationError, KIMModelNotFound,
                          KIMModelParameterError, KimpyError)
 
 
-# We do not like to import optional modules like kimpy at module level.
-# Therefore we define wrapper classes that defer stuff.
-
 class LazyKimpyImport:
+    """This class avoids module level import of the optional kimpy module."""
+
     def __getattr__(self, attr):
         return getattr(self._kimpy, attr)
 
@@ -28,6 +27,8 @@ class LazyKimpyImport:
 
 
 class Wrappers:
+    """Shortcuts written in a way that avoids module-level kimpy import."""
+
     @property
     def collections_create(self):
         return functools.partial(check_call, kimpy.collections.create)
