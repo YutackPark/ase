@@ -167,17 +167,6 @@ class SiestaParameters(Parameters):
         Parameters.__init__(self, **kwargs)
 
 
-_DEPRECATED_SIESTA_COMMAND_MESSAGE = (
-    'Please use ``$ASE_SIESTA_COMMAND`` and not '
-    '``$SIESTA_COMMAND``, which will be ignored '
-    'in the future. The new command format will not '
-    'work with the "<%s > %s" specification.  Use '
-    'instead e.g. "ASE_SIESTA_COMMAND=siesta'
-    ' < PREFIX.fdf > PREFIX.out", where PREFIX will '
-    'automatically be replaced by calculator label.'
-)
-
-
 def _nonpolarized_alias(_: List, kwargs: Dict[str, Any]) -> bool:
     if kwargs.get("spin", None) == "UNPOLARIZED":
         kwargs["spin"] = "non-polarized"
@@ -280,8 +269,6 @@ class Siesta(FileIOCalculator):
                             block Zmatrix allows to specify basic geometry
                             constrains such as realized through the ASE classes
                             FixAtom, FixedLine and FixedPlane.
-        .. deprecated:: 3.18.2
-            {_DEPRECATED_SIESTA_COMMAND_MESSAGE}
         """
 
         # Put in the default arguments.
@@ -292,22 +279,6 @@ class Siesta(FileIOCalculator):
             self,
             command=command,
             **parameters)
-
-        commandvar = self.cfg.get("SIESTA_COMMAND")
-        runfile = self.prefix + ".fdf"
-        outfile = self.prefix + ".out"
-        if commandvar is not None:
-            warnings.warn(_DEPRECATED_SIESTA_COMMAND_MESSAGE)
-            try:
-                self.command = commandvar % (runfile, outfile)
-            except TypeError as err:
-                msg = (
-                    "The 'SIESTA_COMMAND' environment must be a format string "
-                    "with two string arguments.\n"
-                    "Example : 'siesta < %s > %s'.\n"
-                    f"Got '{commandvar}'"
-                )
-                raise ValueError(msg) from err
 
     def __getitem__(self, key):
         """Convenience method to retrieve a parameter as
