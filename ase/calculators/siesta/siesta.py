@@ -15,14 +15,13 @@ import re
 import shutil
 import tempfile
 from typing import Any, Dict, List
-import warnings
 from os.path import isfile, islink, join
 
 import numpy as np
 
 from ase import Atoms
-from ase.calculators.calculator import (FileIOCalculator, Parameters,
-                                        ReadError, all_changes)
+from ase.calculators.calculator import (
+    FileIOCalculator, Parameters, ReadError)
 from ase.calculators.siesta.import_functions import read_rho
 from ase.calculators.siesta.parameters import PAOBasisBlock, format_fdf
 from ase.data import atomic_numbers
@@ -215,7 +214,7 @@ class Siesta(FileIOCalculator):
     accepts_bandpath_keyword = True
 
     def __init__(self, command=None, **kwargs):
-        f"""ASE interface to the SIESTA code.
+        """ASE interface to the SIESTA code.
 
         Parameters:
            - label        : The basename of all files created during
