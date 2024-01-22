@@ -419,22 +419,6 @@ class Siesta(FileIOCalculator):
         if not isinstance(fdf_arguments, dict):
             raise TypeError("fdf_arguments must be a dictionary.")
 
-    def calculate(self,
-                  atoms=None,
-                  properties=['energy'],
-                  system_changes=all_changes):
-        """Capture the RuntimeError from FileIOCalculator.calculate
-        and add a little debug information from the Siesta output.
-
-        See base FileIocalculator for documentation.
-        """
-
-        FileIOCalculator.calculate(
-            self,
-            atoms=atoms,
-            properties=properties,
-            system_changes=system_changes)
-
     def write_input(self, atoms, properties=None, system_changes=None):
         """Write input (fdf)-file.
         See calculator.py for further details.
