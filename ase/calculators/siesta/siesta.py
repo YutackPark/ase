@@ -435,26 +435,6 @@ class Siesta(FileIOCalculator):
             properties=properties,
             system_changes=system_changes)
 
-        # The below snippet would run if calculate() failed but I have
-        # disabled it for now since it looks to be just for debugging.
-        # --askhl
-        """
-        # Here a test to check if the potential are in the right place!!!
-        except RuntimeError as e:
-            try:
-                fname = os.path.join(self.directory, self.label+'.out')
-                with open(fname, 'r') as fd:
-                    lines = fd.readlines()
-                debug_lines = 10
-                print('##### %d last lines of the Siesta output' % debug_lines)
-                for line in lines[-20:]:
-                    print(line.strip())
-                print('##### end of siesta output')
-                raise e
-            except:
-                raise e
-        """
-
     def write_input(self, atoms, properties=None, system_changes=None):
         """Write input (fdf)-file.
         See calculator.py for further details.
