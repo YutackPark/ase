@@ -15,14 +15,13 @@ import re
 import shutil
 import tempfile
 from typing import Any, Dict, List
-import warnings
 from os.path import isfile, islink, join
 
 import numpy as np
 
 from ase import Atoms
-from ase.calculators.calculator import (FileIOCalculator, Parameters,
-                                        ReadError, all_changes)
+from ase.calculators.calculator import (
+    FileIOCalculator, Parameters, ReadError)
 from ase.calculators.siesta.import_functions import read_rho
 from ase.calculators.siesta.parameters import PAOBasisBlock, format_fdf
 from ase.data import atomic_numbers
@@ -167,17 +166,6 @@ class SiestaParameters(Parameters):
         Parameters.__init__(self, **kwargs)
 
 
-_DEPRECATED_SIESTA_COMMAND_MESSAGE = (
-    'Please use ``$ASE_SIESTA_COMMAND`` and not '
-    '``$SIESTA_COMMAND``, which will be ignored '
-    'in the future. The new command format will not '
-    'work with the "<%s > %s" specification.  Use '
-    'instead e.g. "ASE_SIESTA_COMMAND=siesta'
-    ' < PREFIX.fdf > PREFIX.out", where PREFIX will '
-    'automatically be replaced by calculator label.'
-)
-
-
 def _nonpolarized_alias(_: List, kwargs: Dict[str, Any]) -> bool:
     if kwargs.get("spin", None) == "UNPOLARIZED":
         kwargs["spin"] = "non-polarized"
@@ -226,7 +214,7 @@ class Siesta(FileIOCalculator):
     accepts_bandpath_keyword = True
 
     def __init__(self, command=None, **kwargs):
-        f"""ASE interface to the SIESTA code.
+        """ASE interface to the SIESTA code.
 
         Parameters:
            - label        : The basename of all files created during
@@ -280,8 +268,6 @@ class Siesta(FileIOCalculator):
                             block Zmatrix allows to specify basic geometry
                             constrains such as realized through the ASE classes
                             FixAtom, FixedLine and FixedPlane.
-        .. deprecated:: 3.18.2
-            {_DEPRECATED_SIESTA_COMMAND_MESSAGE}
         """
 
         # Put in the default arguments.
@@ -292,22 +278,6 @@ class Siesta(FileIOCalculator):
             self,
             command=command,
             **parameters)
-
-        commandvar = self.cfg.get("SIESTA_COMMAND")
-        runfile = self.prefix + ".fdf"
-        outfile = self.prefix + ".out"
-        if commandvar is not None:
-            warnings.warn(_DEPRECATED_SIESTA_COMMAND_MESSAGE)
-            try:
-                self.command = commandvar % (runfile, outfile)
-            except TypeError as err:
-                msg = (
-                    "The 'SIESTA_COMMAND' environment must be a format string "
-                    "with two string arguments.\n"
-                    "Example : 'siesta < %s > %s'.\n"
-                    f"Got '{commandvar}'"
-                )
-                raise ValueError(msg) from err
 
     def __getitem__(self, key):
         """Convenience method to retrieve a parameter as
@@ -447,42 +417,6 @@ class Siesta(FileIOCalculator):
         # Type checking.
         if not isinstance(fdf_arguments, dict):
             raise TypeError("fdf_arguments must be a dictionary.")
-
-    def calculate(self,
-                  atoms=None,
-                  properties=['energy'],
-                  system_changes=all_changes):
-        """Capture the RuntimeError from FileIOCalculator.calculate
-        and add a little debug information from the Siesta output.
-
-        See base FileIocalculator for documentation.
-        """
-
-        FileIOCalculator.calculate(
-            self,
-            atoms=atoms,
-            properties=properties,
-            system_changes=system_changes)
-
-        # The below snippet would run if calculate() failed but I have
-        # disabled it for now since it looks to be just for debugging.
-        # --askhl
-        """
-        # Here a test to check if the potential are in the right place!!!
-        except RuntimeError as e:
-            try:
-                fname = os.path.join(self.directory, self.label+'.out')
-                with open(fname, 'r') as fd:
-                    lines = fd.readlines()
-                debug_lines = 10
-                print('##### %d last lines of the Siesta output' % debug_lines)
-                for line in lines[-20:]:
-                    print(line.strip())
-                print('##### end of siesta output')
-                raise e
-            except:
-                raise e
-        """
 
     def write_input(self, atoms, properties=None, system_changes=None):
         """Write input (fdf)-file.
