@@ -92,9 +92,9 @@ General advice
 Writing documentation in the code
 =================================
 
-Here is an example of how to write good docstrings:
+ASE follows the NumPy/SciPy convention for docstrings:
 
-  https://github.com/numpy/numpy/blob/master/doc/example.py
+  https://numpydoc.readthedocs.io/en/latest/format.html#docstring-standard
 
 
 .. _stylecheck:
