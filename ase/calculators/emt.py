@@ -104,11 +104,11 @@ class EMT(Calculator):
                 'gamma2': gamma2,
             }
 
-        self.ksi = {}
+        self.chi = {}
         for s1, p1 in self.par.items():
-            self.ksi[s1] = {}
+            self.chi[s1] = {}
             for s2, p2 in self.par.items():
-                self.ksi[s1][s2] = p2['n0'] / p1['n0']
+                self.chi[s1][s2] = p2['n0'] / p1['n0']
 
         self.energies = np.empty(len(atoms))
         self.forces = np.empty((len(atoms), 3))
@@ -152,7 +152,7 @@ class EMT(Calculator):
         for a1 in range(natoms):
             Z1 = numbers[a1]
             p1 = self.par[Z1]
-            ksi = self.ksi[Z1]
+            chi = self.chi[Z1]
             neighbors, offsets = self.nl.get_neighbors(a1)
             offsets = np.dot(offsets, cell)
             for a2, offset in zip(neighbors, offsets):
@@ -161,7 +161,7 @@ class EMT(Calculator):
                 if r < self.rc_list:
                     Z2 = numbers[a2]
                     p2 = self.par[Z2]
-                    self.interact1(a1, a2, d, r, p1, p2, ksi[Z2])
+                    self.interact1(a1, a2, d, r, p1, p2, chi[Z2])
 
         for a in range(natoms):
             Z = numbers[a]
@@ -185,7 +185,7 @@ class EMT(Calculator):
         for a1 in range(natoms):
             Z1 = numbers[a1]
             p1 = self.par[Z1]
-            ksi = self.ksi[Z1]
+            chi = self.chi[Z1]
             neighbors, offsets = self.nl.get_neighbors(a1)
             offsets = np.dot(offsets, cell)
             for a2, offset in zip(neighbors, offsets):
@@ -194,7 +194,7 @@ class EMT(Calculator):
                 if r < self.rc_list:
                     Z2 = numbers[a2]
                     p2 = self.par[Z2]
-                    self.interact2(a1, a2, d, r, p1, p2, ksi[Z2])
+                    self.interact2(a1, a2, d, r, p1, p2, chi[Z2])
 
         self.results['energy'] = self.energy
         self.results['energies'] = self.energies
@@ -209,13 +209,13 @@ class EMT(Calculator):
             else:
                 raise PropertyNotImplementedError
 
-    def interact1(self, a1, a2, d, r, p1, p2, ksi):
+    def interact1(self, a1, a2, d, r, p1, p2, chi):
         x = exp(self.acut * (r - self.rc))
         theta = 1.0 / (1.0 + x)
         y1 = (0.5 * p1['V0'] * exp(-p2['kappa'] * (r / beta - p2['s0'])) *
-              ksi / p1['gamma2'] * theta)
+              chi / p1['gamma2'] * theta)
         y2 = (0.5 * p2['V0'] * exp(-p1['kappa'] * (r / beta - p1['s0'])) /
-              ksi / p2['gamma2'] * theta)
+              chi / p2['gamma2'] * theta)
         self.energy -= y1 + y2
         self.energies[a1] -= (y1 + y2) / 2
         self.energies[a2] -= (y1 + y2) / 2
@@ -225,17 +225,17 @@ class EMT(Calculator):
         self.forces[a2] -= f
         self.stress -= np.outer(f, d)
         self.sigma1[a1] += (exp(-p2['eta2'] * (r - beta * p2['s0'])) *
-                            ksi * theta / p1['gamma1'])
+                            chi * theta / p1['gamma1'])
         self.sigma1[a2] += (exp(-p1['eta2'] * (r - beta * p1['s0'])) /
-                            ksi * theta / p2['gamma1'])
+                            chi * theta / p2['gamma1'])
 
-    def interact2(self, a1, a2, d, r, p1, p2, ksi):
+    def interact2(self, a1, a2, d, r, p1, p2, chi):
         x = exp(self.acut * (r - self.rc))
         theta = 1.0 / (1.0 + x)
         y1 = (exp(-p2['eta2'] * (r - beta * p2['s0'])) *
-              ksi / p1['gamma1'] * theta * self.deds[a1])
+              chi / p1['gamma1'] * theta * self.deds[a1])
         y2 = (exp(-p1['eta2'] * (r - beta * p1['s0'])) /
-              ksi / p2['gamma1'] * theta * self.deds[a2])
+              chi / p2['gamma1'] * theta * self.deds[a2])
         f = ((y1 * p2['eta2'] + y2 * p1['eta2']) +
              (y1 + y2) * self.acut * theta * x) * d / r
         self.forces[a1] -= f
