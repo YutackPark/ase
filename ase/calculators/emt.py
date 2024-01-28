@@ -1,6 +1,6 @@
 """Effective medium theory potential."""
 
-from math import exp, log, sqrt
+from math import sqrt
 
 import numpy as np
 
@@ -113,11 +113,10 @@ class EMT(Calculator):
         self.energies = np.empty(len(atoms))
         self.forces = np.empty((len(atoms), 3))
         self.stress = np.empty((3, 3))
-        self.sigma1 = np.empty(len(atoms))
         self.deds = np.empty(len(atoms))
 
         self.nl = NeighborList([0.5 * self.rc_list] * len(atoms),
-                               self_interaction=False)
+                               self_interaction=False, bothways=True)
 
     def _calc_gammas(self, s0, eta2, kappa):
         n = np.array([12, 6, 24])  # numbers of 1, 2, 3NN sites in fcc
@@ -135,70 +134,47 @@ class EMT(Calculator):
         if 'numbers' in system_changes:
             self.initialize(self.atoms)
 
-        positions = self.atoms.positions
-        numbers = self.atoms.numbers
-        cell = self.atoms.cell
-
         self.nl.update(self.atoms)
 
-        self.energy = 0.0
-        self.energies[:] = 0
-        self.sigma1[:] = 0.0
+        self.energies[:] = 0.0
         self.forces[:] = 0.0
         self.stress[:] = 0.0
+        self.deds[:] = 0.0
 
         natoms = len(self.atoms)
 
         for a1 in range(natoms):
-            Z1 = numbers[a1]
-            p1 = self.par[Z1]
-            chi = self.chi[Z1]
-            neighbors, offsets = self.nl.get_neighbors(a1)
-            offsets = np.dot(offsets, cell)
-            for a2, offset in zip(neighbors, offsets):
-                d = positions[a2] + offset - positions[a1]
-                r = sqrt(np.dot(d, d))
-                if r < self.rc_list:
-                    Z2 = numbers[a2]
-                    p2 = self.par[Z2]
-                    self.interact1(a1, a2, d, r, p1, p2, chi[Z2])
-
-        for a in range(natoms):
-            Z = numbers[a]
-            p = self.par[Z]
-            try:
-                ds = -log(self.sigma1[a] / 12) / (beta * p['eta2'])
-            except (OverflowError, ValueError):
-                self.deds[a] = 0.0
-                self.energy -= p['E0']
-                self.energies[a] -= p['E0']
+            neighbors, d, r = self._get_neighbors(a1)
+            if len(neighbors) == 0:
                 continue
-            x = p['lambda'] * ds
-            y = exp(-x)
-            z = 6 * p['V0'] * exp(-p['kappa'] * ds)
-            self.deds[a] = ((x * y * p['E0'] * p['lambda'] + p['kappa'] * z) /
-                            (self.sigma1[a] * beta * p['eta2']))
-            E = p['E0'] * ((1 + x) * y - 1) + z
-            self.energy += E
-            self.energies[a] += E
+
+            p1, p2 = self._set_parameters(a1, neighbors, d, r)
+
+            self._calc_theta(p2)
+            self._calc_dsigma1(p1, p2)
+            self._calc_dsigma2(p1, p2)
+
+            self._calc_energies_c_as2(a1, p1, p2)
+            self._calc_energies_forces_as1(a1, p1, p2)
 
         for a1 in range(natoms):
-            Z1 = numbers[a1]
-            p1 = self.par[Z1]
-            chi = self.chi[Z1]
-            neighbors, offsets = self.nl.get_neighbors(a1)
-            offsets = np.dot(offsets, cell)
-            for a2, offset in zip(neighbors, offsets):
-                d = positions[a2] + offset - positions[a1]
-                r = sqrt(np.dot(d, d))
-                if r < self.rc_list:
-                    Z2 = numbers[a2]
-                    p2 = self.par[Z2]
-                    self.interact2(a1, a2, d, r, p1, p2, chi[Z2])
+            neighbors, d, r = self._get_neighbors(a1)
+            if len(neighbors) == 0:
+                continue
 
-        self.results['energy'] = self.energy
+            p1, p2 = self._set_parameters(a1, neighbors, d, r)
+
+            self._calc_theta(p2)
+            self._calc_dsigma1(p1, p2)
+
+            self._calc_forces_c_as2(a1, neighbors, p1, p2)
+
+        # subtract E0 (ASAP convention)
+        self.energies -= [self.par[_]['E0'] for _ in self.atoms.numbers]
+
+        energy = self.energies.sum()
+        self.results['energy'] = self.results['free_energy'] = energy
         self.results['energies'] = self.energies
-        self.results['free_energy'] = self.energy
         self.results['forces'] = self.forces
 
         if self.atoms.cell.rank == 3:
@@ -208,38 +184,90 @@ class EMT(Calculator):
         elif 'stress' in properties:
             raise PropertyNotImplementedError
 
-    def interact1(self, a1, a2, d, r, p1, p2, chi):
-        x = exp(self.acut * (r - self.rc))
-        theta = 1.0 / (1.0 + x)
-        y1 = (0.5 * p1['V0'] * exp(-p2['kappa'] * (r / beta - p2['s0'])) *
-              chi / p1['gamma2'] * theta)
-        y2 = (0.5 * p2['V0'] * exp(-p1['kappa'] * (r / beta - p1['s0'])) /
-              chi / p2['gamma2'] * theta)
-        self.energy -= y1 + y2
-        self.energies[a1] -= (y1 + y2) / 2
-        self.energies[a2] -= (y1 + y2) / 2
-        f = ((y1 * p2['kappa'] + y2 * p1['kappa']) / beta +
-             (y1 + y2) * self.acut * theta * x) * d / r
-        self.forces[a1] += f
-        self.forces[a2] -= f
-        self.stress -= np.outer(f, d)
-        self.sigma1[a1] += (exp(-p2['eta2'] * (r - beta * p2['s0'])) *
-                            chi * theta / p1['gamma1'])
-        self.sigma1[a2] += (exp(-p1['eta2'] * (r - beta * p1['s0'])) /
-                            chi * theta / p2['gamma1'])
+    def _get_neighbors(self, a1):
+        positions = self.atoms.positions
+        cell = self.atoms.cell
+        neighbors, offsets = self.nl.get_neighbors(a1)
+        offsets = np.dot(offsets, cell)
+        d = positions[neighbors] + offsets - positions[a1]
+        r = np.linalg.norm(d, axis=1)
+        mask = r < self.rc_list
+        return neighbors[mask], d[mask], r[mask]
 
-    def interact2(self, a1, a2, d, r, p1, p2, chi):
-        x = exp(self.acut * (r - self.rc))
-        theta = 1.0 / (1.0 + x)
-        y1 = (exp(-p2['eta2'] * (r - beta * p2['s0'])) *
-              chi / p1['gamma1'] * theta * self.deds[a1])
-        y2 = (exp(-p1['eta2'] * (r - beta * p1['s0'])) /
-              chi / p2['gamma1'] * theta * self.deds[a2])
-        f = ((y1 * p2['eta2'] + y2 * p1['eta2']) +
-             (y1 + y2) * self.acut * theta * x) * d / r
-        self.forces[a1] -= f
-        self.forces[a2] += f
-        self.stress += np.outer(f, d)
+    def _set_parameters(self, a1, a2, d, r):
+        ks = ['E0', 's0', 'V0', 'eta2', 'lambda', 'kappa', 'gamma1', 'gamma2']
+        p1 = {k: self.par[k][self.i2i[a1]] for k in ks}
+        p2 = {k: self.par[k][self.i2i[a2]] for k in ks}
+        p2['chi'] = self.chi[self.i2i[a1], self.i2i[a2]]
+        p2['d'] = d
+        p2['r'] = r
+        p2['invr'] = 1.0 / r
+        return p1, p2
+
+    def _calc_theta(self, p2):
+        """Calculate cutoff function and its r derivative"""
+        p2['w'] = 1.0 / (1.0 + np.exp(self.acut * (p2['r'] - self.rc)))
+        p2['dwdr_over_w'] = -1.0 * self.acut * (1.0 - p2['w'])
+
+    def _calc_dsigma1(self, p1, p2):
+        """Calculate contributions of neighbors to sigma1"""
+        chi = p2['chi']
+        w = p2['w']
+        dr1 = p2['r'] - beta * p1['s0']
+        dr2 = p2['r'] - beta * p2['s0']
+        p2['dsigma1s'] = np.exp(-p2['eta2'] * dr2) * chi * w / p1['gamma1']
+        p2['dsigma1o'] = np.exp(-p1['eta2'] * dr1) / chi * w / p2['gamma1']
+
+    def _calc_dsigma2(self, p1, p2):
+        """Calculate contributions of neighbors to sigma2"""
+        chi = p2['chi']
+        w = p2['w']
+        ds1 = p2['r'] / beta - p1['s0']
+        ds2 = p2['r'] / beta - p2['s0']
+        p2['dsigma2s'] = np.exp(-p2['kappa'] * ds2) * chi * w / p1['gamma2']
+        p2['dsigma2o'] = np.exp(-p1['kappa'] * ds1) / chi * w / p2['gamma2']
+
+    def _calc_energies_c_as2(self, a1, p1, p2):
+        """Calculate E_c and the second term of E_AS and their s derivatives"""
+        sigma1 = p2['dsigma1s'].sum()
+        ds = -1.0 * np.log(sigma1 / 12.0) / (beta * p1['eta2'])
+
+        lmdds = p1['lambda'] * ds
+        expneglmdds = np.exp(-1.0 * lmdds)
+        self.energies[a1] += p1['E0'] * (1.0 + lmdds) * expneglmdds
+        self.deds[a1] += -1.0 * p1['E0'] * p1['lambda'] * lmdds * expneglmdds
+
+        sixv0expnegkppds = 6.0 * p1['V0'] * np.exp(-1.0 * p1['kappa'] * ds)
+        self.energies[a1] += sixv0expnegkppds
+        self.deds[a1] += -1.0 * p1['kappa'] * sixv0expnegkppds
+
+        self.deds[a1] /= sigma1 * beta * p1['eta2']
+
+    def _calc_energies_forces_as1(self, a1, p1, p2):
+        """Calculate the first term of E_AS and derivatives"""
+        e_self = -0.5 * p1['V0'] * p2['dsigma2s']
+        e_othr = -0.5 * p2['V0'] * p2['dsigma2o']
+        self.energies[a1] += 0.5 * (e_self + e_othr).sum(axis=0)
+
+        d = p2['d']
+        dwdr_over_w = p2['dwdr_over_w']
+        tmp_self = e_self * (dwdr_over_w - p2['kappa'] / beta)
+        tmp_othr = e_othr * (dwdr_over_w - p1['kappa'] / beta)
+        f = ((tmp_self + tmp_othr) * p2['invr'])[:, None] * d
+        self.forces[a1] += f.sum(axis=0)
+        self.stress -= 0.5 * np.dot(f.T, d)
+
+    def _calc_forces_c_as2(self, a1, a2, p1, p2):
+        """Calculate forces from E_c and the second term of E_AS"""
+        d = p2['d']
+        dwdr_over_w = p2['dwdr_over_w']
+        ddsigma1sdr = p2['dsigma1s'] * (dwdr_over_w - p2['eta2'])
+        ddsigma1odr = p2['dsigma1o'] * (dwdr_over_w - p1['eta2'])
+        tmp_self = -1.0 * self.deds[a1] * ddsigma1sdr
+        tmp_othr = -1.0 * self.deds[a2] * ddsigma1odr
+        f = ((tmp_self + tmp_othr) * p2['invr'])[:, None] * d
+        self.forces[a1] += f.sum(axis=0)
+        self.stress -= 0.5 * np.dot(f.T, d)
 
 
 def main():
