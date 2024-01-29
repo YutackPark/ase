@@ -138,6 +138,8 @@ class EMT(Calculator):
 
         natoms = len(self.atoms)
 
+        # store nearest neighbor info for all the atoms
+        # suffixes 's' and 'o': contributions from self and the other atoms
         ps = {}
         for a1 in range(natoms):
             a2, d, r = self._get_neighbors(a1)
@@ -159,6 +161,9 @@ class EMT(Calculator):
                 'dsigma2o': dsigma2o,
             }
 
+        # deds is computed in _calc_e_c_a2
+        # since deds for all the atoms are used later in _calc_f_c_a2,
+        # _calc_e_c_a2 must be called beforehand for all the atoms
         for a1, p in ps.items():
             a2 = p['a2']
             dsigma1s = p['dsigma1s']
