@@ -198,8 +198,8 @@ class EMT(Calculator):
         self.results['forces'] = self.forces
 
         if self.atoms.cell.rank == 3:
-            self.stress += self.stress.T.copy()
-            self.stress *= -0.5 / self.atoms.get_volume()
+            self.stress = (self.stress + self.stress.T) * 0.5  # symmetrize
+            self.stress /= self.atoms.get_volume()
             self.results['stress'] = self.stress.flat[[0, 4, 8, 5, 2, 1]]
         elif 'stress' in properties:
             raise PropertyNotImplementedError
@@ -287,7 +287,7 @@ class EMT(Calculator):
         dedro = eo * (dwdrinvw - kappas / beta)
         f = ((dedrs + dedro) * invr)[:, None] * d
         self.forces[a1] += np.add.reduce(f, axis=0)
-        self.stress -= 0.5 * np.dot(f.T, d)
+        self.stress += 0.5 * np.dot(d.T, f)  # compensate double counting
 
     def _calc_fs_c_a2(self, a1, a2, d, invr, dwdrinvw, dsigma1s, dsigma1o):
         """Calculate forces and stress from E_c and the second term of E_AS"""
@@ -300,7 +300,7 @@ class EMT(Calculator):
         dedro = self.deds[a2] * ddsigma1odr
         f = ((dedrs + dedro) * invr)[:, None] * d
         self.forces[a1] += np.add.reduce(f, axis=0)
-        self.stress -= 0.5 * np.dot(f.T, d)
+        self.stress += 0.5 * np.dot(d.T, f)  # compensate double counting
 
 
 def main():
