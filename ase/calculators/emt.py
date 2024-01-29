@@ -166,7 +166,7 @@ class EMT(Calculator):
         # subtract E0 (ASAP convention)
         self.energies -= self.par['E0'][self.i2i]
 
-        energy = self.energies.sum()
+        energy = np.add.reduce(self.energies, axis=0)
         self.results['energy'] = self.results['free_energy'] = energy
         self.results['energies'] = self.energies
         self.results['forces'] = self.forces
@@ -184,7 +184,7 @@ class EMT(Calculator):
         neighbors, offsets = self.nl.get_neighbors(a1)
         offsets = np.dot(offsets, cell)
         d = positions[neighbors] + offsets - positions[a1]
-        r = np.linalg.norm(d, axis=1)
+        r = np.sqrt(np.add.reduce(d**2, axis=1))
         mask = r < self.rc_list
         return neighbors[mask], d[mask], r[mask]
 
@@ -223,7 +223,7 @@ class EMT(Calculator):
 
     def _calc_energies_c_as2(self, a1, p1, p2):
         """Calculate E_c and the second term of E_AS and their s derivatives"""
-        sigma1 = p2['dsigma1s'].sum()
+        sigma1 = np.add.reduce(p2['dsigma1s'])
         ds = -1.0 * np.log(sigma1 / 12.0) / (beta * p1['eta2'])
 
         lmdds = p1['lambda'] * ds
@@ -241,14 +241,14 @@ class EMT(Calculator):
         """Calculate the first term of E_AS and derivatives"""
         e_self = -0.5 * p1['V0'] * p2['dsigma2s']
         e_othr = -0.5 * p2['V0'] * p2['dsigma2o']
-        self.energies[a1] += 0.5 * (e_self + e_othr).sum(axis=0)
+        self.energies[a1] += 0.5 * np.add.reduce(e_self + e_othr, axis=0)
 
         d = p2['d']
         dwdr_over_w = p2['dwdr_over_w']
         tmp_self = e_self * (dwdr_over_w - p2['kappa'] / beta)
         tmp_othr = e_othr * (dwdr_over_w - p1['kappa'] / beta)
         f = ((tmp_self + tmp_othr) * p2['invr'])[:, None] * d
-        self.forces[a1] += f.sum(axis=0)
+        self.forces[a1] += np.add.reduce(f, axis=0)
         self.stress -= 0.5 * np.dot(f.T, d)
 
     def _calc_forces_c_as2(self, a1, a2, p1, p2):
@@ -260,7 +260,7 @@ class EMT(Calculator):
         tmp_self = -1.0 * self.deds[a1] * ddsigma1sdr
         tmp_othr = -1.0 * self.deds[a2] * ddsigma1odr
         f = ((tmp_self + tmp_othr) * p2['invr'])[:, None] * d
-        self.forces[a1] += f.sum(axis=0)
+        self.forces[a1] += np.add.reduce(f, axis=0)
         self.stress -= 0.5 * np.dot(f.T, d)
 
 
