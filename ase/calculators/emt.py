@@ -301,19 +301,3 @@ class EMT(Calculator):
         f = ((dedrs + dedro) * invr)[:, None] * d
         self.forces[a1] += np.add.reduce(f, axis=0)
         self.stress += 0.5 * np.dot(d.T, f)  # compensate double counting
-
-
-def main():
-    import sys
-
-    from ase.io import read, write
-    inputfile = sys.argv[1]
-    outputfile = sys.argv[2]
-    atoms = read(inputfile)
-    atoms.calc = EMT()
-    atoms.get_stress()
-    write(outputfile, atoms)
-
-
-if __name__ == '__main__':
-    main()
