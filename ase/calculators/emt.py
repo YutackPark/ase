@@ -201,13 +201,12 @@ class EMT(Calculator):
         self.results['free_energy'] = self.energy
         self.results['forces'] = self.forces
 
-        if 'stress' in properties:
-            if self.atoms.cell.rank == 3:
-                self.stress += self.stress.T.copy()
-                self.stress *= -0.5 / self.atoms.get_volume()
-                self.results['stress'] = self.stress.flat[[0, 4, 8, 5, 2, 1]]
-            else:
-                raise PropertyNotImplementedError
+        if self.atoms.cell.rank == 3:
+            self.stress += self.stress.T.copy()
+            self.stress *= -0.5 / self.atoms.get_volume()
+            self.results['stress'] = self.stress.flat[[0, 4, 8, 5, 2, 1]]
+        elif 'stress' in properties:
+            raise PropertyNotImplementedError
 
     def interact1(self, a1, a2, d, r, p1, p2, chi):
         x = exp(self.acut * (r - self.rc))
