@@ -1,6 +1,6 @@
 """Effective medium theory potential."""
 from collections import defaultdict
-from math import sqrt
+from math import log, sqrt
 
 import numpy as np
 
@@ -61,23 +61,9 @@ class EMT(Calculator):
         Calculator.__init__(self, **kwargs)
 
     def initialize(self, atoms):
-        self.rc = 0.0
+        self.rc, self.rc_list, self.acut = self._calc_rc(atoms)
+
         numbers = atoms.get_atomic_numbers()
-        if self.parameters['asap_cutoff']:
-            relevant_pars = {}
-            for symb, p in parameters.items():
-                if atomic_numbers[symb] in numbers:
-                    relevant_pars[symb] = p
-        else:
-            relevant_pars = parameters
-        maxseq = max(par[1] for par in relevant_pars.values()) * Bohr
-        rc = self.rc = beta * maxseq * 0.5 * (sqrt(3) + sqrt(4))
-        rr = rc * 2 * sqrt(4) / (sqrt(3) + sqrt(4))
-        self.acut = np.log(9999.0) / (rr - rc)
-        if self.parameters['asap_cutoff']:
-            self.rc_list = self.rc * 1.045
-        else:
-            self.rc_list = self.rc + 0.5
 
         # ia2iz : map from idx of atoms to idx of atomic numbers in self.par
         unique_numbers, self.ia2iz = np.unique(numbers, return_inverse=True)
@@ -99,7 +85,6 @@ class EMT(Calculator):
             self.par['kappa'][i] = kappa
             self.par['lambda'][i] = p[5] / Bohr
             self.par['n0'][i] = p[6] / Bohr**3
-            self.par['rc'][i] = rc
             self.par['gamma1'][i] = gamma1
             self.par['gamma2'][i] = gamma2
 
@@ -112,6 +97,23 @@ class EMT(Calculator):
 
         self.nl = NeighborList([0.5 * self.rc_list] * len(atoms),
                                self_interaction=False, bothways=True)
+
+    def _calc_rc(self, atoms):
+        """Calculate the cutoff radius etc."""
+        numbers = atoms.get_atomic_numbers()
+        if self.parameters['asap_cutoff']:
+            relevant_pars = {}
+            for symb, p in parameters.items():
+                if atomic_numbers[symb] in numbers:
+                    relevant_pars[symb] = p
+        else:
+            relevant_pars = parameters
+        maxseq = max(par[1] for par in relevant_pars.values()) * Bohr
+        rc = beta * maxseq * 0.5 * (sqrt(3) + sqrt(4))  # mid 3 and 4NN dist.
+        rr = beta * maxseq * 2.0  # 4NN dist.
+        acut = log(9999.0) / (rr - rc)  # slope at rr is 1e-4
+        rc_list = rc * 1.045 if self.parameters['asap_cutoff'] else rc + 0.5
+        return rc, rc_list, acut
 
     def _calc_gammas(self, s0, eta2, kappa):
         n = np.array([12, 6, 24])  # numbers of 1, 2, 3NN sites in fcc
