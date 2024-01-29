@@ -176,18 +176,12 @@ class EMT(Calculator):
             d = p['d']
             invr = p['invr']
             dwdrinvw = p['dwdrinvw']
-            dsigma2s = p['dsigma2s']
-            dsigma2o = p['dsigma2o']
-            self._calc_efs_a1(a1, a2, d, invr, dwdrinvw, dsigma2s, dsigma2o)
-
-        for a1, p in ps.items():
-            a2 = p['a2']
-            d = p['d']
-            invr = p['invr']
-            dwdrinvw = p['dwdrinvw']
             dsigma1s = p['dsigma1s']
             dsigma1o = p['dsigma1o']
+            dsigma2s = p['dsigma2s']
+            dsigma2o = p['dsigma2o']
             self._calc_fs_c_a2(a1, a2, d, invr, dwdrinvw, dsigma1s, dsigma1o)
+            self._calc_efs_a1(a1, a2, d, invr, dwdrinvw, dsigma2s, dsigma2o)
 
         # subtract E0 (ASAP convention)
         self.energies -= self.par['E0'][self.ia2iz]
