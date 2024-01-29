@@ -1,5 +1,5 @@
 """Effective medium theory potential."""
-
+from collections import defaultdict
 from math import sqrt
 
 import numpy as np
@@ -79,10 +79,9 @@ class EMT(Calculator):
         else:
             self.rc_list = self.rc + 0.5
 
-        self.par = {}
-        for Z in numbers:
-            if Z in self.par:
-                continue  # already stored
+        unique_numbers, self.i2i = np.unique(numbers, return_inverse=True)
+        self.par = defaultdict(lambda: np.empty(len(unique_numbers)))
+        for i, Z in enumerate(unique_numbers):
             sym = chemical_symbols[Z]
             if sym not in parameters:
                 raise NotImplementedError(f'No EMT-potential for {sym}')
@@ -91,24 +90,19 @@ class EMT(Calculator):
             eta2 = p[3] / Bohr
             kappa = p[4] / Bohr
             gamma1, gamma2 = self._calc_gammas(s0, eta2, kappa)
-            self.par[Z] = {
-                'E0': p[0],
-                's0': s0,
-                'V0': p[2],
-                'eta2': eta2,
-                'kappa': kappa,
-                'lambda': p[5] / Bohr,
-                'n0': p[6] / Bohr**3,
-                'rc': rc,
-                'gamma1': gamma1,
-                'gamma2': gamma2,
-            }
+            self.par['Z'][i] = Z
+            self.par['E0'][i] = p[0]
+            self.par['s0'][i] = s0
+            self.par['V0'][i] = p[2]
+            self.par['eta2'][i] = eta2
+            self.par['kappa'][i] = kappa
+            self.par['lambda'][i] = p[5] / Bohr
+            self.par['n0'][i] = p[6] / Bohr**3
+            self.par['rc'][i] = rc
+            self.par['gamma1'][i] = gamma1
+            self.par['gamma2'][i] = gamma2
 
-        self.chi = {}
-        for s1, p1 in self.par.items():
-            self.chi[s1] = {}
-            for s2, p2 in self.par.items():
-                self.chi[s1][s2] = p2['n0'] / p1['n0']
+        self.chi = self.par['n0'][None, :] / self.par['n0'][:, None]
 
         self.energies = np.empty(len(atoms))
         self.forces = np.empty((len(atoms), 3))
@@ -170,7 +164,7 @@ class EMT(Calculator):
             self._calc_forces_c_as2(a1, neighbors, p1, p2)
 
         # subtract E0 (ASAP convention)
-        self.energies -= [self.par[_]['E0'] for _ in self.atoms.numbers]
+        self.energies -= self.par['E0'][self.i2i]
 
         energy = self.energies.sum()
         self.results['energy'] = self.results['free_energy'] = energy
