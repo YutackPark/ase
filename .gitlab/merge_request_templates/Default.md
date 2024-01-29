@@ -1,5 +1,8 @@
+Here: Your concise description of the content of this merge request.
+
 # Checklist
 
-- [ ] I have read the [contribution guidelines](https://wiki.fysik.dtu.dk/ase/development/contribute.html).
-- [ ] [**Unit tests have been added for any new or changed code, and the test suite passes.**](https://wiki.fysik.dtu.dk/ase/development/tests.html) Note: Your request will likely not be merged without the appropriate tests.
-- [ ] "closes #XXXX" is in the body of the MR description to [link the related issue](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically), if applicable.
+- [ ] I am familiar with [ASE's contribution guidelines](https://wiki.fysik.dtu.dk/ase/development/contribute.html).
+- [ ] [**Doc strings**](https://wiki.fysik.dtu.dk/ase/development/python_codingstandard.html#writing-documentation-in-the-code) in code changed in this MR are up to date.
+- [ ] [**Unit tests** have been added for new or changed code.](https://wiki.fysik.dtu.dk/ase/development/tests.html)
+- [ ] [**Issue is resolved** via "closes #XXXX" if applicable.](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
