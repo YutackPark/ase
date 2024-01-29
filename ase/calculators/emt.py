@@ -79,7 +79,8 @@ class EMT(Calculator):
         else:
             self.rc_list = self.rc + 0.5
 
-        unique_numbers, self.i2i = np.unique(numbers, return_inverse=True)
+        # ia2iz : map from idx of atoms to idx of atomic numbers in self.par
+        unique_numbers, self.ia2iz = np.unique(numbers, return_inverse=True)
         self.par = defaultdict(lambda: np.empty(len(unique_numbers)))
         for i, Z in enumerate(unique_numbers):
             sym = chemical_symbols[Z]
@@ -137,34 +138,52 @@ class EMT(Calculator):
 
         natoms = len(self.atoms)
 
+        ps = {}
         for a1 in range(natoms):
-            neighbors, d, r = self._get_neighbors(a1)
-            if len(neighbors) == 0:
+            a2, d, r = self._get_neighbors(a1)
+            if len(a2) == 0:
                 continue
+            w, dwdrinvw = self._calc_theta(r)
+            dsigma1s, dsigma1o = self._calc_dsigma1(a1, a2, r, w)
+            dsigma2s, dsigma2o = self._calc_dsigma2(a1, a2, r, w)
+            ps[a1] = {
+                'a2': a2,
+                'd': d,
+                'r': r,
+                'invr': 1.0 / r,
+                'w': w,
+                'dwdrinvw': dwdrinvw,
+                'dsigma1s': dsigma1s,
+                'dsigma1o': dsigma1o,
+                'dsigma2s': dsigma2s,
+                'dsigma2o': dsigma2o,
+            }
 
-            p1, p2 = self._set_parameters(a1, neighbors, d, r)
+        for a1, p in ps.items():
+            a2 = p['a2']
+            dsigma1s = p['dsigma1s']
+            self._calc_e_c_a2(a1, dsigma1s)
 
-            self._calc_theta(p2)
-            self._calc_dsigma1(p1, p2)
-            self._calc_dsigma2(p1, p2)
+        for a1, p in ps.items():
+            a2 = p['a2']
+            d = p['d']
+            invr = p['invr']
+            dwdrinvw = p['dwdrinvw']
+            dsigma2s = p['dsigma2s']
+            dsigma2o = p['dsigma2o']
+            self._calc_efs_a1(a1, a2, d, invr, dwdrinvw, dsigma2s, dsigma2o)
 
-            self._calc_energies_c_as2(a1, p1, p2)
-            self._calc_energies_forces_as1(a1, p1, p2)
-
-        for a1 in range(natoms):
-            neighbors, d, r = self._get_neighbors(a1)
-            if len(neighbors) == 0:
-                continue
-
-            p1, p2 = self._set_parameters(a1, neighbors, d, r)
-
-            self._calc_theta(p2)
-            self._calc_dsigma1(p1, p2)
-
-            self._calc_forces_c_as2(a1, neighbors, p1, p2)
+        for a1, p in ps.items():
+            a2 = p['a2']
+            d = p['d']
+            invr = p['invr']
+            dwdrinvw = p['dwdrinvw']
+            dsigma1s = p['dsigma1s']
+            dsigma1o = p['dsigma1o']
+            self._calc_fs_c_a2(a1, a2, d, invr, dwdrinvw, dsigma1s, dsigma1o)
 
         # subtract E0 (ASAP convention)
-        self.energies -= self.par['E0'][self.i2i]
+        self.energies -= self.par['E0'][self.ia2iz]
 
         energy = np.add.reduce(self.energies, axis=0)
         self.results['energy'] = self.results['free_energy'] = energy
@@ -188,78 +207,91 @@ class EMT(Calculator):
         mask = r < self.rc_list
         return neighbors[mask], d[mask], r[mask]
 
-    def _set_parameters(self, a1, a2, d, r):
-        ks = ['E0', 's0', 'V0', 'eta2', 'lambda', 'kappa', 'gamma1', 'gamma2']
-        p1 = {k: self.par[k][self.i2i[a1]] for k in ks}
-        p2 = {k: self.par[k][self.i2i[a2]] for k in ks}
-        p2['chi'] = self.chi[self.i2i[a1], self.i2i[a2]]
-        p2['d'] = d
-        p2['r'] = r
-        p2['invr'] = 1.0 / r
-        return p1, p2
-
-    def _calc_theta(self, p2):
+    def _calc_theta(self, r):
         """Calculate cutoff function and its r derivative"""
-        p2['w'] = 1.0 / (1.0 + np.exp(self.acut * (p2['r'] - self.rc)))
-        p2['dwdr_over_w'] = -1.0 * self.acut * (1.0 - p2['w'])
+        w = 1.0 / (1.0 + np.exp(self.acut * (r - self.rc)))
+        dwdrinvw = -1.0 * self.acut * (1.0 - w)
+        return w, dwdrinvw
 
-    def _calc_dsigma1(self, p1, p2):
+    def _calc_dsigma1(self, a1, a2, r, w):
         """Calculate contributions of neighbors to sigma1"""
-        chi = p2['chi']
-        w = p2['w']
-        dr1 = p2['r'] - beta * p1['s0']
-        dr2 = p2['r'] - beta * p2['s0']
-        p2['dsigma1s'] = np.exp(-p2['eta2'] * dr2) * chi * w / p1['gamma1']
-        p2['dsigma1o'] = np.exp(-p1['eta2'] * dr1) / chi * w / p2['gamma1']
+        s0s = self.par['s0'][self.ia2iz[a1]]
+        s0o = self.par['s0'][self.ia2iz[a2]]
+        eta2s = self.par['eta2'][self.ia2iz[a1]]
+        eta2o = self.par['eta2'][self.ia2iz[a2]]
+        gamma1s = self.par['gamma1'][self.ia2iz[a1]]
+        gamma1o = self.par['gamma1'][self.ia2iz[a2]]
+        chi = self.chi[self.ia2iz[a1], self.ia2iz[a2]]
 
-    def _calc_dsigma2(self, p1, p2):
+        dsigma1s = np.exp(-eta2o * (r - beta * s0o)) * chi * w / gamma1s
+        dsigma1o = np.exp(-eta2s * (r - beta * s0s)) / chi * w / gamma1o
+
+        return dsigma1s, dsigma1o
+
+    def _calc_dsigma2(self, a1, a2, r, w):
         """Calculate contributions of neighbors to sigma2"""
-        chi = p2['chi']
-        w = p2['w']
-        ds1 = p2['r'] / beta - p1['s0']
-        ds2 = p2['r'] / beta - p2['s0']
-        p2['dsigma2s'] = np.exp(-p2['kappa'] * ds2) * chi * w / p1['gamma2']
-        p2['dsigma2o'] = np.exp(-p1['kappa'] * ds1) / chi * w / p2['gamma2']
+        s0s = self.par['s0'][self.ia2iz[a1]]
+        s0o = self.par['s0'][self.ia2iz[a2]]
+        kappas = self.par['kappa'][self.ia2iz[a1]]
+        kappao = self.par['kappa'][self.ia2iz[a2]]
+        gamma2s = self.par['gamma2'][self.ia2iz[a1]]
+        gamma2o = self.par['gamma2'][self.ia2iz[a2]]
+        chi = self.chi[self.ia2iz[a1], self.ia2iz[a2]]
 
-    def _calc_energies_c_as2(self, a1, p1, p2):
+        dsigma2s = np.exp(-kappao * (r / beta - s0o)) * chi * w / gamma2s
+        dsigma2o = np.exp(-kappas * (r / beta - s0s)) / chi * w / gamma2o
+
+        return dsigma2s, dsigma2o
+
+    def _calc_e_c_a2(self, a1, dsigma1s):
         """Calculate E_c and the second term of E_AS and their s derivatives"""
-        sigma1 = np.add.reduce(p2['dsigma1s'])
-        ds = -1.0 * np.log(sigma1 / 12.0) / (beta * p1['eta2'])
+        e0s = self.par['E0'][self.ia2iz[a1]]
+        v0s = self.par['V0'][self.ia2iz[a1]]
+        eta2s = self.par['eta2'][self.ia2iz[a1]]
+        lmds = self.par['lambda'][self.ia2iz[a1]]
+        kappas = self.par['kappa'][self.ia2iz[a1]]
 
-        lmdds = p1['lambda'] * ds
-        expneglmdds = np.exp(-1.0 * lmdds)
-        self.energies[a1] += p1['E0'] * (1.0 + lmdds) * expneglmdds
-        self.deds[a1] += -1.0 * p1['E0'] * p1['lambda'] * lmdds * expneglmdds
+        sigma1 = np.add.reduce(dsigma1s)
+        ds = -1.0 * np.log(sigma1 / 12.0) / (beta * eta2s)
 
-        sixv0expnegkppds = 6.0 * p1['V0'] * np.exp(-1.0 * p1['kappa'] * ds)
+        lmdsds = lmds * ds
+        expneglmdds = np.exp(-1.0 * lmdsds)
+        self.energies[a1] += e0s * (1.0 + lmdsds) * expneglmdds
+        self.deds[a1] += -1.0 * e0s * lmds * lmdsds * expneglmdds
+
+        sixv0expnegkppds = 6.0 * v0s * np.exp(-1.0 * kappas * ds)
         self.energies[a1] += sixv0expnegkppds
-        self.deds[a1] += -1.0 * p1['kappa'] * sixv0expnegkppds
+        self.deds[a1] += -1.0 * kappas * sixv0expnegkppds
 
-        self.deds[a1] /= sigma1 * beta * p1['eta2']
+        self.deds[a1] /= -1.0 * beta * eta2s * sigma1  # factor from ds/dr
 
-    def _calc_energies_forces_as1(self, a1, p1, p2):
+    def _calc_efs_a1(self, a1, a2, d, invr, dwdrinvw, dsigma2s, dsigma2o):
         """Calculate the first term of E_AS and derivatives"""
-        e_self = -0.5 * p1['V0'] * p2['dsigma2s']
-        e_othr = -0.5 * p2['V0'] * p2['dsigma2o']
-        self.energies[a1] += 0.5 * np.add.reduce(e_self + e_othr, axis=0)
+        v0s = self.par['V0'][self.ia2iz[a1]]
+        v0o = self.par['V0'][self.ia2iz[a2]]
+        kappas = self.par['kappa'][self.ia2iz[a1]]
+        kappao = self.par['kappa'][self.ia2iz[a2]]
 
-        d = p2['d']
-        dwdr_over_w = p2['dwdr_over_w']
-        tmp_self = e_self * (dwdr_over_w - p2['kappa'] / beta)
-        tmp_othr = e_othr * (dwdr_over_w - p1['kappa'] / beta)
-        f = ((tmp_self + tmp_othr) * p2['invr'])[:, None] * d
+        es = -0.5 * v0s * dsigma2s
+        eo = -0.5 * v0o * dsigma2o
+        self.energies[a1] += 0.5 * np.add.reduce(es + eo, axis=0)
+
+        dedrs = es * (dwdrinvw - kappao / beta)
+        dedro = eo * (dwdrinvw - kappas / beta)
+        f = ((dedrs + dedro) * invr)[:, None] * d
         self.forces[a1] += np.add.reduce(f, axis=0)
         self.stress -= 0.5 * np.dot(f.T, d)
 
-    def _calc_forces_c_as2(self, a1, a2, p1, p2):
-        """Calculate forces from E_c and the second term of E_AS"""
-        d = p2['d']
-        dwdr_over_w = p2['dwdr_over_w']
-        ddsigma1sdr = p2['dsigma1s'] * (dwdr_over_w - p2['eta2'])
-        ddsigma1odr = p2['dsigma1o'] * (dwdr_over_w - p1['eta2'])
-        tmp_self = -1.0 * self.deds[a1] * ddsigma1sdr
-        tmp_othr = -1.0 * self.deds[a2] * ddsigma1odr
-        f = ((tmp_self + tmp_othr) * p2['invr'])[:, None] * d
+    def _calc_fs_c_a2(self, a1, a2, d, invr, dwdrinvw, dsigma1s, dsigma1o):
+        """Calculate forces and stress from E_c and the second term of E_AS"""
+        eta2s = self.par['eta2'][self.ia2iz[a1]]
+        eta2o = self.par['eta2'][self.ia2iz[a2]]
+
+        ddsigma1sdr = dsigma1s * (dwdrinvw - eta2o)
+        ddsigma1odr = dsigma1o * (dwdrinvw - eta2s)
+        dedrs = self.deds[a1] * ddsigma1sdr
+        dedro = self.deds[a2] * ddsigma1odr
+        f = ((dedrs + dedro) * invr)[:, None] * d
         self.forces[a1] += np.add.reduce(f, axis=0)
         self.stress -= 0.5 * np.dot(f.T, d)
 
