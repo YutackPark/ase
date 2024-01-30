@@ -105,6 +105,8 @@ Git master branch
 
 Calculators:
 
+* Accelerate :class:`~ase.calculators.emt.EMT` using NumPy more (:mr:`3241`)
+
 * Remove ``ase.calculators.vasp.vasp_auxiliary.xdat2traj``. Use ``ase.io`` instead
   (:mr:`2948`)
 
