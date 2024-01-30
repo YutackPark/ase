@@ -54,7 +54,7 @@ curvature of the energy–volume curve and thus to the bulk modulus.
 .. math::
    \dot{s}_i
    = s_{i} - s_{0i}
-   = - \frac{1}{\beta \eta_{2i}} \log \frac{\sigma_{1i}}{12}
+   = - \frac{1}{\beta \eta_{2i}} \log \frac{\sigma_{1i}}{12 \gamma_{1i}}
 
 where :math:`\beta` is the constant related to the Wigner–Seitz radius and the
 first nearest neighbor distance (cf. `Tips`_).
@@ -62,7 +62,7 @@ first nearest neighbor distance (cf. `Tips`_).
 
 .. math::
    \sigma_{1i}
-   = \frac{1}{\gamma_{1i}} \sum_{j} \chi_{ij} w(r_{ij})
+   = \sum_{j} \chi_{ij} w(r_{ij})
    \exp(- \eta_{2j} (r_{ij} - \beta s_{0j}))
    = \sum_{j} \dot{\sigma}_{1ij}^\mathrm{s}
 
@@ -81,14 +81,14 @@ using their position vectors :math:`\mathbf{r}_i` and :math:`\mathbf{r}_j` by
 The contribution from atom :math:`j` is given by
 
 .. math::
-   \dot{\sigma}_{1ij}^\mathrm{s} = \frac{1}{\gamma_{1i}} \chi_{ij} w(r_{ij})
+   \dot{\sigma}_{1ij}^\mathrm{s} = \chi_{ij} w(r_{ij})
    \exp(- \eta_{2j} (r_{ij} - \beta s_{0j}))
 
 For later convenience in `Forces`_, the contribution from atom :math:`i` to
 atom :math:`j` is also written as;
 
 .. math::
-   \dot{\sigma}_{1ij}^\mathrm{o} = \frac{1}{\gamma_{1j}} \chi_{ji} w(r_{ij})
+   \dot{\sigma}_{1ij}^\mathrm{o} = \chi_{ji} w(r_{ij})
    \exp(- \eta_{2i} (r_{ij} - \beta s_{0i}))
 
 :math:`w(r)` is the smooth cutoff function given by
@@ -158,19 +158,19 @@ from atom :math:`j` to atom :math:`i`. Thus,
 .. math::
    E_{\mathrm{AS},i}^{1} = \frac{1}{2}
    \sum_{j} \frac{1}{2} \left(V_{ij}(r_{ij}) + V_{ji}(r_{ij})\right)
-   = - \frac{V_{0i}}{2} \cdot \frac{1}{2} \sum_{j}
+   = - \frac{V_{0i}}{2 \gamma_{2i}} \cdot \frac{1}{2} \sum_{j}
    (\dot{\sigma}_{2ij}^\mathrm{s} + \dot{\sigma}_{2ij}^\mathrm{o})
 
 where
 
 .. math::
    \dot{\sigma}_{2ij}^\mathrm{s}
-   = \frac{1}{\gamma_{2i}} \chi_{ij} w(r_{ij})
+   = \chi_{ij} w(r_{ij})
    \exp(-\frac{\kappa_j}{\beta} (r_{ij} - \beta s_{0j}))
 
 .. math::
    \dot{\sigma}_{2ij}^\mathrm{o}
-   = \frac{1}{\gamma_{2j}} \chi_{ji} w(r_{ij})
+   = \chi_{ji} w(r_{ij})
    \exp(-\frac{\kappa_i}{\beta} (r_{ij} - \beta s_{0i}))
 
 and further for unary perfect fcc systems,
@@ -250,7 +250,7 @@ They can be computed using
 
 .. math::
    \frac{\partial \sigma_{1i}}{\partial r_{ij}}
-   = \frac{1}{\gamma_{1i}} \chi_{ij}
+   = \chi_{ij}
    \left(
       \frac{\partial w}{\partial r_{ij}}
       \exp(-\eta_{2j} (r_{ij} - \beta s_{0j})) -
@@ -264,7 +264,7 @@ They can be computed using
 
 .. math::
    \frac{\partial \sigma_{1j}}{\partial r_{ij}}
-   = \frac{1}{\gamma_{1j}} \chi_{ji}
+   = \chi_{ji}
    \left(
       \frac{\partial w}{\partial r_{ij}}
       \exp(-\eta_{2i} (r_{ij} - \beta s_{0i})) -
@@ -282,15 +282,15 @@ The second part directly depends on :math:`r_{ij}` and given by
    \frac{\partial E_{\mathrm{AS},i}^1}{\partial r_{ij}} +
    \frac{\partial E_{\mathrm{AS},j}^1}{\partial r_{ij}}
    = - \frac{1}{2} \left(
-      V_{0i} \frac{\partial \dot{\sigma}_{2ij}^\mathrm{s}}{\partial r_{ij}} +
-      V_{0j} \frac{\partial \dot{\sigma}_{2ij}^\mathrm{o}}{\partial r_{ij}}
+      \frac{V_{0i}}{2 \gamma_{2i}} \frac{\partial \dot{\sigma}_{2ij}^\mathrm{s}}{\partial r_{ij}} +
+      \frac{V_{0j}}{2 \gamma_{2j}} \frac{\partial \dot{\sigma}_{2ij}^\mathrm{o}}{\partial r_{ij}}
    \right)
 
 where
 
 .. math::
    \frac{\partial \dot{\sigma}_{2ij}^\mathrm{s}}{\partial r_{ij}}
-   = \frac{1}{\gamma_{2i}} \chi_{ij}
+   = \chi_{ij}
    \left(
       \frac{\partial w}{\partial r_{ij}}
       \exp(-\frac{\kappa_j}{\beta} (r_{ij} - \beta s_{0j})) -
@@ -305,7 +305,7 @@ where
 
 .. math::
    \frac{\partial \dot{\sigma}_{2ij}^\mathrm{o}}{\partial r_{ij}}
-   = \frac{1}{\gamma_{2j}} \chi_{ji}
+   = \chi_{ji}
    \left(
       \frac{\partial w}{\partial r_{ij}}
       \exp(-\frac{\kappa_i}{\beta} (r_{ij} - \beta s_{0i})) -

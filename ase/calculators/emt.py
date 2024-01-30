@@ -94,8 +94,8 @@ class EMT(Calculator):
             self.par['kappa'][i] = kappa
             self.par['lambda'][i] = p[5] / Bohr
             self.par['n0'][i] = p[6] / Bohr**3
-            self.par['gamma1'][i] = gamma1
-            self.par['gamma2'][i] = gamma2
+            self.par['inv12gamma1'][i] = 1.0 / (12.0 * gamma1)
+            self.par['neghalfv0overgamma2'][i] = -0.5 * p[2] / gamma2
 
         self.chi = self.par['n0'][None, :] / self.par['n0'][:, None]
 
@@ -156,7 +156,7 @@ class EMT(Calculator):
             a2, d, r = self._get_neighbors(a1)
             if len(a2) == 0:
                 continue
-            w, dwdrinvw = self._calc_theta(r)
+            w, dwdroverw = self._calc_theta(r)
             dsigma1s, dsigma1o = self._calc_dsigma1(a1, a2, r, w)
             dsigma2s, dsigma2o = self._calc_dsigma2(a1, a2, r, w)
             ps[a1] = {
@@ -165,7 +165,7 @@ class EMT(Calculator):
                 'r': r,
                 'invr': 1.0 / r,
                 'w': w,
-                'dwdrinvw': dwdrinvw,
+                'dwdroverw': dwdroverw,
                 'dsigma1s': dsigma1s,
                 'dsigma1o': dsigma1o,
                 'dsigma2s': dsigma2s,
@@ -184,13 +184,13 @@ class EMT(Calculator):
             a2 = p['a2']
             d = p['d']
             invr = p['invr']
-            dwdrinvw = p['dwdrinvw']
+            dwdroverw = p['dwdroverw']
             dsigma1s = p['dsigma1s']
             dsigma1o = p['dsigma1o']
             dsigma2s = p['dsigma2s']
             dsigma2o = p['dsigma2o']
-            self._calc_fs_c_a2(a1, a2, d, invr, dwdrinvw, dsigma1s, dsigma1o)
-            self._calc_efs_a1(a1, a2, d, invr, dwdrinvw, dsigma2s, dsigma2o)
+            self._calc_fs_c_a2(a1, a2, d, invr, dwdroverw, dsigma1s, dsigma1o)
+            self._calc_efs_a1(a1, a2, d, invr, dwdroverw, dsigma2s, dsigma2o)
 
         # subtract E0 (ASAP convention)
         self.energies -= self.par['E0'][self.ia2iz]
@@ -220,8 +220,8 @@ class EMT(Calculator):
     def _calc_theta(self, r):
         """Calculate cutoff function and its r derivative"""
         w = 1.0 / (1.0 + np.exp(self.acut * (r - self.rc)))
-        dwdrinvw = -1.0 * self.acut * (1.0 - w)
-        return w, dwdrinvw
+        dwdroverw = self.acut * (w - 1.0)
+        return w, dwdroverw
 
     def _calc_dsigma1(self, a1, a2, r, w):
         """Calculate contributions of neighbors to sigma1"""
@@ -229,12 +229,10 @@ class EMT(Calculator):
         s0o = self.par['s0'][self.ia2iz[a2]]
         eta2s = self.par['eta2'][self.ia2iz[a1]]
         eta2o = self.par['eta2'][self.ia2iz[a2]]
-        gamma1s = self.par['gamma1'][self.ia2iz[a1]]
-        gamma1o = self.par['gamma1'][self.ia2iz[a2]]
         chi = self.chi[self.ia2iz[a1], self.ia2iz[a2]]
 
-        dsigma1s = np.exp(-eta2o * (r - beta * s0o)) * chi * w / gamma1s
-        dsigma1o = np.exp(-eta2s * (r - beta * s0s)) / chi * w / gamma1o
+        dsigma1s = np.exp(-eta2o * (r - beta * s0o)) * chi * w
+        dsigma1o = np.exp(-eta2s * (r - beta * s0s)) / chi * w
 
         return dsigma1s, dsigma1o
 
@@ -244,12 +242,10 @@ class EMT(Calculator):
         s0o = self.par['s0'][self.ia2iz[a2]]
         kappas = self.par['kappa'][self.ia2iz[a1]]
         kappao = self.par['kappa'][self.ia2iz[a2]]
-        gamma2s = self.par['gamma2'][self.ia2iz[a1]]
-        gamma2o = self.par['gamma2'][self.ia2iz[a2]]
         chi = self.chi[self.ia2iz[a1], self.ia2iz[a2]]
 
-        dsigma2s = np.exp(-kappao * (r / beta - s0o)) * chi * w / gamma2s
-        dsigma2o = np.exp(-kappas * (r / beta - s0s)) / chi * w / gamma2o
+        dsigma2s = np.exp(-kappao * (r / beta - s0o)) * chi * w
+        dsigma2o = np.exp(-kappas * (r / beta - s0s)) / chi * w
 
         return dsigma2s, dsigma2o
 
@@ -260,9 +256,10 @@ class EMT(Calculator):
         eta2s = self.par['eta2'][self.ia2iz[a1]]
         lmds = self.par['lambda'][self.ia2iz[a1]]
         kappas = self.par['kappa'][self.ia2iz[a1]]
+        inv12gamma1s = self.par['inv12gamma1'][self.ia2iz[a1]]
 
         sigma1 = np.add.reduce(dsigma1s)
-        ds = -1.0 * np.log(sigma1 / 12.0) / (beta * eta2s)
+        ds = -1.0 * np.log(sigma1 * inv12gamma1s) / (beta * eta2s)
 
         lmdsds = lmds * ds
         expneglmdds = np.exp(-1.0 * lmdsds)
@@ -275,30 +272,30 @@ class EMT(Calculator):
 
         self.deds[a1] /= -1.0 * beta * eta2s * sigma1  # factor from ds/dr
 
-    def _calc_efs_a1(self, a1, a2, d, invr, dwdrinvw, dsigma2s, dsigma2o):
+    def _calc_efs_a1(self, a1, a2, d, invr, dwdroverw, dsigma2s, dsigma2o):
         """Calculate the first term of E_AS and derivatives"""
-        v0s = self.par['V0'][self.ia2iz[a1]]
-        v0o = self.par['V0'][self.ia2iz[a2]]
+        neghalfv0overgamma2s = self.par['neghalfv0overgamma2'][self.ia2iz[a1]]
+        neghalfv0overgamma2o = self.par['neghalfv0overgamma2'][self.ia2iz[a2]]
         kappas = self.par['kappa'][self.ia2iz[a1]]
         kappao = self.par['kappa'][self.ia2iz[a2]]
 
-        es = -0.5 * v0s * dsigma2s
-        eo = -0.5 * v0o * dsigma2o
+        es = neghalfv0overgamma2s * dsigma2s
+        eo = neghalfv0overgamma2o * dsigma2o
         self.energies[a1] += 0.5 * np.add.reduce(es + eo, axis=0)
 
-        dedrs = es * (dwdrinvw - kappao / beta)
-        dedro = eo * (dwdrinvw - kappas / beta)
+        dedrs = es * (dwdroverw - kappao / beta)
+        dedro = eo * (dwdroverw - kappas / beta)
         f = ((dedrs + dedro) * invr)[:, None] * d
         self.forces[a1] += np.add.reduce(f, axis=0)
         self.stress += 0.5 * np.dot(d.T, f)  # compensate double counting
 
-    def _calc_fs_c_a2(self, a1, a2, d, invr, dwdrinvw, dsigma1s, dsigma1o):
+    def _calc_fs_c_a2(self, a1, a2, d, invr, dwdroverw, dsigma1s, dsigma1o):
         """Calculate forces and stress from E_c and the second term of E_AS"""
         eta2s = self.par['eta2'][self.ia2iz[a1]]
         eta2o = self.par['eta2'][self.ia2iz[a2]]
 
-        ddsigma1sdr = dsigma1s * (dwdrinvw - eta2o)
-        ddsigma1odr = dsigma1o * (dwdrinvw - eta2s)
+        ddsigma1sdr = dsigma1s * (dwdroverw - eta2o)
+        ddsigma1odr = dsigma1o * (dwdroverw - eta2s)
         dedrs = self.deds[a1] * ddsigma1sdr
         dedro = self.deds[a2] * ddsigma1odr
         f = ((dedrs + dedro) * invr)[:, None] * d
