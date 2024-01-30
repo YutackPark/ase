@@ -41,14 +41,23 @@ class EMT(Calculator):
     are not for any serious use:
     H, C, N, O
 
-    The potential takes a single argument, ``asap_cutoff``
-    (default: False).  If set to True, the cutoff mimics
-    how Asap does it; most importantly the global cutoff
-    is chosen from the largest atom present in the simulation,
-    if False it is chosen from the largest atom in the parameter
-    table.  True gives the behaviour of the Asap code and
-    older EMT implementations, although the results are not
-    bitwise identical.
+    Parameters
+    ----------
+    asap_cutoff : bool, default: False
+        If True the cutoff mimics how ASAP does it; most importantly the global
+        cutoff is chosen from the largest atom present in the simulation.
+        If False it is chosen from the largest atom in the parameter table.
+        True gives the behaviour of ASAP and older EMT implementations,
+        although the results are not bitwise identical.
+
+    Notes
+    -----
+    Formulation mostly follows Jacobsen *et al*. [1]_
+    `Documentation in ASAP can also be referred to <https://gitlab.com/asap/
+    asap/blob/master/docs/manual/potentials/emt.pdf>`_.
+
+    .. [1] K. W. Jacobsen, P. Stoltze, and J. K. Nørskov,
+       Surf. Sci. 366, 394 (1996).
     """
     implemented_properties = ['energy', 'free_energy', 'energies', 'forces',
                               'stress', 'magmom', 'magmoms']
