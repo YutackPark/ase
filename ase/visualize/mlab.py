@@ -23,6 +23,11 @@ def plot(atoms, data, contours):
 
     # Delay slow imports:
     from mayavi import mlab
+    import os
+    # mayavi GUI bug fix for remote access via ssh (X11 forwarding)
+    if "SSH_CONNECTION" in os.environ:
+        f = mlab.gcf()
+        f.scene._lift()
 
     mlab.figure(1, bgcolor=(1, 1, 1))  # make a white figure
 
