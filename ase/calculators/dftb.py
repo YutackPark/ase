@@ -108,11 +108,15 @@ class Dftb(FileIOCalculator):
                 Hamiltonian_SlaterKosterFiles_Suffix='".skf"',
                 Hamiltonian_MaxAngularMomentum_='',
                 Options_='',
-                Options_WriteResultsTag='Yes')
+                Options_WriteResultsTag='Yes',
+                ParserOptions_='',
+                ParserOptions_IgnoreUnprocessedNodes='Yes')
         else:
             self.default_parameters = dict(
                 Options_='',
-                Options_WriteResultsTag='Yes')
+                Options_WriteResultsTag='Yes',
+                ParserOptions_='',
+                ParserOptions_IgnoreUnprocessedNodes='Yes')
 
         self.pcpot = None
         self.lines = None
@@ -219,15 +223,19 @@ class Dftb(FileIOCalculator):
                     l = read_max_angular_momentum(path)
                     params[s + symbol] = '"{}"'.format('spdf'[l])
 
+        if self.do_forces:
+            params['Analysis_'] = ''
+            params['Analysis_CalculateForces'] = 'Yes'
+
         # --------MAIN KEYWORDS-------
         previous_key = 'dummy_'
         myspace = ' '
         for key, value in sorted(params.items()):
             current_depth = key.rstrip('_').count('_')
             previous_depth = previous_key.rstrip('_').count('_')
-            for my_backsclash in reversed(
+            for my_backslash in reversed(
                     range(previous_depth - current_depth)):
-                outfile.write(3 * (1 + my_backsclash) * myspace + '} \n')
+                outfile.write(3 * (1 + my_backslash) * myspace + '} \n')
             outfile.write(3 * current_depth * myspace)
             if key.endswith('_') and len(value) > 0:
                 outfile.write(key.rstrip('_').rsplit('_')[-1] +
@@ -266,15 +274,8 @@ class Dftb(FileIOCalculator):
                 outfile.write('   } \n')
             previous_key = key
         current_depth = key.rstrip('_').count('_')
-        for my_backsclash in reversed(range(current_depth)):
-            outfile.write(3 * my_backsclash * myspace + '} \n')
-        outfile.write('ParserOptions { \n')
-        outfile.write('   IgnoreUnprocessedNodes = Yes  \n')
-        outfile.write('} \n')
-        if self.do_forces:
-            outfile.write('Analysis { \n')
-            outfile.write('   CalculateForces = Yes  \n')
-            outfile.write('} \n')
+        for my_backslash in reversed(range(current_depth)):
+            outfile.write(3 * my_backslash * myspace + '} \n')
 
     def check_state(self, atoms):
         system_changes = FileIOCalculator.check_state(self, atoms)
