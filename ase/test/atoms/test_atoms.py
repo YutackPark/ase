@@ -53,6 +53,22 @@ def test_get_com(zlength):
                               scaledref, tol=1e-8)
 
 
+@pytest.mark.parametrize('indices', [[0, 1], slice(0, 2), "0:2"])
+def test_get_com_indices(indices):
+    """Test get_center_of_mass(indices=...)"""
+    positions = [
+        [-0.3, 0.0, +0.3],
+        [-0.3, 0.0, -0.3],
+        [+0.3, 0.0, +0.3],
+        [+0.3, 0.0, -0.3],
+    ]
+    atoms = Atoms('HHHH', positions=positions)
+    np.testing.assert_almost_equal(
+        atoms.get_center_of_mass(indices=indices),
+        [-0.3, 0.0, 0.0],
+    )
+
+
 @pytest.mark.parametrize('scaled', [True, False])
 @pytest.mark.parametrize('symbols', ['CO', 'H2'])
 def test_set_com(scaled, symbols):

@@ -162,6 +162,10 @@ Example of use::
   >>> c = FixCom()
   >>> atoms.set_constraint(c)
 
+The FixSubsetCom class
+======================
+
+.. autoclass:: FixSubsetCom
 
 The Hookean class
 =================
