@@ -9,6 +9,12 @@ Git master branch
 
 :git:`master <>`.
 
+* Add :class:`~ase.constraints.FixSubsetCom` to fix the center of mass of the
+  specified subset of atoms (:mr:`3193`).
+
+* Add the ``indices`` option to :meth:`ase.Atoms.get_center_of_mass` to compute
+  the center of mass of the specified subset of atoms (:mr:`3193`).
+
 * All saddle-point search and minimum-energy path methods have been moved
   into a new :mod:`ase.mep` module. You should start importing from this
   location; e.g., ``from ase.mep import NEB, DyNEB`` (:mr:`2974`).

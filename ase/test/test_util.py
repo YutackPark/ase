@@ -6,6 +6,7 @@ from ase.utils import (
     deprecated,
     devnull,
     get_python_package_path_description,
+    string2index,
     tokenize_version,
 )
 
@@ -165,6 +166,34 @@ class Dummy:
     @property
     def __path__(self):
         return DummyIterator()
+
+
+class TestString2Index:
+    """Test `string2index`"""
+    def test_zero(self):
+        """Test 0"""
+        assert string2index("0") == 0
+
+    def test_last(self):
+        """Test -1"""
+        assert string2index("-1") == -1
+
+    def test_last_two(self):
+        """Test -2:"""
+        assert string2index("-2:") == slice(-2, None)
+
+    def test_all(self):
+        """Test :"""
+        assert string2index(":") == slice(None)
+
+    def test_even(self):
+        """Test ::2"""
+        assert string2index("::2") == slice(None, None, 2)
+
+    def test_three_colons(self):
+        """Test invalid index string with three colons"""
+        with pytest.raises(TypeError):
+            string2index(":::")
 
 
 def test_get_python_package_path_description():

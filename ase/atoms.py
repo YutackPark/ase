@@ -18,7 +18,7 @@ from ase.cell import Cell
 from ase.data import atomic_masses, atomic_masses_common
 from ase.stress import full_3x3_to_voigt_6_stress, voigt_6_to_full_3x3_stress
 from ase.symbols import Symbols, symbols2numbers
-from ase.utils import deprecated
+from ase.utils import deprecated, string2index
 
 
 class Atoms:
@@ -1325,17 +1325,26 @@ class Atoms:
 
         self.positions += translation
 
-    def get_center_of_mass(self, scaled=False):
+    def get_center_of_mass(self, scaled=False, indices=None):
         """Get the center of mass.
 
-        If scaled=True the center of mass in scaled coordinates
-        is returned."""
-        masses = self.get_masses()
-        com = masses @ self.positions / masses.sum()
+        Parameters
+        ----------
+        scaled : bool
+            If True, the center of mass in scaled coordinates is returned.
+        indices : list | slice | str, default: None
+            If specified, the center of mass of a subset of atoms is returned.
+        """
+        if indices is None:
+            indices = slice(None)
+        elif isinstance(indices, str):
+            indices = string2index(indices)
+
+        masses = self.get_masses()[indices]
+        com = masses @ self.positions[indices] / masses.sum()
         if scaled:
             return self.cell.scaled_positions(com)
-        else:
-            return com
+        return com  # Cartesian coordinates
 
     def set_center_of_mass(self, com, scaled=False):
         """Set the center of mass.

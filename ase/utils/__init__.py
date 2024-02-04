@@ -473,6 +473,18 @@ def pbc2pbc(pbc):
     return newpbc
 
 
+def string2index(stridx: str) -> Union[int, slice, str]:
+    """Convert index string to either int or slice"""
+    if ':' not in stridx:
+        # may contain database accessor
+        try:
+            return int(stridx)
+        except ValueError:
+            return stridx
+    i = [None if s == '' else int(s) for s in stridx.split(':')]
+    return slice(*i)
+
+
 def hsv2rgb(h, s, v):
     """http://en.wikipedia.org/wiki/HSL_and_HSV
 
