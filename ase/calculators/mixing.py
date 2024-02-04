@@ -26,12 +26,6 @@ class Mixer:
     def check_input(calcs, weights):
         if len(calcs) == 0:
             raise CalculatorSetupError("Please provide a list of Calculators")
-        for calc in calcs:
-            if not isinstance(calc, BaseCalculator):
-                raise CalculatorSetupError(
-                    "All Calculators should inherit"
-                    " from the BaseCalculator class"
-                )
         if len(weights) != len(calcs):
             raise ValueError(
                 "The length of the weights must be the same as"
