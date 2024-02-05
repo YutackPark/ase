@@ -70,7 +70,7 @@ class EMT(Calculator):
         Calculator.__init__(self, **kwargs)
 
     def initialize(self, atoms):
-        self.rc, self.rc_list, self.acut = self._calc_rc(atoms)
+        self.rc, self.rc_list, self.acut = self._calc_cutoff(atoms)
 
         numbers = atoms.get_atomic_numbers()
 
@@ -107,8 +107,35 @@ class EMT(Calculator):
         self.nl = NeighborList([0.5 * self.rc_list] * len(atoms),
                                self_interaction=False, bothways=True)
 
-    def _calc_rc(self, atoms):
-        """Calculate the cutoff radius etc."""
+    def _calc_cutoff(self, atoms):
+        """Calculate parameters of the logistic smoothing function etc.
+
+        The logistic smoothing function is given by
+
+        .. math:
+
+            w(r) = \\frac{1}{1 + \\exp a (r - r_\\mathrm{c})}
+
+        Returns
+        -------
+        rc : float
+            "Midpoint" of the logistic smoothing function, set to be the mean
+            of the 3rd and the 4th nearest-neighbor distances in FCC.
+        rc_list : float
+            Cutoff radius for the neighbor search, set to be slightly larger
+            than ``rc`` depending on ``asap_cutoff``.
+        acut : float
+            "Slope" of the smoothing function, set for the smoothing function
+            value to be ``1e-4`` at the 4th nearest-neighbor distance in FCC.
+
+        Notes
+        -----
+        ``maxseq`` is the present FCC Wigner-Seitz radius. ``beta * maxseq``
+        (`r1nn`) is the corresponding 1st nearest-neighbor distance in FCC.
+        The 2nd, 3rd, 4th nearest-neighbor distances in FCC are given using
+        ``r1nn`` by ``sqrt(2) * r1nn``, ``sqrt(3) * r1nn``, ``sqrt(4) * r1nn``,
+        respectively.
+        """
         numbers = atoms.get_atomic_numbers()
         if self.parameters['asap_cutoff']:
             relevant_pars = {}
@@ -118,10 +145,16 @@ class EMT(Calculator):
         else:
             relevant_pars = parameters
         maxseq = max(par[1] for par in relevant_pars.values()) * Bohr
-        rc = beta * maxseq * 0.5 * (sqrt(3) + sqrt(4))  # mid 3 and 4NN dist.
-        rr = beta * maxseq * 2.0  # 4NN dist.
-        acut = log(9999.0) / (rr - rc)  # slope at rr is 1e-4
+        r1nn = beta * maxseq  # 1st NN distance in FCC
+        rc = r1nn * 0.5 * (sqrt(3.0) + 2.0)  # mean of 3NN and 4NN dists.
+        r4nn = r1nn * 2.0  # 4NN distance in FCC
+        eps = 1e-4  # value at r4nn, should be small
+
+        # "slope" is set so that the function value becomes eps at r4nn
+        acut = log(1.0 / eps - 1.0) / (r4nn - rc)
+
         rc_list = rc * 1.045 if self.parameters['asap_cutoff'] else rc + 0.5
+
         return rc, rc_list, acut
 
     def _calc_gammas(self, s0, eta2, kappa):
