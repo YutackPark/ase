@@ -888,6 +888,11 @@ class PrimitiveNeighborList:
     This is less fancy, but can be used to avoid conversions between
     scaled and non-scaled coordinates which may affect cell offsets
     through rounding errors.
+
+    Attributes
+    ----------
+    nupdates : int
+        Number of updated times.
     """
 
     def __init__(self, cutoffs, skin=0.3, sorted=False, self_interaction=True,
@@ -903,7 +908,13 @@ class PrimitiveNeighborList:
         self.npbcneighbors = 0
 
     def update(self, pbc, cell, coordinates):
-        """Make sure the list is up to date."""
+        """Make sure the list is up to date.
+
+        Returns
+        -------
+        bool
+            True if the neighbor list is updated.
+        """
 
         if self.nupdates == 0:
             self.build(pbc, cell, coordinates)
@@ -1005,6 +1016,9 @@ class PrimitiveNeighborList:
             displacements2 = [[] for a in range(natoms)]
             for a in range(natoms):
                 for b, disp in zip(self.neighbors[a], self.displacements[a]):
+                    # avoid double counting of self interaction
+                    if a == b and (disp == 0).all():
+                        continue
                     neighbors2[b].append(a)
                     displacements2[b].append(-disp)
             for a in range(natoms):
@@ -1015,19 +1029,17 @@ class PrimitiveNeighborList:
                 self.displacements[a] = disp.astype(int).reshape((-1, 3))
 
         if self.sorted:
-            for a, i in enumerate(self.neighbors):
-                mask = (i < a)
-                if mask.any():
-                    j = i[mask]
-                    offsets = self.displacements[a][mask]
-                    for b, offset in zip(j, offsets):
-                        self.neighbors[b] = np.concatenate(
-                            (self.neighbors[b], [a]))
-                        self.displacements[b] = np.concatenate(
-                            (self.displacements[b], [-offset]))
-                    mask = np.logical_not(mask)
-                    self.neighbors[a] = self.neighbors[a][mask]
-                    self.displacements[a] = self.displacements[a][mask]
+            for a in range(natoms):
+                # sort first by neighbors and then offsets
+                keys = (
+                    self.displacements[a][:, 2],
+                    self.displacements[a][:, 1],
+                    self.displacements[a][:, 0],
+                    self.neighbors[a],
+                )
+                mask = np.lexsort(keys)
+                self.neighbors[a] = self.neighbors[a][mask]
+                self.displacements[a] = self.displacements[a][mask]
 
     def get_neighbors(self, a):
         """Return neighbors of atom number a.

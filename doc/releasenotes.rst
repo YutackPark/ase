@@ -220,6 +220,10 @@ Calculators:
 
 Algorithms:
 
+* Fix bugs in :class:`~ase.neighborlist.PrimitiveNeighborList` when used with
+  ``bothways=True`` and either ``self_interaction=True`` or ``sorted=True``
+  (:mr:`3239`)
+
 * Change :func:`ase.optimize.optimize.Dynamics.irun` so that it yields its
   convergence status *after* logging and dumping for the corresponding step
   (:issue:`1339`; :mr:`3072`)
