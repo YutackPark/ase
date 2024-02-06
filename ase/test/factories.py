@@ -250,23 +250,21 @@ class DFTD3Factory:
 @factory('elk')
 class ElkFactory:
     def __init__(self, cfg):
-        self.executable = cfg.parser['elk']['binary']
+        self.profile = ELK.load_argv_profile(cfg, 'elk')
         self.species_dir = cfg.parser['elk']['species_dir']
 
     def version(self):
-        output = read_stdout([self.executable])
+        output = read_stdout(self.profile.argv)
         match = re.search(r'Elk code version (\S+)', output, re.M)
         return match.group(1)
 
     def calc(self, **kwargs):
-        command = f'{self.executable} > elk.out'
-        return ELK(command=command, species_dir=self.species_dir, **kwargs)
+        return ELK(profile=self.profile, species_dir=self.species_dir, **kwargs)
 
 
 @factory('espresso')
 class EspressoFactory:
     def __init__(self, cfg):
-
         self.profile = EspressoTemplate().load_profile(cfg)
 
     def version(self):
