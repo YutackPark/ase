@@ -974,6 +974,13 @@ class OldShellProfile:
 
 @dataclass
 class FileIORules:
+    """Rules for controlling streams options to external command.
+
+    FileIOCalculator will direct stdin and stdout and append arguments
+    to the calculator command using the specifications on this class.
+
+    Currently names can contain "{prefix}" which will be substituted by
+    calc.prefix.  This will go away if/when we can remove prefix."""
     extend_argv: Sequence[str] = tuple()
     stdin_name: Optional[str] = None
     stdout_name: Optional[str] = None
