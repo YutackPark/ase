@@ -268,7 +268,7 @@ class EspressoFactory:
         self.profile = EspressoTemplate().load_profile(cfg)
 
     def version(self):
-        return self.profile().version()
+        return self.profile.version()
 
     @lazyproperty
     def pseudopotentials(self):
@@ -317,11 +317,10 @@ class ExcitingFactory:
 @factory('mopac')
 class MOPACFactory:
     def __init__(self, cfg):
-        self.executable = cfg.parser['mopac']['binary']
+        self.profile = MOPAC.load_argv_profile(cfg, 'mopac')
 
     def calc(self, **kwargs):
-        command = f'{self.executable} PREFIX.mop 2> /dev/null'
-        return MOPAC(command=command, **kwargs)
+        return MOPAC(profile=self.profile, **kwargs)
 
     def version(self):
         cwd = Path('.').absolute()
