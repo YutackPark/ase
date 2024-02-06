@@ -986,13 +986,16 @@ class ArgvProfile:
 
     def execute(self, calc):
         try:
-            self._execute(calc)
+            self._call(calc, subprocess.check_call)
         except subprocess.CalledProcessError as err:
             msg = (f'Calculator {self.name} failed with args {err.args} '
                    f'in directory {directory}')
             raise CalculationFailed(msg) from err
 
-    def _execute(self, calc):
+    def execute_nonblocking(self, calc):
+        return self._call(calc, subprocess.Popen)
+
+    def _call(self, calc, subprocess_function):
         from contextlib import ExitStack
 
         fileio_rules = getattr(calc, 'fileio_rules', None)
@@ -1013,9 +1016,10 @@ class ArgvProfile:
 
             argv = [*self.argv, *fileio_rules.extend_argv]
             argv = [arg.format(prefix=calc.prefix) for arg in argv]
-            subprocess.run(argv, cwd=directory, check=True,
-                           stdout=stdout_fd,
-                           stdin=stdin_fd)
+            return subprocess_function(
+                argv, cwd=directory,
+                stdout=stdout_fd,
+                stdin=stdin_fd)
 
     @classmethod
     def from_config_section(cls, name, section):
@@ -1080,13 +1084,13 @@ class FileIOCalculator(Calculator):
         self.profile.command = command
 
     @classmethod
-    def load_argv_profile(cls, cfg, name):
+    def load_argv_profile(cls, cfg, section_name):
         import shlex
         # Helper method to load configuration.
         # This is used by the tests, do not rely on this as it will change.
-        section = cfg.parser[name]
+        section = cfg.parser[section_name]
         argv = shlex.split(section['command'])
-        return ArgvProfile(name, argv)
+        return ArgvProfile(section_name, argv)
 
     def _initialize_profile(self, command):
         if command is None:
