@@ -83,9 +83,9 @@ class CodeMetadata:
         cls = self.calculator_class()
         if issubclass(cls, CalculatorTemplate):
             return cls().load_profile(cfg)
-        elif issubclass(cls, FileIOCalculator):
-            return ArgvProfile.from_config_section(
-                self.name, cfg.parser[self.name])
+        elif hasattr(cls, 'fileio_rules'):
+            assert issubclass(cls, FileIOCalculator)
+            return cls.load_argv_profile(cfg, self.name)
         else:
             raise NotImplementedError('profile() not implemented')
 

@@ -1022,14 +1022,6 @@ class ArgvProfile:
                 stdout=stdout_fd,
                 stdin=stdin_fd)
 
-    @classmethod
-    def from_config_section(cls, name, section):
-        try:
-            return cls(name, section['argv'])
-        except KeyError as err:
-            from ase.calculators.genericfileio import BadConfiguration
-            raise BadConfiguration(*err.args)
-
 
 class FileIOCalculator(Calculator):
     """Base class for calculators that write/read input/output files."""
