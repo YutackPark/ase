@@ -81,6 +81,13 @@ Listed in alphabetical order, for want of a better approach.
  * `matgl <https://github.com/materialsvirtuallab/matgl>`_:
    Graph deep learning library for materials
 
+ * `matscipy <https://github.com/libAtoms/matscipy>`_:
+   matscipy is a generic materials science toolbox built around ASE.
+   It provides useful routines for plasticity and dislocations, fracture
+   mechanics, electro-chemistry, tribology, and elastic properties.
+   In addition to domain-specific routines, it also implements a set of
+   general-purpose, low-level utilities such as efficient neighbour lists.
+
  * `NequIP <https://github.com/mir-group/nequip>`_:
    Euclidian Equivariant neural network potentials.  Nequip can fit
    neural network potentials to series of DFT calculations (using

@@ -397,6 +397,12 @@ class PhaseDiagram:
             # Simple case that qhull would choke on:
             self.simplices = np.arange(ns).reshape((1, ns))
             self.hull = np.ones(ns, bool)
+        elif ns == 1:
+            # qhull also doesn't like ns=1:
+            i = self.points[:, 1].argmin()
+            self.simplices = np.array([[i]])
+            self.hull = np.zeros(len(self.points), bool)
+            self.hull[i] = True
         else:
             hull = ConvexHull(self.points[:, 1:])
 
@@ -441,7 +447,7 @@ class PhaseDiagram:
 
         # Find the simplex with positive coordinates that sum to
         # less than one:
-        eps = 1e-15
+        eps = 1e-14
         for i, Y in enumerate(X):
             try:
                 x = np.linalg.solve((Y[1:] - Y[:1]).T, -Y[0])

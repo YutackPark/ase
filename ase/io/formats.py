@@ -30,6 +30,7 @@ from importlib import import_module
 
 from ase.atoms import Atoms
 from ase.parallel import parallel_function, parallel_generator
+from ase.utils import string2index
 from ase.utils.plugins import ExternalIOFormat
 
 PEEK_BYTES = 50000
@@ -904,24 +905,6 @@ def match_magic(data: bytes) -> IOFormat:
         if ioformat.match_magic(data):
             return ioformat
     raise UnknownFileTypeError('Cannot guess file type from contents')
-
-
-def string2index(string: str) -> Union[int, slice, str]:
-    """Convert index string to either int or slice"""
-    if ':' not in string:
-        # may contain database accessor
-        try:
-            return int(string)
-        except ValueError:
-            return string
-    i: List[Optional[int]] = []
-    for s in string.split(':'):
-        if s == '':
-            i.append(None)
-        else:
-            i.append(int(s))
-    i += (3 - len(i)) * [None]
-    return slice(*i)
 
 
 def filetype(
