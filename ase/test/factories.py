@@ -9,9 +9,11 @@ import pytest
 from ase import Atoms
 
 from ase.calculators.calculator import get_calculator_class
-from ase.calculators.names import (names as calculator_names,
-                                   builtin)
+from ase.calculators.dftb import Dftb
 from ase.calculators.genericfileio import read_stdout
+from ase.calculators.names import names as calculator_names, builtin
+from ase.calculators.nwchem import NWChem
+from ase.calculators.siesta import Siesta
 from ase.config import Config
 from ase.utils import lazyproperty
 
@@ -213,21 +215,18 @@ class CastepFactory:
 @factory('dftb')
 class DFTBFactory:
     def __init__(self, cfg):
-        self.executable = cfg.parser['dftb']['binary']
+        self.profile = Dftb.load_argv_profile(cfg, 'dftb')
         self.skt_path = cfg.parser['dftb']['skt_paths']  # multiple paths?
         # assert len(self.skt_paths) == 1  # XXX instructive error?
 
     def version(self):
-        stdout = read_stdout([self.executable])
+        stdout = read_stdout(self.profile.argv)
         match = re.search(r'DFTB\+ release\s*(\S+)', stdout, re.M)
         return match.group(1)
 
     def calc(self, **kwargs):
-        from ase.calculators.dftb import Dftb
-
-        command = f'{self.executable} > PREFIX.out'
         return Dftb(
-            command=command,
+            profile=self.profile,
             slako_dir=str(self.skt_path) + '/',  # XXX not obvious
             **kwargs,
         )
@@ -569,8 +568,6 @@ class OrcaFactory:
 @factory('siesta')
 class SiestaFactory:
     def __init__(self, cfg):
-        from ase.calculators.siesta import Siesta
-        self.Siesta = Siesta
         self.profile = Siesta.load_argv_profile(cfg, 'siesta')
         self.pseudo_path = str(cfg.parser['siesta']['pseudo_path'])
 
@@ -584,7 +581,7 @@ class SiestaFactory:
         return full_ver
 
     def calc(self, **kwargs):
-        return self.Siesta(
+        return Siesta(
             profile=self.profile, pseudo_path=str(self.pseudo_path), **kwargs
         )
 
@@ -603,7 +600,6 @@ class SiestaFactory:
 @factory('nwchem')
 class NWChemFactory:
     def __init__(self, cfg):
-        from ase.calculators.nwchem import NWChem
         self.NWChem = NWChem
         self.profile = NWChem.load_argv_profile(cfg, 'nwchem')
 

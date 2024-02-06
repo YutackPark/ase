@@ -988,6 +988,7 @@ class ArgvProfile:
         try:
             self._call(calc, subprocess.check_call)
         except subprocess.CalledProcessError as err:
+            directory = Path(calc.directory).resolve()
             msg = (f'Calculator {self.name} failed with args {err.args} '
                    f'in directory {directory}')
             raise CalculationFailed(msg) from err
@@ -998,8 +999,8 @@ class ArgvProfile:
     def _call(self, calc, subprocess_function):
         from contextlib import ExitStack
 
-        fileio_rules = getattr(calc, 'fileio_rules', None)
         directory = Path(calc.directory).resolve()
+        fileio_rules = calc.fileio_rules
 
         with ExitStack() as stack:
 
