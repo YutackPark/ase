@@ -7,14 +7,26 @@ import importlib.util
 import pytest
 
 from ase import Atoms
-
+from ase.calculators.abinit import Abinit, AbinitTemplate
+from ase.calculators.aims import Aims, AimsTemplate
 from ase.calculators.calculator import get_calculator_class
+from ase.calculators.castep import Castep, get_castep_version
+from ase.calculators.cp2k import CP2K, Cp2kShell
 from ase.calculators.dftb import Dftb
+from ase.calculators.dftd3 import DFTD3
+from ase.calculators.elk import ELK
+from ase.calculators.espresso import Espresso, EspressoTemplate
+from ase.calculators.exciting.exciting import (
+    ExcitingGroundStateCalculator, ExcitingGroundStateTemplate)
 from ase.calculators.genericfileio import read_stdout
+from ase.calculators.gromacs import Gromacs, get_gromacs_version
+from ase.calculators.mopac import MOPAC
 from ase.calculators.names import names as calculator_names, builtin
 from ase.calculators.nwchem import NWChem
 from ase.calculators.siesta import Siesta
+from ase.calculators.vasp import Vasp, get_vasp_version
 from ase.config import Config
+from ase.io.espresso import Namelist
 from ase.utils import lazyproperty
 
 
@@ -115,7 +127,6 @@ def make_factory_fixture(name):
 @factory('abinit')
 class AbinitFactory:
     def __init__(self, cfg):
-        from ase.calculators.abinit import AbinitTemplate
         self._profile = AbinitTemplate().load_profile(cfg)
 
     def version(self):
@@ -125,7 +136,6 @@ class AbinitFactory:
         return dict(ecut=150, chksymbreak=0, toldfe=1e-3)
 
     def calc(self, **kwargs):
-        from ase.calculators.abinit import Abinit
         kwargs = {**self._base_kw(), **kwargs}
         return Abinit(profile=self._profile, **kwargs)
 
@@ -144,12 +154,9 @@ class AbinitFactory:
 @factory('aims')
 class AimsFactory:
     def __init__(self, cfg):
-        from ase.calculators.aims import AimsTemplate
         self._profile = AimsTemplate().load_profile(cfg)
 
     def calc(self, **kwargs):
-        from ase.calculators.aims import Aims
-
         kwargs1 = dict(xc='LDA')
         kwargs1.update(kwargs)
         return Aims(profile=self._profile, **kwargs1)
@@ -187,12 +194,10 @@ class CP2KFactory:
         self.executable = cfg.parser['cp2k']['cp2k_shell']
 
     def version(self):
-        from ase.calculators.cp2k import Cp2kShell
         shell = Cp2kShell(self.executable, debug=False)
         return shell.version
 
     def calc(self, **kwargs):
-        from ase.calculators.cp2k import CP2K
         return CP2K(command=self.executable, **kwargs)
 
 
@@ -202,13 +207,9 @@ class CastepFactory:
         self.executable = cfg.parser['castep']['binary']
 
     def version(self):
-        from ase.calculators.castep import get_castep_version
-
         return get_castep_version(self.executable)
 
     def calc(self, **kwargs):
-        from ase.calculators.castep import Castep
-
         return Castep(castep_command=self.executable, **kwargs)
 
 
@@ -243,8 +244,6 @@ class DFTD3Factory:
         self.executable = cfg.parser['dftd3']['binary']
 
     def calc(self, **kwargs):
-        from ase.calculators.dftd3 import DFTD3
-
         return DFTD3(command=self.executable, **kwargs)
 
 
@@ -260,8 +259,6 @@ class ElkFactory:
         return match.group(1)
 
     def calc(self, **kwargs):
-        from ase.calculators.elk import ELK
-
         command = f'{self.executable} > elk.out'
         return ELK(command=command, species_dir=self.species_dir, **kwargs)
 
@@ -269,7 +266,7 @@ class ElkFactory:
 @factory('espresso')
 class EspressoFactory:
     def __init__(self, cfg):
-        from ase.calculators.espresso import EspressoTemplate
+
         self.profile = EspressoTemplate().load_profile(cfg)
 
     def version(self):
@@ -286,9 +283,6 @@ class EspressoFactory:
         return pseudopotentials
 
     def calc(self, **kwargs):
-        from ase.calculators.espresso import Espresso
-        from ase.io.espresso import Namelist
-
         input_data = Namelist(kwargs.pop("input_data", None))
         input_data.to_nested()
         input_data["system"].setdefault("ecutwfc", 22.05)
@@ -307,18 +301,12 @@ class ExcitingFactory:
     """Factory to run exciting tests."""
 
     def __init__(self, cfg):
-        from ase.calculators.exciting.exciting import (
-            ExcitingGroundStateTemplate)
-
         # Where do species come from?  We do not have them in ase-datafiles.
         # We should specify species_path.
         self._profile = ExcitingGroundStateTemplate().load_profile(cfg)
 
     def calc(self, **kwargs):
         """Get instance of Exciting Ground state calculator."""
-        from ase.calculators.exciting.exciting import (
-            ExcitingGroundStateCalculator)
-
         return ExcitingGroundStateCalculator(
             ground_state_input=kwargs, species_path=self._profile.species_path
         )
@@ -334,8 +322,6 @@ class MOPACFactory:
         self.executable = cfg.parser['mopac']['binary']
 
     def calc(self, **kwargs):
-        from ase.calculators.mopac import MOPAC
-
         command = f'{self.executable} PREFIX.mop 2> /dev/null'
         return MOPAC(command=command, **kwargs)
 
@@ -359,14 +345,10 @@ class VaspFactory:
         self.executable = cfg.parser['vasp']['binary']
 
     def version(self):
-        from ase.calculators.vasp import get_vasp_version
-
         header = read_stdout([self.executable], createfile='INCAR')
         return get_vasp_version(header)
 
     def calc(self, **kwargs):
-        from ase.calculators.vasp import Vasp
-
         # XXX We assume the user has set VASP_PP_PATH
         if Vasp.VASP_PP_PATH not in os.environ:
             # For now, we skip with a message that we cannot run the test
@@ -422,13 +404,9 @@ class GromacsFactory:
         self.executable = cfg.parser['gromacs']['binary']
 
     def version(self):
-        from ase.calculators.gromacs import get_gromacs_version
-
         return get_gromacs_version(self.executable)
 
     def calc(self, **kwargs):
-        from ase.calculators.gromacs import Gromacs
-
         return Gromacs(command=self.executable, **kwargs)
 
 
@@ -600,7 +578,6 @@ class SiestaFactory:
 @factory('nwchem')
 class NWChemFactory:
     def __init__(self, cfg):
-        self.NWChem = NWChem
         self.profile = NWChem.load_argv_profile(cfg, 'nwchem')
 
     def version(self):
@@ -613,7 +590,7 @@ class NWChemFactory:
         return match.group(1)
 
     def calc(self, **kwargs):
-        return self.NWChem(profile=self.profile, **kwargs)
+        return NWChem(profile=self.profile, **kwargs)
 
     def socketio_kwargs(self, unixsocket):
         return dict(
