@@ -77,8 +77,7 @@ class CodeMetadata:
 
     def profile(self):
         from ase.calculators.genericfileio import CalculatorTemplate
-        from ase.calculators.calculator import (FileIOCalculator,
-                                                ArgvProfile)
+        from ase.calculators.calculator import FileIOCalculator
         from ase.config import cfg
         cls = self.calculator_class()
         if issubclass(cls, CalculatorTemplate):
