@@ -569,24 +569,23 @@ class OrcaFactory:
 @factory('siesta')
 class SiestaFactory:
     def __init__(self, cfg):
-        self.executable = cfg.parser['siesta']['binary']
+        from ase.calculators.siesta import Siesta
+        self.Siesta = Siesta
+        self.profile = Siesta.load_argv_profile(cfg, 'siesta')
         self.pseudo_path = str(cfg.parser['siesta']['pseudo_path'])
 
     def version(self):
         from ase.calculators.siesta.siesta import get_siesta_version
 
-        full_ver = get_siesta_version(self.executable)
+        full_ver = get_siesta_version(self.profile.argv[-1])
         m = re.match(r'siesta-(\S+)', full_ver, flags=re.I)
         if m:
             return m.group(1)
         return full_ver
 
     def calc(self, **kwargs):
-        from ase.calculators.siesta import Siesta
-
-        command = f'{self.executable} < PREFIX.fdf > PREFIX.out'
-        return Siesta(
-            command=command, pseudo_path=str(self.pseudo_path), **kwargs
+        return self.Siesta(
+            profile=self.profile, pseudo_path=str(self.pseudo_path), **kwargs
         )
 
     def socketio_kwargs(self, unixsocket):
