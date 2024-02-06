@@ -215,7 +215,7 @@ def read_stdout(args, createfile=None):
             stderr=PIPE,
             stdin=PIPE,
             cwd=directory,
-            encoding='ascii',
+            encoding='utf-8',  # Make this a parameter if any non-utf8/ascii
         )
         stdout, _ = proc.communicate()
         # Exit code will be != 0 because there isn't an input file

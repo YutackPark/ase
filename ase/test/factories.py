@@ -604,10 +604,12 @@ class SiestaFactory:
 @factory('nwchem')
 class NWChemFactory:
     def __init__(self, cfg):
-        self.executable = cfg.parser['nwchem']['binary']
+        from ase.calculators.nwchem import NWChem
+        self.NWChem = NWChem
+        self.profile = NWChem.load_argv_profile(cfg, 'nwchem')
 
     def version(self):
-        stdout = read_stdout([self.executable], createfile='nwchem.nw')
+        stdout = read_stdout(self.profile.argv, createfile='nwchem.nw')
         match = re.search(
             r'Northwest Computational Chemistry Package \(NWChem\) (\S+)',
             stdout,
@@ -616,10 +618,7 @@ class NWChemFactory:
         return match.group(1)
 
     def calc(self, **kwargs):
-        from ase.calculators.nwchem import NWChem
-
-        command = f'{self.executable} PREFIX.nwi > PREFIX.nwo'
-        return NWChem(command=command, **kwargs)
+        return self.NWChem(profile=self.profile, **kwargs)
 
     def socketio_kwargs(self, unixsocket):
         return dict(
