@@ -241,6 +241,9 @@ class FileIOSocketClientLauncher:
             return Popen(argv, cwd=cwd, env=os.environ)
         else:
             # Old FileIOCalculator:
+            self.calc.write_input(atoms, properties=properties,
+                                  system_changes=all_changes)
+
             if profile is None:
                 cmd = self.calc.command.replace('PREFIX', self.calc.prefix)
                 cmd = cmd.format(port=port, unixsocket=unixsocket)
@@ -248,12 +251,9 @@ class FileIOSocketClientLauncher:
                 cmd = profile.command
                 if "PREFIX" in cmd:
                     cmd = cmd.replace("PREFIX", profile.prefix)
+                return Popen(cmd, shell=True, cwd=cwd)
             elif isinstance(profile, ArgvProfile):
-                cmd = " ".join(profile.argv)
-
-            self.calc.write_input(atoms, properties=properties,
-                                  system_changes=all_changes)
-            return Popen(cmd, shell=True, cwd=cwd)
+                return profile.execute_nonblocking(self.calc)
 
 
 class SocketServer(IOContext):

@@ -20,6 +20,9 @@ class Dftb(FileIOCalculator):
                               'stress', 'dipole']
     discard_results_on_any_change = True
 
+    fileio_rules = FileIOCalculator.ruleset(
+        stdout_name='{prefix}.out')
+
     def __init__(self, restart=None,
                  ignore_bad_restart_file=FileIOCalculator._deprecated,
                  label='dftb', atoms=None, kpts=None,
@@ -123,7 +126,6 @@ class Dftb(FileIOCalculator):
         self.atoms = None
         self.atoms_input = None
         self.do_forces = False
-        self.outfilename = 'dftb.out'
 
         super().__init__(restart, ignore_bad_restart_file,
                          label, atoms, command=command,

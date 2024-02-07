@@ -213,7 +213,11 @@ class Siesta(FileIOCalculator):
     # it to use the bandpath keyword.
     accepts_bandpath_keyword = True
 
-    def __init__(self, command=None, **kwargs):
+    fileio_rules = FileIOCalculator.ruleset(
+        stdin_name='{prefix}.fdf',
+        stdout_name='{prefix}.out')
+
+    def __init__(self, command=None, profile=None, **kwargs):
         """ASE interface to the SIESTA code.
 
         Parameters:
@@ -277,6 +281,7 @@ class Siesta(FileIOCalculator):
         FileIOCalculator.__init__(
             self,
             command=command,
+            profile=profile,
             **parameters)
 
     def __getitem__(self, key):

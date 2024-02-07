@@ -20,6 +20,10 @@ class NWChem(FileIOCalculator):
     accepts_bandpath_keyword = True
     discard_results_on_any_change = True
 
+    fileio_rules = FileIOCalculator.ruleset(
+        extend_argv=['{prefix}.nwi'],
+        stdout_name='{prefix}.nwo')
+
     def __init__(self, restart=None,
                  ignore_bad_restart_file=FileIOCalculator._deprecated,
                  label='nwchem', atoms=None, command=None, **kwargs):
@@ -167,9 +171,6 @@ class NWChem(FileIOCalculator):
         FileIOCalculator.__init__(self, restart, ignore_bad_restart_file,
                                   label, atoms, command, **kwargs)
         self.calc = None
-
-    def additional_argv(self):
-        return [self.input_filename()]
 
     def input_filename(self):
         return f'{self.prefix}.nwi'
