@@ -40,15 +40,17 @@ class OrcaTemplate(CalculatorTemplate):
     _label = 'orca'
 
     def __init__(self):
-        super().__init__(name='orca',
+        super().__init__('orca',
                          implemented_properties=['energy', 'free_energy',
                                                  'forces'])
 
-        self.input_file = f'{self._label}.inp'
-        self.output_file = f'{self._label}.out'
+        self.inputname = f'{self._label}.inp'
+        self.outputname = f'{self._label}.out'
+        self.errorname = f'{self._label}.err'
 
     def execute(self, directory, profile) -> None:
-        profile.run(directory, self.input_file, self.output_file)
+        profile.run(directory, self.inputname, self.outputname,
+                    errorfile=self.errorname)
 
     def write_input(self, profile, directory, atoms, parameters, properties):
         parameters = dict(parameters)
@@ -57,10 +59,10 @@ class OrcaTemplate(CalculatorTemplate):
                   orcablocks='%pal nprocs 1 end')
         kw.update(parameters)
 
-        io.write_orca(directory / self.input_file, atoms, kw)
+        io.write_orca(directory / self.inputname, atoms, kw)
 
     def read_results(self, directory):
-        return io.read_orca_outputs(directory, directory / self.output_file)
+        return io.read_orca_outputs(directory, directory / self.outputname)
 
     def load_profile(self, cfg, **kwargs):
         return OrcaProfile.from_config(cfg, self.name, **kwargs)

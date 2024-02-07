@@ -17,13 +17,8 @@ from typing import Any, Mapping
 
 import ase.io.exciting
 from ase.calculators.calculator import PropertyNotImplementedError
-from ase.calculators.exciting.runner import (
-    SimpleBinaryRunner,
-    SubprocessRunResults,
-)
-
-import ase.calculators.exciting.runner
-
+from ase.calculators.exciting.runner import (SimpleBinaryRunner,
+                                             SubprocessRunResults)
 from ase.calculators.genericfileio import (
     BaseProfile,
     CalculatorTemplate,
@@ -80,6 +75,7 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
     output_names = list(parser)
     # Use frozenset since the CalculatorTemplate enforces it.
     implemented_properties = frozenset(['energy', 'forces'])
+    _label = 'exciting'
 
     def __init__(self):
         """Initialise with constant class attributes.
@@ -89,6 +85,7 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
             calculate/read from output.
         """
         super().__init__('exciting', self.implemented_properties)
+        self.errorname = f'{self._label}.err'
 
     @staticmethod
     def _require_forces(input_parameters):
@@ -165,7 +162,8 @@ class ExcitingGroundStateTemplate(CalculatorTemplate):
 
         :return: Results of the subprocess.run command.
         """
-        return profile.run(directory, f"{directory}/input.xml")
+        return profile.run(directory, f"{directory}/input.xml", None,
+                           erorrfile=self.errorname)
 
     def read_results(self, directory: PathLike) -> Mapping[str, Any]:
         """Parse results from each ground state output file.

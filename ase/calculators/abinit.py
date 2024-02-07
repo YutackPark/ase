@@ -59,9 +59,11 @@ class AbinitTemplate(CalculatorTemplate):
 
         self.inputname = f'{self._label}.in'
         self.outputname = f'{self._label}.log'
+        self.errorname = f'{self._label}.err'
 
     def execute(self, directory, profile) -> None:
-        profile.run(directory, self.inputname, self.outputname)
+        profile.run(directory, self.inputname, self.outputname,
+                    errorfile=self.errorname)
 
     def write_input(self, profile, directory, atoms, parameters, properties):
         directory = Path(directory)
