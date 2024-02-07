@@ -51,31 +51,32 @@ class OnetepProfile(BaseProfile):
 
 
 class OnetepTemplate(CalculatorTemplate):
-    def __init__(self, label, append):
+    _label = 'onetep'
+
+    def __init__(self, append):
         super().__init__(
-            name='ONETEP',
+            'ONETEP',
             implemented_properties=[
                 'energy',
                 'free_energy',
                 'forces',
                 'stress'])
-        self.label = label
-        self.input = label + '.dat'
-        self.output = label + '.out'
-        self.error = label + '.err'
+        self.inputname = f'{self._label}.dat'
+        self.outputname = f'{self._label}.out'
+        self.errorname = f'{self._label}.err'
         self.append = append
 
     def execute(self, directory, profile):
-        profile.run(directory, self.input, self.output, self.error,
-                    self.append)
+        profile.run(directory, self.inputname, self.outputname,
+                    self.errorname, append=self.append)
 
     def read_results(self, directory):
-        output_path = directory / self.output
+        output_path = directory / self.outputname
         atoms = read(output_path, format='onetep-out')
         return dict(atoms.calc.properties())
 
     def write_input(self, profile, directory, atoms, parameters, properties):
-        input_path = directory / self.input
+        input_path = directory / self.inputname
         write(input_path, atoms, format='onetep-in',
               properties=properties, **parameters)
 
@@ -102,8 +103,6 @@ class Onetep(GenericFileIOCalculator):
         keywords with lists as values will be
         treated like blocks, with each element
         of list being a different line.
-    label: str
-        Name used for the ONETEP prefix.
     xc: str
         DFT xc to use e.g (PBE, RPBE, ...).
     ngwfs_count: int|list|dict
@@ -156,7 +155,6 @@ class Onetep(GenericFileIOCalculator):
 
         self.keywords = kwargs.get('keywords', None)
         self.template = OnetepTemplate(
-            kwargs.get('label', 'onetep'),
             append=kwargs.pop('append', False)
         )
 

@@ -38,11 +38,15 @@ class OctopusProfile(BaseProfile):
 
 
 class OctopusTemplate(CalculatorTemplate):
+    _label = 'octopus'
+
     def __init__(self):
         super().__init__(
-            name='octopus',
+            'octopus',
             implemented_properties=['energy', 'forces', 'dipole', 'stress'],
         )
+        self.outputname = f'{self._label}.out'
+        self.errorname = f'{self._label}.err'
 
     def read_results(self, directory):
         """Read octopus output files and extract data."""
@@ -66,7 +70,8 @@ class OctopusTemplate(CalculatorTemplate):
         return results
 
     def execute(self, directory, profile):
-        profile.run(directory, inputfile=None, outputfile='octopus.out')
+        profile.run(directory, None, self.outputname,
+                    errorfile=self.errorname)
 
     def write_input(self, profile, directory, atoms, parameters, properties):
         txt = generate_input(atoms, process_special_kwargs(atoms, parameters))
