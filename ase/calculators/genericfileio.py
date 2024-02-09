@@ -132,16 +132,11 @@ class BaseProfile(ABC):
         from subprocess import check_call
         import os
 
-        if inputfile:
-            input_path = directory / inputfile
-        else:
-            input_path = None
-
-        output_path = directory / outputfile
-        argv_command = self.get_command(input_path)
+        argv_command = self.get_command(inputfile)
         mode = 'wb' if not append else 'ab'
 
         with ExitStack() as stack:
+            output_path = directory / outputfile
             fd_out = stack.enter_context(open(output_path, mode))
             if errorfile is not None:
                 error_path = directory / errorfile
