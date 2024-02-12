@@ -1322,7 +1322,7 @@ class Atoms:
             for n, vector in enumerate(self.cell):
                 if n in axes:
                     translation -= vector / 2.0
-            translation += about
+                    translation[n] += about[n]
 
         self.positions += translation
 
