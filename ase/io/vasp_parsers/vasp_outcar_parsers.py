@@ -95,7 +95,9 @@ def read_constraints_from_file(directory):
     constraint = None
     for filename in ('CONTCAR', 'POSCAR'):
         if (directory / filename).is_file():
-            constraint = read(directory / filename, format='vasp').constraints
+            constraint = read(directory / filename,
+                              format='vasp',
+                              parallel=False).constraints
             break
     return constraint
 
