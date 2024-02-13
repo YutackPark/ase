@@ -379,7 +379,8 @@ def test_write_read_charges(at, tmpdir, enable_initial_charges, enable_charges):
     if enable_charges:
         at.calc = SinglePointCalculator(at, charges=charges)
         at.get_charges()
-    ase.io.write(str(tmpdir / 'charge.xyz'), at, format='extxyz', calc_prefix='')
+    ase.io.write(str(tmpdir / 'charge.xyz'), at, format='extxyz',
+                 calc_prefix='')
     r = ase.io.read(str(tmpdir / 'charge.xyz'))
     assert at == r
     if enable_initial_charges:
@@ -419,7 +420,6 @@ def test_conflicting_fields():
     with pytest.raises(AssertionError):
         ase.io.write(sys.stdout, at, format="extxyz", calc_prefix='')
 
-
     at = Atoms('Cu', cell=[2] * 3, pbc=[True] * 3)
     at.calc = EMT()
 
@@ -437,7 +437,7 @@ def test_calc_prefix(tmp_path):
     _ = at.get_potential_energy()
 
     # test default
-    ase.io.write(tmp_path / "test.xyz", at) # defaulting to, calc_prefix=None)
+    ase.io.write(tmp_path / "test.xyz", at)  # defaulting to class name
     at_in = ase.io.read(tmp_path / "test.xyz")
     assert "EMT_energy" in at_in.info
     assert "EMT_forces" in at_in.arrays
@@ -447,7 +447,7 @@ def test_calc_prefix(tmp_path):
         at_in.get_forces()
 
     # test explicit str
-    ase.io.write(tmp_path / "test.xyz", at, calc_prefix="REF_") # defaulting to, calc_prefix=None)
+    ase.io.write(tmp_path / "test.xyz", at, calc_prefix="REF_")
     at_in = ase.io.read(tmp_path / "test.xyz")
     assert "REF_energy" in at_in.info
     assert "REF_forces" in at_in.arrays
@@ -457,7 +457,7 @@ def test_calc_prefix(tmp_path):
         at_in.get_forces()
 
     # test empty str
-    ase.io.write(tmp_path / "test.xyz", at, calc_prefix="") # defaulting to, calc_prefix=None)
+    ase.io.write(tmp_path / "test.xyz", at, calc_prefix="")
     at_in = ase.io.read(tmp_path / "test.xyz")
     assert "energy" not in at_in.info
     assert "forces" not in at_in.arrays

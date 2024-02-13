@@ -824,7 +824,8 @@ def write_xyz(fileobj, images, comment='', columns=None,
     write_info: bool, default True
         write key-value pairs in Atoms.info dict to 2nd line
     write_results: bool, default True
-        write calculated quantities from attached calculator to 2nd line and per-atom columns
+        write calculated quantities from attached calculator to 2nd line and
+        per-atom columns
     plain: bool, default False
         force plain xyz, not extended
     vec_cell: bool, default False
@@ -855,7 +856,6 @@ def write_xyz(fileobj, images, comment='', columns=None,
             fr_cols = ['symbols', 'positions']
             write_info = False
             write_results = False
-
 
         per_frame_results = {}
         per_atom_results = {}
@@ -956,13 +956,15 @@ def write_xyz(fileobj, images, comment='', columns=None,
 
         if write_results:
             for key in per_atom_results:
-                assert key not in fr_cols, f"per-atom key {key} conflicts with Atoms.arrays dict"
+                assert key not in fr_cols, (f"per-atom key {key} conflicts"
+                                            "with Atoms.arrays dict")
                 fr_cols += [key]
             arrays.update(per_atom_results)
 
             if write_info:
                 for key in per_frame_results:
-                    assert key not in atoms.info, f"per-frame key {key} conflicts with Atoms.info dict"
+                    assert key not in atoms.info, \
+                        f"per-frame key {key} conflicts with Atoms.info dict"
 
         comm, ncols, dtype, fmt = output_column_format(atoms,
                                                        fr_cols,
