@@ -104,6 +104,8 @@ def test_ioformat(format, atoms, catch_warnings):
         atoms.pbc = (1, 1, 0)
     elif format == 'espresso-in':
         kwargs = {'pseudopotentials': {'H': 'plum', 'Au': 'lemon'}}
+    elif format == 'extxyz':
+        kwargs = {'calc_prefix': ''}
 
     images = [atoms, atoms]
 
