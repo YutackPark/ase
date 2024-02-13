@@ -830,7 +830,7 @@ class ForceQMMM(Calculator):
 
         self.qm_buffer_mask = self.qm_selection_mask ^ buffer_mask
 
-    def export_extxyz(self, atoms=None, filename="qmmm_atoms.xyz"):
+    def export_extxyz(self, atoms=None, filename="qmmm_atoms.xyz", **write_kwargs):
         """
         exports the atoms to extended xyz file with additional "region"
         array keeping the mapping between QM, buffer and MM parts of
@@ -849,7 +849,7 @@ class ForceQMMM(Calculator):
 
         atoms_copy.calc = self  # to keep the calculation results
 
-        atoms_copy.write(filename, format='extxyz')
+        atoms_copy.write(filename, format='extxyz', **write_kwargs)
 
     @classmethod
     def import_extxyz(cls, filename, qm_calc, mm_calc):
