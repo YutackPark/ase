@@ -794,8 +794,9 @@ def output_column_format(atoms, columns, arrays,
 
 @writer
 def write_xyz(fileobj, images, comment='', columns=None,
-              write_info=True,
-              write_results=True, plain=False, vec_cell=False):
+              write_info=True, write_results=True,
+              plain=False, vec_cell=False,
+              calc_prefix=None):
     """
     Write output in extended XYZ format
 
@@ -809,6 +810,28 @@ def write_xyz(fileobj, images, comment='', columns=None,
 
     See documentation for :func:`read_xyz()` for further details of the extended
     XYZ file format.
+
+    Parameters
+    ----------
+    fileobj: file object
+        file to write to
+    images: Atoms / list(Atoms)
+        configurations to write
+    comment: str, default ''
+        comment to add to 2nd line
+    columns: list(str), default None
+        fields (Atoms.arrays keys) to write to per-atom columns, default all
+    write_info: bool, default True
+        write key-value pairs in Atoms.info dict to 2nd line
+    write_results: bool, default True
+        write calculated quantities from attached calculator to 2nd line and per-atom columns
+    plain: bool, default False
+        force plain xyz, not extended
+    vec_cell: bool, default False
+        force plain xyz, and write cell as pseudo-atoms after real atoms
+    calc_prefix: str, default calc class name
+        prefix to prepend to calculator result keys ("energy", "forces", etc).
+        Defaults to name of class of calculator
     """
 
     if hasattr(images, 'get_positions'):
@@ -833,10 +856,13 @@ def write_xyz(fileobj, images, comment='', columns=None,
             write_info = False
             write_results = False
 
+
         per_frame_results = {}
         per_atom_results = {}
         if write_results:
             calculator = atoms.calc
+            if calc_prefix is None:
+                calc_prefix = calculator.__class__.__name__ + "_"
             if (calculator is not None
                     and isinstance(calculator, BaseCalculator)):
                 for key in all_properties:
@@ -847,7 +873,7 @@ def write_xyz(fileobj, images, comment='', columns=None,
                     if (key in per_atom_properties and len(value.shape) >= 1
                             and value.shape[0] == len(atoms)):
                         # per-atom quantities (forces, energies, stresses)
-                        per_atom_results[key] = value
+                        per_atom_results[calc_prefix + key] = value
                     elif key in per_config_properties:
                         # per-frame quantities (energy, stress)
                         # special case for stress, which should be converted
@@ -856,7 +882,7 @@ def write_xyz(fileobj, images, comment='', columns=None,
                             xx, yy, zz, yz, xz, xy = value
                             value = np.array(
                                 [(xx, xy, xz), (xy, yy, yz), (xz, yz, zz)])
-                        per_frame_results[key] = value
+                        per_frame_results[calc_prefix + key] = value
 
         # Move symbols and positions to first two properties
         if 'symbols' in fr_cols:
@@ -930,9 +956,13 @@ def write_xyz(fileobj, images, comment='', columns=None,
 
         if write_results:
             for key in per_atom_results:
-                assert key not in fr_cols
+                assert key not in fr_cols, f"per-atom key {key} conflicts with Atoms.arrays dict"
                 fr_cols += [key]
             arrays.update(per_atom_results)
+
+            if write_info:
+                for key in per_frame_results:
+                    assert key not in atoms.info, f"per-frame key {key} conflicts with Atoms.info dict"
 
         comm, ncols, dtype, fmt = output_column_format(atoms,
                                                        fr_cols,
