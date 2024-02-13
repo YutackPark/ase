@@ -5,7 +5,7 @@ import warnings
 from abc import ABC, abstractmethod
 
 import numpy as np
-from scipy.integrate import cumtrapz
+from scipy.integrate import cumulative_trapezoid
 from scipy.interpolate import CubicSpline
 
 import ase.parallel
@@ -646,7 +646,7 @@ class BaseNEB:
         s = np.linspace(0.0, 1.0, spline_points, endpoint=True)
         dE = f(s) * fit.dx_ds(s)
         F = dE.sum(axis=1)
-        E = -cumtrapz(F, s, initial=0.0)
+        E = -cumulative_trapezoid(F, s, initial=0.0)
         return s, E, F
 
 
