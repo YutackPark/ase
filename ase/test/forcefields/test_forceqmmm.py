@@ -392,8 +392,7 @@ def test_export_xyz(at0, testdir):
 
     assert "ForceQMMM_forces" in read_atoms.arrays
     # absolute tolerance for comparing forces close to zero
-    np.testing.assert_allclose(forces, read_atoms.arrays["ForceQMMM_forces"],
-                               atol=1.0e-6)
+    np.testing.assert_allclose(forces, read_atoms.arrays["ForceQMMM_forces"], atol=1.0e-6)
 
 
 def test_set_masks_from_region(at0, qm_calc, mm_calc):
