@@ -660,6 +660,10 @@ def read_xyz(fileobj, index=-1, properties_parser=key_val_str_to_dict):
        similarly, when writing, anything which does not match the criteria above
        is serialised as JSON.
 
+    Per-configuration and per-atoms quantities with keys that match 
+    `Calculator.results` dict keys (e.g., `energy`, `forces`, `stress`, etc), 
+    are stored in an attached `SinglePointCalculator`.
+
     The extended XYZ format is also supported by the
     the `Ovito <https://www.ovito.org>`_ visualisation tool.
     """  # noqa: E501
@@ -825,14 +829,14 @@ def write_xyz(fileobj, images, comment='', columns=None,
         write key-value pairs in Atoms.info dict to 2nd line
     write_results: bool, default True
         write calculated quantities from attached calculator to 2nd line and
-        per-atom columns
+        per-atom columns. Names are prepended with `calc_prefix`.
     plain: bool, default False
         force plain xyz, not extended
     vec_cell: bool, default False
         force plain xyz, and write cell as pseudo-atoms after real atoms
     calc_prefix: str, default calc class name
         prefix to prepend to calculator result keys ("energy", "forces", etc).
-        Defaults to name of class of calculator
+        Defaults to name of class of calculator.
     """
 
     if hasattr(images, 'get_positions'):
