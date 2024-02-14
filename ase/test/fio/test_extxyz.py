@@ -2,6 +2,7 @@
 # (which is also included in oi.py test case)
 # maintained by James Kermode <james.kermode@gmail.com>
 
+import sys
 from pathlib import Path
 
 import numpy as np
@@ -15,7 +16,7 @@ from ase.calculators.emt import EMT
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.constraints import FixAtoms, FixCartesian
 from ase.io import extxyz
-from ase.io.extxyz import escape
+from ase.io.extxyz import escape, save_calc_quantities
 
 # array data of shape (N, 1) squeezed down to shape (N, ) -- bug fixed
 # in commit r4541
@@ -288,7 +289,6 @@ def test_escape():
     assert escape('string with spaces') == '"string with spaces"'
 
 
-@pytest.mark.filterwarnings('ignore:write_xyz')
 def test_stress():
     # build a water dimer, which has 6 atoms
     water1 = molecule('H2O')
@@ -406,3 +406,60 @@ As           1.8043384632       1.0417352974      11.3518747709
 As          -0.0000000002       2.0834705948       9.9596183135""")
     atoms = ase.io.read('pbc-test.xyz')
     assert (atoms.pbc == atoms_pbc).all()
+
+
+def test_conflicting_fields():
+    atoms = Atoms('Cu', cell=[2] * 3, pbc=[True] * 3)
+    atoms.calc = EMT()
+
+    _ = atoms.get_potential_energy()
+    atoms.info["energy"] = 100
+    # info / per-config conflict
+    with pytest.raises(AssertionError):
+        ase.io.write(sys.stdout, atoms, format="extxyz")
+
+    atoms = Atoms('Cu', cell=[2] * 3, pbc=[True] * 3)
+    atoms.calc = EMT()
+
+    _ = atoms.get_forces()
+    atoms.new_array("forces", np.ones(atoms.positions.shape))
+    # arrays / per-atom conflict
+    with pytest.raises(AssertionError):
+        ase.io.write(sys.stdout, atoms, format="extxyz")
+
+
+def test_save_calc_quantities():
+    # DEFAULT (class name)
+    atoms = Atoms('Cu', cell=[2] * 3, pbc=[True] * 3)
+    atoms.calc = EMT()
+    _ = atoms.get_potential_energy()
+
+    calc_prefix = atoms.calc.__class__.__name__ + '_'
+    save_calc_quantities(atoms)
+    # make sure calculator was removed
+    assert atoms.calc is None
+
+    # make sure info/arrays keys with right names exist
+    assert calc_prefix + 'energy' in atoms.info
+    assert calc_prefix + 'forces' in atoms.arrays
+
+    # EXPLICIT STRING
+    atoms = Atoms('Cu', cell=[2] * 3, pbc=[True] * 3)
+    atoms.calc = EMT()
+    _ = atoms.get_potential_energy()
+
+    calc_prefix = 'REF_'
+    save_calc_quantities(atoms, calc_prefix=calc_prefix, remove_calc=False)
+    # make sure calculator was not removed
+    assert atoms.calc is not None
+
+    # make sure info/arrays keys with right names exist
+    assert calc_prefix + 'energy' in atoms.info
+    assert calc_prefix + 'forces' in atoms.arrays
+
+    # make sure conflicting field names raise an error
+    with pytest.raises(KeyError):
+        save_calc_quantities(atoms, calc_prefix=calc_prefix, remove_calc=False)
+
+    # make sure conflicting field names do not raise an error when force=True
+    save_calc_quantities(atoms, calc_prefix=calc_prefix, force=True)

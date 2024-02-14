@@ -23,6 +23,7 @@ from ase.io.formats import index2range
 from ase.io.utils import ImageIterator
 from ase.spacegroup.spacegroup import Spacegroup
 from ase.utils import reader, writer
+from ase.outputs import all_outputs, ArrayProperty
 
 __all__ = ['read_xyz', 'write_xyz', 'iread_xyz']
 
@@ -930,9 +931,15 @@ def write_xyz(fileobj, images, comment='', columns=None,
 
         if write_results:
             for key in per_atom_results:
-                assert key not in fr_cols
+                assert key not in fr_cols, \
+                    f"per-atom key {key} conflicts with Atoms.arrays dict"
                 fr_cols += [key]
             arrays.update(per_atom_results)
+
+            if write_info:
+                for key in per_frame_results:
+                    assert key not in atoms.info, \
+                        f"per-frame key {key} conflicts with Atoms.info dict"
 
         comm, ncols, dtype, fmt = output_column_format(atoms,
                                                        fr_cols,
@@ -964,6 +971,55 @@ def write_xyz(fileobj, images, comment='', columns=None,
         fileobj.write(f'{comm}\n')
         for i in range(natoms):
             fileobj.write(fmt % tuple(data[i]))
+
+
+def save_calc_quantities(atoms, calc=None, calc_prefix=None, remove_calc=True,
+                         force=False):
+    """Update information in atoms from results in a calculator
+
+    Args:
+    atoms (ase.atoms.Atoms): Atoms object, modified in place
+    calc (ase.calculators.Calculator, optional): calculator to take results
+        from.  Defaults to :attr:`atoms.calc`
+    calc_prefix (str, optional): String to prefix to results names
+        in :attr:`atoms.arrays` and :attr:`atoms.info`. Defaults to
+        calculator class name
+    remove_calc (bool): remove the calculator after saving its results.
+        Defaults to `True`, ignored if `calc` is passed in
+    force (bool, optional): overwrite existing fields with same name,
+        default False
+    """
+    if calc is None:
+        calc = atoms.calc
+        got_atoms_calc = True
+    else:
+        got_atoms_calc = False
+
+    if calc is None:
+        return
+
+    if calc_prefix is None:
+        calc_prefix = calc.__class__.__name__ + '_'
+
+    for prop_name, value in calc.results.items():
+        try:
+            prop = all_outputs[prop_name]
+        except KeyError as exc:
+            raise KeyError(f'unknown property {prop_name}') from exc
+
+        if isinstance(prop, ArrayProperty) and prop.shapespec[0] == 'natoms':
+            if calc_prefix + prop_name in atoms.arrays and not force:
+                raise KeyError(f"atoms.arrays key {calc_prefix + prop_name} "
+                               "already exists")
+            atoms.arrays[calc_prefix + prop_name] = value
+        else:
+            if calc_prefix + prop_name in atoms.info and not force:
+                raise KeyError(f"atoms.info key {calc_prefix + prop_name} "
+                               "already exists")
+            atoms.info[calc_prefix + prop_name] = value
+
+    if remove_calc and got_atoms_calc:
+        atoms.calc = None
 
 
 # create aliases for read/write functions
