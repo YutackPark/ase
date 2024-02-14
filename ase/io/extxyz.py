@@ -16,7 +16,7 @@ import warnings
 import numpy as np
 
 from ase.atoms import Atoms
-from ase.calculators.calculator import BaseCalculator, all_properties
+from ase.calculators.calculator import BaseCalculator
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.constraints import FixAtoms, FixCartesian
 from ase.io.formats import index2range
@@ -46,10 +46,10 @@ UNPROCESSED_KEYS = {'uid'}
 
 SPECIAL_3_3_KEYS = {'Lattice', 'virial', 'stress'}
 
-# partition ase.calculators.calculator.all_properties into two lists:
-#  'per-atom' and 'per-config'
-per_atom_properties = {'forces', 'stresses', 'charges', 'magmoms', 'energies'}
-per_config_properties = {'energy', 'stress', 'dipole', 'magmom', 'free_energy'}
+# select subset of properties that are not per-atom
+per_config_properties = [key for key, val in all_outputs.items()
+                         if not (isinstance(val, ArrayProperty) and
+                                 val.shapespec[0] == 'natoms')]
 
 
 def key_val_str_to_dict(string, sep=None):
@@ -499,12 +499,12 @@ def set_calc_and_arrays(atoms, arrays):
     results = {}
 
     for name, array in arrays.items():
-        if name in all_properties:
+        if name in all_outputs:
             results[name] = array
         else:
             atoms.new_array(name, array)
 
-    for key in [*atoms.info]:
+    for key in list(atoms.info):
         if key in per_config_properties:
             results[key] = atoms.info.pop(key)
             # special case for stress- convert to Voigt 6-element form
@@ -988,16 +988,11 @@ def _extract_calc_results(atoms, calc=None, calc_prefix=None):
 
     per_config_results = {}
     per_atom_results = {}
-    for prop_name, value in calc.results.items():
-        try:
-            prop = all_outputs[prop_name]
-        except KeyError as exc:
-            raise KeyError(f'unknown property {prop_name}') from exc
-
-        if isinstance(prop, ArrayProperty) and prop.shapespec[0] == 'natoms':
-            per_atom_results[calc_prefix + prop_name] = value
+    for prop, value in calc.results.items():
+        if prop in per_config_properties:
+            per_config_results[calc_prefix + prop] = value
         else:
-            per_config_results[calc_prefix + prop_name] = value
+            per_atom_results[calc_prefix + prop] = value
 
     return per_config_results, per_atom_results
 
