@@ -23,38 +23,39 @@ from ase.io.extxyz import escape, save_calc_results
 
 
 @pytest.fixture
-def at():
+def atoms():
     return bulk('Si')
 
 
 @pytest.fixture
-def images(at):
-    images = [at, at * (2, 1, 1), at * (3, 1, 1)]
+def images(atoms):
+    images = [atoms, atoms * (2, 1, 1), atoms * (3, 1, 1)]
     images[1].set_pbc([True, True, False])
     images[2].set_pbc([True, False, False])
     return images
 
 
-def test_array_shape(at):
+def test_array_shape(atoms):
     # Check that unashable data type in info does not break output
-    at.info['bad-info'] = [[1, np.array([0, 1])], [2, np.array([0, 1])]]
+    atoms.info['bad-info'] = [[1, np.array([0, 1])], [2, np.array([0, 1])]]
     with pytest.warns(UserWarning):
-        ase.io.write('to.xyz', at, format='extxyz')
-    del at.info['bad-info']
-    at.arrays['ns_extra_data'] = np.zeros((len(at), 1))
-    assert at.arrays['ns_extra_data'].shape == (2, 1)
+        ase.io.write('to.xyz', atoms, format='extxyz')
+    del atoms.info['bad-info']
+    atoms.arrays['ns_extra_data'] = np.zeros((len(atoms), 1))
+    assert atoms.arrays['ns_extra_data'].shape == (2, 1)
 
-    ase.io.write('to_new.xyz', at, format='extxyz')
+    ase.io.write('to_new.xyz', atoms, format='extxyz')
     at_new = ase.io.read('to_new.xyz')
     assert at_new.arrays['ns_extra_data'].shape == (2, )
 
 
 # test comment read/write with vec_cell
-def test_comment(at):
-    at.info['comment'] = 'test comment'
-    ase.io.write('comment.xyz', at, comment=at.info['comment'], vec_cell=True)
+def test_comment(atoms):
+    atoms.info['comment'] = 'test comment'
+    ase.io.write('comment.xyz', atoms, comment=atoms.info['comment'],
+                 vec_cell=True)
     r = ase.io.read('comment.xyz')
-    assert at == r
+    assert atoms == r
 
 
 # write sequence of images with different numbers of atoms -- bug fixed
@@ -66,7 +67,7 @@ def test_sequence(images):
 
 
 # test vec_cell writing and reading
-def test_vec_cell(at, images):
+def test_vec_cell(atoms, images):
     ase.io.write('multi.xyz', images, vec_cell=True)
     cell = images[1].get_cell()
     cell[-1] = [0.0, 0.0, 0.0]
@@ -255,7 +256,7 @@ def test_complex_key_val():
             np.testing.assert_equal(complex_atoms.info[key], value)
 
 
-def test_write_multiple(at, images):
+def test_write_multiple(atoms, images):
     # write multiple atoms objects to one xyz
     for atoms in images:
         atoms.write('append.xyz', append=True)
@@ -370,17 +371,18 @@ H        0.00000000      -0.76323900      -0.47704700  0""")
 # test read/write with both initial_charges & charges
 @pytest.mark.parametrize("enable_initial_charges", [True, False])
 @pytest.mark.parametrize("enable_charges", [True, False])
-def test_write_read_charges(at, tmpdir, enable_initial_charges, enable_charges):
+def test_write_read_charges(atoms, tmpdir, enable_initial_charges,
+                            enable_charges):
     initial_charges = [1.0, -1.0]
     charges = [-2.0, 2.0]
     if enable_initial_charges:
-        at.set_initial_charges(initial_charges)
+        atoms.set_initial_charges(initial_charges)
     if enable_charges:
-        at.calc = SinglePointCalculator(at, charges=charges)
-        at.get_charges()
-    ase.io.write(str(tmpdir / 'charge.xyz'), at, format='extxyz')
+        atoms.calc = SinglePointCalculator(atoms, charges=charges)
+        atoms.get_charges()
+    ase.io.write(str(tmpdir / 'charge.xyz'), atoms, format='extxyz')
     r = ase.io.read(str(tmpdir / 'charge.xyz'))
-    assert at == r
+    assert atoms == r
     if enable_initial_charges:
         assert np.allclose(r.get_initial_charges(), initial_charges)
     if enable_charges:
