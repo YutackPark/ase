@@ -16,7 +16,7 @@ from ase.calculators.emt import EMT
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.constraints import FixAtoms, FixCartesian
 from ase.io import extxyz
-from ase.io.extxyz import escape, save_calc_quantities
+from ase.io.extxyz import escape, save_calc_results
 
 # array data of shape (N, 1) squeezed down to shape (N, ) -- bug fixed
 # in commit r4541
@@ -428,14 +428,14 @@ def test_conflicting_fields():
         ase.io.write(sys.stdout, atoms, format="extxyz")
 
 
-def test_save_calc_quantities():
+def test_save_calc_results():
     # DEFAULT (class name)
     atoms = Atoms('Cu', cell=[2] * 3, pbc=[True] * 3)
     atoms.calc = EMT()
     _ = atoms.get_potential_energy()
 
     calc_prefix = atoms.calc.__class__.__name__ + '_'
-    save_calc_quantities(atoms)
+    save_calc_results(atoms, remove_atoms_calc=True)
     # make sure calculator was removed
     assert atoms.calc is None
 
@@ -449,7 +449,7 @@ def test_save_calc_quantities():
     _ = atoms.get_potential_energy()
 
     calc_prefix = 'REF_'
-    save_calc_quantities(atoms, calc_prefix=calc_prefix, remove_calc=False)
+    save_calc_results(atoms, calc_prefix=calc_prefix)
     # make sure calculator was not removed
     assert atoms.calc is not None
 
@@ -459,7 +459,7 @@ def test_save_calc_quantities():
 
     # make sure conflicting field names raise an error
     with pytest.raises(KeyError):
-        save_calc_quantities(atoms, calc_prefix=calc_prefix, remove_calc=False)
+        save_calc_results(atoms, calc_prefix=calc_prefix)
 
     # make sure conflicting field names do not raise an error when force=True
-    save_calc_quantities(atoms, calc_prefix=calc_prefix, force=True)
+    save_calc_results(atoms, calc_prefix=calc_prefix, force=True)

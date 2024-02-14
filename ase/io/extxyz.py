@@ -24,6 +24,7 @@ from ase.io.utils import ImageIterator
 from ase.spacegroup.spacegroup import Spacegroup
 from ase.utils import reader, writer
 from ase.outputs import all_outputs, ArrayProperty
+from ase.stress import voigt_6_to_full_3x3_stress
 
 __all__ = ['read_xyz', 'write_xyz', 'iread_xyz']
 
@@ -840,24 +841,12 @@ def write_xyz(fileobj, images, comment='', columns=None,
             calculator = atoms.calc
             if (calculator is not None
                     and isinstance(calculator, BaseCalculator)):
-                for key in all_properties:
-                    value = calculator.results.get(key, None)
-                    if value is None:
-                        # skip missing calculator results
-                        continue
-                    if (key in per_atom_properties and len(value.shape) >= 1
-                            and value.shape[0] == len(atoms)):
-                        # per-atom quantities (forces, energies, stresses)
-                        per_atom_results[key] = value
-                    elif key in per_config_properties:
-                        # per-frame quantities (energy, stress)
-                        # special case for stress, which should be converted
-                        # to 3x3 matrices before writing
-                        if key == 'stress':
-                            xx, yy, zz, yz, xz, xy = value
-                            value = np.array(
-                                [(xx, xy, xz), (xy, yy, yz), (xz, yz, zz)])
-                        per_frame_results[key] = value
+                per_frame_results, per_atom_results = \
+                    _extract_calc_results(atoms, calc_prefix="")
+
+                if 'stress' in per_frame_results:
+                    per_frame_results['stress'] = \
+                        voigt_6_to_full_3x3_stress(per_frame_results['stress'])
 
         # Move symbols and positions to first two properties
         if 'symbols' in fr_cols:
@@ -973,8 +962,48 @@ def write_xyz(fileobj, images, comment='', columns=None,
             fileobj.write(fmt % tuple(data[i]))
 
 
-def save_calc_quantities(atoms, calc=None, calc_prefix=None, remove_calc=True,
-                         force=False):
+def _extract_calc_results(atoms, calc=None, calc_prefix=None):
+    """Extract results from a calculator, sorted by whether they are
+    per-config or per-atom, with keys prefixed by a string.
+
+    Args:
+    atoms (`ase.atoms.Atoms`): Atoms object, modified in place
+    calc (`ase.calculators.Calculator`, optional): calculator to take results
+        from.  Defaults to :attr:`atoms.calc`
+    calc_prefix (str, optional): string to prepend to dict keys.
+        Defaults to name of class of calculator
+
+    Returns:
+    per_config_results, per_atom_results (dict, dict): results from
+        calculator
+    """
+    if calc is None:
+        calc = atoms.calc
+
+    if calc is None:
+        return None, None
+
+    if calc_prefix is None:
+        calc_prefix = calc.__class__.__name__ + '_'
+
+    per_config_results = {}
+    per_atom_results = {}
+    for prop_name, value in calc.results.items():
+        try:
+            prop = all_outputs[prop_name]
+        except KeyError as exc:
+            raise KeyError(f'unknown property {prop_name}') from exc
+
+        if isinstance(prop, ArrayProperty) and prop.shapespec[0] == 'natoms':
+            per_atom_results[calc_prefix + prop_name] = value
+        else:
+            per_config_results[calc_prefix + prop_name] = value
+
+    return per_config_results, per_atom_results
+
+
+def save_calc_results(atoms, calc=None, calc_prefix=None,
+                      remove_atoms_calc=False, force=False):
     """Update information in atoms from results in a calculator
 
     Args:
@@ -984,41 +1013,28 @@ def save_calc_quantities(atoms, calc=None, calc_prefix=None, remove_calc=True,
     calc_prefix (str, optional): String to prefix to results names
         in :attr:`atoms.arrays` and :attr:`atoms.info`. Defaults to
         calculator class name
-    remove_calc (bool): remove the calculator after saving its results.
-        Defaults to `True`, ignored if `calc` is passed in
+    remove_atoms_calc (bool): remove the calculator from the `atoms`
+        object after saving its results.  Defaults to `False`, ignored if
+        `calc` is passed in
     force (bool, optional): overwrite existing fields with same name,
         default False
     """
-    if calc is None:
-        calc = atoms.calc
-        got_atoms_calc = True
-    else:
-        got_atoms_calc = False
-
-    if calc is None:
+    per_config_results, per_atom_results = _extract_calc_results(atoms, calc,
+                                                                 calc_prefix)
+    if per_config_results is None or per_atom_results is None:
+        assert per_config_results is None and per_atom_results is None
         return
 
-    if calc_prefix is None:
-        calc_prefix = calc.__class__.__name__ + '_'
+    if not force:
+        if any([key in atoms.info for key in per_config_results]):
+            raise KeyError("key from calculator already exists in atoms.info")
+        if any([key in atoms.arrays for key in per_atom_results]):
+            raise KeyError("key from calculator already exists in atoms.arrays")
 
-    for prop_name, value in calc.results.items():
-        try:
-            prop = all_outputs[prop_name]
-        except KeyError as exc:
-            raise KeyError(f'unknown property {prop_name}') from exc
+    atoms.info.update(per_config_results)
+    atoms.arrays.update(per_atom_results)
 
-        if isinstance(prop, ArrayProperty) and prop.shapespec[0] == 'natoms':
-            if calc_prefix + prop_name in atoms.arrays and not force:
-                raise KeyError(f"atoms.arrays key {calc_prefix + prop_name} "
-                               "already exists")
-            atoms.arrays[calc_prefix + prop_name] = value
-        else:
-            if calc_prefix + prop_name in atoms.info and not force:
-                raise KeyError(f"atoms.info key {calc_prefix + prop_name} "
-                               "already exists")
-            atoms.info[calc_prefix + prop_name] = value
-
-    if remove_calc and got_atoms_calc:
+    if remove_atoms_calc and calc is None:
         atoms.calc = None
 
 
