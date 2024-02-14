@@ -660,8 +660,8 @@ def read_xyz(fileobj, index=-1, properties_parser=key_val_str_to_dict):
        similarly, when writing, anything which does not match the criteria above
        is serialised as JSON.
 
-    Per-configuration and per-atoms quantities with keys that match 
-    `Calculator.results` dict keys (e.g., `energy`, `forces`, `stress`, etc), 
+    Per-configuration and per-atoms quantities with keys that match
+    `Calculator.results` dict keys (e.g., `energy`, `forces`, `stress`, etc),
     are stored in an attached `SinglePointCalculator`.
 
     The extended XYZ format is also supported by the
