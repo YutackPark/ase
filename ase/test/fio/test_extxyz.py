@@ -2,7 +2,6 @@
 # (which is also included in oi.py test case)
 # maintained by James Kermode <james.kermode@gmail.com>
 
-import sys
 from pathlib import Path
 
 import numpy as np
@@ -289,7 +288,7 @@ def test_escape():
     assert escape('string with spaces') == '"string with spaces"'
 
 
-# @pytest.mark.filterwarnings('ignore:write_xyz')
+@pytest.mark.filterwarnings('ignore:write_xyz')
 def test_stress():
     # build a water dimer, which has 6 atoms
     water1 = molecule('H2O')
@@ -301,7 +300,7 @@ def test_stress():
 
     atoms.calc = EMT()
     a_stress = atoms.get_stress()
-    atoms.write('tmp.xyz', calc_prefix='')
+    atoms.write('tmp.xyz')
     b = ase.io.read('tmp.xyz')
     assert abs(b.get_stress() - a_stress).max() < 1e-6
 
@@ -379,7 +378,7 @@ def test_write_read_charges(at, tmpdir, enable_initial_charges, enable_charges):
     if enable_charges:
         at.calc = SinglePointCalculator(at, charges=charges)
         at.get_charges()
-    ase.io.write(str(tmpdir / 'charge.xyz'), at, format='extxyz', calc_prefix='')
+    ase.io.write(str(tmpdir / 'charge.xyz'), at, format='extxyz')
     r = ase.io.read(str(tmpdir / 'charge.xyz'))
     assert at == r
     if enable_initial_charges:
@@ -407,59 +406,3 @@ As           1.8043384632       1.0417352974      11.3518747709
 As          -0.0000000002       2.0834705948       9.9596183135""")
     atoms = ase.io.read('pbc-test.xyz')
     assert (atoms.pbc == atoms_pbc).all()
-
-
-def test_conflicting_fields():
-    at = Atoms('Cu', cell=[2] * 3, pbc=[True] * 3)
-    at.calc = EMT()
-
-    _ = at.get_potential_energy()
-    at.info["energy"] = 100
-    # info / per-config conflict
-    with pytest.raises(AssertionError):
-        ase.io.write(sys.stdout, at, format="extxyz", calc_prefix='')
-
-
-    at = Atoms('Cu', cell=[2] * 3, pbc=[True] * 3)
-    at.calc = EMT()
-
-    _ = at.get_forces()
-    at.new_array("forces", np.ones(at.positions.shape))
-    # arrays / per-atom conflict
-    with pytest.raises(AssertionError):
-        ase.io.write(sys.stdout, at, format="extxyz", calc_prefix='')
-
-
-def test_calc_prefix(tmp_path):
-    at = Atoms('Cu', cell=[2] * 3, pbc=[True] * 3)
-    at.calc = EMT()
-
-    _ = at.get_potential_energy()
-
-    # test default
-    ase.io.write(tmp_path / "test.xyz", at) # defaulting to, calc_prefix=None)
-    at_in = ase.io.read(tmp_path / "test.xyz")
-    assert "EMT_energy" in at_in.info
-    assert "EMT_forces" in at_in.arrays
-    with pytest.raises(RuntimeError):
-        at_in.get_potential_energy()
-    with pytest.raises(RuntimeError):
-        at_in.get_forces()
-
-    # test explicit str
-    ase.io.write(tmp_path / "test.xyz", at, calc_prefix="REF_") # defaulting to, calc_prefix=None)
-    at_in = ase.io.read(tmp_path / "test.xyz")
-    assert "REF_energy" in at_in.info
-    assert "REF_forces" in at_in.arrays
-    with pytest.raises(RuntimeError):
-        at_in.get_potential_energy()
-    with pytest.raises(RuntimeError):
-        at_in.get_forces()
-
-    # test empty str
-    ase.io.write(tmp_path / "test.xyz", at, calc_prefix="") # defaulting to, calc_prefix=None)
-    at_in = ase.io.read(tmp_path / "test.xyz")
-    assert "energy" not in at_in.info
-    assert "forces" not in at_in.arrays
-    _ = at_in.get_potential_energy()
-    _ = at_in.get_forces()
