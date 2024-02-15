@@ -387,8 +387,18 @@ def test_pw_input_write():
         'lda_plus_u': True,
         'Hubbard_U(1)': 4.0,
         'Hubbard_U(2)': 0.0}}
-    write_espresso_in(fh, bulk, sections, pseudopotentials=pseudos)
+    write_espresso_in(fh, bulk, sections, pseudopotentials=pseudos,
+                      additional_cards=["test1", "test2", "test3"])
+
     readback = read_espresso_in('espresso_test.pwi')
+
+    with open('espresso_test.pwi') as f:
+        _, cards = read_fortran_namelist(f)
+
+        assert "K_POINTS gamma" in cards
+        assert cards[-3] == "test1"
+        assert cards[-1] == "test3"
+
     assert np.allclose(bulk.positions, readback.positions)
 
 
