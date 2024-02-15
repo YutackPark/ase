@@ -1067,6 +1067,16 @@ class Vasp(GenerateVaspInput, Calculator):  # type: ignore[misc]
                 if line.rfind('aborting loop') > -1:  # scf failed
                     raise RuntimeError(line.strip())
                     break
+            # VASP 6 actually labels loop exit reason
+            if 'aborting loop' in line:
+                converged = 'because EDIFF is reached' in line
+                # NOTE: 'EDIFF was not reached (unconverged)'
+                #        and
+                #       'because hard stop was set'
+                # will result in unconverged
+                break
+            # determine convergence by attempting to reproduce VASP's
+            # internal logic
             if 'EDIFF  ' in line:
                 ediff = float(line.split()[2])
             if 'total energy-change' in line:
