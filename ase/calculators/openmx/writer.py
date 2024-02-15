@@ -409,7 +409,13 @@ def get_atoms_speciesandcoordinates(atoms, parameters):
 
 
 def get_up_down_spin(magmom, element, xc, data_path, year):
-    magmom = np.linalg.norm(magmom)
+    # for magmom with single number (collinear spin) skip  the normalization
+    if isinstance(magmom, (int, float)):
+        # Collinear spin
+        magmom = float(magmom)
+    else:
+        # Non-collinear spin
+        magmom = np.linalg.norm(magmom)
     suffix = get_pseudo_potential_suffix(element, xc, year)
     filename = os.path.join(data_path, 'VPS/' + suffix + '.vps')
     valence_electron = float(read_electron_valency(filename))
