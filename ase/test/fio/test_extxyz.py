@@ -417,7 +417,7 @@ def test_conflicting_fields():
     _ = atoms.get_potential_energy()
     atoms.info["energy"] = 100
     # info / per-config conflict
-    with pytest.raises(AssertionError):
+    with pytest.raises(KeyError):
         ase.io.write(sys.stdout, atoms, format="extxyz")
 
     atoms = Atoms('Cu', cell=[2] * 3, pbc=[True] * 3)
@@ -426,7 +426,7 @@ def test_conflicting_fields():
     _ = atoms.get_forces()
     atoms.new_array("forces", np.ones(atoms.positions.shape))
     # arrays / per-atom conflict
-    with pytest.raises(AssertionError):
+    with pytest.raises(KeyError):
         ase.io.write(sys.stdout, atoms, format="extxyz")
 
 
@@ -465,3 +465,24 @@ def test_save_calc_results():
 
     # make sure conflicting field names do not raise an error when force=True
     save_calc_results(atoms, calc_prefix=calc_prefix, force=True)
+
+
+def test_basic_functionality(tmp_path):
+    atoms = Atoms('Cu2', cell=[4, 2, 2], positions=[[0, 0, 0], [2.05, 0, 0]], pbc=[True] * 3)
+    atoms.calc = EMT()
+    atoms.get_potential_energy()
+
+    atoms.info["REF_energy"] = 5
+
+    ase.io.write(tmp_path / 'test.xyz', atoms)
+    with open(tmp_path / 'test.xyz') as fin:
+        for line_i, line in enumerate(fin):
+            if line_i == 0:
+                assert line.strip() == str(len(atoms))
+            elif line_i == 1:
+                assert 'Properties=species:S:1:pos:R:3:energies:R:1:forces:R:3' in line
+                assert 'energy=' in line
+                assert 'stress=' in line
+                assert 'REF_energy=' in line
+            else:
+                assert len(line.strip().split()) == 1 + 3 + 1 + 3

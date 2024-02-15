@@ -16,7 +16,6 @@ import warnings
 import numpy as np
 
 from ase.atoms import Atoms
-from ase.calculators.calculator import BaseCalculator
 from ase.calculators.singlepoint import SinglePointCalculator
 from ase.constraints import FixAtoms, FixCartesian
 from ase.io.formats import index2range
@@ -723,8 +722,7 @@ def read_xyz(fileobj, index=-1, properties_parser=key_val_str_to_dict):
         yield _read_xyz_frame(fileobj, natoms, properties_parser, nvec)
 
 
-def output_column_format(atoms, columns, arrays,
-                         write_info=True, results=None):
+def output_column_format(atoms, columns, arrays, write_info=True):
     """
     Helper function to build extended XYZ comment line
     """
@@ -783,8 +781,6 @@ def output_column_format(atoms, columns, arrays,
     info = {}
     if write_info:
         info.update(atoms.info)
-    if results is not None:
-        info.update(results)
     info['pbc'] = atoms.get_pbc()  # always save periodic boundary conditions
     comment_str += ' ' + key_val_dict_to_str(info)
 
@@ -819,6 +815,16 @@ def write_xyz(fileobj, images, comment='', columns=None,
     for atoms in images:
         natoms = len(atoms)
 
+        if write_results:
+            calculator = atoms.calc
+            atoms = atoms.copy()
+
+            save_calc_results(atoms, calculator, calc_prefix="")
+
+            if atoms.info.get('stress', np.array([])).shape == (6,):
+                atoms.info['stress'] = \
+                    voigt_6_to_full_3x3_stress(atoms.info['stress'])
+
         if columns is None:
             fr_cols = (['symbols', 'positions']
                        + [key for key in atoms.arrays if
@@ -834,19 +840,6 @@ def write_xyz(fileobj, images, comment='', columns=None,
             fr_cols = ['symbols', 'positions']
             write_info = False
             write_results = False
-
-        per_frame_results = {}
-        per_atom_results = {}
-        if write_results:
-            calculator = atoms.calc
-            if (calculator is not None
-                    and isinstance(calculator, BaseCalculator)):
-                per_frame_results, per_atom_results = \
-                    _extract_calc_results(atoms, calc_prefix="")
-
-                if 'stress' in per_frame_results:
-                    per_frame_results['stress'] = \
-                        voigt_6_to_full_3x3_stress(per_frame_results['stress'])
 
         # Move symbols and positions to first two properties
         if 'symbols' in fr_cols:
@@ -918,23 +911,10 @@ def write_xyz(fileobj, images, comment='', columns=None,
             else:
                 raise ValueError(f'Missing array "{column}"')
 
-        if write_results:
-            for key in per_atom_results:
-                assert key not in fr_cols, \
-                    f"per-atom key {key} conflicts with Atoms.arrays dict"
-                fr_cols += [key]
-            arrays.update(per_atom_results)
-
-            if write_info:
-                for key in per_frame_results:
-                    assert key not in atoms.info, \
-                        f"per-frame key {key} conflicts with Atoms.info dict"
-
         comm, ncols, dtype, fmt = output_column_format(atoms,
                                                        fr_cols,
                                                        arrays,
-                                                       write_info,
-                                                       per_frame_results)
+                                                       write_info)
 
         if plain or comment != '':
             # override key/value pairs with user-speficied comment string
@@ -962,41 +942,6 @@ def write_xyz(fileobj, images, comment='', columns=None,
             fileobj.write(fmt % tuple(data[i]))
 
 
-def _extract_calc_results(atoms, calc=None, calc_prefix=None):
-    """Extract results from a calculator, sorted by whether they are
-    per-config or per-atom, with keys prefixed by a string.
-
-    Args:
-    atoms (`ase.atoms.Atoms`): Atoms object, modified in place
-    calc (`ase.calculators.Calculator`, optional): calculator to take results
-        from.  Defaults to :attr:`atoms.calc`
-    calc_prefix (str, optional): string to prepend to dict keys.
-        Defaults to name of class of calculator
-
-    Returns:
-    per_config_results, per_atom_results (dict, dict): results from
-        calculator
-    """
-    if calc is None:
-        calc = atoms.calc
-
-    if calc is None:
-        return None, None
-
-    if calc_prefix is None:
-        calc_prefix = calc.__class__.__name__ + '_'
-
-    per_config_results = {}
-    per_atom_results = {}
-    for prop, value in calc.results.items():
-        if prop in per_config_properties:
-            per_config_results[calc_prefix + prop] = value
-        else:
-            per_atom_results[calc_prefix + prop] = value
-
-    return per_config_results, per_atom_results
-
-
 def save_calc_results(atoms, calc=None, calc_prefix=None,
                       remove_atoms_calc=False, force=False):
     """Update information in atoms from results in a calculator
@@ -1014,11 +959,24 @@ def save_calc_results(atoms, calc=None, calc_prefix=None,
     force (bool, optional): overwrite existing fields with same name,
         default False
     """
-    per_config_results, per_atom_results = _extract_calc_results(atoms, calc,
-                                                                 calc_prefix)
-    if per_config_results is None or per_atom_results is None:
-        assert per_config_results is None and per_atom_results is None
-        return
+    if calc is None:
+        calc_use = atoms.calc
+    else:
+        calc_use = calc
+
+    if calc_use is None:
+        return None, None
+
+    if calc_prefix is None:
+        calc_prefix = calc_use.__class__.__name__ + '_'
+
+    per_config_results = {}
+    per_atom_results = {}
+    for prop, value in calc_use.results.items():
+        if prop in per_config_properties:
+            per_config_results[calc_prefix + prop] = value
+        else:
+            per_atom_results[calc_prefix + prop] = value
 
     if not force:
         if any([key in atoms.info for key in per_config_results]):
