@@ -414,8 +414,8 @@ def write_onetep_in(
                 for i in pp_files:
                     reg_el_candidate = re.split(r"[-_.:= ]+", i.stem)[0]
                     if (elements[idx] == reg_el_candidate.title()
-                    and i.suffix.lower() in common_suffix):
-                        pp_list.append(f"{el} {i.name}")
+                        and i.suffix.lower() in common_suffix):
+                            pp_list.append(f"{el} {i.name}")
     else:
         raise TypeError("pseudopotentials object can only be dict")
 
