@@ -15,20 +15,21 @@ import re
 import shutil
 import tempfile
 from typing import Any, Dict, List
-from os.path import isfile, islink, join
 
 import numpy as np
 
 from ase import Atoms
 from ase.calculators.calculator import (
     FileIOCalculator, Parameters, ReadError)
-from ase.calculators.siesta.import_functions import read_rho
+from ase.calculators.siesta.import_functions import read_rho, readWFSX
 from ase.calculators.siesta.parameters import PAOBasisBlock, format_fdf
+from ase.calculators.siesta.import_ion_xml import get_ion
 from ase.data import atomic_numbers
 from ase.io.siesta import read_siesta_xv
 from ase.io.siesta_input import SiestaInput
 from ase.units import Bohr, Ry, eV
 from ase.utils import deprecated
+from pathlib import Path
 
 meV = 0.001 * eV
 
@@ -529,9 +530,9 @@ class Siesta(FileIOCalculator):
         """
 
         fname = self.getpath(filename)
-        if not os.path.exists(fname):
+        if not fname.exists():
             raise ReadError(f"The restart file '{fname}' does not exist")
-        with open(fname) as fd:
+        with fname.open() as fd:
             self.atoms = read_siesta_xv(fd)
         self.read_results()
 
@@ -541,13 +542,13 @@ class Siesta(FileIOCalculator):
             fname = self.prefix
         if ext is not None:
             fname = f'{fname}.{ext}'
-        return os.path.join(self.directory, fname)
+        return Path(self.directory) / fname
 
     def remove_analysis(self):
         """ Remove all analysis files"""
-        filename = self.getpath(ext='RHO')
-        if os.path.exists(filename):
-            os.remove(filename)
+        filename = Path(self.getpath(ext='RHO'))
+        if filename.exists():
+            filename.unlink()
 
     def _write_structure(self, fd, atoms):
         """Translate the Atoms object to fdf-format.
@@ -712,31 +713,31 @@ class Siesta(FileIOCalculator):
         chemical_labels = []
         basis_sizes = []
         synth_blocks = []
-        for species_number, spec in enumerate(species):
-            species_number += 1
+
+        pseudo_path = Path(pseudo_path)
+        for species_number, spec in enumerate(species, start=1):
             symbol = spec['symbol']
             atomic_number = atomic_numbers[symbol]
 
             if spec['pseudopotential'] is None:
                 if self.pseudo_qualifier() == '':
                     label = symbol
-                    pseudopotential = label + '.psf'
                 else:
-                    label = '.'.join([symbol, self.pseudo_qualifier()])
-                    pseudopotential = label + '.psf'
+                    label = f"{symbol}.{self.pseudo_qualifier()}"
+                pseudopotential = pseudo_path / f"{label}.psf"
             else:
-                pseudopotential = spec['pseudopotential']
-                label = os.path.basename(pseudopotential)
-                label = '.'.join(label.split('.')[:-1])
+                pseudopotential = Path(spec['pseudopotential'])
+                label = pseudopotential.stem
+            if not pseudopotential.is_absolute():
+                pseudopotential = pseudo_path / pseudopotential
+            if not pseudopotential.exists():
+                label = symbol
+                pseudopotential = pseudo_path / f"{label}.psml"
+                if not pseudopotential.exists():
+                    mess = f"Pseudopotential '{pseudopotential}' not found"
+                    raise RuntimeError(mess)
 
-            if not os.path.isabs(pseudopotential):
-                pseudopotential = join(pseudo_path, pseudopotential)
-
-            if not os.path.exists(pseudopotential):
-                mess = f"Pseudopotential '{pseudopotential}' not found"
-                raise RuntimeError(mess)
-
-            name = os.path.basename(pseudopotential)
+            name = pseudopotential.name
             name = name.split('.')
             name.insert(-1, str(species_number))
             if spec['ghost']:
@@ -744,20 +745,19 @@ class Siesta(FileIOCalculator):
                 atomic_number = -atomic_number
 
             name = '.'.join(name)
-            pseudo_targetpath = self.getpath(name)
-
-            if join(os.getcwd(), name) != pseudopotential:
-                if islink(pseudo_targetpath) or isfile(pseudo_targetpath):
-                    os.remove(pseudo_targetpath)
+            pseudopath = self.getpath(name)
+            if Path(os.getcwd()) / name != pseudopotential:
+                if pseudopath.is_symlink() or pseudopath.is_file():
+                    os.remove(pseudopath)
                 symlink_pseudos = self['symlink_pseudos']
 
                 if symlink_pseudos is None:
                     symlink_pseudos = not os.name == 'nt'
 
                 if symlink_pseudos:
-                    os.symlink(pseudopotential, pseudo_targetpath)
+                    os.symlink(pseudopotential, pseudopath)
                 else:
-                    shutil.copy(pseudopotential, pseudo_targetpath)
+                    shutil.copy(pseudopotential, pseudopath)
 
             if len(synth_blocks) > 0:
                 fd.write(format_fdf('SyntheticAtoms', list(synth_blocks)))
@@ -831,14 +831,10 @@ class Siesta(FileIOCalculator):
         """
         Read the ion.xml file of each specie
         """
-        from ase.calculators.siesta.import_ion_xml import get_ion
-
         species, species_numbers = self.species(atoms)
 
         self.results['ion'] = {}
-        for species_number, spec in enumerate(species):
-            species_number += 1
-
+        for species_number, spec in enumerate(species, start=1):
             symbol = spec['symbol']
             atomic_number = atomic_numbers[symbol]
 
@@ -846,27 +842,29 @@ class Siesta(FileIOCalculator):
                 if self.pseudo_qualifier() == '':
                     label = symbol
                 else:
-                    label = '.'.join([symbol, self.pseudo_qualifier()])
+                    label = f"{symbol}.{self.pseudo_qualifier()}"
                 pseudopotential = self.getpath(label, 'psf')
             else:
-                pseudopotential = spec['pseudopotential']
-                label = os.path.basename(pseudopotential)
-                label = '.'.join(label.split('.')[:-1])
+                pseudopotential = Path(spec['pseudopotential'])
+                label = pseudopotential.stem
 
-            name = os.path.basename(pseudopotential)
-            name = name.split('.')
-            name.insert(-1, str(species_number))
+            name = f"{label}.{species_number}"
             if spec['ghost']:
-                name.insert(-1, 'ghost')
+                name = f"{name}.ghost"
                 atomic_number = -atomic_number
-            name = '.'.join(name)
 
-            label = '.'.join(np.array(name.split('.'))[:-1])
+            label = name.rsplit('.', 2)[0]
 
             if label not in self.results['ion']:
                 fname = self.getpath(label, 'ion.xml')
-                if os.path.isfile(fname):
+                fname = Path(fname)
+                if fname.is_file():
                     self.results['ion'][label] = get_ion(fname)
+                else:
+                    fname = self.getpath(label, 'psml')
+                    fname = Path(fname)
+                    if fname.is_file():
+                        self.results['ion'][label] = get_ion(fname)
 
     def read_hsx(self):
         """
@@ -879,7 +877,7 @@ class Siesta(FileIOCalculator):
         from ase.calculators.siesta.import_functions import readHSX
 
         filename = self.getpath(ext='HSX')
-        if isfile(filename):
+        if filename.is_file():
             self.results['hsx'] = readHSX(filename)
         else:
             self.results['hsx'] = None
@@ -894,7 +892,7 @@ class Siesta(FileIOCalculator):
         from ase.calculators.siesta.import_functions import readDIM
 
         filename = self.getpath(ext='DIM')
-        if isfile(filename):
+        if filename.is_file():
             self.results['dim'] = readDIM(filename)
         else:
             self.results['dim'] = None
@@ -909,7 +907,7 @@ class Siesta(FileIOCalculator):
         from ase.calculators.siesta.import_functions import readPLD
 
         filename = self.getpath(ext='PLD')
-        if isfile(filename):
+        if filename.is_file():
             self.results['pld'] = readPLD(filename, norb, natms)
         else:
             self.results['pld'] = None
@@ -919,15 +917,13 @@ class Siesta(FileIOCalculator):
         Read the siesta WFSX file
         Return a namedtuple with the following arguments:
         """
-        from ase.calculators.siesta.import_functions import readWFSX
+        fname_woext = Path(self.directory) / self.prefix
 
-        fname_woext = os.path.join(self.directory, self.prefix)
-
-        if isfile(fname_woext + '.WFSX'):
-            filename = fname_woext + '.WFSX'
+        if (fname_woext.with_suffix('.WFSX')).is_file():
+            filename = fname_woext.with_suffix('.WFSX')
             self.results['wfsx'] = readWFSX(filename)
-        elif isfile(fname_woext + '.fullBZ.WFSX'):
-            filename = fname_woext + '.fullBZ.WFSX'
+        elif (fname_woext.with_suffix('.fullBZ.WFSX')).is_file():
+            filename = fname_woext.with_suffix('.fullBZ.WFSX')
             readWFSX(filename)
             self.results['wfsx'] = readWFSX(filename)
         else:
@@ -936,7 +932,7 @@ class Siesta(FileIOCalculator):
     def read_pseudo_density(self):
         """Read the density if it is there."""
         filename = self.getpath(ext='RHO')
-        if isfile(filename):
+        if filename.is_file():
             self.results['density'] = read_rho(filename)
 
     def read_number_of_grid_points(self):
