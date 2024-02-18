@@ -1089,7 +1089,7 @@ class FileIOCalculator(Calculator):
         # Helper method to load configuration.
         # This is used by the tests, do not rely on this as it will change.
         section = cfg.parser[section_name]
-        argv = shlex.split(section['command'])
+        argv = shlex.split(section['binary'])
         return ArgvProfile(section_name, argv)
 
     def _initialize_profile(self, command):
