@@ -965,24 +965,3 @@ class Siesta(FileIOCalculator):
 
     def get_ibz_k_points(self):
         return self.results['kpoints']
-
-
-class Siesta3_2(Siesta):
-    @deprecated(
-        "The Siesta3_2 calculator class will no longer be supported. "
-        "Use 'ase.calculators.siesta.Siesta instead. "
-        "If using the ASE interface with SIESTA 3.2 you must explicitly "
-        "include the keywords 'SpinPolarized', 'NonCollinearSpin' and "
-        "'SpinOrbit' if needed.",
-        FutureWarning
-    )
-    def __init__(self, *args, **kwargs):
-        """
-        .. deprecated: 3.18.2
-            The Siesta3_2 calculator class will no longer be supported.
-            Use :class:`~ase.calculators.siesta.Siesta` instead.
-            If using the ASE interface with SIESTA 3.2 you must explicitly
-            include the keywords 'SpinPolarized', 'NonCollinearSpin' and
-            'SpinOrbit' if needed.
-        """
-        Siesta.__init__(self, *args, **kwargs)
