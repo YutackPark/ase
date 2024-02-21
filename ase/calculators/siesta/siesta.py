@@ -797,7 +797,6 @@ class Siesta(FileIOCalculator):
         self.read_kpoints()
         self.read_dipole()
         self.read_pseudo_density()
-        self.read_dim()
 
         self.read_wfsx()
         self.read_ion(self.atoms)
@@ -859,21 +858,6 @@ class Siesta(FileIOCalculator):
                     fname = Path(fname)
                     if fname.is_file():
                         self.results['ion'][label] = get_ion(fname)
-
-    def read_dim(self):
-        """
-        Read the siesta DIM file
-        Retrun a namedtuple with the following arguments:
-        'natoms_sc', 'norbitals_sc', 'norbitals', 'nspin',
-        'nnonzero', 'natoms_interacting'
-        """
-        from ase.calculators.siesta.import_functions import readDIM
-
-        filename = self.getpath(ext='DIM')
-        if filename.is_file():
-            self.results['dim'] = readDIM(filename)
-        else:
-            self.results['dim'] = None
 
     def read_pld(self, norb, natms):
         """
