@@ -177,8 +177,6 @@ def _nonpolarized_alias(_: List, kwargs: Dict[str, Any]) -> bool:
 class Siesta(FileIOCalculator):
     """Calculator interface to the SIESTA code.
     """
-    allowed_spins = ['non-polarized', 'collinear',
-                     'non-collinear', 'spin-orbit']
     allowed_xc = {
         'LDA': ['PZ', 'CA', 'PW92'],
         'GGA': ['PW91', 'PBE', 'revPBE', 'RPBE',
@@ -341,13 +339,6 @@ class Siesta(FileIOCalculator):
             if not (isinstance(value, (float, int)) and value > 0):
                 mess = "'{}' must be a positive number(in eV), \
                     got '{}'".format(arg, value)
-                raise ValueError(mess)
-
-        # Check the spin input.
-        if 'spin' in kwargs:
-            spin = kwargs['spin']
-            if spin is not None and (spin.lower() not in self.allowed_spins):
-                mess = f"Spin must be {self.allowed_spins}, got '{spin}'"
                 raise ValueError(mess)
 
         # Check the functional input.
