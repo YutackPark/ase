@@ -73,16 +73,19 @@ def get_siesta_version(executable: str) -> str:
     return parse_siesta_version(output)
 
 
-def bandpath2bandpoints(path):
-    lines = []
-    add = lines.append
+def format_block(name, block):
+    lines = [f'%block {name}']
+    for row in block:
+        data = ' '.join(str(obj) for obj in row)
+        lines.append(f'    {data}')
+    lines.append(f'%endblock {name}')
+    return '\n'.join(lines)
 
-    add('BandLinesScale ReciprocalLatticeVectors\n')
-    add('%block BandPoints\n')
-    for kpt in path.kpts:
-        add('    {:18.15f} {:18.15f} {:18.15f}\n'.format(*kpt))
-    add('%endblock BandPoints')
-    return ''.join(lines)
+
+def bandpath2bandpoints(path):
+    return '\n'.join([
+        'BandLinesScale ReciprocalLatticeVectors',
+        format_block('BandPoints', path.kpts)])
 
 
 def read_bands_file(fd):
