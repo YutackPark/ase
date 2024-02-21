@@ -414,10 +414,6 @@ class Siesta(FileIOCalculator):
 
         filename = self.getpath(ext='fdf')
 
-        # On any changes, remove all analysis files.
-        if system_changes is not None:
-            self.remove_analysis()
-
         # Start writing the file.
         with open(filename, 'w') as fd:
             # Write system name and label.
@@ -512,12 +508,6 @@ class Siesta(FileIOCalculator):
         if ext is not None:
             fname = f'{fname}.{ext}'
         return Path(self.directory) / fname
-
-    def remove_analysis(self):
-        """ Remove all analysis files"""
-        filename = Path(self.getpath(ext='RHO'))
-        if filename.exists():
-            filename.unlink()
 
     def _write_structure(self, fd, atoms):
         """Translate the Atoms object to fdf-format.
