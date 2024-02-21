@@ -795,7 +795,6 @@ class Siesta(FileIOCalculator):
         self.read_eigenvalues()
         self.read_kpoints()
         self.read_dipole()
-        self.read_pseudo_density()
 
         self.read_ion(self.atoms)
 
