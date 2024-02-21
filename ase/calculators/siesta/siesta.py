@@ -21,7 +21,7 @@ import numpy as np
 from ase import Atoms
 from ase.calculators.calculator import (
     FileIOCalculator, Parameters, ReadError)
-from ase.calculators.siesta.import_functions import read_rho, readWFSX
+from ase.calculators.siesta.import_functions import read_rho
 from ase.calculators.siesta.parameters import PAOBasisBlock, format_fdf
 from ase.calculators.siesta.import_ion_xml import get_ion
 from ase.data import atomic_numbers
@@ -798,7 +798,6 @@ class Siesta(FileIOCalculator):
         self.read_dipole()
         self.read_pseudo_density()
 
-        self.read_wfsx()
         self.read_ion(self.atoms)
 
         self.read_bands()
@@ -873,23 +872,6 @@ class Siesta(FileIOCalculator):
             self.results['pld'] = readPLD(filename, norb, natms)
         else:
             self.results['pld'] = None
-
-    def read_wfsx(self):
-        """
-        Read the siesta WFSX file
-        Return a namedtuple with the following arguments:
-        """
-        fname_woext = Path(self.directory) / self.prefix
-
-        if (fname_woext.with_suffix('.WFSX')).is_file():
-            filename = fname_woext.with_suffix('.WFSX')
-            self.results['wfsx'] = readWFSX(filename)
-        elif (fname_woext.with_suffix('.fullBZ.WFSX')).is_file():
-            filename = fname_woext.with_suffix('.fullBZ.WFSX')
-            readWFSX(filename)
-            self.results['wfsx'] = readWFSX(filename)
-        else:
-            self.results['wfsx'] = None
 
     def read_pseudo_density(self):
         """Read the density if it is there."""
