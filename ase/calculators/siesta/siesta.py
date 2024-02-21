@@ -534,7 +534,10 @@ class Siesta(FileIOCalculator):
             fd.write('%endblock LatticeVectors\n')
             fd.write('\n')
 
-        self._write_atomic_coordinates(fd, atoms)
+        _, species_numbers = self.species(atoms)
+        write_atomic_coordinates(
+            fd, atoms, species_numbers,
+            self.parameters["atomic_coord_format"].lower())
 
         # Write magnetic moments.
         magmoms = atoms.get_initial_magnetic_moments()
@@ -560,25 +563,6 @@ class Siesta(FileIOCalculator):
                         fd.write('    %d %.14f \n' % (n + 1, M))
             fd.write('%endblock DM.InitSpin\n')
             fd.write('\n')
-
-    def _write_atomic_coordinates(self, fd, atoms: Atoms):
-        """Write atomic coordinates.
-
-        Parameters
-        ----------
-        fd : IO
-            An open file object.
-        atoms : Atoms
-            An atoms object.
-        """
-        af = self.parameters["atomic_coord_format"].lower()
-        species, species_numbers = self.species(atoms)
-        if af == 'xyz':
-            write_atomic_coordinates_xyz(fd, atoms, species_numbers)
-        elif af == 'zmatrix':
-            write_atomic_coordinates_zmatrix(fd, atoms, species_numbers)
-        else:
-            raise RuntimeError(f'Unknown atomic_coord_format: {af}')
 
     def _write_species(self, fd, atoms):
         """Write input related the different species.
@@ -882,6 +866,26 @@ class Siesta(FileIOCalculator):
 
     def get_ibz_k_points(self):
         return self.results['kpoints']
+
+
+def write_atomic_coordinates(fd, atoms: Atoms, species_numbers,
+                             atomic_coord_format: str):
+    """Write atomic coordinates.
+
+    Parameters
+    ----------
+    fd : IO
+        An open file object.
+    atoms : Atoms
+        An atoms object.
+    """
+    if atomic_coord_format == 'xyz':
+        write_atomic_coordinates_xyz(fd, atoms, species_numbers)
+    elif atomic_coord_format == 'zmatrix':
+        write_atomic_coordinates_zmatrix(fd, atoms, species_numbers)
+    else:
+        raise RuntimeError(
+            f'Unknown atomic_coord_format: {atomic_coord_format}')
 
 
 def write_atomic_coordinates_zmatrix(fd, atoms: Atoms, species_numbers):
