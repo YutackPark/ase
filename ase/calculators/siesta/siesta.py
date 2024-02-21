@@ -576,43 +576,9 @@ class Siesta(FileIOCalculator):
         if af == 'xyz':
             write_atomic_coordinates_xyz(fd, atoms, species_numbers)
         elif af == 'zmatrix':
-            self._write_atomic_coordinates_zmatrix(fd, atoms, species_numbers)
+            write_atomic_coordinates_zmatrix(fd, atoms, species_numbers)
         else:
             raise RuntimeError(f'Unknown atomic_coord_format: {af}')
-
-    def _write_atomic_coordinates_zmatrix(
-            self, fd, atoms: Atoms, species_numbers):
-        """Write atomic coordinates in Z-matrix format.
-
-        Parameters
-        ----------
-        fd : IO
-            An open file object.
-        atoms : Atoms
-            An atoms object.
-        """
-        fd.write('\n')
-        fd.write('ZM.UnitsLength   Ang\n')
-        fd.write('%block Zmatrix\n')
-        fd.write('  cartesian\n')
-        fstr = "{:5d}" + "{:20.10f}" * 3 + "{:3d}" * 3 + "{:7d} {:s}\n"
-        a2constr = SiestaInput.make_xyz_constraints(atoms)
-        a2p, a2s = atoms.get_positions(), atoms.get_chemical_symbols()
-        for ia, (sp, xyz, ccc, sym) in enumerate(zip(species_numbers,
-                                                     a2p,
-                                                     a2constr,
-                                                     a2s)):
-            fd.write(fstr.format(
-                sp, xyz[0], xyz[1], xyz[2], ccc[0],
-                ccc[1], ccc[2], ia + 1, sym))
-        fd.write('%endblock Zmatrix\n')
-
-        origin = tuple(-atoms.get_celldisp().flatten())
-        if any(origin):
-            fd.write('%block AtomicCoordinatesOrigin\n')
-            fd.write('     %.4f  %.4f  %.4f\n' % origin)
-            fd.write('%endblock AtomicCoordinatesOrigin\n')
-            fd.write('\n')
 
     def _write_species(self, fd, atoms):
         """Write input related the different species.
@@ -916,6 +882,40 @@ class Siesta(FileIOCalculator):
 
     def get_ibz_k_points(self):
         return self.results['kpoints']
+
+
+def write_atomic_coordinates_zmatrix(fd, atoms: Atoms, species_numbers):
+    """Write atomic coordinates in Z-matrix format.
+
+    Parameters
+    ----------
+    fd : IO
+        An open file object.
+    atoms : Atoms
+        An atoms object.
+    """
+    fd.write('\n')
+    fd.write('ZM.UnitsLength   Ang\n')
+    fd.write('%block Zmatrix\n')
+    fd.write('  cartesian\n')
+    fstr = "{:5d}" + "{:20.10f}" * 3 + "{:3d}" * 3 + "{:7d} {:s}\n"
+    a2constr = SiestaInput.make_xyz_constraints(atoms)
+    a2p, a2s = atoms.get_positions(), atoms.get_chemical_symbols()
+    for ia, (sp, xyz, ccc, sym) in enumerate(zip(species_numbers,
+                                                 a2p,
+                                                 a2constr,
+                                                 a2s)):
+        fd.write(fstr.format(
+            sp, xyz[0], xyz[1], xyz[2], ccc[0],
+            ccc[1], ccc[2], ia + 1, sym))
+    fd.write('%endblock Zmatrix\n')
+
+    origin = tuple(-atoms.get_celldisp().flatten())
+    if any(origin):
+        fd.write('%block AtomicCoordinatesOrigin\n')
+        fd.write('     %.4f  %.4f  %.4f\n' % origin)
+        fd.write('%endblock AtomicCoordinatesOrigin\n')
+        fd.write('\n')
 
 
 def write_atomic_coordinates_xyz(fd, atoms: Atoms, species_numbers):
