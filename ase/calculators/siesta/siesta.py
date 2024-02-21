@@ -21,7 +21,6 @@ import numpy as np
 from ase import Atoms
 from ase.calculators.calculator import (
     FileIOCalculator, Parameters, ReadError)
-from ase.calculators.siesta.import_functions import read_rho
 from ase.calculators.siesta.parameters import PAOBasisBlock, format_fdf
 from ase.calculators.siesta.import_ion_xml import get_ion
 from ase.data import atomic_numbers
@@ -857,12 +856,6 @@ class Siesta(FileIOCalculator):
                     fname = Path(fname)
                     if fname.is_file():
                         self.results['ion'][label] = get_ion(fname)
-
-    def read_pseudo_density(self):
-        """Read the density if it is there."""
-        filename = self.getpath(ext='RHO')
-        if filename.is_file():
-            self.results['density'] = read_rho(filename)
 
     def read_number_of_grid_points(self):
         """Read number of grid points from SIESTA's text-output file. """
