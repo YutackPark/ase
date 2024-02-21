@@ -218,7 +218,7 @@ class Siesta(FileIOCalculator):
         stdin_name='{prefix}.fdf',
         stdout_name='{prefix}.out')
 
-    def __init__(self, command=None, profile=None, directory=None, **kwargs):
+    def __init__(self, command=None, profile=None, directory='.', **kwargs):
         """ASE interface to the SIESTA code.
 
         Parameters:
