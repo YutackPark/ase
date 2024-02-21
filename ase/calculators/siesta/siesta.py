@@ -21,7 +21,6 @@ import numpy as np
 from ase import Atoms
 from ase.calculators.calculator import (
     FileIOCalculator, Parameters, ReadError)
-from ase.calculators.siesta.import_functions import read_rho, readWFSX
 from ase.calculators.siesta.parameters import PAOBasisBlock, format_fdf
 from ase.calculators.siesta.import_ion_xml import get_ion
 from ase.data import atomic_numbers
@@ -796,10 +795,7 @@ class Siesta(FileIOCalculator):
         self.read_eigenvalues()
         self.read_kpoints()
         self.read_dipole()
-        self.read_pseudo_density()
-        self.read_dim()
 
-        self.read_wfsx()
         self.read_ion(self.atoms)
 
         self.read_bands()
@@ -859,59 +855,6 @@ class Siesta(FileIOCalculator):
                     fname = Path(fname)
                     if fname.is_file():
                         self.results['ion'][label] = get_ion(fname)
-
-    def read_dim(self):
-        """
-        Read the siesta DIM file
-        Retrun a namedtuple with the following arguments:
-        'natoms_sc', 'norbitals_sc', 'norbitals', 'nspin',
-        'nnonzero', 'natoms_interacting'
-        """
-        from ase.calculators.siesta.import_functions import readDIM
-
-        filename = self.getpath(ext='DIM')
-        if filename.is_file():
-            self.results['dim'] = readDIM(filename)
-        else:
-            self.results['dim'] = None
-
-    def read_pld(self, norb, natms):
-        """
-        Read the siesta PLD file
-        Return a namedtuple with the following arguments:
-        'max_rcut', 'orb2ao', 'orb2uorb', 'orb2occ', 'atm2sp',
-        'atm2shift', 'coord_sc', 'cell', 'nunit_cells'
-        """
-        from ase.calculators.siesta.import_functions import readPLD
-
-        filename = self.getpath(ext='PLD')
-        if filename.is_file():
-            self.results['pld'] = readPLD(filename, norb, natms)
-        else:
-            self.results['pld'] = None
-
-    def read_wfsx(self):
-        """
-        Read the siesta WFSX file
-        Return a namedtuple with the following arguments:
-        """
-        fname_woext = Path(self.directory) / self.prefix
-
-        if (fname_woext.with_suffix('.WFSX')).is_file():
-            filename = fname_woext.with_suffix('.WFSX')
-            self.results['wfsx'] = readWFSX(filename)
-        elif (fname_woext.with_suffix('.fullBZ.WFSX')).is_file():
-            filename = fname_woext.with_suffix('.fullBZ.WFSX')
-            readWFSX(filename)
-            self.results['wfsx'] = readWFSX(filename)
-        else:
-            self.results['wfsx'] = None
-
-    def read_pseudo_density(self):
-        """Read the density if it is there."""
-        filename = self.getpath(ext='RHO')
-        if filename.is_file():
-            self.results['density'] = read_rho(filename)
 
     def read_number_of_grid_points(self):
         """Read number of grid points from SIESTA's text-output file. """
