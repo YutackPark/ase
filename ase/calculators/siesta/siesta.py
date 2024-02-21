@@ -402,15 +402,11 @@ class Siesta(FileIOCalculator):
             - properties   : The properties which should be calculated.
             - system_changes : List of properties changed since last run.
         """
-        # Call base calculator.
-        FileIOCalculator.write_input(
-            self,
+
+        super().write_input(
             atoms=atoms,
             properties=properties,
             system_changes=system_changes)
-
-        if system_changes is None and properties is None:
-            return
 
         filename = self.getpath(ext='fdf')
 
