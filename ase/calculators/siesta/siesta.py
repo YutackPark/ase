@@ -218,7 +218,7 @@ class Siesta(FileIOCalculator):
         stdin_name='{prefix}.fdf',
         stdout_name='{prefix}.out')
 
-    def __init__(self, command=None, profile=None, **kwargs):
+    def __init__(self, command=None, profile=None, directory='.', **kwargs):
         """ASE interface to the SIESTA code.
 
         Parameters:
@@ -283,6 +283,7 @@ class Siesta(FileIOCalculator):
             self,
             command=command,
             profile=profile,
+            directory=directory,
             **parameters)
 
     def __getitem__(self, key):
@@ -796,14 +797,7 @@ class Siesta(FileIOCalculator):
         self.read_kpoints()
         self.read_dipole()
         self.read_pseudo_density()
-        self.read_hsx()
         self.read_dim()
-        if self.results['hsx'] is not None:
-            self.read_pld(self.results['hsx'].norbitals,
-                          len(self.atoms))
-            self.atoms.cell = self.results['pld'].cell * Bohr
-        else:
-            self.results['pld'] = None
 
         self.read_wfsx()
         self.read_ion(self.atoms)
@@ -865,22 +859,6 @@ class Siesta(FileIOCalculator):
                     fname = Path(fname)
                     if fname.is_file():
                         self.results['ion'][label] = get_ion(fname)
-
-    def read_hsx(self):
-        """
-        Read the siesta HSX file.
-        return a namedtuple with the following arguments:
-        'norbitals', 'norbitals_sc', 'nspin', 'nonzero',
-        'is_gamma', 'sc_orb2uc_orb', 'row2nnzero', 'sparse_ind2column',
-        'H_sparse', 'S_sparse', 'aB2RaB_sparse', 'total_elec_charge', 'temp'
-        """
-        from ase.calculators.siesta.import_functions import readHSX
-
-        filename = self.getpath(ext='HSX')
-        if filename.is_file():
-            self.results['hsx'] = readHSX(filename)
-        else:
-            self.results['hsx'] = None
 
     def read_dim(self):
         """
