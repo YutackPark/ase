@@ -176,16 +176,6 @@ def _nonpolarized_alias(_: List, kwargs: Dict[str, Any]) -> bool:
 class Siesta(FileIOCalculator):
     """Calculator interface to the SIESTA code.
     """
-    # Siesta manual does not document many of the basis names.
-    # basis_specs.f has a ton of aliases for each.
-    # Let's just list one of each type then.
-    #
-    # Maybe we should be less picky about these keyword names.
-    allowed_basis_names = ['SZ', 'SZP',
-                           'DZ', 'DZP', 'DZP2',
-                           'TZ', 'TZP', 'TZP2', 'TZP3']
-    allowed_spins = ['non-polarized', 'collinear',
-                     'non-collinear', 'spin-orbit']
     allowed_xc = {
         'LDA': ['PZ', 'CA', 'PW92'],
         'GGA': ['PW91', 'PBE', 'revPBE', 'RPBE',
@@ -348,22 +338,6 @@ class Siesta(FileIOCalculator):
             if not (isinstance(value, (float, int)) and value > 0):
                 mess = "'{}' must be a positive number(in eV), \
                     got '{}'".format(arg, value)
-                raise ValueError(mess)
-
-        # Check the basis set input.
-        if 'basis_set' in kwargs:
-            basis_set = kwargs['basis_set']
-            allowed = self.allowed_basis_names
-            if not (isinstance(basis_set, PAOBasisBlock) or
-                    basis_set in allowed):
-                mess = f"Basis must be either {allowed}, got {basis_set}"
-                raise ValueError(mess)
-
-        # Check the spin input.
-        if 'spin' in kwargs:
-            spin = kwargs['spin']
-            if spin is not None and (spin.lower() not in self.allowed_spins):
-                mess = f"Spin must be {self.allowed_spins}, got '{spin}'"
                 raise ValueError(mess)
 
         # Check the functional input.
