@@ -574,41 +574,11 @@ class Siesta(FileIOCalculator):
         af = self.parameters["atomic_coord_format"].lower()
         species, species_numbers = self.species(atoms)
         if af == 'xyz':
-            self._write_atomic_coordinates_xyz(fd, atoms, species_numbers)
+            write_atomic_coordinates_xyz(fd, atoms, species_numbers)
         elif af == 'zmatrix':
             self._write_atomic_coordinates_zmatrix(fd, atoms, species_numbers)
         else:
             raise RuntimeError(f'Unknown atomic_coord_format: {af}')
-
-    def _write_atomic_coordinates_xyz(self, fd, atoms: Atoms, species_numbers):
-        """Write atomic coordinates.
-
-        Parameters
-        ----------
-        fd : IO
-            An open file object.
-        atoms : Atoms
-            An atoms object.
-        """
-        fd.write('\n')
-        fd.write('AtomicCoordinatesFormat  Ang\n')
-        fd.write('%block AtomicCoordinatesAndAtomicSpecies\n')
-        for atom, number in zip(atoms, species_numbers):
-            xyz = atom.position
-            line = ('    %.9f' % xyz[0]).rjust(16) + ' '
-            line += ('    %.9f' % xyz[1]).rjust(16) + ' '
-            line += ('    %.9f' % xyz[2]).rjust(16) + ' '
-            line += str(number) + '\n'
-            fd.write(line)
-        fd.write('%endblock AtomicCoordinatesAndAtomicSpecies\n')
-        fd.write('\n')
-
-        origin = tuple(-atoms.get_celldisp().flatten())
-        if any(origin):
-            fd.write('%block AtomicCoordinatesOrigin\n')
-            fd.write('     %.4f  %.4f  %.4f\n' % origin)
-            fd.write('%endblock AtomicCoordinatesOrigin\n')
-            fd.write('\n')
 
     def _write_atomic_coordinates_zmatrix(
             self, fd, atoms: Atoms, species_numbers):
@@ -946,3 +916,34 @@ class Siesta(FileIOCalculator):
 
     def get_ibz_k_points(self):
         return self.results['kpoints']
+
+
+def write_atomic_coordinates_xyz(fd, atoms: Atoms, species_numbers):
+    """Write atomic coordinates.
+
+    Parameters
+    ----------
+    fd : IO
+        An open file object.
+    atoms : Atoms
+        An atoms object.
+    """
+    fd.write('\n')
+    fd.write('AtomicCoordinatesFormat  Ang\n')
+    fd.write('%block AtomicCoordinatesAndAtomicSpecies\n')
+    for atom, number in zip(atoms, species_numbers):
+        xyz = atom.position
+        line = ('    %.9f' % xyz[0]).rjust(16) + ' '
+        line += ('    %.9f' % xyz[1]).rjust(16) + ' '
+        line += ('    %.9f' % xyz[2]).rjust(16) + ' '
+        line += str(number) + '\n'
+        fd.write(line)
+    fd.write('%endblock AtomicCoordinatesAndAtomicSpecies\n')
+    fd.write('\n')
+
+    origin = tuple(-atoms.get_celldisp().flatten())
+    if any(origin):
+        fd.write('%block AtomicCoordinatesOrigin\n')
+        fd.write('     %.4f  %.4f  %.4f\n' % origin)
+        fd.write('%endblock AtomicCoordinatesOrigin\n')
+        fd.write('\n')
