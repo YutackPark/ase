@@ -138,11 +138,6 @@ def resolve_band_structure(path, kpts, energies, efermi):
 
 
 class SiestaParameters(Parameters):
-    """Parameters class for the calculator.
-    Documented in BaseSiesta.__init__
-
-    """
-
     def __init__(
             self,
             label='siesta',
