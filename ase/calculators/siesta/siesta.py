@@ -858,21 +858,6 @@ class Siesta(FileIOCalculator):
                     if fname.is_file():
                         self.results['ion'][label] = get_ion(fname)
 
-    def read_pld(self, norb, natms):
-        """
-        Read the siesta PLD file
-        Return a namedtuple with the following arguments:
-        'max_rcut', 'orb2ao', 'orb2uorb', 'orb2occ', 'atm2sp',
-        'atm2shift', 'coord_sc', 'cell', 'nunit_cells'
-        """
-        from ase.calculators.siesta.import_functions import readPLD
-
-        filename = self.getpath(ext='PLD')
-        if filename.is_file():
-            self.results['pld'] = readPLD(filename, norb, natms)
-        else:
-            self.results['pld'] = None
-
     def read_pseudo_density(self):
         """Read the density if it is there."""
         filename = self.getpath(ext='RHO')
