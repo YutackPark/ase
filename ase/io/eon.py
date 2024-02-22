@@ -161,7 +161,7 @@ def make_atoms(coordblock, header):
         masses=masses,
         cell=cellpar_to_cell(cellpar),
         constraint=FixAtoms(mask=fixed),
-        info=dict(comment="\n".join(header.header_lines)),
+        info=dict(comment=" ".join(header.header_lines)),
     )
 
 
