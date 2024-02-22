@@ -55,6 +55,12 @@ ase = [
 
 [tool.pytest.ini_options]
 testpaths = ['ase/test']
+markers = [
+    "calculator: parametrizes calculator tests with calculator factories",
+    "calculator_lite: for calculator tests; include in calculators-lite job",
+    "optimize: tests of optimizers",
+    "slow: test takes longer than a few seconds",
+]
 
 [tool.mypy]
 ignore_missing_imports = true
