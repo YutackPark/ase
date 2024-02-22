@@ -10,6 +10,7 @@ http://www.uam.es/departamentos/ciencias/fismateriac/siesta
 
 """
 
+from dataclasses import dataclass
 import os
 import re
 import shutil
@@ -462,7 +463,6 @@ class Siesta(FileIOCalculator):
                                 (self['energy_shift'], 'eV')))
             fd.write("\n")
 
-            # Write the minimal arg
             self._write_species(fd, atoms)
             self._write_structure(fd, atoms)
 
@@ -486,6 +486,27 @@ class Siesta(FileIOCalculator):
                 lines = bandpath2bandpoints(self['bandpath'])
                 fd.write(lines)
                 fd.write('\n')
+
+    def _write_species(self, fd, atoms):
+        species, _ = self.species(atoms)
+
+        if self['pseudo_path'] is not None:
+            pseudo_path = self['pseudo_path']
+        elif 'SIESTA_PP_PATH' in self.cfg:
+            pseudo_path = self.cfg['SIESTA_PP_PATH']
+        else:
+            mess = "Please set the environment variable 'SIESTA_PP_PATH'"
+            raise Exception(mess)
+
+        species_info = SpeciesInfo(
+            atoms=atoms,
+            pseudo_path=Path(pseudo_path),
+            pseudo_qualifier=self.pseudo_qualifier(),
+            species=species,
+            symlink_pseudos=self['symlink_pseudos'],
+            target_directory=Path(self.directory))
+
+        species_info.write(fd)
 
     def read(self, filename):
         """Read structural parameters from file .XV file
@@ -558,92 +579,6 @@ class Siesta(FileIOCalculator):
                         fd.write('    %d %.14f \n' % (n + 1, M))
             fd.write('%endblock DM.InitSpin\n')
             fd.write('\n')
-
-    def _write_species(self, fd, atoms):
-        """Write input related the different species.
-
-        Parameters:
-            - f:     An open file object.
-            - atoms: An atoms object.
-        """
-        species, species_numbers = self.species(atoms)
-
-        if self['pseudo_path'] is not None:
-            pseudo_path = self['pseudo_path']
-        elif 'SIESTA_PP_PATH' in self.cfg:
-            pseudo_path = self.cfg['SIESTA_PP_PATH']
-        else:
-            mess = "Please set the environment variable 'SIESTA_PP_PATH'"
-            raise Exception(mess)
-
-        fd.write(format_fdf('NumberOfSpecies', len(species)))
-        fd.write(format_fdf('NumberOfAtoms', len(atoms)))
-
-        pao_basis = []
-        chemical_labels = []
-        basis_sizes = []
-        synth_blocks = []
-
-        pseudo_path = Path(pseudo_path)
-        for species_number, spec in enumerate(species, start=1):
-            symbol = spec['symbol']
-            atomic_number = atomic_numbers[symbol]
-
-            if spec['pseudopotential'] is None:
-                if self.pseudo_qualifier() == '':
-                    label = symbol
-                else:
-                    label = f"{symbol}.{self.pseudo_qualifier()}"
-                pseudopotential = pseudo_path / f"{label}.psf"
-            else:
-                pseudopotential = Path(spec['pseudopotential'])
-                label = pseudopotential.stem
-            if not pseudopotential.is_absolute():
-                pseudopotential = pseudo_path / pseudopotential
-            if not pseudopotential.exists():
-                label = symbol
-                pseudopotential = pseudo_path / f"{label}.psml"
-                if not pseudopotential.exists():
-                    mess = f"Pseudopotential '{pseudopotential}' not found"
-                    raise RuntimeError(mess)
-
-            name = pseudopotential.name
-            name = name.split('.')
-            name.insert(-1, str(species_number))
-            if spec['ghost']:
-                name.insert(-1, 'ghost')
-                atomic_number = -atomic_number
-
-            name = '.'.join(name)
-            pseudopath = self.getpath(name)
-            if Path(os.getcwd()) / name != pseudopotential:
-                if pseudopath.is_symlink() or pseudopath.is_file():
-                    os.remove(pseudopath)
-                symlink_pseudos = self['symlink_pseudos']
-
-                if symlink_pseudos is None:
-                    symlink_pseudos = not os.name == 'nt'
-
-                if symlink_pseudos:
-                    os.symlink(pseudopotential, pseudopath)
-                else:
-                    shutil.copy(pseudopotential, pseudopath)
-
-            if len(synth_blocks) > 0:
-                fd.write(format_fdf('SyntheticAtoms', list(synth_blocks)))
-
-            label = '.'.join(np.array(name.split('.'))[:-1])
-            string = '    %d %d %s' % (species_number, atomic_number, label)
-            chemical_labels.append(string)
-            if isinstance(spec['basis_set'], PAOBasisBlock):
-                pao_basis.append(spec['basis_set'].script(label))
-            else:
-                basis_sizes.append(("    " + label, spec['basis_set']))
-        fd.write(format_fdf('ChemicalSpecieslabel', chemical_labels))
-        fd.write('\n')
-        fd.write(format_fdf('PAO.Basis', pao_basis))
-        fd.write(format_fdf('PAO.BasisSizes', basis_sizes))
-        fd.write('\n')
 
     def pseudo_qualifier(self):
         """Get the extra string used in the middle of the pseudopotential.
@@ -928,3 +863,90 @@ def write_atomic_coordinates_xyz(fd, atoms: Atoms, species_numbers):
     origin = tuple(-atoms.get_celldisp().flatten())
     if any(origin):
         fd.write(format_block('AtomicCoordinatesOrigin'), [origin])
+
+
+@dataclass
+class SpeciesInfo:
+    atoms: Atoms
+    pseudo_path: Path
+    pseudo_qualifier: str
+    species: object
+    symlink_pseudos: bool
+    target_directory: Path
+
+    def write(self, fd):
+        """Write input related the different species.
+
+        Parameters:
+            - f:     An open file object.
+            - atoms: An atoms object.
+        """
+
+        fd.write(format_fdf('NumberOfSpecies', len(self.species)))
+        fd.write(format_fdf('NumberOfAtoms', len(self.atoms)))
+
+        pao_basis = []
+        chemical_labels = []
+        basis_sizes = []
+        synth_blocks = []
+
+        for species_number, spec in enumerate(self.species, start=1):
+            symbol = spec['symbol']
+            atomic_number = atomic_numbers[symbol]
+
+            if spec['pseudopotential'] is None:
+                if self.pseudo_qualifier == '':
+                    label = symbol
+                else:
+                    label = f"{symbol}.{self.pseudo_qualifier}"
+                pseudopotential = self.pseudo_path / f"{label}.psf"
+            else:
+                pseudopotential = Path(spec['pseudopotential'])
+                label = pseudopotential.stem
+            if not pseudopotential.is_absolute():
+                pseudopotential = self.pseudo_path / pseudopotential
+            if not pseudopotential.exists():
+                label = symbol
+                pseudopotential = self.pseudo_path / f"{label}.psml"
+                if not pseudopotential.exists():
+                    mess = f"Pseudopotential '{pseudopotential}' not found"
+                    raise RuntimeError(mess)
+
+            name = pseudopotential.name
+            name = name.split('.')
+            name.insert(-1, str(species_number))
+            if spec['ghost']:
+                name.insert(-1, 'ghost')
+                atomic_number = -atomic_number
+
+            name = '.'.join(name)
+            pseudopath = self.target_directory / name
+            if Path(os.getcwd()) / name != pseudopotential:
+                if pseudopath.is_symlink() or pseudopath.is_file():
+                    os.remove(pseudopath)
+
+                symlink_pseudos = self.symlink_pseudos
+
+                if symlink_pseudos is None:
+                    symlink_pseudos = not os.name == 'nt'
+
+                if symlink_pseudos:
+                    os.symlink(pseudopotential, pseudopath)
+                else:
+                    shutil.copy(pseudopotential, pseudopath)
+
+            if len(synth_blocks) > 0:
+                fd.write(format_fdf('SyntheticAtoms', list(synth_blocks)))
+
+            label = '.'.join(np.array(name.split('.'))[:-1])
+            string = '    %d %d %s' % (species_number, atomic_number, label)
+            chemical_labels.append(string)
+            if isinstance(spec['basis_set'], PAOBasisBlock):
+                pao_basis.append(spec['basis_set'].script(label))
+            else:
+                basis_sizes.append(("    " + label, spec['basis_set']))
+        fd.write(format_fdf('ChemicalSpecieslabel', chemical_labels))
+        fd.write('\n')
+        fd.write(format_fdf('PAO.Basis', pao_basis))
+        fd.write(format_fdf('PAO.BasisSizes', basis_sizes))
+        fd.write('\n')
