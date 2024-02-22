@@ -12,20 +12,18 @@ class OutputReader:
         self.prefix = prefix
         self.directory = directory
         self.bandpath = bandpath
-        self.results = {}
 
     def read_results(self):
-        results = self.results
+        results = {}
         results['n_grid_point'] = self.read_number_of_grid_points()
         results.update(self.read_energy())
         results.update(self.read_forces_stress())
-        self.read_eigenvalues()
-        self.read_kpoints()
-        self.read_dipole()
+        results.update(self.read_eigenvalues())
+        results.update(self.read_kpoints())
+        results['dipole'] = self.read_dipole()
 
-        bs = self.read_bands()
-        if bs is not None:
-            results['bandstructure'] = bs
+        if self.bandpath is not None and len(self.bandpath.kpts):
+            results['bandstructure'] = self.read_bands()
 
         return results
 
@@ -112,12 +110,12 @@ class OutputReader:
         file_name = self._prefixed('EIG')
         try:
             with open(file_name) as fd:
-                self.results['fermi_energy'] = float(fd.readline())
+                fermi_energy = float(fd.readline())
                 n, num_hamilton_dim, nkp = map(int, fd.readline().split())
                 _ee = np.split(
                     np.array(fd.read().split()).astype(float), nkp)
         except OSError:
-            return 1
+            return {}
 
         n_spin = 1 if num_hamilton_dim > 2 else num_hamilton_dim
         ksn2e = np.delete(_ee, 0, 1).reshape([nkp, n_spin, n])
@@ -130,9 +128,7 @@ class OutputReader:
                 eig_array[s, k, :] = n2e
 
         assert np.isfinite(eig_array).all()
-
-        self.results['eigenvalues'] = eig_array
-        return 0
+        return dict(eigenvalues=eig_array, fermi_energy=fermi_energy)
 
     def read_kpoints(self):
         """ Reader of the .KP files """
@@ -150,14 +146,10 @@ class OutputReader:
                     numbers = np.array(tokens[1:]).astype(float)
                     kpoints[i] = numbers[:3]
                     kweights[i] = numbers[3]
+        except OSError:
+            return {}
 
-        except (OSError):
-            return 1
-
-        self.results['kpoints'] = kpoints
-        self.results['kweights'] = kweights
-
-        return 0
+        return dict(kpoints=kpoints, kweights=kweights)
 
     def read_dipole(self):
         """Read dipole moment. """
@@ -167,7 +159,7 @@ class OutputReader:
                 if line.rfind('Electric dipole (Debye)') > -1:
                     dipole = np.array([float(f) for f in line.split()[5:8]])
         # debye to e*Ang
-        self.results['dipole'] = dipole * 0.2081943482534
+        return dipole * 0.2081943482534
 
 
 def read_bands_file(fd):
