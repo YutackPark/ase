@@ -7,6 +7,7 @@ See http://theory.cm.utexas.edu/eon/index.html for a description of EON.
 import os
 from glob import glob
 from warnings import warn
+from pathlib import Path
 
 import numpy as np
 
@@ -15,18 +16,105 @@ from ase.constraints import FixAtoms
 from ase.geometry import cell_to_cellpar, cellpar_to_cell
 from ase.utils import writer
 
+from dataclasses import dataclass, field
+from typing import List, Tuple
+
 
 def print_con_atom_header(ostring, ntypes, natoms, atommasses):
     ostring.append(str(ntypes))
-    ostring.append(' '.join([str(n) for n in natoms]))
-    ostring.append(' '.join([str(n) for n in atommasses]))
+    ostring.append(" ".join([str(n) for n in natoms]))
+    ostring.append(" ".join([str(n) for n in atommasses]))
+
+
+@dataclass
+class EONHeader:
+    header_lines: List[str]
+    cell_lengths: Tuple[float, float, float]
+    cell_angles: Tuple[float, float, float]
+    Ncomponent: int
+    component_counts: List[int]
+    masses: List[float]
+
+
+def process_header(lines: List[str]) -> EONHeader:
+    header_lines = lines[:2]  # Assuming first two lines are header descriptions
+
+    # Parse cell lengths and angles
+    cell_lengths = tuple(map(float, lines[2].split()))
+    cell_angles = tuple(map(float, lines[3].split()))
+
+    # Parse number of components
+    Ncomponent = int(lines[6])
+    component_counts = list(map(int, lines[7].split()))
+    masses = list(map(float, lines[8].split()))
+
+    return EONHeader(
+        header_lines=header_lines,
+        cell_lengths=cell_lengths,
+        cell_angles=cell_angles,
+        Ncomponent=Ncomponent,
+        component_counts=component_counts,
+        masses=masses,
+    )
+
+
+def make_atoms(coordblock, header):
+    symbols = []
+    coords = []
+    masses = []
+    fixed = []
+    cellpar = [float(x) for x in header.cell_lengths + header.cell_angles]
+    for idx, nblock in enumerate(header.component_counts):
+        elem_block = coordblock[: nblock + 2]
+        symb = elem_block[0]
+        symbols.extend(nblock * [symb])
+        mass = header.masses[idx]
+        masses.extend(nblock * [mass])
+        for eline in elem_block[2:]:
+            tokens = eline.split()
+            coords.append([float(x) for x in tokens[:3]])
+            fixed.append(bool(int(tokens[3])))
+        coordblock = coordblock[nblock + 2 :]
+    return Atoms(
+        symbols=symbols,
+        positions=coords,
+        masses=masses,
+        cell=cellpar_to_cell(cellpar),
+        constraint=FixAtoms(mask=fixed),
+        info=dict(comment="\n".join(header.header_lines)),
+    )
+
+
+def read_eon2(file_path, index=-1):
+    images = []
+    with open(file_path, "r") as fd:
+        while True:
+            # Read and process headers if they exist
+            try:
+                lines = [next(fd).strip() for _ in range(9)]  # Header is 9 lines
+            except StopIteration:
+                break  # End of file
+            header = process_header(lines)
+            num_blocklines = (header.Ncomponent * 2) + sum(header.component_counts)
+            coordblocks = [next(fd).strip() for _ in range(num_blocklines)]
+            atoms = make_atoms(coordblocks, header)
+            images.append(atoms)
+
+    # XXX: I really don't like this..
+    if index == -1:
+        if len(images) == 1:
+            return images[0]
+        else:
+            return images
+    else:
+        return images[index]
 
 
 def read_eon(fileobj, index=-1):
     """Reads an EON reactant.con file.  If *fileobj* is the name of a
     "states" directory created by EON, all the structures will be read."""
     if isinstance(fileobj, str):
-        if (os.path.isdir(fileobj)):
+        if os.path.isdir(fileobj):
             return read_states(fileobj)
         else:
             fd = open(fileobj)
