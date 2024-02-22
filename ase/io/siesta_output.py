@@ -8,8 +8,10 @@ from ase.data import atomic_numbers
 
 
 class OutputReader:
-    def __init__(self, calc):
-        self.calc = calc
+    def __init__(self, prefix, directory, bandpath=None):
+        self.prefix = prefix
+        self.directory = directory
+        self.bandpath = bandpath
         self.results = {}
 
     def read_results(self):
@@ -23,15 +25,18 @@ class OutputReader:
         self.read_bands()
         return self.results
 
+    def _prefixed(self, extension):
+        return self.directory / f'{self.prefix}.{extension}'
+
     def read_bands(self):
-        bandpath = self.calc['bandpath']
+        bandpath = self.bandpath
         if bandpath is None:
             return
 
         if len(bandpath.kpts) < 1:
             return
 
-        fname = self.calc.getpath(ext='bands')
+        fname = self._prefixed('bands')
         with open(fname) as fd:
             kpts, energies, efermi = read_bands_file(fd)
         bs = resolve_band_structure(bandpath, kpts, energies, efermi)
@@ -40,7 +45,7 @@ class OutputReader:
     def read_number_of_grid_points(self):
         """Read number of grid points from SIESTA's text-output file. """
 
-        fname = self.calc.getpath(ext='out')
+        fname = self.directory / f'{self.prefix}.out'
         with open(fname) as fd:
             for line in fd:
                 line = line.strip().lower()
@@ -54,7 +59,7 @@ class OutputReader:
     def read_energy(self):
         """Read energy from SIESTA's text-output file.
         """
-        fname = self.calc.getpath(ext='out')
+        fname = self._prefixed('out')
         with open(fname) as fd:
             text = fd.read().lower()
 
@@ -76,7 +81,7 @@ class OutputReader:
     def read_forces_stress(self):
         """Read the forces and stress from the FORCE_STRESS file.
         """
-        fname = self.calc.getpath('FORCE_STRESS')
+        fname = self.directory / 'FORCE_STRESS'
         with open(fname) as fd:
             lines = fd.readlines()
 
@@ -104,7 +109,7 @@ class OutputReader:
     def read_eigenvalues(self):
         """ A robust procedure using the suggestion by Federico Marchesin """
 
-        file_name = self.calc.getpath(ext='EIG')
+        file_name = self._prefixed('EIG')
         try:
             with open(file_name) as fd:
                 self.results['fermi_energy'] = float(fd.readline())
@@ -132,7 +137,7 @@ class OutputReader:
     def read_kpoints(self):
         """ Reader of the .KP files """
 
-        fname = self.calc.getpath(ext='KP')
+        fname = self._prefixed('KP')
         try:
             with open(fname) as fd:
                 nkp = int(next(fd))
@@ -157,7 +162,7 @@ class OutputReader:
     def read_dipole(self):
         """Read dipole moment. """
         dipole = np.zeros([1, 3])
-        with open(self.calc.getpath(ext='out')) as fd:
+        with open(self._prefixed('out')) as fd:
             for line in fd:
                 if line.rfind('Electric dipole (Debye)') > -1:
                     dipole = np.array([float(f) for f in line.split()[5:8]])

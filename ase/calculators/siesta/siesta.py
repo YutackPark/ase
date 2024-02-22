@@ -705,7 +705,9 @@ class Siesta(FileIOCalculator):
     def read_results(self):
         """Read the results."""
         from ase.io.siesta_output import OutputReader
-        reader = OutputReader(self)
+        reader = OutputReader(prefix=self.prefix,
+                              directory=Path(self.directory),
+                              bandpath=self['bandpath'])
         results = reader.read_results()
         self.results.update(results)
 

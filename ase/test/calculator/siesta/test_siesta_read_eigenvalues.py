@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import ase.build
 from ase.calculators.siesta import Siesta
 from ase.io.siesta_output import OutputReader
@@ -6,10 +8,9 @@ from ase.io.siesta_output import OutputReader
 def test_siesta_read_eigenvalues_soc(datadir, config_file):
     """ In this test, we read a stored siesta.EIG file."""
     calc = Siesta()
-    reader = OutputReader(calc)
+    reader = OutputReader(prefix=calc.prefix, directory=Path(calc.directory))
     assert reader.read_eigenvalues() == 1
-    calc.directory = datadir / 'siesta'
-    print(datadir)
+    reader.directory = datadir / 'siesta'
     assert reader.read_eigenvalues() == 0
     assert reader.results['eigenvalues'].shape == (1, 1, 30)
 
