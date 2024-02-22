@@ -911,10 +911,7 @@ def write_atomic_coordinates_zmatrix(fd, atoms: Atoms, species_numbers):
 
     origin = tuple(-atoms.get_celldisp().flatten())
     if any(origin):
-        fd.write('%block AtomicCoordinatesOrigin\n')
-        fd.write('     %.4f  %.4f  %.4f\n' % origin)
-        fd.write('%endblock AtomicCoordinatesOrigin\n')
-        fd.write('\n')
+        fd.write(format_block('AtomicCoordinatesOrigin'), [origin])
 
 
 def write_atomic_coordinates_xyz(fd, atoms: Atoms, species_numbers):
@@ -929,20 +926,11 @@ def write_atomic_coordinates_xyz(fd, atoms: Atoms, species_numbers):
     """
     fd.write('\n')
     fd.write('AtomicCoordinatesFormat  Ang\n')
-    fd.write('%block AtomicCoordinatesAndAtomicSpecies\n')
-    for atom, number in zip(atoms, species_numbers):
-        xyz = atom.position
-        line = ('    %.9f' % xyz[0]).rjust(16) + ' '
-        line += ('    %.9f' % xyz[1]).rjust(16) + ' '
-        line += ('    %.9f' % xyz[2]).rjust(16) + ' '
-        line += str(number) + '\n'
-        fd.write(line)
-    fd.write('%endblock AtomicCoordinatesAndAtomicSpecies\n')
+    fd.write(format_block('AtomicCoordinatesAndAtomicSpecies',
+                          [[*atom.position, number]
+                           for atom, number in zip(atoms, species_numbers)]))
     fd.write('\n')
 
     origin = tuple(-atoms.get_celldisp().flatten())
     if any(origin):
-        fd.write('%block AtomicCoordinatesOrigin\n')
-        fd.write('     %.4f  %.4f  %.4f\n' % origin)
-        fd.write('%endblock AtomicCoordinatesOrigin\n')
-        fd.write('\n')
+        fd.write(format_block('AtomicCoordinatesOrigin'), [origin])
