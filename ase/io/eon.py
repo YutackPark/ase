@@ -86,25 +86,37 @@ def make_atoms(coordblock, header):
 
 
 def read_eon(fileobj, index=-1):
-    file_path = Path(fileobj)
-    if file_path.is_dir():
-        return read_states(file_path)
-    images = []
-    with open(file_path, "r") as fd:
-        while True:
-            # Read and process headers if they exist
-            try:
-                lines = [next(fd).strip() for _ in range(9)]  # Header is 9 lines
-            except StopIteration:
-                break  # End of file
-            header = process_header(lines)
-            num_blocklines = (header.Ncomponent * 2) + sum(header.component_counts)
-            coordblocks = [next(fd).strip() for _ in range(num_blocklines)]
-            atoms = make_atoms(coordblocks, header)
-            images.append(atoms)
+    # Check if fileobj is a string or Path, indicating a file path
+    if isinstance(fileobj, (str, Path)):
+        file_path = Path(fileobj)
+        # Handle directory input (states handling)
+        if file_path.is_dir():
+            return read_states(file_path)
 
-    # XXX: I really don't like this..
-    # Since there should be a consistent return type
+        # Open the file for reading if it's a path
+        with file_path.open("r") as fd:
+            return process_file(fd, index)
+    elif hasattr(fileobj, 'read'):
+        # fileobj is a file-like object, process directly
+        return process_file(fileobj, index)
+    else:
+        raise TypeError("fileobj must be a file path or file-like object")
+
+def process_file(fd, index):
+    images = []
+    while True:
+        # Read and process headers if they exist
+        try:
+            lines = [next(fd).strip() for _ in range(9)]  # Header is 9 lines
+        except StopIteration:
+            break  # End of file
+        header = process_header(lines)
+        num_blocklines = (header.Ncomponent * 2) + sum(header.component_counts)
+        coordblocks = [next(fd).strip() for _ in range(num_blocklines)]
+        atoms = make_atoms(coordblocks, header)
+        images.append(atoms)
+
+    # XXX: I really don't like this since there should be a consistent return
     if index == -1:
         return images if len(images) > 1 else images[0]
     else:
