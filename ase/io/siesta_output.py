@@ -23,21 +23,14 @@ class OutputReader:
         results['dipole'] = self.read_dipole()
 
         if self.bandpath is not None and len(self.bandpath.kpts):
-            results['bandstructure'] = self.read_bands()
+            results['bandstructure'] = self.read_bands(self.bandpath)
 
         return results
 
     def _prefixed(self, extension):
         return self.directory / f'{self.prefix}.{extension}'
 
-    def read_bands(self):
-        bandpath = self.bandpath
-        if bandpath is None:
-            return
-
-        if len(bandpath.kpts) < 1:
-            return
-
+    def read_bands(self, bandpath):
         fname = self._prefixed('bands')
         with open(fname) as fd:
             kpts, energies, efermi = read_bands_file(fd)
