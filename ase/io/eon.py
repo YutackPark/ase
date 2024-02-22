@@ -5,8 +5,6 @@
 
 See http://theory.cm.utexas.edu/eon/index.html for a description of EON.
 """
-import os
-from glob import glob
 from warnings import warn
 from pathlib import Path
 
@@ -17,16 +15,18 @@ from ase.constraints import FixAtoms
 from ase.geometry import cell_to_cellpar, cellpar_to_cell
 from ase.utils import writer
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import List, Tuple
 
 
 def print_con_atom_header(ostring, ntypes, natoms, atommasses):
     """
-    Appends the number of atom types, the count of atoms for each type, and their masses to a string list.
+    Appends the number of atom types, the count of atoms for each type, and
+    their masses to a string list.
 
-    This function formats the header information for the atom types, their counts, and masses into strings
-    and appends them to a given list. This list can be used to construct the header of an EON file.
+    This function formats the header information for the atom types, their
+    counts, and masses into strings and appends them to a given list. This list
+    can be used to construct the header of an EON file.
 
     Parameters
     ----------
@@ -71,8 +71,9 @@ class EONHeader:
     """
 
     header_lines: List[str]
-    cell_lengths: Tuple[float, float, float]
-    cell_angles: Tuple[float, float, float]
+    # Actually these are float float float but.. mypy complains
+    cell_lengths: Tuple[float, ...]
+    cell_angles: Tuple[float, ...]
     Ncomponent: int
     component_counts: List[int]
     masses: List[float]
@@ -82,9 +83,10 @@ def process_header(lines: List[str]) -> EONHeader:
     """
     Processes the header lines from an EON file and returns an EONHeader object.
 
-    This function parses the first 9 lines of an EON file, extracting information
-    about the simulation cell, the number of atom types, their counts, and masses,
-    and encapsulates this information in an EONHeader object.
+    This function parses the first 9 lines of an EON file, extracting
+    information about the simulation cell, the number of atom types, their
+    counts, and masses, and encapsulates this information in an EONHeader
+    object.
 
     Parameters
     ----------
@@ -101,6 +103,14 @@ def process_header(lines: List[str]) -> EONHeader:
     # Parse cell lengths and angles
     cell_lengths = tuple(map(float, lines[2].split()))
     cell_angles = tuple(map(float, lines[3].split()))
+    if len(cell_lengths) != 3 or len(cell_angles) != 3:
+        raise ValueError(
+            "Cell lengths and angles must each contain exactly three values."
+        )
+
+    Ncomponent = int(lines[6])
+    component_counts = list(map(int, lines[7].split()))
+    masses = list(map(float, lines[8].split()))
 
     # Parse number of components
     Ncomponent = int(lines[6])
@@ -121,9 +131,10 @@ def make_atoms(coordblock, header):
     """
     Creates an Atoms object from coordinate blocks and header information.
 
-    This function takes a list of coordinate blocks and the associated header information,
-    constructs the cell, sets the atomic positions, masses, and optionally applies
-    FixAtoms constraints based on the header information, and returns an ASE Atoms object.
+    This function takes a list of coordinate blocks and the associated header
+    information, constructs the cell, sets the atomic positions, masses, and
+    optionally applies FixAtoms constraints based on the header information, and
+    returns an ASE Atoms object.
 
     Parameters
     ----------
@@ -135,17 +146,22 @@ def make_atoms(coordblock, header):
     Returns
     -------
     Atoms
-        An ASE Atoms object constructed from the given coordinate blocks and header.
+        An ASE Atoms object constructed from the given coordinate blocks and
+        header.
     """
     symbols = []
     coords = []
     masses = []
     fixed = []
     # Ordering in EON is different from the ASE convention
-    cell_angles = (header.cell_angles[2], header.cell_angles[1], header.cell_angles[0])
+    cell_angles = (
+        header.cell_angles[2],
+        header.cell_angles[1],
+        header.cell_angles[0]
+    )
     cellpar = [float(x) for x in header.cell_lengths + cell_angles]
     for idx, nblock in enumerate(header.component_counts):
-        elem_block = coordblock[: nblock + 2]
+        elem_block = coordblock[:(nblock + 2)]
         symb = elem_block[0]
         symbols.extend(nblock * [symb])
         mass = header.masses[idx]
@@ -154,7 +170,7 @@ def make_atoms(coordblock, header):
             tokens = eline.split()
             coords.append([float(x) for x in tokens[:3]])
             fixed.append(bool(int(tokens[3])))
-        coordblock = coordblock[nblock + 2 :]
+        coordblock = coordblock[(nblock + 2):]
     return Atoms(
         symbols=symbols,
         positions=coords,
@@ -169,23 +185,24 @@ def read_eon(fileobj, index=-1):
     """
     Reads an EON file or directory and returns one or more Atoms objects.
 
-    This function can handle both single EON files and directories containing multiple
-    EON states. It returns either a single Atoms object, a list of Atoms objects,
-    or a specific Atoms object indexed from the file or directory.
+    This function can handle both single EON files and directories containing
+    multiple EON states. It returns either a single Atoms object, a list of
+    Atoms objects, or a specific Atoms object indexed from the file or
+    directory.
 
     Parameters
     ----------
     fileobj : str or Path or file-like object
         The path to the EON file or directory, or an open file-like object.
     index : int, optional
-        The index of the Atoms object to return. If -1 (default), returns all objects
-        or a single object if only one is present.
+        The index of the Atoms object to return. If -1 (default), returns all
+        objects or a single object if only one is present.
 
     Returns
     -------
     Atoms or List[Atoms]
-        Depending on the `index` parameter and the content of the fileobj, returns
-        either a single Atoms object or a list of Atoms objects.
+        Depending on the `index` parameter and the content of the fileobj,
+        returns either a single Atoms object or a list of Atoms objects.
 
     Raises
     ------
@@ -229,9 +246,10 @@ def read_states(states_dir: Path):
     """
     Reads all EON states from a directory and returns a list of Atoms objects.
 
-    This function iterates through a directory expected to contain multiple states,
-    each represented by its own directory named with digits. It reads the "reactant.con"
-    file from each state directory and aggregates the resulting Atoms objects into a list.
+    This function iterates through a directory expected to contain multiple
+    states, each represented by its own directory named with digits. It reads
+    the "reactant.con" file from each state directory and aggregates the
+    resulting Atoms objects into a list.
 
     Parameters
     ----------
@@ -251,7 +269,7 @@ def read_states(states_dir: Path):
     for subdir in subdirs:
         reactant_path = subdir / "reactant.con"
         if reactant_path.exists():
-            images.extend(read_eon2(reactant_path, index=-1))
+            images.extend(read_eon(reactant_path, index=-1))
     return images
 
 
@@ -351,8 +369,8 @@ def write_eon(fileobj, images):
                     for i in c.index:
                         fixed[i] = 1
             for xyz, fix in zip(coords, fixed):
-                out.append(
-                    "%22.17f %22.17f %22.17f %d %4d" % (tuple(xyz) + (fix, atom_id))
-                )
+                line_fmt = "{:>22.17f} {:>22.17f} {:>22.17f} {:d} {:4d}"
+                line = line_fmt.format(*xyz, int(fix), atom_id)
+                out.append(line)
                 atom_id += 1
         fileobj.write("\n".join(out))
