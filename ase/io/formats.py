@@ -794,7 +794,7 @@ def read(
     format = format or filetype(filename, read=isinstance(filename, str))
 
     io = get_ioformat(format)
-    if isinstance(index, (slice, str)) or io.name == 'eon':
+    if isinstance(index, (slice, str)):
         return list(_iread(filename, index, format, io, parallel=parallel,
                            **kwargs))
     else:
