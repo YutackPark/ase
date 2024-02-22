@@ -888,7 +888,6 @@ class SpeciesInfo:
         pao_basis = []
         chemical_labels = []
         basis_sizes = []
-        synth_blocks = []
 
         for species_number, spec in enumerate(self.species, start=1):
             symbol = spec['symbol']
@@ -934,9 +933,6 @@ class SpeciesInfo:
                     os.symlink(pseudopotential, pseudopath)
                 else:
                     shutil.copy(pseudopotential, pseudopath)
-
-            if len(synth_blocks) > 0:
-                fd.write(format_fdf('SyntheticAtoms', list(synth_blocks)))
 
             label = '.'.join(np.array(name.split('.'))[:-1])
             string = '    %d %d %s' % (species_number, atomic_number, label)
