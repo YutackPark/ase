@@ -352,22 +352,27 @@ class CIFBlock(collections.abc.Mapping):
 
     def get_spacegroup(self, subtrans_included) -> Spacegroup:
         # XXX The logic in this method needs serious cleaning up!
-        # The setting needs to be passed as either 1 or two, not None (default)
         no = self._get_spacegroup_number()
+        if isinstance(no, str):
+            # If the value was specified as "key  'value'" with ticks,
+            # then "integer values" become strings and we'll have to
+            # manually convert it:
+            no = int(no)
+
         hm_symbol = self._get_spacegroup_name()
         sitesym = self._get_sitesym()
 
-        setting = 1
-        spacegroup = 1
         if sitesym:
             # Special cases: sitesym can be None or an empty list.
             # The empty list could be replaced with just the identity
             # function, but it seems more correct to try to get the
             # spacegroup number and derive the symmetries for that.
             subtrans = [(0.0, 0.0, 0.0)] if subtrans_included else None
+
             spacegroup = spacegroup_from_data(
-                no=no, symbol=hm_symbol, sitesym=sitesym, subtrans=subtrans,
-                setting=setting)
+                no=no, symbol=hm_symbol, sitesym=sitesym,
+                subtrans=subtrans,
+                setting=1)  # should the setting be passed from somewhere?
         elif no is not None:
             spacegroup = no
         elif hm_symbol is not None:
@@ -377,6 +382,7 @@ class CIFBlock(collections.abc.Mapping):
 
         setting_std = self._get_setting()
 
+        setting = 1
         setting_name = None
         if '_symmetry_space_group_setting' in self:
             assert setting_std is not None
