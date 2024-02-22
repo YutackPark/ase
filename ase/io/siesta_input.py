@@ -60,26 +60,25 @@ class SiestaInput:
         from ase.calculators.siesta.parameters import Species
         # For each element use default species from the species input, or set
         # up a default species  from the general default parameters.
-        symbols = np.array(atoms.get_chemical_symbols())
         tags = atoms.get_tags()
         default_species = [
             s for s in species
-            if (s['tag'] is None) and s['symbol'] in symbols]
+            if (s['tag'] is None) and s['symbol'] in atoms.symbols]
         default_symbols = [s['symbol'] for s in default_species]
-        for symbol in symbols:
+        for symbol in atoms.symbols:
             if symbol not in default_symbols:
                 spec = Species(symbol=symbol,
                                basis_set=basis_set,
                                tag=None)
                 default_species.append(spec)
                 default_symbols.append(symbol)
-        assert len(default_species) == len(np.unique(symbols))
+        assert len(default_species) == len(set(atoms.symbols))
 
         # Set default species as the first species.
         species_numbers = np.zeros(len(atoms), int)
         i = 1
         for spec in default_species:
-            mask = symbols == spec['symbol']
+            mask = atoms.symbols == spec['symbol']
             species_numbers[mask] = i
             i += 1
 
@@ -87,7 +86,7 @@ class SiestaInput:
         non_default_species = [s for s in species if s['tag'] is not None]
         for spec in non_default_species:
             mask1 = tags == spec['tag']
-            mask2 = symbols == spec['symbol']
+            mask2 = atoms.symbols == spec['symbol']
             mask = np.logical_and(mask1, mask2)
             if sum(mask) > 0:
                 species_numbers[mask] = i
