@@ -1,10 +1,6 @@
-from pathlib import Path
-
 import numpy as np
 
-from ase.calculators.siesta.import_ion_xml import get_ion
 from ase.units import Bohr, Ry
-from ase.data import atomic_numbers
 
 
 class OutputReader:

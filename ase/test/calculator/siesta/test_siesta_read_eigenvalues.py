@@ -1,7 +1,6 @@
 import pytest
 
 from ase.build import bulk
-from ase.calculators.siesta import Siesta
 from ase.io.siesta_output import OutputReader
 
 

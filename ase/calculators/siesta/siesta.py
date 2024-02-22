@@ -11,6 +11,7 @@ http://www.uam.es/departamentos/ciencias/fismateriac/siesta
 """
 
 import os
+from pathlib import Path
 import re
 import shutil
 import tempfile
@@ -21,13 +22,13 @@ import numpy as np
 from ase import Atoms
 from ase.calculators.calculator import (
     FileIOCalculator, Parameters, ReadError)
+from ase.calculators.siesta.import_ion_xml import get_ion
 from ase.calculators.siesta.parameters import PAOBasisBlock, format_fdf
 from ase.data import atomic_numbers
 from ase.io.siesta import read_siesta_xv
 from ase.io.siesta_input import SiestaInput
 from ase.units import Ry, eV
 from ase.utils import deprecated
-from pathlib import Path
 
 meV = 0.001 * eV
 
