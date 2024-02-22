@@ -63,7 +63,9 @@ def make_atoms(coordblock, header):
     coords = []
     masses = []
     fixed = []
-    cellpar = [float(x) for x in header.cell_lengths + header.cell_angles]
+    # Ordering in EON is different from the ASE convention
+    cell_angles = (header.cell_angles[2], header.cell_angles[1], header.cell_angles[0])
+    cellpar = [float(x) for x in header.cell_lengths + cell_angles]
     for idx, nblock in enumerate(header.component_counts):
         elem_block = coordblock[: nblock + 2]
         symb = elem_block[0]
@@ -96,11 +98,12 @@ def read_eon(fileobj, index=-1):
         # Open the file for reading if it's a path
         with file_path.open("r") as fd:
             return process_file(fd, index)
-    elif hasattr(fileobj, 'read'):
+    elif hasattr(fileobj, "read"):
         # fileobj is a file-like object, process directly
         return process_file(fileobj, index)
     else:
         raise TypeError("fileobj must be a file path or file-like object")
+
 
 def process_file(fd, index):
     images = []
