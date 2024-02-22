@@ -874,17 +874,7 @@ class SpeciesInfo:
     symlink_pseudos: bool
     target_directory: Path
 
-    def write(self, fd):
-        """Write input related the different species.
-
-        Parameters:
-            - f:     An open file object.
-            - atoms: An atoms object.
-        """
-
-        fd.write(format_fdf('NumberOfSpecies', len(self.species)))
-        fd.write(format_fdf('NumberOfAtoms', len(self.atoms)))
-
+    def __post_init__(self):
         pao_basis = []
         chemical_labels = []
         basis_sizes = []
@@ -941,8 +931,17 @@ class SpeciesInfo:
                 pao_basis.append(spec['basis_set'].script(label))
             else:
                 basis_sizes.append(("    " + label, spec['basis_set']))
-        fd.write(format_fdf('ChemicalSpecieslabel', chemical_labels))
+
+            self.chemical_labels = chemical_labels
+            self.pao_basis = pao_basis
+            self.basis_sizes = basis_sizes
+
+    def write(self, fd):
+        fd.write(format_fdf('NumberOfSpecies', len(self.species)))
+        fd.write(format_fdf('NumberOfAtoms', len(self.atoms)))
+
+        fd.write(format_fdf('ChemicalSpecieslabel', self.chemical_labels))
         fd.write('\n')
-        fd.write(format_fdf('PAO.Basis', pao_basis))
-        fd.write(format_fdf('PAO.BasisSizes', basis_sizes))
+        fd.write(format_fdf('PAO.Basis', self.pao_basis))
+        fd.write(format_fdf('PAO.BasisSizes', self.basis_sizes))
         fd.write('\n')
