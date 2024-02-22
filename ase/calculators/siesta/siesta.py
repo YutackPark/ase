@@ -525,17 +525,9 @@ class Siesta(FileIOCalculator):
             raise ValueError('Expected 3D unit cell or no unit cell.  You may '
                              'wish to add vacuum along some directions.')
 
-        # Write lattice vectors
         if np.any(cell):
             fd.write(format_fdf('LatticeConstant', '1.0 Ang'))
-            fd.write('%block LatticeVectors\n')
-            for i in range(3):
-                for j in range(3):
-                    s = ('    %.15f' % cell[i, j]).rjust(16) + ' '
-                    fd.write(s)
-                fd.write('\n')
-            fd.write('%endblock LatticeVectors\n')
-            fd.write('\n')
+            fd.write(format_block('LatticeVectors', cell))
 
         _, species_numbers = self.species(atoms)
         write_atomic_coordinates(
