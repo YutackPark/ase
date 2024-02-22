@@ -15,15 +15,19 @@ class OutputReader:
         self.results = {}
 
     def read_results(self):
-        self.read_number_of_grid_points()
-        self.read_energy()
-        self.read_forces_stress()
+        results = self.results
+        results['n_grid_point'] = self.read_number_of_grid_points()
+        results.update(self.read_energy())
+        results.update(self.read_forces_stress())
         self.read_eigenvalues()
         self.read_kpoints()
         self.read_dipole()
 
-        self.read_bands()
-        return self.results
+        bs = self.read_bands()
+        if bs is not None:
+            results['bandstructure'] = bs
+
+        return results
 
     def _prefixed(self, extension):
         return self.directory / f'{self.prefix}.{extension}'
@@ -39,8 +43,7 @@ class OutputReader:
         fname = self._prefixed('bands')
         with open(fname) as fd:
             kpts, energies, efermi = read_bands_file(fd)
-        bs = resolve_band_structure(bandpath, kpts, energies, efermi)
-        self.results['bandstructure'] = bs
+        return resolve_band_structure(bandpath, kpts, energies, efermi)
 
     def read_number_of_grid_points(self):
         """Read number of grid points from SIESTA's text-output file. """
@@ -50,18 +53,14 @@ class OutputReader:
             for line in fd:
                 line = line.strip().lower()
                 if line.startswith('initmesh: mesh ='):
-                    n_points = [int(word) for word in line.split()[3:8:2]]
-                    self.results['n_grid_point'] = n_points
-                    break
-            else:
-                raise RuntimeError
+                    return [int(word) for word in line.split()[3:8:2]]
+
+        raise RuntimeError
 
     def read_energy(self):
         """Read energy from SIESTA's text-output file.
         """
-        fname = self._prefixed('out')
-        with open(fname) as fd:
-            text = fd.read().lower()
+        text = self._prefixed('out').read_text().lower()
 
         assert 'final energy' in text
         lines = iter(text.split('\n'))
@@ -70,13 +69,12 @@ class OutputReader:
         for line in lines:
             has_energy = line.startswith('siesta: etot    =')
             if has_energy:
-                self.results['energy'] = float(line.split()[-1])
+                energy = float(line.split()[-1])
                 line = next(lines)
-                self.results['free_energy'] = float(line.split()[-1])
+                # XXX dangerous, this should test the string in question.
+                free_energy = float(line.split()[-1])
 
-        if ('energy' not in self.results or
-                'free_energy' not in self.results):
-            raise RuntimeError
+        return dict(energy=energy, free_energy=free_energy)
 
     def read_forces_stress(self):
         """Read the forces and stress from the FORCE_STRESS file.
@@ -92,19 +90,21 @@ class OutputReader:
             line = [s for s in line if len(s) > 0]
             stress[i] = [float(s) for s in line]
 
-        self.results['stress'] = np.array(
+        results = {}
+        results['stress'] = np.array(
             [stress[0, 0], stress[1, 1], stress[2, 2],
              stress[1, 2], stress[0, 2], stress[0, 1]])
 
-        self.results['stress'] *= Ry / Bohr**3
+        results['stress'] *= Ry / Bohr**3
 
         start = 5
-        self.results['forces'] = np.zeros((len(lines) - start, 3), float)
+        results['forces'] = np.zeros((len(lines) - start, 3), float)
         for i in range(start, len(lines)):
             line = [s for s in lines[i].strip().split(' ') if len(s) > 0]
-            self.results['forces'][i - start] = [float(s) for s in line[2:5]]
+            results['forces'][i - start] = [float(s) for s in line[2:5]]
 
-        self.results['forces'] *= Ry / Bohr
+        results['forces'] *= Ry / Bohr
+        return results
 
     def read_eigenvalues(self):
         """ A robust procedure using the suggestion by Federico Marchesin """
