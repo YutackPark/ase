@@ -45,7 +45,7 @@ def test_eon_roundtrip_multi(datadir):
     out_file = "out.con"
     images = ase.io.read(f"{datadir}/io/con/multi.con", format="eon", index=":")
     ase.io.write(out_file, images, format="eon")
-    data = ase.io.read(out_file, format="eon")
+    data = ase.io.read(out_file, format="eon", index=":")
     assert len(data) == 10
     npt.assert_allclose(
         data[0].constraints[0].get_indices(), np.array([0, 1]), rtol=1e-5, atol=0
