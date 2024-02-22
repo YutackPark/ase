@@ -822,26 +822,20 @@ class Siesta(FileIOCalculator):
         """ Reader of the .KP files """
 
         fname = self.getpath(ext='KP')
-        try:
-            with open(fname) as fd:
-                nkp = int(next(fd))
-                kpoints = np.empty((nkp, 3))
-                kweights = np.empty(nkp)
+        with open(fname) as fd:
+            nkp = int(next(fd))
+            kpoints = np.empty((nkp, 3))
+            kweights = np.empty(nkp)
 
-                for i in range(nkp):
-                    line = next(fd)
-                    tokens = line.split()
-                    numbers = np.array(tokens[1:]).astype(float)
-                    kpoints[i] = numbers[:3]
-                    kweights[i] = numbers[3]
-
-        except (OSError):
-            return 1
+            for i in range(nkp):
+                line = next(fd)
+                tokens = line.split()
+                numbers = np.array(tokens[1:]).astype(float)
+                kpoints[i] = numbers[:3]
+                kweights[i] = numbers[3]
 
         self.results['kpoints'] = kpoints
         self.results['kweights'] = kweights
-
-        return 0
 
     def read_dipole(self):
         """Read dipole moment. """
