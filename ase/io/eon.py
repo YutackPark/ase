@@ -1,4 +1,5 @@
-# Copyright (C) 2012, Jesper Friis, SINTEF
+# Copyright (C) 2012-2023, Jesper Friis, SINTEF
+# Copyright (C) 2024, Rohit Goswami, UI
 # (see accompanying license files for ASE).
 """Module to read and write atoms EON reactant.con files.
 
@@ -21,6 +22,28 @@ from typing import List, Tuple
 
 
 def print_con_atom_header(ostring, ntypes, natoms, atommasses):
+    """
+    Appends the number of atom types, the count of atoms for each type, and their masses to a string list.
+
+    This function formats the header information for the atom types, their counts, and masses into strings
+    and appends them to a given list. This list can be used to construct the header of an EON file.
+
+    Parameters
+    ----------
+    ostring : list of str
+        The output list to which the formatted strings will be appended.
+    ntypes : int
+        The number of distinct atom types.
+    natoms : list of int
+        A list containing the count of atoms for each type.
+    atommasses : list of float
+        A list containing the atomic masses for each type.
+
+    Returns
+    -------
+    None
+        This function modifies the `ostring` list in place.
+    """
     ostring.append(str(ntypes))
     ostring.append(" ".join([str(n) for n in natoms]))
     ostring.append(" ".join([str(n) for n in atommasses]))
@@ -28,6 +51,25 @@ def print_con_atom_header(ostring, ntypes, natoms, atommasses):
 
 @dataclass
 class EONHeader:
+    """
+    A data class for storing header information of an EON file.
+
+    Attributes
+    ----------
+    header_lines : List[str]
+        The first two comment lines from the EON file header.
+    cell_lengths : Tuple[float, float, float]
+        The lengths of the cell vectors.
+    cell_angles : Tuple[float, float, float]
+        The angles between the cell vectors.
+    Ncomponent : int
+        The number of distinct atom types.
+    component_counts : List[int]
+        A list containing the count of atoms for each type.
+    masses : List[float]
+        A list containing the atomic masses for each type.
+    """
+
     header_lines: List[str]
     cell_lengths: Tuple[float, float, float]
     cell_angles: Tuple[float, float, float]
@@ -37,7 +79,24 @@ class EONHeader:
 
 
 def process_header(lines: List[str]) -> EONHeader:
-    header_lines = lines[:2]  # Assuming first two lines are header descriptions
+    """
+    Processes the header lines from an EON file and returns an EONHeader object.
+
+    This function parses the first 9 lines of an EON file, extracting information
+    about the simulation cell, the number of atom types, their counts, and masses,
+    and encapsulates this information in an EONHeader object.
+
+    Parameters
+    ----------
+    lines : List[str]
+        The first 9 lines of an EON file containing header information.
+
+    Returns
+    -------
+    EONHeader
+        An object containing the parsed header information.
+    """
+    header_lines = lines[:2]
 
     # Parse cell lengths and angles
     cell_lengths = tuple(map(float, lines[2].split()))
@@ -59,6 +118,25 @@ def process_header(lines: List[str]) -> EONHeader:
 
 
 def make_atoms(coordblock, header):
+    """
+    Creates an Atoms object from coordinate blocks and header information.
+
+    This function takes a list of coordinate blocks and the associated header information,
+    constructs the cell, sets the atomic positions, masses, and optionally applies
+    FixAtoms constraints based on the header information, and returns an ASE Atoms object.
+
+    Parameters
+    ----------
+    coordblock : list of str
+        The lines from an EON file representing atom coordinates and types.
+    header : EONHeader
+        The parsed header information.
+
+    Returns
+    -------
+    Atoms
+        An ASE Atoms object constructed from the given coordinate blocks and header.
+    """
     symbols = []
     coords = []
     masses = []
@@ -88,18 +166,39 @@ def make_atoms(coordblock, header):
 
 
 def read_eon(fileobj, index=-1):
-    # Check if fileobj is a string or Path, indicating a file path
+    """
+    Reads an EON file or directory and returns one or more Atoms objects.
+
+    This function can handle both single EON files and directories containing multiple
+    EON states. It returns either a single Atoms object, a list of Atoms objects,
+    or a specific Atoms object indexed from the file or directory.
+
+    Parameters
+    ----------
+    fileobj : str or Path or file-like object
+        The path to the EON file or directory, or an open file-like object.
+    index : int, optional
+        The index of the Atoms object to return. If -1 (default), returns all objects
+        or a single object if only one is present.
+
+    Returns
+    -------
+    Atoms or List[Atoms]
+        Depending on the `index` parameter and the content of the fileobj, returns
+        either a single Atoms object or a list of Atoms objects.
+
+    Raises
+    ------
+    TypeError
+        If `fileobj` is not a valid path, directory, or file-like object.
+    """
     if isinstance(fileobj, (str, Path)):
         file_path = Path(fileobj)
-        # Handle directory input (states handling)
         if file_path.is_dir():
             return read_states(file_path)
-
-        # Open the file for reading if it's a path
         with file_path.open("r") as fd:
             return process_file(fd, index)
     elif hasattr(fileobj, "read"):
-        # fileobj is a file-like object, process directly
         return process_file(fileobj, index)
     else:
         raise TypeError("fileobj must be a file path or file-like object")
@@ -127,7 +226,23 @@ def process_file(fd, index):
 
 
 def read_states(states_dir: Path):
-    """Read structures stored by EON in the states directory *states_dir*."""
+    """
+    Reads all EON states from a directory and returns a list of Atoms objects.
+
+    This function iterates through a directory expected to contain multiple states,
+    each represented by its own directory named with digits. It reads the "reactant.con"
+    file from each state directory and aggregates the resulting Atoms objects into a list.
+
+    Parameters
+    ----------
+    states_dir : Path
+        The directory containing state subdirectories.
+
+    Returns
+    -------
+    List[Atoms]
+        A list of Atoms objects read from each state directory.
+    """
     subdirs = sorted(
         [x for x in states_dir.iterdir() if x.is_dir() and x.name.isdigit()],
         key=lambda d: int(d.name),
