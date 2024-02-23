@@ -871,7 +871,7 @@ class SpeciesInfo:
     atoms: Atoms
     pseudo_path: Path
     pseudo_qualifier: str
-    species: object
+    species: dict  # actually a kind of Parameters object, should refactor
     target_directory: Path
 
     def __post_init__(self):
