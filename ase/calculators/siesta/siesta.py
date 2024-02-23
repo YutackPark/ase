@@ -511,8 +511,8 @@ class Siesta(FileIOCalculator):
         return self.results['kpoints']
 
 
-def write_atomic_coordinates(fd, atoms: Atoms, species_numbers,
-                             atomic_coord_format: str):
+def generate_atomic_coordinates(atoms: Atoms, species_numbers,
+                                atomic_coord_format: str):
     """Write atomic coordinates.
 
     Parameters
@@ -523,15 +523,15 @@ def write_atomic_coordinates(fd, atoms: Atoms, species_numbers,
         An atoms object.
     """
     if atomic_coord_format == 'xyz':
-        write_atomic_coordinates_xyz(fd, atoms, species_numbers)
+        return generate_atomic_coordinates_xyz(atoms, species_numbers)
     elif atomic_coord_format == 'zmatrix':
-        write_atomic_coordinates_zmatrix(fd, atoms, species_numbers)
+        return generate_atomic_coordinates_zmatrix(atoms, species_numbers)
     else:
         raise RuntimeError(
             f'Unknown atomic_coord_format: {atomic_coord_format}')
 
 
-def write_atomic_coordinates_zmatrix(fd, atoms: Atoms, species_numbers):
+def write_atomic_coordinates_zmatrix(atoms: Atoms, species_numbers):
     """Write atomic coordinates in Z-matrix format.
 
     Parameters
@@ -541,10 +541,10 @@ def write_atomic_coordinates_zmatrix(fd, atoms: Atoms, species_numbers):
     atoms : Atoms
         An atoms object.
     """
-    fd.write('\n')
-    fd.write('ZM.UnitsLength   Ang\n')
-    fd.write('%block Zmatrix\n')
-    fd.write('  cartesian\n')
+    yield '\n'
+    yield var('ZM.UnitsLength   Ang\n')
+    yield '%block Zmatrix\n'
+    yield '  cartesian\n'
     fstr = "{:5d}" + "{:20.10f}" * 3 + "{:3d}" * 3 + "{:7d} {:s}\n"
     a2constr = SiestaInput.make_xyz_constraints(atoms)
     a2p, a2s = atoms.get_positions(), atoms.get_chemical_symbols()
@@ -552,16 +552,16 @@ def write_atomic_coordinates_zmatrix(fd, atoms: Atoms, species_numbers):
                                                  a2p,
                                                  a2constr,
                                                  a2s)):
-        fd.write(fstr.format(
+        yield fstr.format(
             sp, xyz[0], xyz[1], xyz[2], ccc[0],
-            ccc[1], ccc[2], ia + 1, sym))
-    fd.write('%endblock Zmatrix\n')
+            ccc[1], ccc[2], ia + 1, sym)
+    yield '%endblock Zmatrix\n'
 
     # origin = tuple(-atoms.get_celldisp().flatten())
     # fd.write(format_block('AtomicCoordinatesOrigin', [origin]))
 
 
-def write_atomic_coordinates_xyz(fd, atoms: Atoms, species_numbers):
+def generate_atomic_coordinates_xyz(atoms: Atoms, species_numbers):
     """Write atomic coordinates.
 
     Parameters
@@ -571,12 +571,12 @@ def write_atomic_coordinates_xyz(fd, atoms: Atoms, species_numbers):
     atoms : Atoms
         An atoms object.
     """
-    fd.write('\n')
-    fd.write('AtomicCoordinatesFormat  Ang\n')
-    fd.write(format_block('AtomicCoordinatesAndAtomicSpecies',
-                          [[*atom.position, number]
-                           for atom, number in zip(atoms, species_numbers)]))
-    fd.write('\n')
+    yield '\n'
+    yield var('AtomicCoordinatesFormat', 'Ang')
+    yield block('AtomicCoordinatesAndAtomicSpecies',
+                [[*atom.position, number]
+                 for atom, number in zip(atoms, species_numbers)])
+    yield '\n'
 
     # origin = tuple(-atoms.get_celldisp().flatten())
     # fd.write(format_block('AtomicCoordinatesOrigin', [origin]))
@@ -765,8 +765,8 @@ class FDFWriter:
             yield var('LatticeConstant', '1.0 Ang')
             yield block('LatticeVectors', cell)
 
-        write_atomic_coordinates(
-            fd, atoms, self.species_numbers, self.atomic_coord_format)
+        yield from generate_atomic_coordinates(
+            atoms, self.species_numbers, self.atomic_coord_format)
 
         # Write magnetic moments.
         magmoms = atoms.get_initial_magnetic_moments()
