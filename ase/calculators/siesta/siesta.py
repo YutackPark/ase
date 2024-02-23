@@ -638,15 +638,15 @@ class SpeciesInfo:
         self.pao_basis = pao_basis
         self.basis_sizes = basis_sizes
 
-    def write(self, fd):
-        fd.write(format_fdf('NumberOfSpecies', len(self.species)))
-        fd.write(format_fdf('NumberOfAtoms', len(self.atoms)))
+    def generate_text(self):
+        yield format_fdf('NumberOfSpecies', len(self.species))
+        yield format_fdf('NumberOfAtoms', len(self.atoms))
 
-        fd.write(format_fdf('ChemicalSpecieslabel', self.chemical_labels))
-        fd.write('\n')
-        fd.write(format_fdf('PAO.Basis', self.pao_basis))
-        fd.write(format_fdf('PAO.BasisSizes', self.basis_sizes))
-        fd.write('\n')
+        yield format_fdf('ChemicalSpecieslabel', self.chemical_labels)
+        yield '\n'
+        yield format_fdf('PAO.Basis', self.pao_basis)
+        yield format_fdf('PAO.BasisSizes', self.basis_sizes)
+        yield '\n'
 
 
 @dataclass
@@ -685,27 +685,27 @@ class FDFWriter:
     species_info: object
 
     def write(self, fd):
-        for chunk in self.generate(fd):
+        for chunk in self.generate_text(fd):
             fd.write(chunk)
 
-    def generate(self, fd):
-        yield self.var('SystemName', self.name)
-        yield self.var('SystemLabel', self.name)
+    def generate_text(self, fd):
+        yield var('SystemName', self.name)
+        yield var('SystemLabel', self.name)
         yield "\n"
 
         # Write explicitly given options first to
         # allow the user to override anything.
         fdf_arguments = self.fdf_user_args
         for key in sorted(fdf_arguments):
-            yield self.var(key, fdf_arguments[key])
+            yield var(key, fdf_arguments[key])
 
         # Force siesta to return error on no convergence.
         # as default consistent with ASE expectations.
         if 'SCFMustConverge' not in fdf_arguments:
-            yield self.var('SCFMustConverge', True)
+            yield var('SCFMustConverge', True)
         yield '\n'
 
-        yield self.var('Spin', self.spin)
+        yield var('Spin', self.spin)
         # Spin backwards compatibility.
         if self.spin == 'collinear':
             key = 'SpinPolarized'
@@ -715,24 +715,24 @@ class FDFWriter:
             key = None
 
         if key is not None:
-            yield self.var(key, (True, '# Backwards compatibility.'))
+            yield var(key, (True, '# Backwards compatibility.'))
 
         # Write functional.
         functional, authors = self.xc
-        yield self.var('XC.functional', functional)
-        yield self.var('XC.authors', authors)
+        yield var('XC.functional', functional)
+        yield var('XC.authors', authors)
         yield '\n'
 
         # Write mesh cutoff and energy shift.
-        yield self.var('MeshCutoff', (self.mesh_cutoff, 'eV'))
-        yield self.var('PAO.EnergyShift', (self.energy_shift, 'eV'))
+        yield var('MeshCutoff', (self.mesh_cutoff, 'eV'))
+        yield var('PAO.EnergyShift', (self.energy_shift, 'eV'))
         yield '\n'
 
-        self.species_info.write(fd)
-        self.write_structure(fd, self.species_info.atoms)
+        yield from self.species_info.generate_text()
+        yield from self.generate_atoms_text(fd, self.species_info.atoms)
 
         for key, value in self.more_fdf_args.items():
-            yield self.var(key, value)
+            yield var(key, value)
 
         if self.kpts is not None:
             kpts = np.array(self.kpts)
@@ -744,7 +744,7 @@ class FDFWriter:
             yield lines
             yield '\n'
 
-    def write_structure(self, fd, atoms):
+    def generate_atoms_text(self, fd, atoms):
         """Translate the Atoms object to fdf-format.
 
         Parameters
@@ -755,15 +755,15 @@ class FDFWriter:
             An atoms object.
         """
         cell = atoms.cell
-        fd.write('\n')
+        yield '\n'
 
         if cell.rank in [1, 2]:
             raise ValueError('Expected 3D unit cell or no unit cell.  You may '
                              'wish to add vacuum along some directions.')
 
         if np.any(cell):
-            fd.write(format_fdf('LatticeConstant', '1.0 Ang'))
-            fd.write(format_block('LatticeVectors', cell))
+            yield var('LatticeConstant', '1.0 Ang')
+            yield block('LatticeVectors', cell)
 
         write_atomic_coordinates(
             fd, atoms, self.species_numbers, self.atomic_coord_format)
@@ -777,21 +777,20 @@ class FDFWriter:
         # atoms object.
         if magmoms is not None:
             if len(magmoms) == 0:
-                fd.write('#Empty block forces ASE initialization.\n')
+                yield '#Empty block forces ASE initialization.\n'
 
-            fd.write('%block DM.InitSpin\n')
+            yield '%block DM.InitSpin\n'
             if len(magmoms) != 0 and isinstance(magmoms[0], np.ndarray):
                 for n, M in enumerate(magmoms):
                     if M[0] != 0:
-                        fd.write(
-                            '    %d %.14f %.14f %.14f \n' %
-                            (n + 1, M[0], M[1], M[2]))
+                        yield ('    %d %.14f %.14f %.14f \n'
+                               % (n + 1, M[0], M[1], M[2]))
             elif len(magmoms) != 0 and isinstance(magmoms[0], float):
                 for n, M in enumerate(magmoms):
                     if M != 0:
-                        fd.write('    %d %.14f \n' % (n + 1, M))
-            fd.write('%endblock DM.InitSpin\n')
-            fd.write('\n')
+                        yield '    %d %.14f \n' % (n + 1, M)
+            yield '%endblock DM.InitSpin\n'
+            yield '\n'
 
     def link_pseudos_into_directory(self, *, symlink_pseudos=None, directory):
         if symlink_pseudos is None:
@@ -803,6 +802,14 @@ class FDFWriter:
             else:
                 instruction.copy_to(directory)
 
-    # Utilities for generating bits of strings:
-    def var(self, key, value):
-        return format_fdf(key, value)
+
+# Utilities for generating bits of strings.
+#
+# We are re-aliasing format_fdf and format_block in the anticipation
+# that they may change, or we might move this onto a Formatter object
+# which applies consistent spacings etc.
+def var(key, value):
+    return format_fdf(key, value)
+
+def block(name, data):
+    return format_block(name, data)
