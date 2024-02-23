@@ -441,13 +441,12 @@ class Siesta(FileIOCalculator):
         # Write explicitly given options first to
         # allow the user to override anything.
         fdf_arguments = self['fdf_arguments']
-        keys = sorted(fdf_arguments.keys())
-        for key in keys:
+        for key in sorted(fdf_arguments):
             fd.write(format_fdf(key, fdf_arguments[key]))
 
         # Force siesta to return error on no convergence.
         # as default consistent with ASE expectations.
-        if 'SCFMustConverge' not in fdf_arguments.keys():
+        if 'SCFMustConverge' not in fdf_arguments:
             fd.write(format_fdf('SCFMustConverge', True))
         fd.write("\n")
 
