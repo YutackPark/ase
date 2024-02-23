@@ -13,7 +13,7 @@ import numpy as np
 from ase.atoms import Atoms
 from ase.constraints import FixAtoms
 from ase.geometry import cell_to_cellpar, cellpar_to_cell
-from ase.utils import writer
+from ase.utils import reader, writer
 
 from dataclasses import dataclass
 from typing import List, Tuple
@@ -145,14 +145,14 @@ def make_atoms(coordblock, header):
     )
 
 
+@reader
 def read_eon(fileobj, index=-1):
     """
     Reads an EON file or directory and returns one or more Atoms objects.
 
-    This function can handle both single EON files and directories containing
-    multiple EON states. It returns either a single Atoms object, a list of
-    Atoms objects, or a specific Atoms object indexed from the file or
-    directory.
+    This function handles single EON files, in both single image and multi-image
+    variants. It returns either a single Atoms object, a list of Atoms objects,
+    or a specific Atoms object indexed from the file or directory.
 
     Parameters
     ----------
@@ -167,35 +167,17 @@ def read_eon(fileobj, index=-1):
     Atoms or List[Atoms]
         Depending on the `index` parameter and the content of the fileobj,
         returns either a single Atoms object or a list of Atoms objects.
-
-    Raises
-    ------
-    TypeError
-        If `fileobj` is not a valid path, directory, or file-like object.
     """
-    if isinstance(fileobj, (str, Path)):
-        file_path = Path(fileobj)
-        if file_path.is_dir():
-            return read_states(file_path)
-        with file_path.open("r") as fd:
-            return process_file(fd, index)
-    elif hasattr(fileobj, "read"):
-        return process_file(fileobj, index)
-    else:
-        raise TypeError("fileobj must be a file path or file-like object")
-
-
-def process_file(fd, index):
     images = []
     while True:
         # Read and process headers if they exist
         try:
-            lines = [next(fd).strip() for _ in range(9)]  # Header is 9 lines
+            lines = [next(fileobj).strip() for _ in range(9)]
         except StopIteration:
             break  # End of file
         header = process_header(lines)
         num_blocklines = (header.Ncomponent * 2) + sum(header.component_counts)
-        coordblocks = [next(fd).strip() for _ in range(num_blocklines)]
+        coordblocks = [next(fileobj).strip() for _ in range(num_blocklines)]
         atoms = make_atoms(coordblocks, header)
         images.append(atoms)
 
