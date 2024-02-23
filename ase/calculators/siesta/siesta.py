@@ -839,9 +839,8 @@ def write_atomic_coordinates_zmatrix(fd, atoms: Atoms, species_numbers):
             ccc[1], ccc[2], ia + 1, sym))
     fd.write('%endblock Zmatrix\n')
 
-    origin = tuple(-atoms.get_celldisp().flatten())
-    if any(origin):
-        fd.write(format_block('AtomicCoordinatesOrigin'), [origin])
+    # origin = tuple(-atoms.get_celldisp().flatten())
+    # fd.write(format_block('AtomicCoordinatesOrigin', [origin]))
 
 
 def write_atomic_coordinates_xyz(fd, atoms: Atoms, species_numbers):
@@ -861,9 +860,8 @@ def write_atomic_coordinates_xyz(fd, atoms: Atoms, species_numbers):
                            for atom, number in zip(atoms, species_numbers)]))
     fd.write('\n')
 
-    origin = tuple(-atoms.get_celldisp().flatten())
-    if any(origin):
-        fd.write(format_block('AtomicCoordinatesOrigin'), [origin])
+    # origin = tuple(-atoms.get_celldisp().flatten())
+    # fd.write(format_block('AtomicCoordinatesOrigin', [origin]))
 
 
 @dataclass
