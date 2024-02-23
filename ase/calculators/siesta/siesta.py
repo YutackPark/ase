@@ -921,18 +921,22 @@ class SpeciesInfo:
                 symlink_pseudos: bool
 
                 def link(self):
-                    if self.dst_path.resolve() != self.src_path.resolve():
-                        self.dst_path.unlink(missing_ok=True)
+                    src_path = self.src_path.resolve()
+                    dst_path = self.dst_path.resolve()
+                    if src_path == dst_path:
+                        return
 
-                        symlink_pseudos = self.symlink_pseudos
+                    dst_path.unlink(missing_ok=True)
 
-                        if symlink_pseudos is None:
-                            symlink_pseudos = not os.name == 'nt'
+                    symlink_pseudos = self.symlink_pseudos
 
-                        if symlink_pseudos:
-                            os.symlink(self.src_path, self.dst_path)
-                        else:
-                            shutil.copy(self.src_path, self.dst_path)
+                    if symlink_pseudos is None:
+                        symlink_pseudos = not os.name == 'nt'
+
+                    if symlink_pseudos:
+                        os.symlink(src_path, dst_path)
+                    else:
+                        shutil.copy(src_path, dst_path)
 
             instr = FileInstruction(pseudopotential, dst_path,
                                     self.symlink_pseudos)
