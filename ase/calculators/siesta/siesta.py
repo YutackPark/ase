@@ -911,33 +911,6 @@ class SpeciesInfo:
             name = '.'.join(name)
             dst_path = self.target_directory / name
 
-            # If the desired pseudopotential is inside calculation
-            # directory, do nothing.  Otherwise, link or copy the
-            # desired pseudopotential into the calculation dir:
-            @dataclass
-            class FileInstruction:
-                src_path: Path
-                dst_path: Path
-                symlink_pseudos: bool
-
-                def link(self):
-                    src_path = self.src_path.resolve()
-                    dst_path = self.dst_path.resolve()
-                    if src_path == dst_path:
-                        return
-
-                    dst_path.unlink(missing_ok=True)
-
-                    symlink_pseudos = self.symlink_pseudos
-
-                    if symlink_pseudos is None:
-                        symlink_pseudos = not os.name == 'nt'
-
-                    if symlink_pseudos:
-                        os.symlink(src_path, dst_path)
-                    else:
-                        shutil.copy(src_path, dst_path)
-
             instr = FileInstruction(pseudopotential, dst_path,
                                     self.symlink_pseudos)
             instr.link()
@@ -965,3 +938,28 @@ class SpeciesInfo:
         fd.write(format_fdf('PAO.Basis', self.pao_basis))
         fd.write(format_fdf('PAO.BasisSizes', self.basis_sizes))
         fd.write('\n')
+
+
+@dataclass
+class FileInstruction:
+    src_path: Path
+    dst_path: Path
+    symlink_pseudos: bool
+
+    def link(self):
+        src_path = self.src_path.resolve()
+        dst_path = self.dst_path.resolve()
+        if src_path == dst_path:
+            return
+
+        dst_path.unlink(missing_ok=True)
+
+        symlink_pseudos = self.symlink_pseudos
+
+        if symlink_pseudos is None:
+            symlink_pseudos = not os.name == 'nt'
+
+        if symlink_pseudos:
+            os.symlink(src_path, dst_path)
+        else:
+            shutil.copy(src_path, dst_path)
