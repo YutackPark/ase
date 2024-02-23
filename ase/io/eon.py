@@ -318,21 +318,21 @@ def write_eon(fileobj, images):
             out.append(atomtypes[n])
             out.append("Coordinates of Component %d" % (n + 1))
             indices = [i for i, at in enumerate(symbols) if at == atomtypes[n]]
-            a = atoms[indices]
-            coords = a.positions
-            for c in a.constraints:
-                if not isinstance(c, FixAtoms):
+            atom = atoms[indices]
+            coords = atom.positions
+            for constraint in atom.constraints:
+                if not isinstance(constraint, FixAtoms):
                     warn(
                         "Only FixAtoms constraints are supported"
                         "by con files. Dropping %r",
-                        c,
+                        constraint,
                     )
                     continue
-                if c.index.dtype.kind == "b":
-                    fixed = np.array(c.index, dtype=int)
+                if constraint.index.dtype.kind == "b":
+                    fixed = np.array(constraint.index, dtype=int)
                 else:
                     fixed = np.zeros((natoms[n],), dtype=int)
-                    for i in c.index:
+                    for i in constraint.index:
                         fixed[i] = 1
             for xyz, fix in zip(coords, fixed):
                 line_fmt = "{:>22.17f} {:>22.17f} {:>22.17f} {:d} {:4d}"
