@@ -376,74 +376,7 @@ class Siesta(FileIOCalculator):
         if 'density' in properties:
             more_fdf_args['SaveRho'] = True
 
-        # Start writing the file.
-        with open(filename, 'w') as fd:
-            self._write_fdf(fd, atoms, more_fdf_args)
-
-    def _write_fdf(self, fd, atoms, more_fdf_args):
-        # Write system name and label.
-        fd.write(format_fdf('SystemName', self.prefix))
-        fd.write(format_fdf('SystemLabel', self.prefix))
-        fd.write("\n")
-
-        # Write explicitly given options first to
-        # allow the user to override anything.
-        fdf_arguments = self['fdf_arguments']
-        for key in sorted(fdf_arguments):
-            fd.write(format_fdf(key, fdf_arguments[key]))
-
-        # Force siesta to return error on no convergence.
-        # as default consistent with ASE expectations.
-        if 'SCFMustConverge' not in fdf_arguments:
-            fd.write(format_fdf('SCFMustConverge', True))
-        fd.write("\n")
-
-        # Write spin level.
-        fd.write(format_fdf('Spin     ', self['spin']))
-        # Spin backwards compatibility.
-        if self['spin'] == 'collinear':
-            fd.write(
-                format_fdf(
-                    'SpinPolarized',
-                    (True,
-                     "# Backwards compatibility.")))
-        elif self['spin'] == 'non-collinear':
-            fd.write(
-                format_fdf(
-                    'NonCollinearSpin',
-                    (True,
-                     "# Backwards compatibility.")))
-
-        # Write functional.
-        functional, authors = self['xc']
-        fd.write(format_fdf('XC.functional', functional))
-        fd.write(format_fdf('XC.authors', authors))
-        fd.write("\n")
-
-        # Write mesh cutoff and energy shift.
-        fd.write(format_fdf('MeshCutoff',
-                            (self['mesh_cutoff'], 'eV')))
-        fd.write(format_fdf('PAO.EnergyShift',
-                            (self['energy_shift'], 'eV')))
-        fd.write("\n")
-
-        self._write_species(fd, atoms)
-        self._write_structure(fd, atoms)
-
-        for key, value in more_fdf_args.items():
-            fd.write(format_fdf(key, value))
-
-        if self["kpts"] is not None:
-            kpts = np.array(self['kpts'])
-            SiestaInput.write_kpts(fd, kpts)
-
-        if self['bandpath'] is not None:
-            lines = bandpath2bandpoints(self['bandpath'])
-            fd.write(lines)
-            fd.write('\n')
-
-    def _write_species(self, fd, atoms):
-        species, _ = self.species(atoms)
+        species, species_numbers = self.species(atoms)
 
         if self['pseudo_path'] is not None:
             pseudo_path = self['pseudo_path']
@@ -453,16 +386,30 @@ class Siesta(FileIOCalculator):
             mess = "Please set the environment variable 'SIESTA_PP_PATH'"
             raise Exception(mess)
 
-        species_info = SpeciesInfo(
+        fdf = FDFWriter(
+            name=self.prefix,
             atoms=atoms,
-            pseudo_path=Path(pseudo_path),
-            pseudo_qualifier=self.pseudo_qualifier(),
+            xc=self['xc'],
+            spin=self['spin'],
+            mesh_cutoff=self['mesh_cutoff'],
+            energy_shift=self['energy_shift'],
+            fdf_user_args=self['fdf_arguments'],
+            more_fdf_args=more_fdf_args,
             species=species,
-            target_directory=Path(self.directory).resolve())
+            pseudo_path=pseudo_path,
+            pseudo_qualifier=self.pseudo_qualifier(),
+            directory=Path(self.directory),  # XXX not needed for good reasons
+            symlink_pseudos=self['symlink_pseudos'],
+            species_numbers=species_numbers,
+            atomic_coord_format=self['atomic_coord_format'].lower(),
+            kpts=self['kpts'],
+            bandpath=self['bandpath'],
+        )
 
-        species_info.write(fd)
-        species_info.link_pseudos_into_directory(
-            symlink_pseudos=self['symlink_pseudos'])
+        # Start writing the file.
+        with open(filename, 'w') as fd:
+            fdf.write(fd)
+            # self._write_fdf(fd, atoms, more_fdf_args, fdf)
 
     def read(self, filename):
         """Read structural parameters from file .XV file
@@ -484,57 +431,6 @@ class Siesta(FileIOCalculator):
         if ext is not None:
             fname = f'{fname}.{ext}'
         return Path(self.directory) / fname
-
-    def _write_structure(self, fd, atoms):
-        """Translate the Atoms object to fdf-format.
-
-        Parameters
-        ----------
-        fd : IO
-            An open file object.
-        atoms: Atoms
-            An atoms object.
-        """
-        cell = atoms.cell
-        fd.write('\n')
-
-        if cell.rank in [1, 2]:
-            raise ValueError('Expected 3D unit cell or no unit cell.  You may '
-                             'wish to add vacuum along some directions.')
-
-        if np.any(cell):
-            fd.write(format_fdf('LatticeConstant', '1.0 Ang'))
-            fd.write(format_block('LatticeVectors', cell))
-
-        _, species_numbers = self.species(atoms)
-        write_atomic_coordinates(
-            fd, atoms, species_numbers,
-            self.parameters["atomic_coord_format"].lower())
-
-        # Write magnetic moments.
-        magmoms = atoms.get_initial_magnetic_moments()
-
-        # The DM.InitSpin block must be written to initialize to
-        # no spin. SIESTA default is FM initialization, if the
-        # block is not written, but  we must conform to the
-        # atoms object.
-        if magmoms is not None:
-            if len(magmoms) == 0:
-                fd.write('#Empty block forces ASE initialization.\n')
-
-            fd.write('%block DM.InitSpin\n')
-            if len(magmoms) != 0 and isinstance(magmoms[0], np.ndarray):
-                for n, M in enumerate(magmoms):
-                    if M[0] != 0:
-                        fd.write(
-                            '    %d %.14f %.14f %.14f \n' %
-                            (n + 1, M[0], M[1], M[2]))
-            elif len(magmoms) != 0 and isinstance(magmoms[0], float):
-                for n, M in enumerate(magmoms):
-                    if M != 0:
-                        fd.write('    %d %.14f \n' % (n + 1, M))
-            fd.write('%endblock DM.InitSpin\n')
-            fd.write('\n')
 
     def pseudo_qualifier(self):
         """Get the extra string used in the middle of the pseudopotential.
@@ -779,3 +675,142 @@ class FileInstruction:
 
         self.dst_path.unlink(missing_ok=True)
         file_operation(self.src_path, self.dst_path)
+
+
+@dataclass
+class FDFWriter:
+    atoms: Atoms
+    name: str
+    xc: str
+    fdf_user_args: dict
+    more_fdf_args: dict
+    mesh_cutoff: float
+    energy_shift: float
+    spin: str
+    species: dict
+    pseudo_path: Path
+    pseudo_qualifier: str
+    directory: Path
+    symlink_pseudos: bool | None
+    species_numbers: object  # ?
+    atomic_coord_format: str
+    kpts: object  # ?
+    bandpath: object  # ?
+
+    def write(self, fd):
+        fd.write(format_fdf('SystemName', self.name))
+        fd.write(format_fdf('SystemLabel', self.name))
+        fd.write("\n")
+
+        # Write explicitly given options first to
+        # allow the user to override anything.
+        fdf_arguments = self.fdf_user_args
+        for key in sorted(fdf_arguments):
+            fd.write(format_fdf(key, fdf_arguments[key]))
+
+        # Force siesta to return error on no convergence.
+        # as default consistent with ASE expectations.
+        if 'SCFMustConverge' not in fdf_arguments:
+            fd.write(format_fdf('SCFMustConverge', True))
+        fd.write("\n")
+
+        # Write spin level.
+        spin = self.spin
+        fd.write(format_fdf('Spin     ', spin))
+        # Spin backwards compatibility.
+        if spin == 'collinear':
+            string = format_fdf(
+                'SpinPolarized', (True, "# Backwards compatibility."))
+        elif spin == 'non-collinear':
+            string = format_fdf(
+                'NonCollinearSpin', (True, "# Backwards compatibility."))
+        else:
+            string = '\n'
+        fd.write(string)
+
+        # Write functional.
+        functional, authors = self.xc
+        fd.write(format_fdf('XC.functional', functional))
+        fd.write(format_fdf('XC.authors', authors))
+        fd.write("\n")
+
+        # Write mesh cutoff and energy shift.
+        fd.write(format_fdf('MeshCutoff', (self.mesh_cutoff, 'eV')))
+        fd.write(format_fdf('PAO.EnergyShift', (self.energy_shift, 'eV')))
+        fd.write("\n")
+
+        self._write_species(fd, self.atoms)
+        self._write_structure(fd, self.atoms)
+
+        for key, value in self.more_fdf_args.items():
+            fd.write(format_fdf(key, value))
+
+        if self.kpts is not None:
+            kpts = np.array(self.kpts)
+            SiestaInput.write_kpts(fd, kpts)
+
+        if self.bandpath is not None:
+            lines = bandpath2bandpoints(self.bandpath)
+            fd.write(lines)
+            fd.write('\n')
+
+    def _write_species(self, fd, atoms):
+        species_info = SpeciesInfo(
+            atoms=atoms,
+            pseudo_path=Path(self.pseudo_path),
+            pseudo_qualifier=self.pseudo_qualifier,
+            species=self.species,
+            target_directory=Path(self.directory).resolve())
+
+        species_info.write(fd)
+        species_info.link_pseudos_into_directory(
+            symlink_pseudos=self.symlink_pseudos)
+
+    def _write_structure(self, fd, atoms):
+        """Translate the Atoms object to fdf-format.
+
+        Parameters
+        ----------
+        fd : IO
+            An open file object.
+        atoms: Atoms
+            An atoms object.
+        """
+        cell = atoms.cell
+        fd.write('\n')
+
+        if cell.rank in [1, 2]:
+            raise ValueError('Expected 3D unit cell or no unit cell.  You may '
+                             'wish to add vacuum along some directions.')
+
+        if np.any(cell):
+            fd.write(format_fdf('LatticeConstant', '1.0 Ang'))
+            fd.write(format_block('LatticeVectors', cell))
+
+        write_atomic_coordinates(
+            fd, atoms, self.species_numbers, self.atomic_coord_format)
+
+        # Write magnetic moments.
+        magmoms = atoms.get_initial_magnetic_moments()
+
+        # The DM.InitSpin block must be written to initialize to
+        # no spin. SIESTA default is FM initialization, if the
+        # block is not written, but  we must conform to the
+        # atoms object.
+        if magmoms is not None:
+            if len(magmoms) == 0:
+                fd.write('#Empty block forces ASE initialization.\n')
+
+            fd.write('%block DM.InitSpin\n')
+            if len(magmoms) != 0 and isinstance(magmoms[0], np.ndarray):
+                for n, M in enumerate(magmoms):
+                    if M[0] != 0:
+                        fd.write(
+                            '    %d %.14f %.14f %.14f \n' %
+                            (n + 1, M[0], M[1], M[2]))
+            elif len(magmoms) != 0 and isinstance(magmoms[0], float):
+                for n, M in enumerate(magmoms):
+                    if M != 0:
+                        fd.write('    %d %.14f \n' % (n + 1, M))
+            fd.write('%endblock DM.InitSpin\n')
+            fd.write('\n')
