@@ -909,22 +909,34 @@ class SpeciesInfo:
                 atomic_number = -atomic_number
 
             name = '.'.join(name)
-            pseudopath = self.target_directory / name
+            dst_path = self.target_directory / name
 
             # If the desired pseudopotential is inside calculation
             # directory, do nothing.  Otherwise, link or copy the
             # desired pseudopotential into the calculation dir:
-            if pseudopath.resolve() != pseudopotential.resolve():
-                pseudopath.unlink(missing_ok=True)
-                symlink_pseudos = self.symlink_pseudos
+            @dataclass
+            class FileInstruction:
+                src_path: Path
+                dst_path: Path
+                symlink_pseudos: bool
 
-                if symlink_pseudos is None:
-                    symlink_pseudos = not os.name == 'nt'
+                def link(self):
+                    if self.dst_path.resolve() != self.src_path.resolve():
+                        self.dst_path.unlink(missing_ok=True)
 
-                if symlink_pseudos:
-                    os.symlink(pseudopotential, pseudopath)
-                else:
-                    shutil.copy(pseudopotential, pseudopath)
+                        symlink_pseudos = self.symlink_pseudos
+
+                        if symlink_pseudos is None:
+                            symlink_pseudos = not os.name == 'nt'
+
+                        if symlink_pseudos:
+                            os.symlink(self.src_path, self.dst_path)
+                        else:
+                            shutil.copy(self.src_path, self.dst_path)
+
+            instr = FileInstruction(pseudopotential, dst_path,
+                                    self.symlink_pseudos)
+            instr.link()
 
             label = '.'.join(np.array(name.split('.'))[:-1])
             string = '    %d %d %s' % (species_number, atomic_number, label)
@@ -933,6 +945,8 @@ class SpeciesInfo:
                 pao_basis.append(spec['basis_set'].script(label))
             else:
                 basis_sizes.append(("    " + label, spec['basis_set']))
+
+        # self.file_instructions = file_instructions
 
         self.chemical_labels = chemical_labels
         self.pao_basis = pao_basis
