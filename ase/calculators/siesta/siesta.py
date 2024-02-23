@@ -531,7 +531,7 @@ def generate_atomic_coordinates(atoms: Atoms, species_numbers,
             f'Unknown atomic_coord_format: {atomic_coord_format}')
 
 
-def write_atomic_coordinates_zmatrix(atoms: Atoms, species_numbers):
+def generate_atomic_coordinates_zmatrix(atoms: Atoms, species_numbers):
     """Write atomic coordinates in Z-matrix format.
 
     Parameters
@@ -542,23 +542,22 @@ def write_atomic_coordinates_zmatrix(atoms: Atoms, species_numbers):
         An atoms object.
     """
     yield '\n'
-    yield var('ZM.UnitsLength   Ang\n')
+    yield var('ZM.UnitsLength', 'Ang')
     yield '%block Zmatrix\n'
     yield '  cartesian\n'
+
     fstr = "{:5d}" + "{:20.10f}" * 3 + "{:3d}" * 3 + "{:7d} {:s}\n"
     a2constr = SiestaInput.make_xyz_constraints(atoms)
-    a2p, a2s = atoms.get_positions(), atoms.get_chemical_symbols()
-    for ia, (sp, xyz, ccc, sym) in enumerate(zip(species_numbers,
-                                                 a2p,
-                                                 a2constr,
-                                                 a2s)):
+    a2p, a2s = atoms.get_positions(), atoms.symbols
+    for ia, (sp, xyz, ccc, sym) in enumerate(
+            zip(species_numbers, a2p, a2constr, a2s)):
         yield fstr.format(
             sp, xyz[0], xyz[1], xyz[2], ccc[0],
             ccc[1], ccc[2], ia + 1, sym)
     yield '%endblock Zmatrix\n'
 
     # origin = tuple(-atoms.get_celldisp().flatten())
-    # fd.write(format_block('AtomicCoordinatesOrigin', [origin]))
+    # yield block('AtomicCoordinatesOrigin', [origin])
 
 
 def generate_atomic_coordinates_xyz(atoms: Atoms, species_numbers):
@@ -579,7 +578,7 @@ def generate_atomic_coordinates_xyz(atoms: Atoms, species_numbers):
     yield '\n'
 
     # origin = tuple(-atoms.get_celldisp().flatten())
-    # fd.write(format_block('AtomicCoordinatesOrigin', [origin]))
+    # yield block('AtomicCoordinatesOrigin', [origin])
 
 
 @dataclass
@@ -639,13 +638,13 @@ class SpeciesInfo:
         self.basis_sizes = basis_sizes
 
     def generate_text(self):
-        yield format_fdf('NumberOfSpecies', len(self.species))
-        yield format_fdf('NumberOfAtoms', len(self.atoms))
+        yield var('NumberOfSpecies', len(self.species))
+        yield var('NumberOfAtoms', len(self.atoms))
 
-        yield format_fdf('ChemicalSpecieslabel', self.chemical_labels)
+        yield var('ChemicalSpecieslabel', self.chemical_labels)
         yield '\n'
-        yield format_fdf('PAO.Basis', self.pao_basis)
-        yield format_fdf('PAO.BasisSizes', self.basis_sizes)
+        yield var('PAO.Basis', self.pao_basis)
+        yield var('PAO.BasisSizes', self.basis_sizes)
         yield '\n'
 
 
@@ -685,10 +684,10 @@ class FDFWriter:
     species_info: object
 
     def write(self, fd):
-        for chunk in self.generate_text(fd):
+        for chunk in self.generate_text():
             fd.write(chunk)
 
-    def generate_text(self, fd):
+    def generate_text(self):
         yield var('SystemName', self.name)
         yield var('SystemLabel', self.name)
         yield "\n"
@@ -729,14 +728,14 @@ class FDFWriter:
         yield '\n'
 
         yield from self.species_info.generate_text()
-        yield from self.generate_atoms_text(fd, self.species_info.atoms)
+        yield from self.generate_atoms_text(self.species_info.atoms)
 
         for key, value in self.more_fdf_args.items():
             yield var(key, value)
 
         if self.kpts is not None:
             kpts = np.array(self.kpts)
-            SiestaInput.write_kpts(fd, kpts)
+            yield from SiestaInput.generate_kpts(kpts)
 
         if self.bandpath is not None:
             lines = bandpath2bandpoints(self.bandpath)
@@ -744,16 +743,9 @@ class FDFWriter:
             yield lines
             yield '\n'
 
-    def generate_atoms_text(self, fd, atoms):
-        """Translate the Atoms object to fdf-format.
+    def generate_atoms_text(self, atoms: Atoms):
+        """Translate the Atoms object to fdf-format."""
 
-        Parameters
-        ----------
-        fd : IO
-            An open file object.
-        atoms: Atoms
-            An atoms object.
-        """
         cell = atoms.cell
         yield '\n'
 

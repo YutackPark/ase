@@ -26,15 +26,16 @@ class SiestaInput:
         return False
 
     @classmethod
-    def write_kpts(cls, fd, kpts):
+    def generate_kpts(cls, kpts):
         """Write kpts.
 
         Parameters:
             - f : Open filename.
         """
-        fd.write('\n')
-        fd.write('#KPoint grid\n')
-        fd.write('%block kgrid_Monkhorst_Pack\n')
+        from ase.calculators.siesta.siesta import var
+        yield '\n'
+        yield '#KPoint grid\n'
+        yield '%block kgrid_Monkhorst_Pack\n'
 
         for i in range(3):
             s = ''
@@ -51,9 +52,9 @@ class SiestaInput:
                     write_this = 0
                 s += f'     {write_this:d}  '
             s += f'{displace:1.1f}\n'
-            fd.write(s)
-        fd.write('%endblock kgrid_Monkhorst_Pack\n')
-        fd.write('\n')
+            yield s
+        yield '%endblock kgrid_Monkhorst_Pack\n'
+        yield '\n'
 
     @classmethod
     def get_species(cls, atoms, species, basis_set):
