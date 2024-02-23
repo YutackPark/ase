@@ -767,22 +767,21 @@ class FDFWriter:
         # no spin. SIESTA default is FM initialization, if the
         # block is not written, but  we must conform to the
         # atoms object.
-        if magmoms is not None:
-            if len(magmoms) == 0:
-                yield '#Empty block forces ASE initialization.\n'
+        if len(magmoms) == 0:
+            yield '#Empty block forces ASE initialization.\n'
 
-            yield '%block DM.InitSpin\n'
-            if len(magmoms) != 0 and isinstance(magmoms[0], np.ndarray):
-                for n, M in enumerate(magmoms):
-                    if M[0] != 0:
-                        yield ('    %d %.14f %.14f %.14f \n'
-                               % (n + 1, M[0], M[1], M[2]))
-            elif len(magmoms) != 0 and isinstance(magmoms[0], float):
-                for n, M in enumerate(magmoms):
-                    if M != 0:
-                        yield '    %d %.14f \n' % (n + 1, M)
-            yield '%endblock DM.InitSpin\n'
-            yield '\n'
+        yield '%block DM.InitSpin\n'
+        if len(magmoms) != 0 and isinstance(magmoms[0], np.ndarray):
+            for n, M in enumerate(magmoms):
+                if M[0] != 0:
+                    yield ('    %d %.14f %.14f %.14f \n'
+                           % (n + 1, M[0], M[1], M[2]))
+        elif len(magmoms) != 0 and isinstance(magmoms[0], float):
+            for n, M in enumerate(magmoms):
+                if M != 0:
+                    yield '    %d %.14f \n' % (n + 1, M)
+        yield '%endblock DM.InitSpin\n'
+        yield '\n'
 
     def link_pseudos_into_directory(self, *, symlink_pseudos=None, directory):
         if symlink_pseudos is None:
