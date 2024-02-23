@@ -125,3 +125,21 @@ def test_center_about():
     assert atoms.positions[0, 0] != pytest.approx(0)
     assert atoms.positions[0, 1] != pytest.approx(0)
     assert atoms.positions[0, 2] == pytest.approx(0)
+
+    atoms = Atoms('H', positions=[[1., 2., 3.]])
+    atoms.center(vacuum=10.0, about=(0, 5, 0), axis=(1, 2))
+    assert atoms.positions[0, 0] != pytest.approx(0)
+    assert atoms.positions[0, 1] == pytest.approx(5)
+    assert atoms.positions[0, 2] == pytest.approx(0)
+
+    atoms = Atoms('H', positions=[[1., 2., 3.]])
+    atoms.center(vacuum=10.0, about=(10, 5, 2), axis=(0, 1, 2))
+    assert atoms.positions[0, 0] == pytest.approx(10)
+    assert atoms.positions[0, 1] == pytest.approx(5)
+    assert atoms.positions[0, 2] == pytest.approx(2)
+
+    atoms = Atoms('H', positions=[[1., 2., 3.]])
+    atoms.center(vacuum=10.0, about=(0, 0, 0))
+    assert atoms.positions[0, 0] == pytest.approx(0)
+    assert atoms.positions[0, 1] == pytest.approx(0)
+    assert atoms.positions[0, 2] == pytest.approx(0)
