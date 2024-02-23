@@ -685,9 +685,13 @@ class FDFWriter:
     species_info: object
 
     def write(self, fd):
-        fd.write(format_fdf('SystemName', self.name))
-        fd.write(format_fdf('SystemLabel', self.name))
-        fd.write("\n")
+        for chunk in self.generate(fd):
+            fd.write(chunk)
+
+    def generate(self, fd):
+        yield self.var('SystemName', self.name)
+        yield self.var('SystemLabel', self.name)
+        yield "\n"
 
         # Write explicitly given options first to
         # allow the user to override anything.
@@ -738,8 +742,9 @@ class FDFWriter:
 
         if self.bandpath is not None:
             lines = bandpath2bandpoints(self.bandpath)
-            fd.write(lines)
-            fd.write('\n')
+            assert isinstance(lines, str)  # rename this variable?
+            yield lines
+            yield '\n'
 
     def write_structure(self, fd, atoms):
         """Translate the Atoms object to fdf-format.
@@ -799,3 +804,7 @@ class FDFWriter:
                 instruction.symlink_to(directory)
             else:
                 instruction.copy_to(directory)
+
+    # Utilities for generating bits of strings:
+    def var(self, key, value):
+        return format_fdf(key, value)
