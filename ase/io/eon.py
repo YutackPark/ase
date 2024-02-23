@@ -126,7 +126,7 @@ def make_atoms(coordblock, header):
         header.cell_angles[1],
         header.cell_angles[0]
     )
-    cellpar = [float(x) for x in header.cell_lengths + cell_angles]
+    cellpar = [x for x in header.cell_lengths + cell_angles]
     for idx, nblock in enumerate(header.component_counts):
         elem_block = coordblock[:(nblock + 2)]
         symb = elem_block[0]
