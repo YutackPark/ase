@@ -386,30 +386,32 @@ class Siesta(FileIOCalculator):
             mess = "Please set the environment variable 'SIESTA_PP_PATH'"
             raise Exception(mess)
 
+        species_info = SpeciesInfo(
+            atoms=atoms,
+            pseudo_path=Path(pseudo_path),
+            pseudo_qualifier=self.pseudo_qualifier(),
+            species=species)
+
         fdf = FDFWriter(
             name=self.prefix,
-            atoms=atoms,
             xc=self['xc'],
             spin=self['spin'],
             mesh_cutoff=self['mesh_cutoff'],
             energy_shift=self['energy_shift'],
             fdf_user_args=self['fdf_arguments'],
             more_fdf_args=more_fdf_args,
-            species=species,
-            pseudo_path=pseudo_path,
-            pseudo_qualifier=self.pseudo_qualifier(),
             directory=Path(self.directory),  # XXX not needed for good reasons
             symlink_pseudos=self['symlink_pseudos'],
             species_numbers=species_numbers,
             atomic_coord_format=self['atomic_coord_format'].lower(),
             kpts=self['kpts'],
             bandpath=self['bandpath'],
+            species_info=species_info,
         )
 
         # Start writing the file.
         with open(filename, 'w') as fd:
             fdf.write(fd)
-            # self._write_fdf(fd, atoms, more_fdf_args, fdf)
 
     def read(self, filename):
         """Read structural parameters from file .XV file
@@ -678,7 +680,6 @@ class FileInstruction:
 
 @dataclass
 class FDFWriter:
-    atoms: Atoms
     name: str
     xc: str
     fdf_user_args: dict
@@ -686,15 +687,14 @@ class FDFWriter:
     mesh_cutoff: float
     energy_shift: float
     spin: str
-    species: dict
-    pseudo_path: Path
-    pseudo_qualifier: str
     directory: Path
     symlink_pseudos: bool | None
     species_numbers: object  # ?
     atomic_coord_format: str
     kpts: object  # ?
     bandpath: object  # ?
+
+    species_info: object
 
     def write(self, fd):
         fd.write(format_fdf('SystemName', self.name))
@@ -738,8 +738,8 @@ class FDFWriter:
         fd.write(format_fdf('PAO.EnergyShift', (self.energy_shift, 'eV')))
         fd.write("\n")
 
-        self._write_species(fd, self.atoms)
-        self._write_structure(fd, self.atoms)
+        self._write_species(fd, self.species_info.atoms)
+        self._write_structure(fd, self.species_info.atoms)
 
         for key, value in self.more_fdf_args.items():
             fd.write(format_fdf(key, value))
@@ -754,14 +754,8 @@ class FDFWriter:
             fd.write('\n')
 
     def _write_species(self, fd, atoms):
-        species_info = SpeciesInfo(
-            atoms=atoms,
-            pseudo_path=Path(self.pseudo_path),
-            pseudo_qualifier=self.pseudo_qualifier,
-            species=self.species)
-
-        species_info.write(fd)
-        species_info.link_pseudos_into_directory(
+        self.species_info.write(fd)
+        self.species_info.link_pseudos_into_directory(
             symlink_pseudos=self.symlink_pseudos, directory=self.directory)
 
     def _write_structure(self, fd, atoms):
