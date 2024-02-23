@@ -697,44 +697,42 @@ class FDFWriter:
         # allow the user to override anything.
         fdf_arguments = self.fdf_user_args
         for key in sorted(fdf_arguments):
-            fd.write(format_fdf(key, fdf_arguments[key]))
+            yield self.var(key, fdf_arguments[key])
 
         # Force siesta to return error on no convergence.
         # as default consistent with ASE expectations.
         if 'SCFMustConverge' not in fdf_arguments:
-            fd.write(format_fdf('SCFMustConverge', True))
-        fd.write("\n")
+            yield self.var('SCFMustConverge', True)
+        yield '\n'
 
-        # Write spin level.
-        spin = self.spin
-        fd.write(format_fdf('Spin     ', spin))
+        yield self.var('Spin', self.spin)
         # Spin backwards compatibility.
-        if spin == 'collinear':
-            string = format_fdf(
-                'SpinPolarized', (True, "# Backwards compatibility."))
-        elif spin == 'non-collinear':
-            string = format_fdf(
-                'NonCollinearSpin', (True, "# Backwards compatibility."))
+        if self.spin == 'collinear':
+            key = 'SpinPolarized'
+        elif self.spin == 'non-collinear':
+            key = 'NonCollinearSpin'
         else:
-            string = '\n'
-        fd.write(string)
+            key = None
+
+        if key is not None:
+            yield self.var(key, (True, '# Backwards compatibility.'))
 
         # Write functional.
         functional, authors = self.xc
-        fd.write(format_fdf('XC.functional', functional))
-        fd.write(format_fdf('XC.authors', authors))
-        fd.write("\n")
+        yield self.var('XC.functional', functional)
+        yield self.var('XC.authors', authors)
+        yield '\n'
 
         # Write mesh cutoff and energy shift.
-        fd.write(format_fdf('MeshCutoff', (self.mesh_cutoff, 'eV')))
-        fd.write(format_fdf('PAO.EnergyShift', (self.energy_shift, 'eV')))
-        fd.write("\n")
+        yield self.var('MeshCutoff', (self.mesh_cutoff, 'eV'))
+        yield self.var('PAO.EnergyShift', (self.energy_shift, 'eV'))
+        yield '\n'
 
         self.species_info.write(fd)
         self.write_structure(fd, self.species_info.atoms)
 
         for key, value in self.more_fdf_args.items():
-            fd.write(format_fdf(key, value))
+            yield self.var(key, value)
 
         if self.kpts is not None:
             kpts = np.array(self.kpts)
