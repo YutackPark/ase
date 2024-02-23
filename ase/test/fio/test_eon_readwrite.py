@@ -1,5 +1,6 @@
 """Check that reading and writing .con files is consistent."""
 
+import pytest
 import numpy as np
 import numpy.testing as npt
 
@@ -68,3 +69,10 @@ def test_eon_read_multi(datadir):
         images[1].constraints[0].get_indices(),
         np.array([]), rtol=1e-5, atol=0
     )
+
+
+def test_eon_isotope_fail():
+    out_file = "out.con"
+    DATA.set_masses([33, 31, 22])
+    with pytest.raises(RuntimeError):
+        ase.io.write(out_file, DATA, format="eon")
