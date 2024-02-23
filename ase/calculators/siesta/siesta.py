@@ -503,10 +503,11 @@ class Siesta(FileIOCalculator):
             pseudo_path=Path(pseudo_path),
             pseudo_qualifier=self.pseudo_qualifier(),
             species=species,
-            symlink_pseudos=self['symlink_pseudos'],
-            target_directory=Path(self.directory))
+            target_directory=Path(self.directory).resolve())
 
         species_info.write(fd)
+        species_info.link_pseudos_into_directory(
+            symlink_pseudos=self['symlink_pseudos'])
 
     def read(self, filename):
         """Read structural parameters from file .XV file
@@ -871,13 +872,13 @@ class SpeciesInfo:
     pseudo_path: Path
     pseudo_qualifier: str
     species: object
-    symlink_pseudos: bool
     target_directory: Path
 
     def __post_init__(self):
         pao_basis = []
         chemical_labels = []
         basis_sizes = []
+        file_instructions = []
 
         for species_number, spec in enumerate(self.species, start=1):
             symbol = spec['symbol']
@@ -888,20 +889,16 @@ class SpeciesInfo:
                     label = symbol
                 else:
                     label = f"{symbol}.{self.pseudo_qualifier}"
-                pseudopotential = self.pseudo_path / f"{label}.psf"
+                src_path = self.pseudo_path / f"{label}.psf"
             else:
-                pseudopotential = Path(spec['pseudopotential'])
-                label = pseudopotential.stem
-            if not pseudopotential.is_absolute():
-                pseudopotential = self.pseudo_path / pseudopotential
-            if not pseudopotential.exists():
-                label = symbol
-                pseudopotential = self.pseudo_path / f"{label}.psml"
-                if not pseudopotential.exists():
-                    mess = f"Pseudopotential '{pseudopotential}' not found"
-                    raise RuntimeError(mess)
+                src_path = Path(spec['pseudopotential'])
+                label = src_path.stem
+            if not src_path.is_absolute():
+                src_path = self.pseudo_path / src_path
+            if not src_path.exists():
+                src_path = self.pseudo_path / f"{symbol}.psml"
 
-            name = pseudopotential.name
+            name = src_path.name
             name = name.split('.')
             name.insert(-1, str(species_number))
             if spec['ghost']:
@@ -911,9 +908,8 @@ class SpeciesInfo:
             name = '.'.join(name)
             dst_path = self.target_directory / name
 
-            instr = FileInstruction(pseudopotential, dst_path,
-                                    self.symlink_pseudos)
-            instr.link()
+            instr = FileInstruction(src_path, dst_path)
+            file_instructions.append(instr)
 
             label = '.'.join(np.array(name.split('.'))[:-1])
             string = '    %d %d %s' % (species_number, atomic_number, label)
@@ -923,11 +919,20 @@ class SpeciesInfo:
             else:
                 basis_sizes.append(("    " + label, spec['basis_set']))
 
-        # self.file_instructions = file_instructions
-
+        self.file_instructions = file_instructions
         self.chemical_labels = chemical_labels
         self.pao_basis = pao_basis
         self.basis_sizes = basis_sizes
+
+    def link_pseudos_into_directory(self, symlink_pseudos=None):
+        if symlink_pseudos is None:
+            symlink_pseudos = os.name != 'nt'
+
+        for instruction in self.file_instructions:
+            if symlink_pseudos:
+                instruction.symlink()
+            else:
+                instruction.copyfile()
 
     def write(self, fd):
         fd.write(format_fdf('NumberOfSpecies', len(self.species)))
@@ -944,22 +949,16 @@ class SpeciesInfo:
 class FileInstruction:
     src_path: Path
     dst_path: Path
-    symlink_pseudos: bool
 
-    def link(self):
-        src_path = self.src_path.resolve()
-        dst_path = self.dst_path.resolve()
-        if src_path == dst_path:
+    def copyfile(self):
+        self._link(shutil.copy)
+
+    def symlink(self):
+        self._link(os.symlink)
+
+    def _link(self, file_operation):
+        if self.src_path == self.dst_path:
             return
 
-        dst_path.unlink(missing_ok=True)
-
-        symlink_pseudos = self.symlink_pseudos
-
-        if symlink_pseudos is None:
-            symlink_pseudos = not os.name == 'nt'
-
-        if symlink_pseudos:
-            os.symlink(src_path, dst_path)
-        else:
-            shutil.copy(src_path, dst_path)
+        self.dst_path.unlink(missing_ok=True)
+        file_operation(self.src_path, self.dst_path)
