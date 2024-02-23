@@ -392,7 +392,7 @@ class Siesta(FileIOCalculator):
             pseudo_qualifier=self.pseudo_qualifier(),
             species=species)
 
-        fdf = FDFWriter(
+        writer = FDFWriter(
             name=self.prefix,
             xc=self['xc'],
             spin=self['spin'],
@@ -400,7 +400,6 @@ class Siesta(FileIOCalculator):
             energy_shift=self['energy_shift'],
             fdf_user_args=self['fdf_arguments'],
             more_fdf_args=more_fdf_args,
-            directory=Path(self.directory),  # XXX not needed for good reasons
             symlink_pseudos=self['symlink_pseudos'],
             species_numbers=species_numbers,
             atomic_coord_format=self['atomic_coord_format'].lower(),
@@ -409,9 +408,12 @@ class Siesta(FileIOCalculator):
             species_info=species_info,
         )
 
-        # Start writing the file.
         with open(filename, 'w') as fd:
-            fdf.write(fd)
+            writer.write(fd)
+
+        self.writer.link_pseudos_into_directory(
+            symlink_pseudos=self.symlink_pseudos,
+            directory=Path(self.directory))
 
     def read(self, filename):
         """Read structural parameters from file .XV file
@@ -637,16 +639,6 @@ class SpeciesInfo:
         self.pao_basis = pao_basis
         self.basis_sizes = basis_sizes
 
-    def link_pseudos_into_directory(self, symlink_pseudos=None, *, directory):
-        if symlink_pseudos is None:
-            symlink_pseudos = os.name != 'nt'
-
-        for instruction in self.file_instructions:
-            if symlink_pseudos:
-                instruction.symlink_to(directory)
-            else:
-                instruction.copy_to(directory)
-
     def write(self, fd):
         fd.write(format_fdf('NumberOfSpecies', len(self.species)))
         fd.write(format_fdf('NumberOfAtoms', len(self.atoms)))
@@ -687,13 +679,11 @@ class FDFWriter:
     mesh_cutoff: float
     energy_shift: float
     spin: str
-    directory: Path
     symlink_pseudos: bool | None
     species_numbers: object  # ?
     atomic_coord_format: str
     kpts: object  # ?
     bandpath: object  # ?
-
     species_info: object
 
     def write(self, fd):
@@ -755,8 +745,6 @@ class FDFWriter:
 
     def _write_species(self, fd, atoms):
         self.species_info.write(fd)
-        self.species_info.link_pseudos_into_directory(
-            symlink_pseudos=self.symlink_pseudos, directory=self.directory)
 
     def _write_structure(self, fd, atoms):
         """Translate the Atoms object to fdf-format.
@@ -806,3 +794,13 @@ class FDFWriter:
                         fd.write('    %d %.14f \n' % (n + 1, M))
             fd.write('%endblock DM.InitSpin\n')
             fd.write('\n')
+
+    def link_pseudos_into_directory(self, *, symlink_pseudos=None, directory):
+        if symlink_pseudos is None:
+            symlink_pseudos = os.name != 'nt'
+
+        for instruction in self.species_info.file_instructions:
+            if symlink_pseudos:
+                instruction.symlink_to(directory)
+            else:
+                instruction.copy_to(directory)
