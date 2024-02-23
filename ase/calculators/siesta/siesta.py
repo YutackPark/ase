@@ -400,7 +400,6 @@ class Siesta(FileIOCalculator):
             energy_shift=self['energy_shift'],
             fdf_user_args=self['fdf_arguments'],
             more_fdf_args=more_fdf_args,
-            symlink_pseudos=self['symlink_pseudos'],
             species_numbers=species_numbers,
             atomic_coord_format=self['atomic_coord_format'].lower(),
             kpts=self['kpts'],
@@ -411,8 +410,8 @@ class Siesta(FileIOCalculator):
         with open(filename, 'w') as fd:
             writer.write(fd)
 
-        self.writer.link_pseudos_into_directory(
-            symlink_pseudos=self.symlink_pseudos,
+        writer.link_pseudos_into_directory(
+            symlink_pseudos=self['symlink_pseudos'],
             directory=Path(self.directory))
 
     def read(self, filename):
@@ -679,7 +678,6 @@ class FDFWriter:
     mesh_cutoff: float
     energy_shift: float
     spin: str
-    symlink_pseudos: bool | None
     species_numbers: object  # ?
     atomic_coord_format: str
     kpts: object  # ?
@@ -728,8 +726,8 @@ class FDFWriter:
         fd.write(format_fdf('PAO.EnergyShift', (self.energy_shift, 'eV')))
         fd.write("\n")
 
-        self._write_species(fd, self.species_info.atoms)
-        self._write_structure(fd, self.species_info.atoms)
+        self.species_info.write(fd)
+        self.write_structure(fd, self.species_info.atoms)
 
         for key, value in self.more_fdf_args.items():
             fd.write(format_fdf(key, value))
@@ -743,10 +741,7 @@ class FDFWriter:
             fd.write(lines)
             fd.write('\n')
 
-    def _write_species(self, fd, atoms):
-        self.species_info.write(fd)
-
-    def _write_structure(self, fd, atoms):
+    def write_structure(self, fd, atoms):
         """Translate the Atoms object to fdf-format.
 
         Parameters

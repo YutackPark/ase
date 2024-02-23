@@ -103,7 +103,7 @@ def miscellaneous_hacks(monkeypatch, tmp_path):
     # Attempts to read too many files.
     monkeypatch.setattr(OpenMX, 'write_input', do_nothing())
 
-    monkeypatch.setattr(FDFWriter, '_write_species', do_nothing())
+    monkeypatch.setattr(FDFWriter, 'link_pseudos_into_directory', do_nothing())
     monkeypatch.setattr(Vasp, '_build_pp_list', do_nothing(returnval=[]))
 
 
