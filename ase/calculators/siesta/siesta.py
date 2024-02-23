@@ -585,7 +585,6 @@ class SpeciesInfo:
     pseudo_path: Path
     pseudo_qualifier: str
     species: dict  # actually a kind of Parameters object, should refactor
-    target_directory: Path
 
     def __post_init__(self):
         pao_basis = []
@@ -619,9 +618,8 @@ class SpeciesInfo:
                 atomic_number = -atomic_number
 
             name = '.'.join(name)
-            dst_path = self.target_directory / name
 
-            instr = FileInstruction(src_path, dst_path)
+            instr = FileInstruction(src_path, name)
             file_instructions.append(instr)
 
             label = '.'.join(np.array(name.split('.'))[:-1])
@@ -637,15 +635,15 @@ class SpeciesInfo:
         self.pao_basis = pao_basis
         self.basis_sizes = basis_sizes
 
-    def link_pseudos_into_directory(self, symlink_pseudos=None):
+    def link_pseudos_into_directory(self, symlink_pseudos=None, *, directory):
         if symlink_pseudos is None:
             symlink_pseudos = os.name != 'nt'
 
         for instruction in self.file_instructions:
             if symlink_pseudos:
-                instruction.symlink()
+                instruction.symlink_to(directory)
             else:
-                instruction.copyfile()
+                instruction.copy_to(directory)
 
     def write(self, fd):
         fd.write(format_fdf('NumberOfSpecies', len(self.species)))
@@ -661,20 +659,21 @@ class SpeciesInfo:
 @dataclass
 class FileInstruction:
     src_path: Path
-    dst_path: Path
+    targetname: str
 
-    def copyfile(self):
-        self._link(shutil.copy)
+    def copy_to(self, directory):
+        self._link(shutil.copy, directory)
 
-    def symlink(self):
-        self._link(os.symlink)
+    def symlink_to(self, directory):
+        self._link(os.symlink, directory)
 
-    def _link(self, file_operation):
-        if self.src_path == self.dst_path:
+    def _link(self, file_operation, directory):
+        dst_path = directory / self.targetname
+        if self.src_path == dst_path:
             return
 
-        self.dst_path.unlink(missing_ok=True)
-        file_operation(self.src_path, self.dst_path)
+        dst_path.unlink(missing_ok=True)
+        file_operation(self.src_path, dst_path)
 
 
 @dataclass
@@ -759,12 +758,11 @@ class FDFWriter:
             atoms=atoms,
             pseudo_path=Path(self.pseudo_path),
             pseudo_qualifier=self.pseudo_qualifier,
-            species=self.species,
-            target_directory=Path(self.directory).resolve())
+            species=self.species)
 
         species_info.write(fd)
         species_info.link_pseudos_into_directory(
-            symlink_pseudos=self.symlink_pseudos)
+            symlink_pseudos=self.symlink_pseudos, directory=self.directory)
 
     def _write_structure(self, fd, atoms):
         """Translate the Atoms object to fdf-format.
