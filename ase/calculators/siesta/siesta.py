@@ -414,78 +414,86 @@ class Siesta(FileIOCalculator):
 
         filename = self.getpath(ext='fdf')
 
+        more_fdf_args = {}
+
+        # Use the saved density matrix if only 'cell' and 'positions'
+        # have changed.
+        if (system_changes is None or
+            ('numbers' not in system_changes and
+             'initial_magmoms' not in system_changes and
+             'initial_charges' not in system_changes)):
+
+            more_fdf_args['DM.UseSaveDM'] = True
+
+        if 'density' in properties:
+            more_fdf_args['SaveRho'] = True
+
         # Start writing the file.
         with open(filename, 'w') as fd:
-            # Write system name and label.
-            fd.write(format_fdf('SystemName', self.prefix))
-            fd.write(format_fdf('SystemLabel', self.prefix))
-            fd.write("\n")
+            self._write_fdf(fd, atoms, more_fdf_args)
 
-            # Write explicitly given options first to
-            # allow the user to override anything.
-            fdf_arguments = self['fdf_arguments']
-            keys = sorted(fdf_arguments.keys())
-            for key in keys:
-                fd.write(format_fdf(key, fdf_arguments[key]))
+    def _write_fdf(self, fd, atoms, more_fdf_args):
+        # Write system name and label.
+        fd.write(format_fdf('SystemName', self.prefix))
+        fd.write(format_fdf('SystemLabel', self.prefix))
+        fd.write("\n")
 
-            # Force siesta to return error on no convergence.
-            # as default consistent with ASE expectations.
-            if 'SCFMustConverge' not in fdf_arguments.keys():
-                fd.write(format_fdf('SCFMustConverge', True))
-            fd.write("\n")
+        # Write explicitly given options first to
+        # allow the user to override anything.
+        fdf_arguments = self['fdf_arguments']
+        keys = sorted(fdf_arguments.keys())
+        for key in keys:
+            fd.write(format_fdf(key, fdf_arguments[key]))
 
-            # Write spin level.
-            fd.write(format_fdf('Spin     ', self['spin']))
-            # Spin backwards compatibility.
-            if self['spin'] == 'collinear':
-                fd.write(
-                    format_fdf(
-                        'SpinPolarized',
-                        (True,
-                         "# Backwards compatibility.")))
-            elif self['spin'] == 'non-collinear':
-                fd.write(
-                    format_fdf(
-                        'NonCollinearSpin',
-                        (True,
-                         "# Backwards compatibility.")))
+        # Force siesta to return error on no convergence.
+        # as default consistent with ASE expectations.
+        if 'SCFMustConverge' not in fdf_arguments.keys():
+            fd.write(format_fdf('SCFMustConverge', True))
+        fd.write("\n")
 
-            # Write functional.
-            functional, authors = self['xc']
-            fd.write(format_fdf('XC.functional', functional))
-            fd.write(format_fdf('XC.authors', authors))
-            fd.write("\n")
+        # Write spin level.
+        fd.write(format_fdf('Spin     ', self['spin']))
+        # Spin backwards compatibility.
+        if self['spin'] == 'collinear':
+            fd.write(
+                format_fdf(
+                    'SpinPolarized',
+                    (True,
+                     "# Backwards compatibility.")))
+        elif self['spin'] == 'non-collinear':
+            fd.write(
+                format_fdf(
+                    'NonCollinearSpin',
+                    (True,
+                     "# Backwards compatibility.")))
 
-            # Write mesh cutoff and energy shift.
-            fd.write(format_fdf('MeshCutoff',
-                                (self['mesh_cutoff'], 'eV')))
-            fd.write(format_fdf('PAO.EnergyShift',
-                                (self['energy_shift'], 'eV')))
-            fd.write("\n")
+        # Write functional.
+        functional, authors = self['xc']
+        fd.write(format_fdf('XC.functional', functional))
+        fd.write(format_fdf('XC.authors', authors))
+        fd.write("\n")
 
-            self._write_species(fd, atoms)
-            self._write_structure(fd, atoms)
+        # Write mesh cutoff and energy shift.
+        fd.write(format_fdf('MeshCutoff',
+                            (self['mesh_cutoff'], 'eV')))
+        fd.write(format_fdf('PAO.EnergyShift',
+                            (self['energy_shift'], 'eV')))
+        fd.write("\n")
 
-            # Use the saved density matrix if only 'cell' and 'positions'
-            # have changed.
-            if (system_changes is None or
-                ('numbers' not in system_changes and
-                 'initial_magmoms' not in system_changes and
-                 'initial_charges' not in system_changes)):
-                fd.write(format_fdf('DM.UseSaveDM', True))
+        self._write_species(fd, atoms)
+        self._write_structure(fd, atoms)
 
-            # Save density.
-            if 'density' in properties:
-                fd.write(format_fdf('SaveRho', True))
+        for key, value in more_fdf_args.items():
+            fd.write(format_fdf(key, value))
 
-            if self["kpts"] is not None:
-                kpts = np.array(self['kpts'])
-                SiestaInput.write_kpts(fd, kpts)
+        if self["kpts"] is not None:
+            kpts = np.array(self['kpts'])
+            SiestaInput.write_kpts(fd, kpts)
 
-            if self['bandpath'] is not None:
-                lines = bandpath2bandpoints(self['bandpath'])
-                fd.write(lines)
-                fd.write('\n')
+        if self['bandpath'] is not None:
+            lines = bandpath2bandpoints(self['bandpath'])
+            fd.write(lines)
+            fd.write('\n')
 
     def _write_species(self, fd, atoms):
         species, _ = self.species(atoms)
