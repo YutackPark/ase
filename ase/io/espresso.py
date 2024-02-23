@@ -1874,7 +1874,7 @@ def read_espresso_ph(fileobj):
 def write_fortran_namelist(
         fd,
         input_data=None,
-        binary='pw',
+        binary=None,
         additional_cards=None,
         **kwargs) -> None:
     """
@@ -1905,7 +1905,9 @@ def write_fortran_namelist(
     None
     """
     input_data = Namelist(input_data)
-    input_data.to_nested(binary, **kwargs)
+
+    if binary:
+        input_data.to_nested(binary, **kwargs)
 
     pwi = input_data.to_string()
 
