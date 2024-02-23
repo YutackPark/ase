@@ -6,7 +6,6 @@
 See http://theory.cm.utexas.edu/eon/index.html for a description of EON.
 """
 from warnings import warn
-from pathlib import Path
 
 import numpy as np
 
@@ -188,37 +187,6 @@ def read_eon(fileobj, index=-1):
         return images if len(images) > 1 else images[0]
     else:
         return images[index]
-
-
-def read_states(states_dir: Path):
-    """
-    Reads all EON states from a directory and returns a list of Atoms objects.
-
-    This function iterates through a directory expected to contain multiple
-    states, each represented by its own directory named with digits. It reads
-    the "reactant.con" file from each state directory and aggregates the
-    resulting Atoms objects into a list.
-
-    Parameters
-    ----------
-    states_dir : Path
-        The directory containing state subdirectories.
-
-    Returns
-    -------
-    List[Atoms]
-        A list of Atoms objects read from each state directory.
-    """
-    subdirs = sorted(
-        [x for x in states_dir.iterdir() if x.is_dir() and x.name.isdigit()],
-        key=lambda d: int(d.name),
-    )
-    images = []
-    for subdir in subdirs:
-        reactant_path = subdir / "reactant.con"
-        if reactant_path.exists():
-            images.extend(read_eon(reactant_path, index=-1))
-    return images
 
 
 @writer
