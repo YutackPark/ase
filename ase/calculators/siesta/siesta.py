@@ -910,10 +910,12 @@ class SpeciesInfo:
 
             name = '.'.join(name)
             pseudopath = self.target_directory / name
-            if Path(os.getcwd()) / name != pseudopotential:
-                if pseudopath.is_symlink() or pseudopath.is_file():
-                    os.remove(pseudopath)
 
+            # If the desired pseudopotential is inside calculation
+            # directory, do nothing.  Otherwise, link or copy the
+            # desired pseudopotential into the calculation dir:
+            if pseudopath.resolve() != pseudopotential.resolve():
+                pseudopath.unlink(missing_ok=True)
                 symlink_pseudos = self.symlink_pseudos
 
                 if symlink_pseudos is None:
@@ -932,9 +934,9 @@ class SpeciesInfo:
             else:
                 basis_sizes.append(("    " + label, spec['basis_set']))
 
-            self.chemical_labels = chemical_labels
-            self.pao_basis = pao_basis
-            self.basis_sizes = basis_sizes
+        self.chemical_labels = chemical_labels
+        self.pao_basis = pao_basis
+        self.basis_sizes = basis_sizes
 
     def write(self, fd):
         fd.write(format_fdf('NumberOfSpecies', len(self.species)))
