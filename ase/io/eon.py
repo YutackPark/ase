@@ -19,36 +19,6 @@ from dataclasses import dataclass
 from typing import List, Tuple
 
 
-def print_con_atom_header(ostring, ntypes, natoms, atommasses):
-    """
-    Appends the number of atom types, the count of atoms for each type, and
-    their masses to a string list.
-
-    This function formats the header information for the atom types, their
-    counts, and masses into strings and appends them to a given list. This list
-    can be used to construct the header of an EON file.
-
-    Parameters
-    ----------
-    ostring : list of str
-        The output list to which the formatted strings will be appended.
-    ntypes : int
-        The number of distinct atom types.
-    natoms : list of int
-        A list containing the count of atoms for each type.
-    atommasses : list of float
-        A list containing the atomic masses for each type.
-
-    Returns
-    -------
-    None
-        This function modifies the `ostring` list in place.
-    """
-    ostring.append(str(ntypes))
-    ostring.append(" ".join([str(n) for n in natoms]))
-    ostring.append(" ".join([str(n) for n in atommasses]))
-
-
 @dataclass
 class EONHeader:
     """
@@ -108,11 +78,6 @@ def process_header(lines: List[str]) -> EONHeader:
             "Cell lengths and angles must each contain exactly three values."
         )
 
-    Ncomponent = int(lines[6])
-    component_counts = list(map(int, lines[7].split()))
-    masses = list(map(float, lines[8].split()))
-
-    # Parse number of components
     Ncomponent = int(lines[6])
     component_counts = list(map(int, lines[7].split()))
     masses = list(map(float, lines[8].split()))
@@ -344,7 +309,9 @@ def write_eon(fileobj, images):
         natoms = [symbols.count(at) for at in atomtypes]
         ntypes = len(atomtypes)
 
-        print_con_atom_header(out, ntypes, natoms, atommasses)
+        out.append(str(ntypes))
+        out.append(" ".join([str(n) for n in natoms]))
+        out.append(" ".join([str(n) for n in atommasses]))
 
         atom_id = 0
         for n in range(ntypes):
