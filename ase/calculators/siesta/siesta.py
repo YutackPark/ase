@@ -802,5 +802,6 @@ class FDFWriter:
 def var(key, value):
     return format_fdf(key, value)
 
+
 def block(name, data):
     return format_block(name, data)

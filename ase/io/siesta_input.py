@@ -32,7 +32,6 @@ class SiestaInput:
         Parameters:
             - f : Open filename.
         """
-        from ase.calculators.siesta.siesta import var
         yield '\n'
         yield '#KPoint grid\n'
         yield '%block kgrid_Monkhorst_Pack\n'
