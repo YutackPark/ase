@@ -49,8 +49,6 @@ ase = [
     'db/templates/*',
     'db/static/*',
     'py.typed',
-    'test/pytest.ini',
-    'test/testdata/**/*',
 ]
 
 [tool.pytest.ini_options]
