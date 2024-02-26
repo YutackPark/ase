@@ -27,7 +27,7 @@ DATA = ase.Atoms(
 
 
 def test_eon_read_single(datadir):
-    box = ase.io.read(f"{datadir}/io/con/single.con", format="eon")
+    box = ase.io.read(f"{datadir}/io/eon/single.con", format="eon")
     npt.assert_allclose(box.cell, DATA.cell, rtol=TOL, atol=0)
     assert (box.symbols == ase.symbols.string2symbols("Cu3")).all()
     npt.assert_allclose(box.get_masses(), np.array([63.5459999] * 3), rtol=TOL)
@@ -44,7 +44,7 @@ def test_eon_write_single(datadir):
 
 def test_eon_roundtrip_multi(datadir):
     out_file = "out.con"
-    images = ase.io.read(f"{datadir}/io/con/multi.con", format="eon", index=":")
+    images = ase.io.read(f"{datadir}/io/eon/multi.con", format="eon", index=":")
     ase.io.write(out_file, images, format="eon")
     data = ase.io.read(out_file, format="eon", index=":")
     assert len(data) == 10
@@ -59,7 +59,7 @@ def test_eon_roundtrip_multi(datadir):
 
 
 def test_eon_read_multi(datadir):
-    images = ase.io.read(f"{datadir}/io/con/multi.con", format="eon", index=":")
+    images = ase.io.read(f"{datadir}/io/eon/multi.con", format="eon", index=":")
     assert len(images) == 10
     npt.assert_allclose(
         images[0].constraints[0].get_indices(),
