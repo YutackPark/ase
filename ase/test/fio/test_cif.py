@@ -603,3 +603,23 @@ def test_cif_with_empty_symmetries_loop():
     assert str(atoms.symbols) == 'Cu8'
     assert atoms.cell.lengths() == pytest.approx(5.1053)
     assert atoms.cell.angles() == pytest.approx(60)
+
+
+def test_cif_with_strings_for_integers():
+    # Test that even if spacegroup is given as '42' with ticks, we can
+    # still convert it to integer and thus actual Spacegroup.
+
+    buf = """\
+data_cif
+_cell_length_a               1
+_cell_length_b               1
+_cell_length_c               1
+_cell_angle_alpha            90
+_cell_angle_beta             90
+_cell_angle_gamma            90
+_symmetry_space_group_H-M        'P1'
+_symmetry_Int_Tables_number      '42'
+"""
+
+    block = parse_string(buf)[0]
+    assert block.get_spacegroup(subtrans_included=True).no == 42
