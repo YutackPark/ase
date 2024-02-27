@@ -376,74 +376,7 @@ class Siesta(FileIOCalculator):
         if 'density' in properties:
             more_fdf_args['SaveRho'] = True
 
-        # Start writing the file.
-        with open(filename, 'w') as fd:
-            self._write_fdf(fd, atoms, more_fdf_args)
-
-    def _write_fdf(self, fd, atoms, more_fdf_args):
-        # Write system name and label.
-        fd.write(format_fdf('SystemName', self.prefix))
-        fd.write(format_fdf('SystemLabel', self.prefix))
-        fd.write("\n")
-
-        # Write explicitly given options first to
-        # allow the user to override anything.
-        fdf_arguments = self['fdf_arguments']
-        for key in sorted(fdf_arguments):
-            fd.write(format_fdf(key, fdf_arguments[key]))
-
-        # Force siesta to return error on no convergence.
-        # as default consistent with ASE expectations.
-        if 'SCFMustConverge' not in fdf_arguments:
-            fd.write(format_fdf('SCFMustConverge', True))
-        fd.write("\n")
-
-        # Write spin level.
-        fd.write(format_fdf('Spin     ', self['spin']))
-        # Spin backwards compatibility.
-        if self['spin'] == 'collinear':
-            fd.write(
-                format_fdf(
-                    'SpinPolarized',
-                    (True,
-                     "# Backwards compatibility.")))
-        elif self['spin'] == 'non-collinear':
-            fd.write(
-                format_fdf(
-                    'NonCollinearSpin',
-                    (True,
-                     "# Backwards compatibility.")))
-
-        # Write functional.
-        functional, authors = self['xc']
-        fd.write(format_fdf('XC.functional', functional))
-        fd.write(format_fdf('XC.authors', authors))
-        fd.write("\n")
-
-        # Write mesh cutoff and energy shift.
-        fd.write(format_fdf('MeshCutoff',
-                            (self['mesh_cutoff'], 'eV')))
-        fd.write(format_fdf('PAO.EnergyShift',
-                            (self['energy_shift'], 'eV')))
-        fd.write("\n")
-
-        self._write_species(fd, atoms)
-        self._write_structure(fd, atoms)
-
-        for key, value in more_fdf_args.items():
-            fd.write(format_fdf(key, value))
-
-        if self["kpts"] is not None:
-            kpts = np.array(self['kpts'])
-            SiestaInput.write_kpts(fd, kpts)
-
-        if self['bandpath'] is not None:
-            lines = bandpath2bandpoints(self['bandpath'])
-            fd.write(lines)
-            fd.write('\n')
-
-    def _write_species(self, fd, atoms):
-        species, _ = self.species(atoms)
+        species, species_numbers = self.species(atoms)
 
         if self['pseudo_path'] is not None:
             pseudo_path = self['pseudo_path']
@@ -457,12 +390,29 @@ class Siesta(FileIOCalculator):
             atoms=atoms,
             pseudo_path=Path(pseudo_path),
             pseudo_qualifier=self.pseudo_qualifier(),
-            species=species,
-            target_directory=Path(self.directory).resolve())
+            species=species)
 
-        species_info.write(fd)
-        species_info.link_pseudos_into_directory(
-            symlink_pseudos=self['symlink_pseudos'])
+        writer = FDFWriter(
+            name=self.prefix,
+            xc=self['xc'],
+            spin=self['spin'],
+            mesh_cutoff=self['mesh_cutoff'],
+            energy_shift=self['energy_shift'],
+            fdf_user_args=self['fdf_arguments'],
+            more_fdf_args=more_fdf_args,
+            species_numbers=species_numbers,
+            atomic_coord_format=self['atomic_coord_format'].lower(),
+            kpts=self['kpts'],
+            bandpath=self['bandpath'],
+            species_info=species_info,
+        )
+
+        with open(filename, 'w') as fd:
+            writer.write(fd)
+
+        writer.link_pseudos_into_directory(
+            symlink_pseudos=self['symlink_pseudos'],
+            directory=Path(self.directory))
 
     def read(self, filename):
         """Read structural parameters from file .XV file
@@ -484,57 +434,6 @@ class Siesta(FileIOCalculator):
         if ext is not None:
             fname = f'{fname}.{ext}'
         return Path(self.directory) / fname
-
-    def _write_structure(self, fd, atoms):
-        """Translate the Atoms object to fdf-format.
-
-        Parameters
-        ----------
-        fd : IO
-            An open file object.
-        atoms: Atoms
-            An atoms object.
-        """
-        cell = atoms.cell
-        fd.write('\n')
-
-        if cell.rank in [1, 2]:
-            raise ValueError('Expected 3D unit cell or no unit cell.  You may '
-                             'wish to add vacuum along some directions.')
-
-        if np.any(cell):
-            fd.write(format_fdf('LatticeConstant', '1.0 Ang'))
-            fd.write(format_block('LatticeVectors', cell))
-
-        _, species_numbers = self.species(atoms)
-        write_atomic_coordinates(
-            fd, atoms, species_numbers,
-            self.parameters["atomic_coord_format"].lower())
-
-        # Write magnetic moments.
-        magmoms = atoms.get_initial_magnetic_moments()
-
-        # The DM.InitSpin block must be written to initialize to
-        # no spin. SIESTA default is FM initialization, if the
-        # block is not written, but  we must conform to the
-        # atoms object.
-        if magmoms is not None:
-            if len(magmoms) == 0:
-                fd.write('#Empty block forces ASE initialization.\n')
-
-            fd.write('%block DM.InitSpin\n')
-            if len(magmoms) != 0 and isinstance(magmoms[0], np.ndarray):
-                for n, M in enumerate(magmoms):
-                    if M[0] != 0:
-                        fd.write(
-                            '    %d %.14f %.14f %.14f \n' %
-                            (n + 1, M[0], M[1], M[2]))
-            elif len(magmoms) != 0 and isinstance(magmoms[0], float):
-                for n, M in enumerate(magmoms):
-                    if M != 0:
-                        fd.write('    %d %.14f \n' % (n + 1, M))
-            fd.write('%endblock DM.InitSpin\n')
-            fd.write('\n')
 
     def pseudo_qualifier(self):
         """Get the extra string used in the middle of the pseudopotential.
@@ -612,8 +511,8 @@ class Siesta(FileIOCalculator):
         return self.results['kpoints']
 
 
-def write_atomic_coordinates(fd, atoms: Atoms, species_numbers,
-                             atomic_coord_format: str):
+def generate_atomic_coordinates(atoms: Atoms, species_numbers,
+                                atomic_coord_format: str):
     """Write atomic coordinates.
 
     Parameters
@@ -624,15 +523,15 @@ def write_atomic_coordinates(fd, atoms: Atoms, species_numbers,
         An atoms object.
     """
     if atomic_coord_format == 'xyz':
-        write_atomic_coordinates_xyz(fd, atoms, species_numbers)
+        return generate_atomic_coordinates_xyz(atoms, species_numbers)
     elif atomic_coord_format == 'zmatrix':
-        write_atomic_coordinates_zmatrix(fd, atoms, species_numbers)
+        return generate_atomic_coordinates_zmatrix(atoms, species_numbers)
     else:
         raise RuntimeError(
             f'Unknown atomic_coord_format: {atomic_coord_format}')
 
 
-def write_atomic_coordinates_zmatrix(fd, atoms: Atoms, species_numbers):
+def generate_atomic_coordinates_zmatrix(atoms: Atoms, species_numbers):
     """Write atomic coordinates in Z-matrix format.
 
     Parameters
@@ -642,27 +541,26 @@ def write_atomic_coordinates_zmatrix(fd, atoms: Atoms, species_numbers):
     atoms : Atoms
         An atoms object.
     """
-    fd.write('\n')
-    fd.write('ZM.UnitsLength   Ang\n')
-    fd.write('%block Zmatrix\n')
-    fd.write('  cartesian\n')
+    yield '\n'
+    yield var('ZM.UnitsLength', 'Ang')
+    yield '%block Zmatrix\n'
+    yield '  cartesian\n'
+
     fstr = "{:5d}" + "{:20.10f}" * 3 + "{:3d}" * 3 + "{:7d} {:s}\n"
     a2constr = SiestaInput.make_xyz_constraints(atoms)
-    a2p, a2s = atoms.get_positions(), atoms.get_chemical_symbols()
-    for ia, (sp, xyz, ccc, sym) in enumerate(zip(species_numbers,
-                                                 a2p,
-                                                 a2constr,
-                                                 a2s)):
-        fd.write(fstr.format(
+    a2p, a2s = atoms.get_positions(), atoms.symbols
+    for ia, (sp, xyz, ccc, sym) in enumerate(
+            zip(species_numbers, a2p, a2constr, a2s)):
+        yield fstr.format(
             sp, xyz[0], xyz[1], xyz[2], ccc[0],
-            ccc[1], ccc[2], ia + 1, sym))
-    fd.write('%endblock Zmatrix\n')
+            ccc[1], ccc[2], ia + 1, sym)
+    yield '%endblock Zmatrix\n'
 
     # origin = tuple(-atoms.get_celldisp().flatten())
-    # fd.write(format_block('AtomicCoordinatesOrigin', [origin]))
+    # yield block('AtomicCoordinatesOrigin', [origin])
 
 
-def write_atomic_coordinates_xyz(fd, atoms: Atoms, species_numbers):
+def generate_atomic_coordinates_xyz(atoms: Atoms, species_numbers):
     """Write atomic coordinates.
 
     Parameters
@@ -672,15 +570,15 @@ def write_atomic_coordinates_xyz(fd, atoms: Atoms, species_numbers):
     atoms : Atoms
         An atoms object.
     """
-    fd.write('\n')
-    fd.write('AtomicCoordinatesFormat  Ang\n')
-    fd.write(format_block('AtomicCoordinatesAndAtomicSpecies',
-                          [[*atom.position, number]
-                           for atom, number in zip(atoms, species_numbers)]))
-    fd.write('\n')
+    yield '\n'
+    yield var('AtomicCoordinatesFormat', 'Ang')
+    yield block('AtomicCoordinatesAndAtomicSpecies',
+                [[*atom.position, number]
+                 for atom, number in zip(atoms, species_numbers)])
+    yield '\n'
 
     # origin = tuple(-atoms.get_celldisp().flatten())
-    # fd.write(format_block('AtomicCoordinatesOrigin', [origin]))
+    # yield block('AtomicCoordinatesOrigin', [origin])
 
 
 @dataclass
@@ -689,7 +587,6 @@ class SpeciesInfo:
     pseudo_path: Path
     pseudo_qualifier: str
     species: dict  # actually a kind of Parameters object, should refactor
-    target_directory: Path
 
     def __post_init__(self):
         pao_basis = []
@@ -723,9 +620,8 @@ class SpeciesInfo:
                 atomic_number = -atomic_number
 
             name = '.'.join(name)
-            dst_path = self.target_directory / name
 
-            instr = FileInstruction(src_path, dst_path)
+            instr = FileInstruction(src_path, name)
             file_instructions.append(instr)
 
             label = '.'.join(np.array(name.split('.'))[:-1])
@@ -741,41 +637,171 @@ class SpeciesInfo:
         self.pao_basis = pao_basis
         self.basis_sizes = basis_sizes
 
-    def link_pseudos_into_directory(self, symlink_pseudos=None):
-        if symlink_pseudos is None:
-            symlink_pseudos = os.name != 'nt'
+    def generate_text(self):
+        yield var('NumberOfSpecies', len(self.species))
+        yield var('NumberOfAtoms', len(self.atoms))
 
-        for instruction in self.file_instructions:
-            if symlink_pseudos:
-                instruction.symlink()
-            else:
-                instruction.copyfile()
-
-    def write(self, fd):
-        fd.write(format_fdf('NumberOfSpecies', len(self.species)))
-        fd.write(format_fdf('NumberOfAtoms', len(self.atoms)))
-
-        fd.write(format_fdf('ChemicalSpecieslabel', self.chemical_labels))
-        fd.write('\n')
-        fd.write(format_fdf('PAO.Basis', self.pao_basis))
-        fd.write(format_fdf('PAO.BasisSizes', self.basis_sizes))
-        fd.write('\n')
+        yield var('ChemicalSpecieslabel', self.chemical_labels)
+        yield '\n'
+        yield var('PAO.Basis', self.pao_basis)
+        yield var('PAO.BasisSizes', self.basis_sizes)
+        yield '\n'
 
 
 @dataclass
 class FileInstruction:
     src_path: Path
-    dst_path: Path
+    targetname: str
 
-    def copyfile(self):
-        self._link(shutil.copy)
+    def copy_to(self, directory):
+        self._link(shutil.copy, directory)
 
-    def symlink(self):
-        self._link(os.symlink)
+    def symlink_to(self, directory):
+        self._link(os.symlink, directory)
 
-    def _link(self, file_operation):
-        if self.src_path == self.dst_path:
+    def _link(self, file_operation, directory):
+        dst_path = directory / self.targetname
+        if self.src_path == dst_path:
             return
 
-        self.dst_path.unlink(missing_ok=True)
-        file_operation(self.src_path, self.dst_path)
+        dst_path.unlink(missing_ok=True)
+        file_operation(self.src_path, dst_path)
+
+
+@dataclass
+class FDFWriter:
+    name: str
+    xc: str
+    fdf_user_args: dict
+    more_fdf_args: dict
+    mesh_cutoff: float
+    energy_shift: float
+    spin: str
+    species_numbers: object  # ?
+    atomic_coord_format: str
+    kpts: object  # ?
+    bandpath: object  # ?
+    species_info: object
+
+    def write(self, fd):
+        for chunk in self.generate_text():
+            fd.write(chunk)
+
+    def generate_text(self):
+        yield var('SystemName', self.name)
+        yield var('SystemLabel', self.name)
+        yield "\n"
+
+        # Write explicitly given options first to
+        # allow the user to override anything.
+        fdf_arguments = self.fdf_user_args
+        for key in sorted(fdf_arguments):
+            yield var(key, fdf_arguments[key])
+
+        # Force siesta to return error on no convergence.
+        # as default consistent with ASE expectations.
+        if 'SCFMustConverge' not in fdf_arguments:
+            yield var('SCFMustConverge', True)
+        yield '\n'
+
+        yield var('Spin', self.spin)
+        # Spin backwards compatibility.
+        if self.spin == 'collinear':
+            key = 'SpinPolarized'
+        elif self.spin == 'non-collinear':
+            key = 'NonCollinearSpin'
+        else:
+            key = None
+
+        if key is not None:
+            yield var(key, (True, '# Backwards compatibility.'))
+
+        # Write functional.
+        functional, authors = self.xc
+        yield var('XC.functional', functional)
+        yield var('XC.authors', authors)
+        yield '\n'
+
+        # Write mesh cutoff and energy shift.
+        yield var('MeshCutoff', (self.mesh_cutoff, 'eV'))
+        yield var('PAO.EnergyShift', (self.energy_shift, 'eV'))
+        yield '\n'
+
+        yield from self.species_info.generate_text()
+        yield from self.generate_atoms_text(self.species_info.atoms)
+
+        for key, value in self.more_fdf_args.items():
+            yield var(key, value)
+
+        if self.kpts is not None:
+            kpts = np.array(self.kpts)
+            yield from SiestaInput.generate_kpts(kpts)
+
+        if self.bandpath is not None:
+            lines = bandpath2bandpoints(self.bandpath)
+            assert isinstance(lines, str)  # rename this variable?
+            yield lines
+            yield '\n'
+
+    def generate_atoms_text(self, atoms: Atoms):
+        """Translate the Atoms object to fdf-format."""
+
+        cell = atoms.cell
+        yield '\n'
+
+        if cell.rank in [1, 2]:
+            raise ValueError('Expected 3D unit cell or no unit cell.  You may '
+                             'wish to add vacuum along some directions.')
+
+        if np.any(cell):
+            yield var('LatticeConstant', '1.0 Ang')
+            yield block('LatticeVectors', cell)
+
+        yield from generate_atomic_coordinates(
+            atoms, self.species_numbers, self.atomic_coord_format)
+
+        # Write magnetic moments.
+        magmoms = atoms.get_initial_magnetic_moments()
+
+        # The DM.InitSpin block must be written to initialize to
+        # no spin. SIESTA default is FM initialization, if the
+        # block is not written, but  we must conform to the
+        # atoms object.
+        if len(magmoms) == 0:
+            yield '#Empty block forces ASE initialization.\n'
+
+        yield '%block DM.InitSpin\n'
+        if len(magmoms) != 0 and isinstance(magmoms[0], np.ndarray):
+            for n, M in enumerate(magmoms):
+                if M[0] != 0:
+                    yield ('    %d %.14f %.14f %.14f \n'
+                           % (n + 1, M[0], M[1], M[2]))
+        elif len(magmoms) != 0 and isinstance(magmoms[0], float):
+            for n, M in enumerate(magmoms):
+                if M != 0:
+                    yield '    %d %.14f \n' % (n + 1, M)
+        yield '%endblock DM.InitSpin\n'
+        yield '\n'
+
+    def link_pseudos_into_directory(self, *, symlink_pseudos=None, directory):
+        if symlink_pseudos is None:
+            symlink_pseudos = os.name != 'nt'
+
+        for instruction in self.species_info.file_instructions:
+            if symlink_pseudos:
+                instruction.symlink_to(directory)
+            else:
+                instruction.copy_to(directory)
+
+
+# Utilities for generating bits of strings.
+#
+# We are re-aliasing format_fdf and format_block in the anticipation
+# that they may change, or we might move this onto a Formatter object
+# which applies consistent spacings etc.
+def var(key, value):
+    return format_fdf(key, value)
+
+
+def block(name, data):
+    return format_block(name, data)

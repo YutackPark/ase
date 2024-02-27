@@ -79,7 +79,7 @@ def miscellaneous_hacks(monkeypatch, tmp_path):
     from ase.calculators.gamess_us import GAMESSUS
     from ase.calculators.gulp import GULP
     from ase.calculators.openmx import OpenMX
-    from ase.calculators.siesta import Siesta
+    from ase.calculators.siesta.siesta import FDFWriter
     from ase.calculators.vasp import Vasp
 
     def do_nothing(returnval=None):
@@ -103,7 +103,7 @@ def miscellaneous_hacks(monkeypatch, tmp_path):
     # Attempts to read too many files.
     monkeypatch.setattr(OpenMX, 'write_input', do_nothing())
 
-    monkeypatch.setattr(Siesta, '_write_species', do_nothing())
+    monkeypatch.setattr(FDFWriter, 'link_pseudos_into_directory', do_nothing())
     monkeypatch.setattr(Vasp, '_build_pp_list', do_nothing(returnval=[]))
 
 
