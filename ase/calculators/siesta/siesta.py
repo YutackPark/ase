@@ -591,11 +591,6 @@ class Siesta(FileIOCalculator):
                 fname = Path(fname)
                 if fname.is_file():
                     ion_results[label] = get_ion(fname)
-                else:
-                    fname = self.getpath(label, 'psml')
-                    fname = Path(fname)
-                    if fname.is_file():
-                        ion_results[label] = get_ion(fname)
 
         return ion_results
 
