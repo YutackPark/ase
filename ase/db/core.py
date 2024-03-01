@@ -155,8 +155,7 @@ def check(key_value_pairs):
                         'Value ' + value + ' is put in as string ' +
                         'but can be interpreted as ' +
                         f'{t.__name__}! Please convert ' +
-                        f'to {t.__name__} using ' +
-                        f'{t.__name__}(value) before ' +
+                        f'to {t.__name__} before ' +
                         'writing to the database OR change ' +
                         'to a different string.')
 
