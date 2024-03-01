@@ -76,13 +76,13 @@ def test_db2(testdir, dbtype, get_db_name):
 
     with pytest.raises(ValueError):
         c.write(Atoms(), pi='3.14')  # float as a string
-        
+
     with pytest.raises(ValueError):
         c.write(Atoms(), pi_rounded='3')  # int as a string
 
     with pytest.raises(ValueError):
         c.write(Atoms(), relaxed='False')  # bool as a string
-    
+
     with pytest.raises(ValueError):
         c.write(Atoms(), fmax=0.0)  # reserved word
 
