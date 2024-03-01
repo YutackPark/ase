@@ -149,7 +149,7 @@ def check(key_value_pairs):
         if not isinstance(value, (numbers.Real, str, np.bool_)):
             raise ValueError(f'Bad value for {key!r}: {value}')
         if isinstance(value, str):
-            for t in [int, float]:
+            for t in [bool, int, float]:
                 if str_represents(value, t):
                     raise ValueError(
                         'Value ' + value + ' is put in as string ' +
@@ -162,11 +162,8 @@ def check(key_value_pairs):
 
 
 def str_represents(value, t=int):
-    try:
-        t(value)
-    except ValueError:
-        return False
-    return True
+    new_value = convert_str_to_int_float_bool_or_str(value)
+    return isinstance(new_value, t)
 
 
 def connect(name, type='extract_from_name', create_indices=True,
@@ -243,7 +240,7 @@ def lock(method):
     return new_method
 
 
-def convert_str_to_int_float_or_str(value):
+def convert_str_to_int_float_bool_or_str(value):
     """Safe eval()"""
     try:
         return int(value)
@@ -319,7 +316,7 @@ def parse_selection(selection, **kwargs):
             key = atomic_numbers[key]
             value = int(value)
         elif isinstance(value, str):
-            value = convert_str_to_int_float_or_str(value)
+            value = convert_str_to_int_float_bool_or_str(value)
         if key in numeric_keys and not isinstance(value, (int, float)):
             msg = 'Wrong type for "{}{}{}" - must be a number'
             raise ValueError(msg.format(key, op, value))
