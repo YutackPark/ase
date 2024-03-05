@@ -139,7 +139,6 @@ class EIQMMM(Calculator, IOContext):
         self.center = None  # center of QM atoms in QM-box
 
         self.output = self.openfile(file=output, comm=comm)
-        self.comm = comm
 
         Calculator.__init__(self)
 

@@ -402,7 +402,7 @@ class SocketServer(IOContext):
 
 class SocketClient:
     def __init__(self, host='localhost', port=None,
-                 unixsocket=None, timeout=None, log=None, comm=None):
+                 unixsocket=None, timeout=None, log=None, comm=world):
         """Create client and connect to server.
 
         Parameters:
@@ -425,10 +425,6 @@ class SocketClient:
             will then be broadcast on the communicator.  The SocketClient
             must be created on all ranks of world, and will see the same
             Atoms objects."""
-        if comm is None:
-            from ase.parallel import world
-            comm = world
-
         # Only rank0 actually does the socket work.
         # The other ranks only need to follow.
         #
@@ -632,7 +628,6 @@ class SocketIOCalculator(Calculator, IOContext):
         self.server = None
 
         self.log = self.openfile(file=log, comm=comm)
-        self.comm = comm
 
         # We only hold these so we can pass them on to the server.
         # They may both be None as stored here.
