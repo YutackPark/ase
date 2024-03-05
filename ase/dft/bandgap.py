@@ -4,6 +4,7 @@ import warnings
 import numpy as np
 
 from ase.utils import IOContext
+from ase.parallel import world
 
 
 def get_band_gap(calc, direct=False, spin=None, output='-'):
@@ -16,7 +17,7 @@ def get_band_gap(calc, direct=False, spin=None, output='-'):
 
 
 def bandgap(calc=None, direct=False, spin=None, output='-',
-            eigenvalues=None, efermi=None, kpts=None):
+            eigenvalues=None, efermi=None, kpts=None, comm=world):
     """Calculates the band-gap.
 
     Parameters:
@@ -77,7 +78,7 @@ def bandgap(calc=None, direct=False, spin=None, output='-',
     gap, (s1, k1, n1), (s2, k2, n2) = _bandgap(e_skn, spin, direct)
 
     with IOContext() as iocontext:
-        fd = iocontext.openfile(output)
+        fd = iocontext.openfile(file=output, comm=comm)
         p = functools.partial(print, file=fd)
 
         def skn(s, k, n):

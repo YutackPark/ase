@@ -321,7 +321,8 @@ class MinModeControl(IOContext):
     """
     parameters: Dict[str, Any] = {}
 
-    def __init__(self, logfile='-', eigenmode_logfile=None, **kwargs):
+    def __init__(self, logfile='-', eigenmode_logfile=None, comm=world,
+                 **kwargs):
         # Overwrite the defaults with the input parameters given
         for key in kwargs:
             if key not in self.parameters:
@@ -331,13 +332,15 @@ class MinModeControl(IOContext):
             else:
                 self.set_parameter(key, kwargs[key], log=False)
 
-        self.initialize_logfiles(logfile, eigenmode_logfile)
+        self.initialize_logfiles(comm=comm, logfile=logfile,
+                                 eigenmode_logfile=eigenmode_logfile)
         self.counters = {'forcecalls': 0, 'rotcount': 0, 'optcount': 0}
         self.log()
 
-    def initialize_logfiles(self, logfile=None, eigenmode_logfile=None):
-        self.logfile = self.openfile(logfile, comm=world)
-        self.eigenmode_logfile = self.openfile(eigenmode_logfile, comm=world)
+    def initialize_logfiles(self, comm, logfile=None, eigenmode_logfile=None):
+        self.logfile = self.openfile(file=logfile, comm=comm)
+        self.eigenmode_logfile = self.openfile(file=eigenmode_logfile,
+                                               comm=comm)
 
     def log(self, parameter=None):
         """Log the parameters of the eigenmode search."""
@@ -519,7 +522,7 @@ class MinModeAtoms:
     """
 
     def __init__(self, atoms, control=None, eigenmodes=None,
-                 random_seed=None, **kwargs):
+                 random_seed=None, comm=world, **kwargs):
         self.minmode_init = True
         self.atoms = atoms
 
@@ -546,7 +549,7 @@ class MinModeAtoms:
                     mlogfile = kwargs[key]
                 else:
                     self.control.set_parameter(key, kwargs[key])
-            self.control.initialize_logfiles(logfile=logfile,
+            self.control.initialize_logfiles(comm=comm, logfile=logfile,
                                              eigenmode_logfile=mlogfile)
 
         # Seed the randomness

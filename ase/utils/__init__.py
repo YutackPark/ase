@@ -717,7 +717,7 @@ class IOContext:
     def close(self):
         self._exitstack.close()
 
-    def openfile(self, file, comm, mode='w'):
+    def openfile(self, file, mode='w', *, comm):
         if hasattr(file, 'close'):
             return file  # File already opened, not for us to close.
 

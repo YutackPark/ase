@@ -6,6 +6,7 @@ from subprocess import PIPE, Popen
 import numpy as np
 
 import ase.units as units
+from ase.parallel import world
 from ase.calculators.calculator import (Calculator,
                                         PropertyNotImplementedError,
                                         all_changes,
@@ -562,7 +563,7 @@ class SocketIOCalculator(Calculator, IOContext):
 
     def __init__(self, calc=None, port=None,
                  unixsocket=None, timeout=None, log=None, *,
-                 launch_client=None):
+                 launch_client=None, comm=world):
         """Initialize socket I/O calculator.
 
         This calculator launches a server which passes atomic
@@ -630,7 +631,8 @@ class SocketIOCalculator(Calculator, IOContext):
         self.timeout = timeout
         self.server = None
 
-        self.log = self.openfile(log)
+        self.log = self.openfile(file=log, comm=comm)
+        self.comm = comm
 
         # We only hold these so we can pass them on to the server.
         # They may both be None as stored here.
