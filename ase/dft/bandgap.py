@@ -3,9 +3,9 @@ import warnings
 import numpy as np
 
 
-def get_band_gap(calc, direct=False, spin=None, output='-'):
+def get_band_gap(calc, direct=False, spin=None):
     warnings.warn('Please use ase.dft.bandgap.bandgap() instead!')
-    gap, (s1, k1, n1), (s2, k2, n2) = bandgap(calc, direct, spin, output)
+    gap, (s1, k1, n1), (s2, k2, n2) = bandgap(calc, direct, spin)
     ns = calc.get_number_of_spins()
     if ns == 2 and spin is None:
         return gap, (s1, k1), (s2, k2)
