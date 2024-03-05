@@ -111,7 +111,7 @@ class Dynamics(IOContext):
 
         self.atoms = atoms
         self.optimizable = atoms.__ase_optimizable__()
-        self.logfile = self.openfile(file=logfile, mode='a', comm=comm)
+        self.logfile = self.openfile(file=logfile, comm=comm, mode='a')
         self.observers: List[Tuple[Callable, int, Tuple, Dict[str, Any]]] = []
         self.nsteps = 0
         self.max_steps = 0  # to be updated in run or irun
