@@ -73,6 +73,20 @@ def symmetrized_optimisation(at_init, filter):
     return di, df
 
 
+def test_as_dict():
+    atoms = bulk("Cu")
+    atoms.set_constraint(FixSymmetry(atoms))
+    assert atoms.constraints[0].todict() == {
+        "name": "FixSymmetry",
+        "kwargs": {
+            "symprec": 0.01,
+            "adjust_positions": True,
+            "adjust_cell": True,
+            "verbose": False,
+        },
+    }
+
+
 @pytest.fixture(params=[UnitCellFilter, FrechetCellFilter])
 def filter(request):
     return request.param
