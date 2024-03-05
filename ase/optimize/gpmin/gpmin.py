@@ -8,7 +8,6 @@ from ase.optimize.gpmin.gp import GaussianProcess
 from ase.optimize.gpmin.kernel import SquaredExponential
 from ase.optimize.gpmin.prior import ConstantPrior
 from ase.optimize.optimize import Optimizer
-from ase.parallel import world
 
 
 class GPMin(Optimizer, GaussianProcess):
@@ -185,8 +184,9 @@ class GPMin(Optimizer, GaussianProcess):
         self.x_list = []      # Training set features
         self.y_list = []      # Training set targets
 
-        Optimizer.__init__(self, atoms, restart, logfile,
-                           trajectory, master, force_consistent)
+        Optimizer.__init__(self, atoms=atoms, restart=restart, logfile=logfile,
+                           trajectory=trajectory, master=master,
+                           force_consistent=force_consistent)
         if prior is None:
             self.update_prior = True
             prior = ConstantPrior(constant=None)
