@@ -1,9 +1,6 @@
-import functools
 import warnings
 
 import numpy as np
-
-from ase.utils import IOContext
 
 
 def get_band_gap(calc, direct=False, spin=None):
@@ -16,7 +13,7 @@ def get_band_gap(calc, direct=False, spin=None):
 
 
 def bandgap(calc=None, direct=False, spin=None, eigenvalues=None, efermi=None,
-            output=None):
+            output=None, kpts=None):
     """Calculates the band-gap.
 
     Parameters:
@@ -71,32 +68,6 @@ def bandgap(calc=None, direct=False, spin=None, eigenvalues=None, efermi=None,
         raise ValueError('Bad eigenvalues!')
 
     gap, (s1, k1, n1), (s2, k2, n2) = _bandgap(e_skn, spin, direct)
-
-    with IOContext() as iocontext:
-        fd = iocontext.openfile(output)
-        p = functools.partial(print, file=fd)
-
-        def skn(s, k, n):
-            """Convert k or (s, k) to string."""
-            if kpts is None:
-                return f'(s={s}, k={k}, n={n})'
-            return '(s={}, k={}, n={}, [{:.2f}, {:.2f}, {:.2f}])'.format(
-                s, k, n, *kpts[k])
-
-        if spin is not None:
-            p(f'spin={spin}: ', end='')
-        if gap == 0.0:
-            p('No gap')
-        elif direct:
-            p(f'Direct gap: {gap:.3f} eV')
-            if s1 == s2:
-                p('Transition at:', skn(s1, k1, n1))
-            else:
-                p('Transition at:', skn(f'{s1}->{s2}', k1, n1))
-        else:
-            p(f'Gap: {gap:.3f} eV')
-            p('Transition (v -> c):')
-            p(' ', skn(s1, k1, n1), '->', skn(s2, k2, n2))
 
     if eigenvalues.ndim != 3:
         p1 = (k1, n1)
