@@ -468,7 +468,8 @@ def test_save_calc_results():
 
 
 def test_basic_functionality(tmp_path):
-    atoms = Atoms('Cu2', cell=[4, 2, 2], positions=[[0, 0, 0], [2.05, 0, 0]], pbc=[True] * 3)
+    atoms = Atoms('Cu2', cell=[4, 2, 2], positions=[[0, 0, 0], [2.05, 0, 0]],
+                  pbc=[True] * 3)
     atoms.calc = EMT()
     atoms.get_potential_energy()
 
@@ -480,7 +481,8 @@ def test_basic_functionality(tmp_path):
             if line_i == 0:
                 assert line.strip() == str(len(atoms))
             elif line_i == 1:
-                assert 'Properties=species:S:1:pos:R:3:energies:R:1:forces:R:3' in line
+                assert ('Properties=species:S:1:pos:R:3:'
+                        'energies:R:1:forces:R:3') in line
                 assert 'energy=' in line
                 assert 'stress=' in line
                 assert 'REF_energy=' in line
