@@ -40,7 +40,7 @@ def test_pdb_optional_tag_body_without_header(body):
     atoms = read_proteindatabank(StringIO(body))
 
     assert all(atoms.numbers == [6, 8])
-    assert ~all(atoms.pbc)
+    assert not any(atoms.pbc)
     assert atoms.get_positions() == posref
 
 
