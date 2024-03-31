@@ -254,6 +254,7 @@ default_commands = {
     'dftd3': f'dftd3 {dftd3_boilerplate}'.split(),
     'elk': 'elk > elk.out',
     'gamess_us': 'rungms gamess_us.inp > gamess_us.log 2> gamess_us.err',
+    'gaussian': 'g16 < Gaussian.com > Gaussian.log',
     'gulp': 'gulp < gulp.gin > gulp.got',
     'lammpsrun': ['lammps', '-echo', 'log', '-screen', 'none',
                   '-log', '/dev/stdout'],
@@ -271,7 +272,6 @@ calculators_which_raise = [
     'crystal',
     'demon',
     'dmol',
-    'gaussian',
     'gromacs',
     # Fixme: onetep raises AttributError
     # Should be handled universally by GenericFileIO system
