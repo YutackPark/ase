@@ -17,18 +17,18 @@ CRYST1    2.000    2.000    2.000  90.00  90.00  90.00 P 1
 """
 
 body1 = """
-ATOM      1    C MOL     1       0.443   1.409   1.905  1.00  0.00           C  
-ATOM      2    O MOL     1       1.837   1.409   1.373  1.00  0.00           O  
+ATOM      1    C MOL     1       0.443   1.409   1.905  1.00  0.00           C
+ATOM      2    O MOL     1       1.837   1.409   1.373  1.00  0.00           O
 """
 
 body2 = """
-ATOM      1    C                 0.443   1.409   1.905  1.00  0.00           C  
-ATOM      2    O                 1.837   1.409   1.373  1.00  0.00           O   
+ATOM      1    C                 0.443   1.409   1.905  1.00  0.00           C
+ATOM      2    O                 1.837   1.409   1.373  1.00  0.00           O
 """
 
 body3 = """
-ATOM                             0.443   1.409   1.905                       C  
-ATOM                             1.837   1.409   1.373                       O 
+ATOM                             0.443   1.409   1.905                       C
+ATOM                             1.837   1.409   1.373                       O
 """
 
 cellref = pytest.approx(np.array([[2., 0., 0.], [0., 2., 0.], [0., 0., 2.]]))
@@ -40,7 +40,7 @@ def test_pdb_optional_tag_body_without_header(body):
     atoms = read_proteindatabank(StringIO(body))
 
     assert all(atoms.numbers == [6, 8])
-    assert ~all(atoms.pbc)
+    assert not any(atoms.pbc)
     assert atoms.get_positions() == posref
 
 
