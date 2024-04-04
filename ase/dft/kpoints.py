@@ -45,7 +45,7 @@ def get_monkhorst_pack_size_and_offset(kpts):
         offsets = kpts - kpts0
 
         # All offsets must be identical:
-        if (offsets.ptp(axis=0) < 1e-9).all():
+        if (np.ptp(offsets, axis=0) < 1e-9).all():
             return size, offsets[0].copy()
 
     raise ValueError('Not an ASE-style Monkhorst-Pack grid!')

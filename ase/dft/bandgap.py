@@ -121,12 +121,12 @@ def _bandgap(e_skn, spin, direct):
 
     # Check for bands crossing the fermi-level
     if ns == 1:
-        if N_sk[0].ptp() > 0:
+        if np.ptp(N_sk[0]) > 0:
             return 0.0, (None, None, None), (None, None, None)
     elif spin is None:
-        if (N_sk.ptp(axis=1) > 0).any():
+        if (np.ptp(N_sk, axis=1) > 0).any():
             return 0.0, (None, None, None), (None, None, None)
-    elif N_sk[spin].ptp() > 0:
+    elif np.ptp(N_sk[spin]) > 0:
         return 0.0, (None, None, None), (None, None, None)
 
     if (N_sk == 0).any() or (N_sk == nb).any():
