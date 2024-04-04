@@ -83,7 +83,7 @@ pseudo_dir = {path}/espresso/gbrv-lda-espresso
 potentials = {path}/lammps
 
 [openmx]
-data_path = {path}/openmx
+data_path = {path}/openmx/DFT_DATA19
 
 [siesta]
 pseudo_path = {path}/siesta

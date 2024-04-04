@@ -14,6 +14,8 @@ def _calculate(code, name):
         atoms.calc = code.calc()
         return atoms.get_potential_energy()
 
+omx_par = {'definition_of_atomic_species': [['C', 'C6.0', 'C_CA19'],
+                                            ['H', 'H5.0', 'H_CA19']]}
 
 @pytest.mark.calculator_lite
 @calc('abinit', ecut=300, chksymbreak=0, toldfe=1e-4)
@@ -26,7 +28,7 @@ def _calculate(code, name):
 @calc('nwchem')
 @calc('octopus', Spacing='0.25 * angstrom', BoxShape='minimum',
       convreldens=1e-3, Radius='3.5 * angstrom')
-@calc('openmx')
+@calc('openmx', **omx_par)
 @calc('siesta', marks=pytest.mark.xfail)
 @calc('gamess_us', label='ch4')
 @calc('gaussian', xc='lda', basis='3-21G')

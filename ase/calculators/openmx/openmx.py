@@ -397,7 +397,7 @@ class OpenMX(FileIOCalculator):
         version = None
         if label is None:
             label = self.label
-        for line in open(get_file_name('.out', label)):
+        for line in open(get_file_name('.log', label)):
             if line.find('Ver.') != -1:
                 version = line.split()[-1]
                 break
