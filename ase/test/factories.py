@@ -311,7 +311,7 @@ class ExcitingFactory:
 
     def version(self):
         """Get exciting executable version."""
-        return self._profile.version
+        return self._profile.version()
 
 
 @factory('mopac')
