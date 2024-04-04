@@ -490,7 +490,7 @@ class OpenMXFactory:
     def __init__(self, cfg):
         # XXX Cannot test this, is surely broken.
         self.executable = cfg.parser['openmx']['binary']
-        self.data_path = cfg.parser['openmx'][0]
+        self.data_path = cfg.parser['openmx']['data_path']
 
     def version(self):
         from ase.calculators.openmx.openmx import parse_omx_version
