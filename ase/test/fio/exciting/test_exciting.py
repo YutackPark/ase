@@ -222,6 +222,7 @@ def test_parse_info_out_energy(tmp_path, excitingtools):
     assert file.exists(), "INFO.OUT written to tmp_path"
 
     results = ase.io.exciting.parse_output(file)
+    initialization = results['initialization']
 
     # Finally ensure that we that the final SCL cycle is what we expect and
     # the final SCL results can be accessed correctly:
@@ -235,13 +236,16 @@ def test_parse_info_out_energy(tmp_path, excitingtools):
     assert pytest.approx(float(results["scl"][
         final_scl_iteration]["Hartree energy"])) == 205.65454603
     assert pytest.approx(float(
-        results['initialization']['Unit cell volume'])) == 4412.7512103067
-    assert results['initialization']['Total number of k-points'] == '1'
-    assert results['initialization']['Maximum number of plane-waves'] == '251'
+        initialization['Unit cell volume'])) == 4412.7512103067
+
+    # This used to be '1' (str) in version 'nitrogen' but is 1 (int)
+    # as of version 'neon':
+    assert int(initialization['Total number of k-points']) == 1
+    assert int(initialization['Maximum number of plane-waves']) == 251
+
     # Grab the lattice vectors. excitingtools parses them in a fortran like
     # vector. We reshape accordingly into a 3x3 matrix where rows correspond
     # to lattice vectors.
     lattice_vectors_as_matrix = np.reshape(
-        results['initialization']['Lattice vectors (cartesian)'],
-        (3, 3), 'F')
+        initialization['Lattice vectors (cartesian)'], (3, 3), 'F')
     assert lattice_vectors_as_matrix.tolist() == expected_lattice_cell
