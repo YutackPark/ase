@@ -113,12 +113,14 @@ class Dftb(FileIOCalculator):
                 Options_='',
                 Options_WriteResultsTag='Yes',
                 ParserOptions_='',
+                ParserOptions_ParserVersion=1,
                 ParserOptions_IgnoreUnprocessedNodes='Yes')
         else:
             self.default_parameters = dict(
                 Options_='',
                 Options_WriteResultsTag='Yes',
                 ParserOptions_='',
+                ParserOptions_ParserVersion=1,
                 ParserOptions_IgnoreUnprocessedNodes='Yes')
 
         self.pcpot = None
