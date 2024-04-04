@@ -213,9 +213,9 @@ def test_parse_info_out_xml_bad_path(tmp_path, excitingtools):
 def test_parse_info_out_energy(tmp_path, excitingtools):
     """Test parsing the INFO.OUT output from exciting using parse_output()."""
     expected_lattice_cell = [
-        ['10.3360193975', '10.3426010725', '0.0054547264'],
-        ['-10.3461511392', '10.3527307290', '0.0059928210'],
-        ['10.3354645037', '10.3540072605', '20.6246241525']]
+        [10.3360193975, 10.3426010725, 0.0054547264],
+        [-10.3461511392, 10.3527307290, 0.0059928210],
+        [10.3354645037, 10.3540072605, 20.6246241525]]
 
     file = tmp_path / "INFO.OUT"
     file.write_text(LDA_VWN_AR_INFO_OUT)
@@ -246,6 +246,6 @@ def test_parse_info_out_energy(tmp_path, excitingtools):
     # Grab the lattice vectors. excitingtools parses them in a fortran like
     # vector. We reshape accordingly into a 3x3 matrix where rows correspond
     # to lattice vectors.
-    lattice_vectors_as_matrix = np.reshape(
-        initialization['Lattice vectors (cartesian)'], (3, 3), 'F')
+    lattice_vectors_as_matrix = np.array(np.reshape(
+        initialization['Lattice vectors (cartesian)'], (3, 3), 'F'), float)
     assert lattice_vectors_as_matrix.tolist() == expected_lattice_cell
