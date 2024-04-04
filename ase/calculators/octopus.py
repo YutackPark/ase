@@ -30,7 +30,7 @@ class OctopusProfile(BaseProfile):
     def version(self):
         import re
         from subprocess import check_output
-        txt = check_output(self.argv + ['--version']).decode('ascii')
+        txt = check_output([self.binary, '--version'], encoding='ascii')
         match = re.match(r'octopus\s*(.+)', txt)
         # With MPI it prints the line for each rank, but we just match
         # the first line.
