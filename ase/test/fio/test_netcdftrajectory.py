@@ -100,8 +100,10 @@ def test_netcdftrajectory(co):
     # File is not created before first write
     co.set_pbc([True, False, False])
     d = co.get_distance(0, 1)
-    with pytest.warns(None):
+
+    with pytest.warns(UserWarning, match='Atoms have nonperiodic'):
         t.write(co)
+
     del t
     # Check pbc
     for c in [1, 1000]:
