@@ -59,6 +59,7 @@ class CellAwareBFGS(BFGS):
         restart: Optional[str] = None,
         logfile: Union[IO, str] = '-',
         trajectory: Optional[str] = None,
+        append_trajectory: bool = False,
         maxstep: Optional[float] = None,
         master: Optional[bool] = None,
         bulk_modulus: Optional[float] = 145 * GPa,
@@ -71,7 +72,7 @@ class CellAwareBFGS(BFGS):
         self.long_output = long_output
         BFGS.__init__(self, atoms=atoms, restart=restart, logfile=logfile,
                       trajectory=trajectory, maxstep=maxstep, master=master,
-                      alpha=alpha)
+                      alpha=alpha, append_trajectory=append_trajectory)
         assert not isinstance(atoms, Atoms)
         if hasattr(atoms, 'exp_cell_factor'):
             assert atoms.exp_cell_factor == 1.0
