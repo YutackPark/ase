@@ -500,10 +500,16 @@ class Siesta(FileIOCalculator):
         return self.results['fermi_energy']
 
     def get_k_point_weights(self):
-        return self.results['kweights']
+        return self.results['kpoint_weights']
 
     def get_ibz_k_points(self):
         return self.results['kpoints']
+
+    def get_eigenvalues(self, kpt=0, spin=0):
+        return self.results['eigenvalues'][spin, kpt]
+
+    def get_number_of_spins(self):
+        return self.results['eigenvalues'].shape[0]
 
 
 def generate_atomic_coordinates(atoms: Atoms, species_numbers,
