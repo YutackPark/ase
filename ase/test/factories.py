@@ -241,7 +241,7 @@ class DFTBFactory:
 @factory('dftd3')
 class DFTD3Factory:
     def __init__(self, cfg):
-        self.executable = cfg.parser['dftd3']['command']
+        self.executable = cfg.parser['dftd3']['binary']
 
     def calc(self, **kwargs):
         return DFTD3(command=self.executable, **kwargs)
