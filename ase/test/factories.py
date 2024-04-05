@@ -127,17 +127,17 @@ def make_factory_fixture(name):
 @factory('abinit')
 class AbinitFactory:
     def __init__(self, cfg):
-        self._profile = AbinitTemplate().load_profile(cfg)
+        self.profile = AbinitTemplate().load_profile(cfg)
 
     def version(self):
-        return self._profile.version()
+        return self.profile.version()
 
     def _base_kw(self):
         return dict(ecut=150, chksymbreak=0, toldfe=1e-3)
 
     def calc(self, **kwargs):
         kwargs = {**self._base_kw(), **kwargs}
-        return Abinit(profile=self._profile, **kwargs)
+        return Abinit(profile=self.profile, **kwargs)
 
     def socketio(self, unixsocket, **kwargs):
         kwargs = {
@@ -154,15 +154,15 @@ class AbinitFactory:
 @factory('aims')
 class AimsFactory:
     def __init__(self, cfg):
-        self._profile = AimsTemplate().load_profile(cfg)
+        self.profile = AimsTemplate().load_profile(cfg)
 
     def calc(self, **kwargs):
         kwargs1 = dict(xc='LDA')
         kwargs1.update(kwargs)
-        return Aims(profile=self._profile, **kwargs1)
+        return Aims(profile=self.profile, **kwargs1)
 
     def version(self):
-        return self._profile.version()
+        return self.profile.version()
 
     def socketio(self, unixsocket, **kwargs):
         return self.calc(**kwargs).socketio(unixsocket=unixsocket)
@@ -304,17 +304,17 @@ class ExcitingFactory:
     def __init__(self, cfg):
         # Where do species come from?  We do not have them in ase-datafiles.
         # We should specify species_path.
-        self._profile = ExcitingGroundStateTemplate().load_profile(cfg)
+        self.profile = ExcitingGroundStateTemplate().load_profile(cfg)
 
     def calc(self, **kwargs):
         """Get instance of Exciting Ground state calculator."""
         return ExcitingGroundStateCalculator(
-            ground_state_input=kwargs, species_path=self._profile.species_path
+            ground_state_input=kwargs, species_path=self.profile.species_path
         )
 
     def version(self):
         """Get exciting executable version."""
-        return self._profile.version()
+        return self.profile.version()
 
 
 @factory('mopac')
@@ -514,14 +514,14 @@ class OpenMXFactory:
 class OctopusFactory:
     def __init__(self, cfg):
         from ase.calculators.octopus import OctopusTemplate
-        self._profile = OctopusTemplate().load_profile(cfg)
+        self.profile = OctopusTemplate().load_profile(cfg)
 
     def version(self):
-        return self._profile.version()
+        return self.profile.version()
 
     def calc(self, **kwargs):
         from ase.calculators.octopus import Octopus
-        return Octopus(profile=self._profile, **kwargs)
+        return Octopus(profile=self.profile, **kwargs)
 
 
 @factory('orca')
