@@ -243,6 +243,9 @@ class DFTD3Factory:
     def __init__(self, cfg):
         self.executable = cfg.parser['dftd3']['binary']
 
+    def version(self):
+        return '<Unknown>'
+
     def calc(self, **kwargs):
         return DFTD3(command=self.executable, **kwargs)
 
