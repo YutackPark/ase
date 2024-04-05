@@ -131,7 +131,7 @@ class BFGS(Optimizer):
         """Determine step to take according to maxstep
 
         Normalize all steps as the largest step. This way
-        we still move along the eigendirection.
+        we still move along the direction.
         """
         maxsteplength = np.max(steplengths)
         if maxsteplength >= self.maxstep:
