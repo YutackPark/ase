@@ -14,8 +14,10 @@ def _calculate(code, name):
         atoms.calc = code.calc()
         return atoms.get_potential_energy()
 
+
 omx_par = {'definition_of_atomic_species': [['C', 'C6.0', 'C_CA19'],
                                             ['H', 'H5.0', 'H_CA19']]}
+
 
 @pytest.mark.calculator_lite
 @calc('abinit', ecut=300, chksymbreak=0, toldfe=1e-4)
