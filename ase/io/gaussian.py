@@ -13,7 +13,7 @@ from ase.calculators.singlepoint import SinglePointCalculator
 from ase.data import atomic_masses_iupac2016, chemical_symbols
 from ase.io import ParseError
 from ase.io.zmatrix import parse_zmatrix
-from ase.units import Bohr, Hartree
+from ase.units import Bohr, Debye, Hartree
 
 logger = logging.getLogger(__name__)
 
@@ -1311,6 +1311,10 @@ def read_gaussian_out(fd, index=-1):
             # CCSD(T) energy
             energy = float(line.split('=')[-1].strip().replace('D', 'e'))
             energy *= Hartree
+        elif line.startswith('Dipole moment'):
+            # dipole moment in `l601.exe`, printed unless `Pop=None`
+            line = fd.readline().strip()
+            dipole = np.array([float(_) for _ in line.split()[1:6:2]]) * Debye
         elif _re_l716.match(line):
             # Sometimes Gaussian will print "Rotating derivatives to
             # standard orientation" after the matched line (which looks like
