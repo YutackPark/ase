@@ -958,8 +958,8 @@ class PrimitiveNeighborList:
         natoms = len(positions)
         self.nneighbors = 0
         self.npbcneighbors = 0
-        self.neighbors = [np.empty(0, int) for a in range(natoms)]
-        self.displacements = [np.empty((0, 3), int) for a in range(natoms)]
+        self.neighbors = [np.empty(0, int) for _ in range(natoms)]
+        self.displacements = [np.empty((0, 3), int) for _ in range(natoms)]
         self.nupdates += 1
         if natoms == 0:
             return

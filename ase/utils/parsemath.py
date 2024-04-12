@@ -170,7 +170,7 @@ def _eval(node):
         raise TypeError(node)
 
 
-def eval_expression(expression, param_dct=dict()):
+def eval_expression(expression, param_dct={}):
     """Parse a mathematical expression,
 
     Replaces variables with the values in param_dict and solves the expression

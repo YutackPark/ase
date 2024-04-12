@@ -475,10 +475,8 @@ def read_forces(results, natoms):
     dg = read_data_group('grad')
     if len(dg) == 0:
         return None
-    file = open('gradient')
-    lines = file.readlines()
-    file.close()
-
+    with open('gradient') as file:
+        lines = file.readlines()
     forces = np.array([[0, 0, 0]])
 
     nline = len(lines)

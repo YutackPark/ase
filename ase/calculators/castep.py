@@ -619,7 +619,7 @@ End CASTEP Interface Documentation
             if not hasattr(self, '_castep_version'):
                 warnings.warn('No castep version found')
                 return
-            if not local_castep_version == self._castep_version:
+            if local_castep_version != self._castep_version:
                 warnings.warn(
                     'The options module was generated from version %s '
                     'while your are currently using CASTEP version %s' %
@@ -1352,7 +1352,7 @@ End CASTEP Interface Documentation
                 if self._pedantic:
                     warnings.warn('Pseudopotential for species {} not found!'
                                   .format(elem))
-            elif not len(pps) == 1:
+            elif len(pps) != 1:
                 raise RuntimeError(
                     'Pseudopotential for species ''{} not unique!\n'
                     .format(elem)
@@ -1428,13 +1428,13 @@ End CASTEP Interface Documentation
         # from all that I can tell we need to compare against atoms instead of
         # self.atoms
         # if not self.atoms == self._old_atoms:
-        if not atoms == self._old_atoms:
+        if atoms != self._old_atoms:
             return True
         if self._old_param is None or self._old_cell is None:
             return True
-        if not self.param._options == self._old_param._options:
+        if self.param._options != self._old_param._options:
             return True
-        if not self.cell._options == self._old_cell._options:
+        if self.cell._options != self._old_cell._options:
             return True
         return False
 
@@ -1587,9 +1587,8 @@ End CASTEP Interface Documentation
         # check for non-empty error files
         err_file = self._abs_path(f'{self._seed}.0001.err')
         if os.path.exists(err_file):
-            err_file = open(err_file)
-            self._error = err_file.read()
-            err_file.close()
+            with open(err_file) as err_file:
+                self._error = err_file.read()
         if self._error:
             raise RuntimeError(self._error)
 
@@ -1796,26 +1795,23 @@ End CASTEP Interface Documentation
             print(stdout)
         if stderr:
             print(stderr)
-        result_file = open(os.path.join(temp_dir, f'{seed}.castep'))
+        with open(os.path.join(temp_dir, f'{seed}.castep')) as result_file:
+            txt = result_file.read()
+            ok_string = (r'.*DRYRUN finished.*No problems found with input '
+                         r'files.*')
+            match = re.match(ok_string, txt, re.DOTALL)
 
-        txt = result_file.read()
-        ok_string = r'.*DRYRUN finished.*No problems found with input files.*'
-        match = re.match(ok_string, txt, re.DOTALL)
+            m = re.search(r'Number of kpoints used =\s*([0-9]+)', txt)
+            if m:
+                self._kpoints = int(m.group(1))
+            else:
+                warnings.warn(
+                    'Couldn\'t fetch number of kpoints from dryrun CASTEP file')
 
-        m = re.search(r'Number of kpoints used =\s*([0-9]+)', txt)
-        if m:
-            self._kpoints = int(m.group(1))
-        else:
-            warnings.warn(
-                'Couldn\'t fetch number of kpoints from dryrun CASTEP file')
-
-        err_file = os.path.join(temp_dir, f'{seed}.0001.err')
-        if match is None and os.path.exists(err_file):
-            err_file = open(err_file)
-            self._error = err_file.read()
-            err_file.close()
-
-        result_file.close()
+            err_file = os.path.join(temp_dir, f'{seed}.0001.err')
+            if match is None and os.path.exists(err_file):
+                with open(err_file) as err_file:
+                    self._error = err_file.read()
         shutil.rmtree(temp_dir)
 
         # re.match return None is the string does not match
@@ -2244,9 +2240,8 @@ def _get_castep_version(castep_command, temp_dir):
         output_txt = stdout.split('\n')
         version_re = re.compile(r'CASTEP version:\s*([0-9\.]*)')
     else:
-        output = open(os.path.join(temp_dir, f'{jname}.castep'))
-        output_txt = output.readlines()
-        output.close()
+        with open(os.path.join(temp_dir, f'{jname}.castep')) as output:
+            output_txt = output.readlines()
         version_re = re.compile(r'(?<=CASTEP version )[0-9.]*')
     # shutil.rmtree(temp_dir)
     for line in output_txt:
@@ -2643,7 +2638,7 @@ class CastepInputFile:
             attr = attr.lower()
             opt = self._options[attr]
 
-        if not opt.type.lower() == 'block' and isinstance(value, str):
+        if opt.type.lower() != 'block' and isinstance(value, str):
             value = value.replace(':', ' ')
 
         # If it is, use the appropriate parser, unless a custom one is defined
@@ -2820,11 +2815,13 @@ class CastepCell(CastepInputFile):
         return text_block
 
     def _parse_symmetry_ops(self, value):
-        if not isinstance(value, tuple) \
-           or not len(value) == 2 \
-           or not value[0].shape[1:] == (3, 3) \
-           or not value[1].shape[1:] == (3,) \
-           or not value[0].shape[0] == value[1].shape[0]:
+        if (
+            not isinstance(value, tuple)
+            or len(value) != 2
+            or value[0].shape[1:] != (3, 3)
+            or value[1].shape[1:] != (3,)
+            or value[0].shape[0] != value[1].shape[0]
+        ):
             warnings.warn('Invalid symmetry_ops block, skipping')
             return None
         # Now on to print...

@@ -303,7 +303,7 @@ class AutoNEB:
                 n_between = 1
 
             toInterpolate = [self.all_images[jmax]]
-            for i in range(n_between):
+            for _ in range(n_between):
                 toInterpolate += [toInterpolate[0].copy()]
             toInterpolate += [self.all_images[jmax + 1]]
 

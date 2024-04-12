@@ -481,7 +481,7 @@ class SparsePrecon(Precon):
         elif self.array_convention == 'F':
             csc_P = csc_P.tocsr()
             P = csc_P
-            for i in range(self.dim - 1):
+            for _ in range(self.dim - 1):
                 P = sparse.block_diag((P, csc_P)).tocsr()
         else:
             # convert back to triplet and read the arrays
@@ -493,7 +493,7 @@ class SparsePrecon(Precon):
             # N-dimensionalise, interlaced coordinates
             I = np.hstack([i + d for d in range(self.dim)])
             J = np.hstack([j + d for d in range(self.dim)])
-            Z = np.hstack([z for d in range(self.dim)])
+            Z = np.hstack([z for _ in range(self.dim)])
             P = sparse.csc_matrix((Z, (I, J)),
                                   shape=(self.dim * N, self.dim * N))
             P = P.tocsr()

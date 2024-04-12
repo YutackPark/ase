@@ -20,7 +20,7 @@ def trajfile_and_images(co):
     with Trajectory(fname, 'w', co) as traj:
         written = []
 
-        for i in range(5):
+        for _ in range(5):
             co.positions[:, 2] += 0.1
             traj.write()
             written.append(co.copy())

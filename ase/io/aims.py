@@ -522,8 +522,8 @@ def write_control(fd, atoms, parameters, verbose_header=False):
             fd.write(s)
     fd.write(lim + "\n")
 
-    assert not ("kpts" in parameters and "k_grid" in parameters)
-    assert not ("smearing" in parameters and "occupation_type" in parameters)
+    assert "kpts" not in parameters or "k_grid" not in parameters
+    assert "smearing" not in parameters or "occupation_type" not in parameters
 
     for key, value in parameters.items():
         if key == "kpts":

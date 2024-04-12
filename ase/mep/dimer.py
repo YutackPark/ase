@@ -617,7 +617,7 @@ class MinModeAtoms:
         # Create random higher order mode guesses
         if self.order > 1:
             if len(eigenmodes) == 1:
-                for k in range(1, self.order):
+                for _ in range(1, self.order):
                     pos = self.get_positions()
                     self.displace(log=False, gauss_std=gauss_std,
                                   method=method)

@@ -39,7 +39,7 @@ class Albrecht(ResonantRaman):
         if approx in ['albrecht', 'albrecht b', 'albrecht c', 'albrecht bc']:
             if not self.overlap:
                 raise ValueError('Overlaps are needed')
-        elif not approx == 'albrecht a':
+        elif approx != 'albrecht a':
             raise ValueError('Please use "Albrecht" or "Albrecht A/B/C/BC"')
         self._approx = value
 
@@ -59,7 +59,7 @@ class Albrecht(ResonantRaman):
         ind_v = list(combinations_with_replacement(l_Q, 1))
 
         if self.combinations > 1:
-            if not self.combinations == 2:
+            if self.combinations != 2:
                 raise NotImplementedError
 
             for c in range(2, self.combinations + 1):

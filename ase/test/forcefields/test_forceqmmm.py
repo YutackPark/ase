@@ -412,8 +412,9 @@ def test_set_masks_from_region(at0, qm_calc, mm_calc):
                           buffer_width=3.61)
 
     # assert that number of qm atoms is different
-    assert not (np.count_nonzero(qmmm.qm_selection_mask) ==
-                np.count_nonzero(test_qmmm.qm_selection_mask))
+    assert np.count_nonzero(qmmm.qm_selection_mask) != np.count_nonzero(
+        test_qmmm.qm_selection_mask
+    )
 
     test_qmmm.set_masks_from_region(region)
 

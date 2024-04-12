@@ -13,7 +13,7 @@ def test_idpp(testdir):
     final.positions[2:5] = initial.positions[[3, 4, 2]]
 
     images = [initial]
-    for i in range(5):
+    for _ in range(5):
         images.append(initial.copy())
     images.append(final)
 

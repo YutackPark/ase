@@ -410,7 +410,7 @@ def _read_xyz_frame(lines, natoms, properties_parser=key_val_str_to_dict,
     del info['Properties']
 
     data = []
-    for ln in range(natoms):
+    for _ in range(natoms):
         try:
             line = next(lines)
         except StopIteration:
@@ -694,7 +694,7 @@ def read_xyz(fileobj, index=-1, properties_parser=key_val_str_to_dict):
             raise XYZError('ase.io.extxyz: Expected xyz header but got: {}'
                            .format(err))
         fileobj.readline()  # read comment line
-        for i in range(natoms):
+        for _ in range(natoms):
             fileobj.readline()
         # check for VEC
         nvec = 0

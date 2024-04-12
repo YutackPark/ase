@@ -44,7 +44,7 @@ def test_COCu111(testdir):
 
     # Make band:
     images = [slab]
-    for i in range(4):
+    for _ in range(4):
         image = slab.copy()
         # Set constraints and calculator:
         image.set_constraint(constraint)

@@ -35,7 +35,7 @@ def final(initial):
 def test_emt_h3o2m(initial, final, testdir):
     # Make band:
     images = [initial.copy()]
-    for i in range(3):
+    for _ in range(3):
         images.append(initial.copy())
     images.append(final.copy())
     neb = NEB(images, climb=True)

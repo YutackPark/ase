@@ -463,7 +463,7 @@ class Phonons(Displacement):
 
         # Symmetrize force constants
         if symmetrize:
-            for i in range(symmetrize):
+            for _ in range(symmetrize):
                 # Symmetrize
                 C_N = self.symmetrize(C_N)
                 # Restore acoustic sum-rule

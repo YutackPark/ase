@@ -151,7 +151,7 @@ def read_dftb_lattice(fileobj, images=None):
     for line in fileobj:
         if 'Lattice vectors' in line:
             vec = []
-            for i in range(3):  # DFTB+ only supports 3D PBC
+            for _ in range(3):
                 line = fileobj.readline().split()
                 try:
                     line = [float(x) for x in line]
