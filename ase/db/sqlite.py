@@ -634,7 +634,7 @@ class SQLite3Database(Database):
         if columns == 'all':
             columnindex = list(range(26))
         else:
-            columnindex = [c for c in range(0, 26)
+            columnindex = [c for c in range(26)
                            if self.columnnames[c] in columns]
         if include_data:
             columnindex.append(26)

@@ -333,7 +333,7 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
                 posmin = np.amin(pos, axis=0)
                 posmax = np.amax(pos, axis=0)
 
-                for i in range(0, 3):
+                for i in range(3):
                     if lammps_boundary_conditions[i] == 's':
                         box_hi[i] = 1.05 * abs(posmax[i] - posmin[i])
 
@@ -557,7 +557,7 @@ xz and yz are the tilt of the lattice vectors, all to be edited.
             retval = 'p p p'
         else:
             cell = atoms.get_cell()
-            for i in range(0, 3):
+            for i in range(3):
                 if pbc[i]:
                     retval += 'p '
                 else:

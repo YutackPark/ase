@@ -1430,7 +1430,6 @@ def read_seed(seed, new_seed=None, ignore_internal_keys=False):
     else:
         # There are cases where we only want to restore a calculator/atoms
         # setting without a castep file...
-        pass
         # No print statement required in these cases
         warnings.warn(
             'Corresponding *.castep file not found. '

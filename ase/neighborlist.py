@@ -979,7 +979,7 @@ class PrimitiveNeighborList:
         offsets = cell.scaled_positions(positions - positions0)
         offsets = offsets.round().astype(int)
 
-        for n1, n2, n3 in itertools.product(range(0, N[0] + 1),
+        for n1, n2, n3 in itertools.product(range(N[0] + 1),
                                             range(-N[1], N[1] + 1),
                                             range(-N[2], N[2] + 1)):
             if n1 == 0 and (n2 < 0 or n2 == 0 and n3 < 0):

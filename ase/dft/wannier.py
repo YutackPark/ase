@@ -252,7 +252,7 @@ def arbitrary_s_orbitals(atoms, Ns, rng=np.random):
     s_pos = tmp_atoms.get_scaled_positions()
 
     orbs = []
-    for i in range(0, Ns):
+    for i in range(Ns):
         fine = False
         while not fine:
             # Random position
