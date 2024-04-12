@@ -34,7 +34,7 @@ class TestPlotManager:
     def test_plot_manager_error(self, figure):
         with pytest.raises(AssertionError):
             with SimplePlottingAxes(ax=None, show=False, filename=None):
-                raise AssertionError()
+                raise AssertionError
 
     def test_plot_manager_no_file(self, xy_data, figure):
         x, y = xy_data

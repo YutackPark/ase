@@ -47,7 +47,7 @@ class UnknownViewerError(Exception):
 
 class AbstractViewer:
     def view(self, *args, **kwargss):
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class PyViewer(AbstractViewer):
