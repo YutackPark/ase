@@ -1138,13 +1138,10 @@ def read_eigenmode(mlog, index=-1):
                 i = index
 
     mode = np.ndarray(shape=(n, 3), dtype=float)
-    k_atom = 0
-    for k in range(1, n + 1):
+    for k_atom, k in enumerate(range(1, n + 1)):
         line = lines[i * (n + 1) + k].split()
         for k_dim in range(3):
             mode[k_atom][k_dim] = float(line[k_dim + 2])
-        k_atom += 1
-
     if mlog_is_str:
         fd.close()
 

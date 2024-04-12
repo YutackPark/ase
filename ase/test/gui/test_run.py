@@ -162,7 +162,7 @@ def test_rotate(gui):
 
 def test_open_and_save(gui, testdir):
     mol = molecule('H2O')
-    for i in range(3):
+    for j in range(3):
         mol.write('h2o.json')
     gui.open(filename='h2o.json')
     save_dialog(gui, 'h2o.cif@-1')

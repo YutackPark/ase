@@ -43,14 +43,15 @@ def testing_keywords():
     # Special keywords for the CastepParam object
     param_kws = [('continuation', 'String'), ('reuse', 'String')]
 
-    param_kw_data = {}
-    for (pkw, t) in param_kws:
-        param_kw_data[pkw] = {
+    param_kw_data = {
+        pkw: {
             'docstring': f'Dummy {pkw} keyword',
             'option_type': t,
             'keyword': pkw,
-            'level': 'Dummy'
+            'level': 'Dummy',
         }
+        for pkw, t in param_kws
+    }
     param_kw_data.update(kw_data)
 
     # Special keywords for the CastepCell object
@@ -65,14 +66,15 @@ def testing_keywords():
                 ('kpoint_list', 'Block'),
                 ('bs_kpoint_list', 'Block')]
 
-    cell_kw_data = {}
-    for (ckw, t) in cell_kws:
-        cell_kw_data[ckw] = {
+    cell_kw_data = {
+        ckw: {
             'docstring': f'Dummy {ckw} keyword',
             'option_type': t,
             'keyword': ckw,
-            'level': 'Dummy'
+            'level': 'Dummy',
         }
+        for ckw, t in cell_kws
+    }
     cell_kw_data.update(kw_data)
 
     param_dict = make_param_dict(param_kw_data)

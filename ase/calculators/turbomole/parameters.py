@@ -704,14 +704,14 @@ class TurbomoleParameters(dict):
         """read parameters from control file"""
 
         params = {}
-        pdgs = {}
-        for p in self.parameter_group:
-            if self.parameter_group[p] and self.parameter_key[p]:
-                pdgs[p] = parse_data_group(
-                    read_data_group(self.parameter_group[p]),
-                    self.parameter_group[p]
-                )
-
+        pdgs = {
+            p: parse_data_group(
+                read_data_group(
+                    self.parameter_group[p]), self.parameter_group[p]
+            )
+            for p in self.parameter_group
+            if self.parameter_group[p] and self.parameter_key[p]
+        }
         for p in self.parameter_key:
             if self.parameter_key[p]:
                 if self.parameter_key[p] == self.parameter_group[p]:

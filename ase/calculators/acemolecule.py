@@ -86,11 +86,9 @@ class ACE(FileIOCalculator):
                 if isinstance(kwargs[section], dict):
                     kwargs[section] = [kwargs[section]]
 
-                i = 0
-                for section_param in kwargs[section]:
+                for i, section_param in enumerate(kwargs[section]):
                     new_parameters[section][i] = update_parameter(
                         new_parameters[section][i], section_param)
-                    i += 1
         self.parameters = new_parameters
         return changed_parameters
 
