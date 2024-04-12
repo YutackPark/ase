@@ -1223,8 +1223,7 @@ def _compare_merge_configs(configs, new):
         if np.any(oldres[key] != newres[key]):
             configs.append(new)
             return
-    else:
-        oldres.update(newres)
+    oldres.update(newres)
 
 
 def read_gaussian_out(fd, index=-1):
