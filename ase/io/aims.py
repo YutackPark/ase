@@ -1179,7 +1179,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         """Parse the forces from the aims.out file"""
         line_start = self.reverse_search_for(["Total atomic forces"])
         if line_start == LINE_NOT_FOUND:
-            return
+            return None
 
         line_start += 1
 
@@ -1219,7 +1219,7 @@ class AimsOutCalcChunk(AimsOutChunk):
 
         )  # Offest to relevant lines
         if line_start == LINE_NOT_FOUND:
-            return
+            return None
 
         stress = [
             [float(inp) for inp in line.split()[2:5]]
@@ -1255,7 +1255,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         """Parse the electric dipole moment from the aims.out file."""
         line_start = self.reverse_search_for(["Total dipole moment [eAng]"])
         if line_start == LINE_NOT_FOUND:
-            return
+            return None
 
         line = self.lines[line_start]
         return np.array([float(inp) for inp in line.split()[6:9]])
@@ -1265,7 +1265,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         """Parse the dielectric tensor from the aims.out file"""
         line_start = self.reverse_search_for(["PARSE DFPT_dielectric_tensor"])
         if line_start == LINE_NOT_FOUND:
-            return
+            return None
 
         # we should find the tensor in the next three lines:
         lines = self.lines[line_start + 1:line_start + 4]
@@ -1278,7 +1278,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         """ Parse the polarization vector from the aims.out file"""
         line_start = self.reverse_search_for(["| Cartesian Polarization"])
         if line_start == LINE_NOT_FOUND:
-            return
+            return None
         line = self.lines[line_start]
         return np.array([float(s) for s in line.split()[-3:]])
 

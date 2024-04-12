@@ -241,7 +241,7 @@ def parse_gto_chunk(chunk):
         atoms = _parse_geomblock(chunk)
 
     if atoms is None:
-        return
+        return None
 
     # SinglePointDFTCalculator doesn't support quadrupole moment currently
     calc = SinglePointDFTCalculator(atoms=atoms,
@@ -416,7 +416,7 @@ _fermi_energy = _define_pattern(
 def parse_pw_chunk(chunk):
     atoms = _parse_geomblock(chunk)
     if atoms is None:
-        return
+        return None
 
     energy = None
     efermi = None

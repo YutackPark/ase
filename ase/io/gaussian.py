@@ -666,7 +666,7 @@ def _get_cartesian_atom_coords(symbol, pos):
     if len(pos) < 3 or (pos[0] == '0' and symbol != 'TV'):
         # In this case, we have a z-matrix definition, so
         # no cartesian coords.
-        return
+        return None
     elif len(pos) > 3:
         raise ParseError("ERROR: Gaussian input file could "
                          "not be read as freeze codes are not"

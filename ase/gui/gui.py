@@ -298,7 +298,7 @@ class GUI(View, Status):
     def reciprocal(self):
         if self.atoms.cell.rank != 3:
             self.bad_plot(_('Requires 3D cell.'))
-            return
+            return None
 
         cell = self.atoms.cell.uncomplete(self.atoms.pbc)
         bandpath = cell.bandpath(npoints=0)

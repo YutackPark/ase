@@ -170,7 +170,7 @@ def read_dftb_lattice(fileobj, images=None):
             atoms.set_cell(lattices[i])
             # DFTB+ only supports 3D PBC
             atoms.set_pbc(True)
-        return
+        return None
     else:
         return lattices
 

@@ -41,7 +41,7 @@ class ExcitingProfile(BaseProfile):
     def version(self):
         """Return exciting version."""
         # TARP No way to get the version for the binary in use
-        return None
+        return
 
     # Machine specific config files in the config
     # species_file goes in the config
