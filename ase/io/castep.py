@@ -276,7 +276,7 @@ def write_castep_cell(fd, atoms, positions_frac=False, force_write=False,
                         mass_block.append('{} {}'.format(
                             custom_species_name, mass_val))
 
-        setattr(cell, 'species_mass', mass_block)
+        cell.species_mass = mass_block
 
     if atoms.has('castep_labels'):
         labels = atoms.get_array('castep_labels')

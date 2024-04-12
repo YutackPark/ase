@@ -678,7 +678,7 @@ def o2b(obj: Any, parts: List[bytes]):
                                 offset]}
     if isinstance(obj, complex):
         return {'__complex__': [obj.real, obj.imag]}
-    objtype = getattr(obj, 'ase_objtype')
+    objtype = obj.ase_objtype
     if objtype:
         dct = o2b(obj.todict(), parts)
         dct['__ase_objtype__'] = objtype
