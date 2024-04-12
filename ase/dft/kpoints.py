@@ -200,6 +200,7 @@ def resolve_custom_points(pathspec, special_points, eps):
             name = f'Kpt{counter}'
             yield name
             counter += 1
+
     custom_names = name_generator()
 
     labelseq = []
@@ -214,7 +215,7 @@ def resolve_custom_points(pathspec, special_points, eps):
                 continue
 
             kpt = np.asarray(kpt, float)
-            if not kpt.shape == (3,):
+            if kpt.shape != (3,):
                 raise ValueError(f'Not a valid kpoint: {kpt}')
 
             for key, val in special_points.items():
@@ -240,7 +241,7 @@ def normalize_special_points(special_points):
     for name, value in special_points.items():
         if not isinstance(name, str):
             raise TypeError('Expected name to be a string')
-        if not np.shape(value) == (3,):
+        if np.shape(value) != (3,):
             raise ValueError('Expected 3 kpoint coordinates')
         dct[name] = np.asarray(value, float)
     return dct
@@ -543,7 +544,7 @@ DEFAULT_KPTS_DENSITY = 5    # points per 1/Angstrom
 
 
 def paths2kpts(paths, cell, npoints=None, density=None):
-    if not (npoints is None or density is None):
+    if npoints is not None and density is not None:
         raise ValueError('You may define npoints or density, but not both.')
     points = np.concatenate(paths)
     dists = points[1:] - points[:-1]

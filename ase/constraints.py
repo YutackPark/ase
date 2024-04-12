@@ -163,9 +163,9 @@ class IndexedConstraint(FixConstraint):
         if isinstance(m, int):
             m = (m, m, m)
         index_new = []
-        for m2 in range(m[2]):
-            for m1 in range(m[1]):
-                for m0 in range(m[0]):
+        for _ in range(m[2]):
+            for _ in range(m[1]):
+                for _ in range(m[0]):
                     i1 = i0 + n
                     index_new += [i + natoms for i in self.index]
                     i0 = i1
@@ -1100,7 +1100,7 @@ class FixInternals(FixConstraint):
         self.initialize(atoms)
         for constraint in self.constraints:
             constraint.setup_jacobian(atoms.positions)
-        for j in range(50):
+        for _ in range(50):
             maxerr = 0.0
             for constraint in self.constraints:
                 constraint.adjust_positions(atoms.positions, newpos)
@@ -1503,9 +1503,9 @@ class FixParametricRelations(FixConstraint):
 
             # Convert subtraction to addition
             expression = expression.replace("-", "+(-1.0)*")
-            if "+" == expression[0]:
+            if expression[0] == "+":
                 expression = expression[1:]
-            elif "(+" == expression[:2]:
+            elif expression[:2] == "(+":
                 expression = "(" + expression[2:]
 
             # Explicitly add leading zeros so when replacing param_1 with 0.0

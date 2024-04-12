@@ -243,7 +243,7 @@ def write_lammps_in(lammps_in, parameters, atoms, prismobj,
         )
     if "run" in parameters:
         fileobj.write("run {}\n".format(parameters["run"]))
-    if not (("minimize" in parameters) or ("run" in parameters)):
+    if "minimize" not in parameters and "run" not in parameters:
         fileobj.write("run 0\n")
 
     fileobj.write(

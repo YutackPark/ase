@@ -162,7 +162,7 @@ def read_bands_file(fd):
 
     # Read energies for each kpoint:
     data = []
-    for i in range(nkpts):
+    for _ in range(nkpts):
         line = next(fd)
         tokens = line.split()
         while len(tokens) < ntokens:

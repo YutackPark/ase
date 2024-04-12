@@ -54,7 +54,7 @@ def set_magmom(ispin, spinpol, atoms, magmom_input, sorting):
     """Helps to set the magmom tag in the INCAR file with correct formatting"""
     magmom_dct = {}
     if magmom_input is not None:
-        if not len(magmom_input) == len(atoms):
+        if len(magmom_input) != len(atoms):
             msg = ('Expected length of magmom tag to be'
                    ' {}, i.e. 1 value per atom, but got {}').format(
                 len(atoms), len(magmom_input))
@@ -1849,7 +1849,7 @@ class GenerateVaspInput:
                             if data[i] == "*":
                                 b = lst.pop()
                                 i += 1
-                                for j in range(int(b)):
+                                for _ in range(int(b)):
                                     lst.append(float(data[i]))
                             else:
                                 lst.append(float(data[i]))
@@ -1864,40 +1864,6 @@ class GenerateVaspInput:
                         self.list_float_params[key] = [
                             float(x) for x in data[2:]
                         ]
-                # elif key in list_keys:
-                #     list = []
-                #     if key in ('dipol', 'eint', 'ferwe', 'ferdo',
-                #                'ropt', 'rwigs',
-                #                'ldauu', 'ldaul', 'ldauj', 'langevin_gamma'):
-                #         for a in data[2:]:
-                #             if a in ["!", "#"]:
-                #                 break
-                #             list.append(float(a))
-                #     elif key in ('iband', 'kpuse', 'random_seed'):
-                #         for a in data[2:]:
-                #             if a in ["!", "#"]:
-                #                 break
-                #             list.append(int(a))
-                #     self.list_params[key] = list
-                #     if key == 'magmom':
-                #         list = []
-                #         i = 2
-                #         while i < len(data):
-                #             if data[i] in ["#", "!"]:
-                #                 break
-                #             if data[i] == "*":
-                #                 b = list.pop()
-                #                 i += 1
-                #                 for j in range(int(b)):
-                #                     list.append(float(data[i]))
-                #             else:
-                #                 list.append(float(data[i]))
-                #             i += 1
-                #         self.list_params['magmom'] = list
-                #         list = np.array(list)
-                #         if self.atoms is not None:
-                #             self.atoms.set_initial_magnetic_moments(
-                #                 list[self.resort])
                 elif key in special_keys:
                     if key == 'lreal':
                         if 'true' in data[2].lower():

@@ -670,7 +670,7 @@ class RHL(BravaisLattice):
 
 
 def check_mcl(a, b, c, alpha):
-    if not (b <= c and alpha < 90):
+    if b > c or alpha >= 90:
         raise UnconventionalLattice('Expected b <= c, alpha < 90; '
                                     'got a={}, b={}, c={}, alpha={}'
                                     .format(a, b, c, alpha))

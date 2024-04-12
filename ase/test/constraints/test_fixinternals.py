@@ -168,7 +168,7 @@ def test_zero_distance_error():
     atoms.set_constraint(constr)
     opt = BFGS(atoms)
     with pytest.raises(ZeroDivisionError):
-        for i in opt.irun():
+        for _ in opt.irun():
             atoms.get_distance(1, 2)
 
 

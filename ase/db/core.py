@@ -403,9 +403,9 @@ class Database:
         anything and return None.
         """
 
-        for dct in self._select([],
-                                [(key, '=', value)
-                                 for key, value in key_value_pairs.items()]):
+        for _ in self._select([],
+                              [(key, '=', value)
+                               for key, value in key_value_pairs.items()]):
             return None
 
         atoms = Atoms()
@@ -531,7 +531,7 @@ class Database:
         len(db) to count all rows.
         """
         n = 0
-        for row in self.select(selection, **kwargs):
+        for _ in self.select(selection, **kwargs):
             n += 1
         return n
 

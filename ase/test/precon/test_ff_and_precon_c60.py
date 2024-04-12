@@ -42,8 +42,8 @@ def forcefield_params(atoms0):
     i_list, j_list, d_list, fixed_atoms = get_neighbours(atoms=a, r_cut=cutoff)
     for i, j in zip(i_list, j_list):
         neighbor_list[i].append(j)
-    for i in range(len(neighbor_list)):
-        neighbor_list[i].sort()
+    for neighbor in neighbor_list:
+        neighbor.sort()
 
     # create lists of morse, bending and torsion interactions
     for i in range(len(a)):

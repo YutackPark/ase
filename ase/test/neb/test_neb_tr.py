@@ -34,7 +34,7 @@ def test_neb_tr(testdir):
         images = [initial]
 
         # Set calculator
-        for i in range(nimages):
+        for _ in range(nimages):
             image = initial.copy()
             image.calc = LennardJones()
             images.append(image)

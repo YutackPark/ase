@@ -23,7 +23,7 @@ def test_nsteps(opt, steps):
     """
     irun = opt.irun(fmax=0, steps=steps)
 
-    for i in range(steps + 1):
+    for _ in range(steps + 1):
         next(irun)
 
     with pytest.raises(StopIteration):

@@ -193,7 +193,7 @@ def rotation_from_projection(proj_nw, fixed, ortho=True):
 def search_for_gamma_point(kpts):
     """Returns index of Gamma point in a list of k-points."""
     gamma_idx = np.argmin([np.linalg.norm(kpt) for kpt in kpts])
-    if not np.linalg.norm(kpts[gamma_idx]) < 1e-14:
+    if np.linalg.norm(kpts[gamma_idx]) >= 1e-14:
         gamma_idx = None
     return gamma_idx
 
@@ -252,7 +252,7 @@ def arbitrary_s_orbitals(atoms, Ns, rng=np.random):
     s_pos = tmp_atoms.get_scaled_positions()
 
     orbs = []
-    for i in range(Ns):
+    for _ in range(Ns):
         fine = False
         while not fine:
             # Random position

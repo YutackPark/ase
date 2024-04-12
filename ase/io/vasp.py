@@ -331,9 +331,7 @@ def read_vasp_xdatcar(filename='XDATCAR', index=-1):
 
             fd.readline()
 
-        coords = [
-            np.array(fd.readline().split(), float) for ii in range(total)
-        ]
+        coords = [np.array(fd.readline().split(), float) for _ in range(total)]
 
         image = Atoms(atomic_formula, cell=cell, pbc=True)
         image.set_scaled_positions(np.array(coords))
@@ -904,7 +902,7 @@ def _symbol_count_string(
         Sn_d_GW S_GW/357d
                 4        6
     """
-    symbol_mapping = symbol_mapping or dict()
+    symbol_mapping = symbol_mapping or {}
     out_str = ' '
 
     # Allow for VASP 6 format, i.e., specifying the pseudopotential used
