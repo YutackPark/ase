@@ -1266,10 +1266,9 @@ class LatticeChecker:
             lat = self.query(name)
             if lat:
                 return lat
-        else:
-            raise RuntimeError('Could not find lattice type for cell '
-                               'with lengths and angles {}'
-                               .format(self.cell.cellpar().tolist()))
+        raise RuntimeError('Could not find lattice type for cell '
+                           'with lengths and angles {}'
+                           .format(self.cell.cellpar().tolist()))
 
     def query(self, latname):
         """Match cell against named Bravais lattice.
