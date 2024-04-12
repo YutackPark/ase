@@ -31,11 +31,10 @@ class CLICommand:
 
     @staticmethod
     def run(args):
+        from ase.config import cfg
         from ase.io.bundletrajectory import print_bundletrajectory_info
         from ase.io.formats import UnknownFileTypeError, filetype, ioformats
         from ase.io.ulm import print_ulm_info
-
-        from ase.config import cfg
         if not args.filename:
             print_info()
             if args.formats:

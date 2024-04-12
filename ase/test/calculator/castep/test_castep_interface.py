@@ -3,13 +3,12 @@ import os
 import numpy as np
 import pytest
 
+import ase.lattice.cubic
 from ase.build import bulk
-from ase.dft.kpoints import BandPath
 from ase.calculators.castep import (Castep, CastepCell, CastepKeywords,
                                     CastepOption, CastepParam, make_cell_dict,
                                     make_param_dict)
-import ase.lattice.cubic
-
+from ase.dft.kpoints import BandPath
 
 calc = pytest.mark.calculator
 

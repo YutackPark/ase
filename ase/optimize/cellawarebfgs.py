@@ -1,10 +1,12 @@
-from typing import IO, Optional, Union
-import numpy as np
 import time
-from ase.optimize import BFGS
-from ase.optimize.optimize import Dynamics
+from typing import IO, Optional, Union
+
+import numpy as np
+
 from ase import Atoms
 from ase.geometry import cell_to_cellpar
+from ase.optimize import BFGS
+from ase.optimize.optimize import Dynamics
 from ase.units import GPa
 
 

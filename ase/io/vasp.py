@@ -393,10 +393,8 @@ def read_vasp_xml(filename='vasprun.xml', index=-1):
     import xml.etree.ElementTree as ET
     from collections import OrderedDict
 
-    from ase.calculators.singlepoint import (
-        SinglePointDFTCalculator,
-        SinglePointKPoint,
-    )
+    from ase.calculators.singlepoint import (SinglePointDFTCalculator,
+                                             SinglePointKPoint)
     from ase.constraints import FixAtoms, FixScaled
     from ase.units import GPa
 

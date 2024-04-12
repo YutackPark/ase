@@ -34,13 +34,10 @@ from typing import Any, Dict, List, Optional, Set
 import numpy as np
 
 from ase import Atoms, units
-from ase.calculators.calculator import (
-    BaseCalculator,
-    compare_atoms,
-    kpts2sizeandoffsets,
-)
+from ase.calculators.calculator import (BaseCalculator, compare_atoms,
+                                        kpts2sizeandoffsets)
 from ase.config import cfg
-from ase.constraints import FixConstraint, FixAtoms, FixCartesian
+from ase.constraints import FixAtoms, FixCartesian, FixConstraint
 from ase.dft.kpoints import BandPath
 from ase.io.castep import read_bands, read_param
 from ase.parallel import paropen

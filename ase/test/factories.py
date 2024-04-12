@@ -1,9 +1,9 @@
+import importlib.util
 import os
 import re
-from pathlib import Path
 import tempfile
+from pathlib import Path
 
-import importlib.util
 import pytest
 
 from ase import Atoms
@@ -16,12 +16,13 @@ from ase.calculators.dftb import Dftb
 from ase.calculators.dftd3 import DFTD3
 from ase.calculators.elk import ELK
 from ase.calculators.espresso import Espresso, EspressoTemplate
-from ase.calculators.exciting.exciting import (
-    ExcitingGroundStateCalculator, ExcitingGroundStateTemplate)
+from ase.calculators.exciting.exciting import (ExcitingGroundStateCalculator,
+                                               ExcitingGroundStateTemplate)
 from ase.calculators.genericfileio import read_stdout
 from ase.calculators.gromacs import Gromacs, get_gromacs_version
 from ase.calculators.mopac import MOPAC
-from ase.calculators.names import names as calculator_names, builtin
+from ase.calculators.names import builtin
+from ase.calculators.names import names as calculator_names
 from ase.calculators.nwchem import NWChem
 from ase.calculators.siesta import Siesta
 from ase.calculators.vasp import Vasp, get_vasp_version

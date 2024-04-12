@@ -6,11 +6,10 @@ from subprocess import PIPE, Popen
 import numpy as np
 
 import ase.units as units
-from ase.calculators.calculator import (Calculator,
+from ase.calculators.calculator import (ArgvProfile, Calculator,
+                                        OldShellProfile,
                                         PropertyNotImplementedError,
-                                        all_changes,
-                                        ArgvProfile,
-                                        OldShellProfile)
+                                        all_changes)
 from ase.calculators.genericfileio import GenericFileIOCalculator
 from ase.stress import full_3x3_to_voigt_6_stress
 from ase.utils import IOContext

@@ -20,6 +20,7 @@ from copy import deepcopy
 from pathlib import Path
 
 import numpy as np
+
 from ase.atoms import Atoms
 from ase.calculators.calculator import kpts2ndarray, kpts2sizeandoffsets
 from ase.calculators.singlepoint import (SinglePointDFTCalculator,

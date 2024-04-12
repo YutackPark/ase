@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from contextlib import ExitStack
 from os import PathLike
 from pathlib import Path
 from typing import Any, Iterable, List, Mapping, Optional
@@ -6,8 +7,6 @@ from typing import Any, Iterable, List, Mapping, Optional
 from ase.calculators.abc import GetOutputsMixin
 from ase.calculators.calculator import BaseCalculator, EnvironmentError
 from ase.config import cfg as _cfg
-
-from contextlib import ExitStack
 
 
 class BaseProfile(ABC):
@@ -129,8 +128,8 @@ class BaseProfile(ABC):
             if True then use append mode
         """
 
-        from subprocess import check_call
         import os
+        from subprocess import check_call
 
         argv_command = self.get_command(inputfile)
         mode = 'wb' if not append else 'ab'

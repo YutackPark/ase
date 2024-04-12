@@ -74,8 +74,8 @@ def test_write_bs_xml(
     This is done so that excitingtools is independent of ASE.
 
     """
-    from excitingtools.input.bandstructure import (
-        band_structure_input_from_ase_atoms_obj)
+    from excitingtools.input.bandstructure import \
+        band_structure_input_from_ase_atoms_obj
     file_path = tmp_path / 'input.xml'
     ground_state_input_dict = {
         "rgkmax": 8.0,

@@ -1007,6 +1007,7 @@ class SingleCalculatorNEB(NEB):
     .. deprecated:: 3.23.0
         Please use ``NEB(allow_shared_calculator=True)`` instead
     """
+
     def __init__(self, images, *args, **kwargs):
         kwargs["allow_shared_calculator"] = True
         super().__init__(images, *args, **kwargs)

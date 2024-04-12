@@ -58,6 +58,7 @@ class SiestaInput:
     @classmethod
     def get_species(cls, atoms, species, basis_set):
         from ase.calculators.siesta.parameters import Species
+
         # For each element use default species from the species input, or set
         # up a default species  from the general default parameters.
         tags = atoms.get_tags()
