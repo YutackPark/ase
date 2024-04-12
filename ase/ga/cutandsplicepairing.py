@@ -443,15 +443,15 @@ class CutAndSplicePairing(OffspringCreator):
 
             use_total[s] = used
 
-        n_tot = sum([len(ll) for ll in use_total.values()])
+        n_tot = sum(len(ll) for ll in use_total.values())
         assert n_tot == len(sym)
 
         # check if the generated structure contains
         # atoms from both parents:
         count1, count2, N = 0, 0, len(a1)
         for x in use_total.values():
-            count1 += sum([y.origin == 0 for y in x])
-            count2 += sum([y.origin == 1 for y in x])
+            count1 += sum(y.origin == 0 for y in x)
+            count2 += sum(y.origin == 1 for y in x)
 
         nmin = 1 if self.minfrac is None else int(round(self.minfrac * N))
         if count1 < nmin or count2 < nmin:

@@ -36,7 +36,7 @@ def test_simple(factory, atoms_h):
     siesta.write_input(atoms_h, properties=['energy'])
     with open('test_label.fdf', encoding='utf-8') as fd:
         lines = fd.readlines()
-    assert any([line.split() == ['DM.Tolerance', '0.001'] for line in lines])
+    assert any(line.split() == ['DM.Tolerance', '0.001'] for line in lines)
 
 
 @pytest.mark.calculator_lite()

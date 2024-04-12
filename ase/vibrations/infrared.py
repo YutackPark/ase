@@ -162,8 +162,8 @@ class Infrared(Vibrations):
         forces_zero = disp.forces()
         dipole_zero = disp.dipole()
         self.dipole_zero = (sum(dipole_zero**2)**0.5) / units.Debye
-        self.force_zero = max([sum((forces_zero[j])**2)**0.5
-                               for j in self.indices])
+        self.force_zero = max(
+            sum((forces_zero[j])**2)**0.5 for j in self.indices)
 
         ndof = 3 * len(self.indices)
         H = np.empty((ndof, ndof))

@@ -1589,9 +1589,11 @@ class GenerateVaspInput:
         incar_header = \
             'INCAR created by Atomic Simulation Environment'
         # float params
-        float_dct = dict((key, f'{val:{FLOAT_FORMAT}}') for key, val
-                         in self.float_params.items()
-                         if val is not None)
+        float_dct = {
+            key: f'{val:{FLOAT_FORMAT}}'
+            for key, val in self.float_params.items()
+            if val is not None
+        }
 
         if 'charge' in self.input_params and self.input_params[
                 'charge'] is not None:
@@ -1604,19 +1606,24 @@ class GenerateVaspInput:
         incar_params.update(float_dct)
 
         # exp params
-        exp_dct = dict(
-            (key, f'{val:{EXP_FORMAT}}') for key, val in self.exp_params.items()
-            if val is not None)
+        exp_dct = {
+            key: f'{val:{EXP_FORMAT}}'
+            for key, val in self.exp_params.items()
+            if val is not None
+        }
         incar_params.update(exp_dct)
 
         # string_params
-        string_dct = dict((key, val) for key, val in self.string_params.items()
-                          if val is not None)
+        string_dct = {
+            key: val for key, val in self.string_params.items() if val is not
+            None
+        }
         incar_params.update(string_dct)
 
         # int params
-        int_dct = dict((key, val) for key, val in self.int_params.items()
-                       if val is not None)
+        int_dct = {
+            key: val for key, val in self.int_params.items() if val is not None
+        }
         if 'ichain' in int_dct.keys():
             ichain_dict = check_ichain(
                 ichain=int_dct['ichain'],
@@ -1627,24 +1634,32 @@ class GenerateVaspInput:
         incar_params.update(int_dct)
 
         # list_bool_params
-        bool_dct = dict((key, val) for key, val in self.list_bool_params.items()
-                        if val is not None)
+        bool_dct = {
+            key: val
+            for key, val in self.list_bool_params.items()
+            if val is not None
+        }
         for key, val in bool_dct.items():
             bool_dct[key] = [_to_vasp_bool(x) for x in val]
         incar_params.update(bool_dct)
 
         # list_int_params
-        int_dct = dict((key, val) for key, val in self.list_int_params.items()
-                       if val is not None)
+        int_dct = {
+            key: val
+            for key, val in self.list_int_params.items()
+            if val is not None
+        }
         if 'ldaul' in int_dct.keys() and self.dict_params[
                 'ldau_luj'] is not None:
             del int_dct['ldaul']
         incar_params.update(int_dct)
 
         # list_float_params
-        float_dct = dict(
-            (key, val) for key, val in self.list_float_params.items()
-            if val is not None)
+        float_dct = {
+            key: val
+            for key, val in self.list_float_params.items()
+            if val is not None
+        }
         if 'ldauu' in float_dct.keys() and self.dict_params[
                 'ldau_luj'] is not None:
             del float_dct['ldauu']
@@ -1654,23 +1669,27 @@ class GenerateVaspInput:
         incar_params.update(float_dct)
 
         # bool params
-        bool_dct = dict(
-            (key, _to_vasp_bool(val)) for key, val in self.bool_params.items()
-            if val is not None)
+        bool_dct = {
+            key: _to_vasp_bool(val)
+            for key, val in self.bool_params.items()
+            if val is not None
+        }
         incar_params.update(bool_dct)
 
         # special params
-        special_dct = dict(
-            (key, val) for key, val in self.special_params.items()
-            if val is not None)
+        special_dct = {
+            key: val for key, val in self.special_params.items() if val is not
+            None
+        }
         if 'lreal' in special_dct.keys():
             if isinstance(special_dct['lreal'], bool):
                 special_dct['lreal'] = _to_vasp_bool(special_dct['lreal'])
         incar_params.update(special_dct)
 
         # dict params
-        dict_dct = dict((key, val) for key, val in self.dict_params.items()
-                        if val is not None)
+        dict_dct = {
+            key: val for key, val in self.dict_params.items() if val is not None
+        }
         if 'ldau_luj' in dict_dct.keys():
             ldau_dict = set_ldau(
                 ldau_param=self.bool_params['ldau'],
@@ -1696,10 +1715,11 @@ class GenerateVaspInput:
         # a custom key-value pair, as we cannot otherwise
         # reliably and easily identify such non-standard entries
 
-        cust_dict = dict(
-            (key, str(val) + '  # <Custom ASE key>') for key, val in
-            self.input_params['custom'].items()
-            if val is not None)
+        cust_dict = {
+            key: str(val) + '  # <Custom ASE key>'
+            for key, val in self.input_params['custom'].items()
+            if val is not None
+        }
         incar_params.update(cust_dict)
 
         write_incar(directory=directory,

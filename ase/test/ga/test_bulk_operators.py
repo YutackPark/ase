@@ -22,7 +22,7 @@ def test_bulk_operators(seed, tmp_path):
 
     h2 = Atoms('H2', positions=[[0, 0, 0], [0, 0, 0.75]])
     blocks = [('H', 4), ('H2O', 3), (h2, 2)]  # the building blocks
-    volume = 40. * sum([x[1] for x in blocks])  # cell volume in angstrom^3
+    volume = 40. * sum(x[1] for x in blocks)
     splits = {(2,): 1, (1,): 1}  # cell splitting scheme
 
     stoichiometry = []

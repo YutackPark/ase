@@ -119,7 +119,7 @@ def read_turbomole_gradient(fd, index=-1):
                     # if dummy atom specified, substitute 'Q' with 'X'
                     if symbol == 'Q':
                         symbol = 'X'
-                    position = tuple([Bohr * float(x) for x in fields[0:3]])
+                    position = tuple(Bohr * float(x) for x in fields[0:3])
                 except ValueError as e:
                     raise TurbomoleFormatError from e
                 atoms.append(Atom(symbol, position))

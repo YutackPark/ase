@@ -305,7 +305,7 @@ def init_orbitals(atoms, ntot, rng=np.random):
         Ns = ntot - No
         orbs += arbitrary_s_orbitals(atoms, Ns, rng)
 
-    assert sum([orb[1] * 2 + 1 for orb in orbs]) == ntot
+    assert sum(orb[1] * 2 + 1 for orb in orbs) == ntot
     return orbs
 
 
@@ -342,8 +342,10 @@ def get_kklst(kpt_kc, Gdir_dc):
             # make a sorted list of the kpoint values in this direction
             slist = np.argsort(kpt_kc[:, c], kind='mergesort')
             skpoints_kc = np.take(kpt_kc, slist, axis=0)
-            kdist_c[c] = max([skpoints_kc[n + 1, c] - skpoints_kc[n, c]
-                              for n in range(Nk - 1)])
+            kdist_c[c] = max(
+                skpoints_kc[n + 1, c] - skpoints_kc[n, c]
+                for n in range(Nk - 1)
+            )
 
         for d, Gdir_c in enumerate(Gdir_dc):
             for k, k_c in enumerate(kpt_kc):

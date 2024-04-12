@@ -417,7 +417,7 @@ def _read_xyz_frame(lines, natoms, properties_parser=key_val_str_to_dict,
             raise XYZError('ase.io.extxyz: Frame has {} atoms, expected {}'
                            .format(len(data), natoms))
         vals = line.split()
-        row = tuple([conv(val) for conv, val in zip(convs, vals)])
+        row = tuple(conv(val) for conv, val in zip(convs, vals))
         data.append(row)
 
     try:
@@ -979,9 +979,9 @@ def save_calc_results(atoms, calc=None, calc_prefix=None,
             per_atom_results[calc_prefix + prop] = value
 
     if not force:
-        if any([key in atoms.info for key in per_config_results]):
+        if any(key in atoms.info for key in per_config_results):
             raise KeyError("key from calculator already exists in atoms.info")
-        if any([key in atoms.arrays for key in per_atom_results]):
+        if any(key in atoms.arrays for key in per_atom_results):
             raise KeyError("key from calculator already exists in atoms.arrays")
 
     atoms.info.update(per_config_results)

@@ -19,7 +19,7 @@ from ase.geometry.dimensionality.disjoint_set import DisjointSet
 
 
 def dot_product(A, B):
-    return sum([a * b for a, b in zip(A, B)])
+    return sum(a * b for a, b in zip(A, B))
 
 
 def cross_product(a, b):

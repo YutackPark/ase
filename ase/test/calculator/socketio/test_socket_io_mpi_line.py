@@ -20,6 +20,6 @@ def test_socketio_mpi_generator():
         )
         print(profile_command)
         assert all(
-            [test == ref
-             for test, ref in zip(profile_command, ["mpirun"] + socket_argv)]
+            test == ref
+            for test, ref in zip(profile_command, ["mpirun"] + socket_argv)
         )

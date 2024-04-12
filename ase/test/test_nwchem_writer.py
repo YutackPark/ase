@@ -60,7 +60,7 @@ def test_params(atomic_configuration, calculator_parameters, tmpdir):
             pass
         elif isinstance(value, str):
             assert len(value.split()) == len(flds[1:])
-            assert all([v == f for v, f in zip(value.split(), flds[1:])])
+            assert all(v == f for v, f in zip(value.split(), flds[1:]))
         elif isinstance(value, (int, float)):
             assert len(flds[1:]) == 1
             assert np.isclose(value, float(flds[1]))

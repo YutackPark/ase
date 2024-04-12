@@ -91,8 +91,8 @@ def test_parse_relax(testdir):
     traj = read(parent / "testdata/aims/relax.out", ":", format="aims-output")
     assert len(traj) == 8
     p0 = [[0.0, 0.0, 0.0], [0.25, 0.25, 0.25]]
-    assert all([np.allclose(at.get_scaled_positions(), p0) for at in traj])
-    assert all([np.allclose(at.get_forces(), np.zeros((2, 3))) for at in traj])
+    assert all(np.allclose(at.get_scaled_positions(), p0) for at in traj)
+    assert all(np.allclose(at.get_forces(), np.zeros((2, 3))) for at in traj)
 
     s0 = full_3x3_to_voigt_6_stress(
         [
