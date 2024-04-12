@@ -89,3 +89,22 @@ def test_total_area(randcell):
     for i in range(3):
         area = lengths[i - 2] * lengths[i - 1] * sin_angles[i]
         assert area == pytest.approx(areas[i])
+
+
+def test_cell_edit_via_view():
+    cell = Cell(np.arange(9).reshape(3, 3))
+
+    # np.reshape() is a no-op so it should not copy by default:
+    arr = np.reshape(cell, (3, 3))
+    arr[-1] = 42
+    assert cell[-1, -1] == 42
+
+    # np.array() should copy, so edit will not be inplace:
+    cell1 = np.array(cell)
+    cell1[-1, -1] = 64
+    assert cell[-1, -1] == 42
+
+    # This should be in-place:
+    cell1 = np.array(cell, copy=False)
+    cell[-1, -1] = 64
+    assert cell[-1, -1] == 64
