@@ -127,7 +127,7 @@ class IOFormat:
         return self.can_write and 'append' in writefunc.__code__.co_varnames
 
     def __repr__(self) -> str:
-        tokens = [f'{name}={repr(value)}'
+        tokens = [f'{name}={value!r}'
                   for name, value in vars(self).items()]
         return 'IOFormat({})'.format(', '.join(tokens))
 

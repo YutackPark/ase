@@ -200,7 +200,7 @@ def bind_unixsocket(socketfile):
     try:
         serversocket.bind(socketfile)
     except OSError as err:
-        raise OSError(f'{err}: {repr(socketfile)}')
+        raise OSError(f'{err}: {socketfile!r}')
 
     try:
         with serversocket:

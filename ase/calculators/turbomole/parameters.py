@@ -531,7 +531,7 @@ class TurbomoleParameters(dict):
     def update_no_define_parameters(self):
         """process key parameters that are not written with define"""
         for p, v in self.items():
-            if p in self.parameter_no_define and self.parameter_no_define[p]:
+            if self.parameter_no_define.get(p):
                 if v:
                     if p in self.parameter_mapping:
                         fun = self.parameter_mapping[p]['to_control']

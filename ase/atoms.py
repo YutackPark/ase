@@ -1043,7 +1043,7 @@ class Atoms:
                 constraint = self.constraints[0]
             else:
                 constraint = self.constraints
-            tokens.append(f'constraint={repr(constraint)}')
+            tokens.append(f'constraint={constraint!r}')
 
         if self._calc is not None:
             tokens.append('calculator={}(...)'
