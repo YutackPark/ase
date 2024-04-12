@@ -6,7 +6,7 @@ from ase.data import atomic_masses, atomic_numbers
 from ase.optimize import LBFGS
 
 
-@pytest.fixture
+@pytest.fixture()
 def ar_nc():
     ar_nc = Icosahedron('Ar', noshells=2)
     ar_nc.cell = [[300, 0, 0], [0, 300, 0], [0, 0, 300]]
@@ -14,7 +14,7 @@ def ar_nc():
     return ar_nc
 
 
-@pytest.fixture
+@pytest.fixture()
 def params():
     params = {}
     params['pair_style'] = 'lj/cut 8.0'
@@ -23,7 +23,7 @@ def params():
     return params
 
 
-@pytest.mark.calculator_lite
+@pytest.mark.calculator_lite()
 @pytest.mark.calculator('lammpsrun')
 def test_Ar_minimize(factory, ar_nc, params):
     with factory.calc(specorder=['Ar'], **params) as calc:
@@ -45,7 +45,7 @@ def test_Ar_minimize(factory, ar_nc, params):
                         atol=1e-4, rtol=1e-4)
 
 
-@pytest.mark.calculator_lite
+@pytest.mark.calculator_lite()
 @pytest.mark.calculator('lammpsrun')
 def test_Ar_minimize_multistep(factory, ar_nc, params):
     ar_nc = Icosahedron('Ar', noshells=2)

@@ -74,16 +74,16 @@ def propagate(atoms, asap3, algorithm, algoargs):
 
 # Not a real optimizer test but uses optimizers.
 # We should probably not mark this (in general)
-@pytest.mark.optimize
-@pytest.mark.slow
+@pytest.mark.optimize()
+@pytest.mark.slow()
 def test_nvtberendsen(asap3, equilibrated, berendsenparams, allraise):
     t, _ = propagate(Atoms(equilibrated), asap3,
                      NVTBerendsen, berendsenparams['nvt'])
     assert abs(t - berendsenparams['nvt']['temperature_K']) < 0.5
 
 
-@pytest.mark.optimize
-@pytest.mark.slow
+@pytest.mark.optimize()
+@pytest.mark.slow()
 def test_nptberendsen(asap3, equilibrated, berendsenparams, allraise):
     t, p = propagate(Atoms(equilibrated), asap3,
                      NPTBerendsen, berendsenparams['npt'])
@@ -91,8 +91,8 @@ def test_nptberendsen(asap3, equilibrated, berendsenparams, allraise):
     assert abs(p - berendsenparams['npt']['pressure_au']) < 25.0 * bar
 
 
-@pytest.mark.optimize
-@pytest.mark.slow
+@pytest.mark.optimize()
+@pytest.mark.slow()
 def test_npt(asap3, equilibrated, berendsenparams, allraise):
     params = berendsenparams['npt']
     # NPT uses different units.  The factor 1.3 is the bulk modulus of gold in

@@ -5,7 +5,7 @@ from ase import Atom, Atoms
 from ase.io.nwchem import write_nwchem_in
 
 
-@pytest.fixture
+@pytest.fixture()
 def atomic_configuration():
     molecule = Atoms(pbc=False)
     molecule.append(Atom('C', [0, 0, 0]))
@@ -13,7 +13,7 @@ def atomic_configuration():
     return molecule
 
 
-@pytest.fixture
+@pytest.fixture()
 def calculator_parameters():
     params = dict(memory='1024 mb',
                   dft=dict(xc='b3lyp',

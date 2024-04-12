@@ -25,7 +25,7 @@ def hack_gaussian_command(monkeypatch):
     monkeypatch.setenv('ASE_GAUSSIAN_COMMAND', '_does_not_exist_')
 
 
-@pytest.fixture
+@pytest.fixture()
 def fd_cartesian():
     # make an example input string with cartesian coords:
     fd_cartesian = StringIO('''
@@ -71,7 +71,7 @@ SP   1   1.00
 ****'''
 
 
-@pytest.fixture
+@pytest.fixture()
 def fd_cartesian_basis_set():
     # make an example input string with cartesian coords and a basis set
     # definition:
@@ -139,14 +139,14 @@ _zmatrix_file_text = '''
     '''
 
 
-@pytest.fixture
+@pytest.fixture()
 def fd_zmatrix():
     # make an example input string with a z-matrix:
     fd_zmatrix = StringIO(_zmatrix_file_text)
     return fd_zmatrix
 
 
-@pytest.fixture
+@pytest.fixture()
 def fd_incorrect_zmatrix_var():
     # Make an example input string with a z-matrix with
     # incorrect variable definitions
@@ -203,7 +203,7 @@ def fd_no_charge_mult():
     return StringIO(unsupported_text)
 
 
-@pytest.fixture
+@pytest.fixture()
 def fd_command_set():
     # Make an example input string where command is set in link0:
     unsupported_text = ""
@@ -273,7 +273,7 @@ def _get_iso_masses(atoms):
         return list(atoms.calc.parameters['isolist'])
 
 
-@pytest.fixture
+@pytest.fixture()
 def cartesian_setup():
     positions = [[-0.464, 0.177, 0.0],
                  [-0.464, 1.137, 0.0],

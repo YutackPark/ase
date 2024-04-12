@@ -7,7 +7,7 @@ from ase.atoms import Atoms
 from ase.calculators.vasp.create_input import GenerateVaspInput
 
 
-@pytest.fixture
+@pytest.fixture()
 def vaspinput_factory():
     """Factory for GenerateVaspInput class, which mocks the generation of
     pseudopotentials."""

@@ -44,6 +44,6 @@ class DummyTemplate(CalculatorTemplate):
         pass
 
 
-@pytest.fixture
+@pytest.fixture()
 def dummy_template():
     return DummyTemplate()

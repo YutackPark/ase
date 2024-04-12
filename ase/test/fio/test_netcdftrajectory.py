@@ -21,7 +21,7 @@ def catch_netcdf4_warning():
         yield
 
 
-@pytest.fixture
+@pytest.fixture()
 def co(netCDF4):
     return Atoms([Atom('C', (0, 0, 0)),
                   Atom('O', (0, 0, 1.2))],

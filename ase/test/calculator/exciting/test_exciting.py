@@ -172,7 +172,7 @@ LDA_VWN_AR_INFO_OUT = """
 """
 
 
-@pytest.fixture
+@pytest.fixture()
 def nitrogen_trioxide_atoms():
     """Pytest fixture that creates ASE Atoms cell for other tests."""
     return ase.Atoms('NO3',

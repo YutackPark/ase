@@ -20,7 +20,7 @@ kw_types = ['Real', 'String', 'Defined', 'Integer Vector',
 kw_levels = ['Dummy', 'Intermediate', 'Expert', 'Basic']
 
 
-@pytest.fixture
+@pytest.fixture()
 def testing_keywords():
 
     kw_data = {}
@@ -82,7 +82,7 @@ def testing_keywords():
                           'Castep v.Fake')
 
 
-@pytest.fixture
+@pytest.fixture()
 def pspot_tmp_path(tmp_path):
 
     path = os.path.join(tmp_path, 'ppots')
@@ -95,7 +95,7 @@ def pspot_tmp_path(tmp_path):
     return path
 
 
-@pytest.fixture
+@pytest.fixture()
 def testing_calculator(testing_keywords, tmp_path, pspot_tmp_path):
     castep_path = os.path.join(tmp_path, 'CASTEP')
     os.mkdir(castep_path)

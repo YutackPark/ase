@@ -5,7 +5,7 @@ from ase.build import molecule
 from ase.calculators.gamess_us import GAMESSUS
 
 
-@pytest.fixture
+@pytest.fixture()
 def water():
     return molecule('H2O')
 

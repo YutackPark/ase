@@ -16,7 +16,7 @@ def fixture_atoms():
     return atoms
 
 
-@pytest.mark.calculator_lite
+@pytest.mark.calculator_lite()
 @pytest.mark.calculator('lammpslib')
 def test_Pt_stress_cellopt(atoms, factory):
     """Test if the stresses and the optimized cell are as expected.
