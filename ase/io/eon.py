@@ -5,6 +5,8 @@
 
 See http://theory.cm.utexas.edu/eon/index.html for a description of EON.
 """
+from dataclasses import dataclass
+from typing import List, Tuple
 from warnings import warn
 
 import numpy as np
@@ -13,9 +15,6 @@ from ase.atoms import Atoms
 from ase.constraints import FixAtoms
 from ase.geometry import cell_to_cellpar, cellpar_to_cell
 from ase.utils import reader, writer
-
-from dataclasses import dataclass
-from typing import List, Tuple
 
 ISOTOPE_TOL = 1e-8
 

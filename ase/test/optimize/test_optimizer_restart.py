@@ -1,17 +1,17 @@
-import pytest
 import shutil
-import numpy as np
 from math import sqrt
 from os.path import getsize
 from pathlib import Path
 
-from ase.io import read
-from ase.io.trajectory import Trajectory
+import numpy as np
+import pytest
+
 from ase.build import bulk
 from ase.calculators.emt import EMT
-from ase.optimize import BFGS, BFGSLineSearch, CellAwareBFGS
 from ase.filters import FrechetCellFilter
-
+from ase.io import read
+from ase.io.trajectory import Trajectory
+from ase.optimize import BFGS, BFGSLineSearch, CellAwareBFGS
 
 break_now = 2
 

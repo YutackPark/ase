@@ -5,10 +5,10 @@ import pytest
 
 from ase.build import bulk, molecule
 from ase.calculators.emt import EMT
-from ase.calculators.subprocesscalculator import (NamedPackedCalculator,
-                                                  gpaw_process,
-                                                  MPICommand,
-                                                  ParallelDispatch)
+from ase.calculators.subprocesscalculator import (MPICommand,
+                                                  NamedPackedCalculator,
+                                                  ParallelDispatch,
+                                                  gpaw_process)
 from ase.optimize import BFGS
 
 

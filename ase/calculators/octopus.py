@@ -8,9 +8,8 @@ http://tddft.org/programs/octopus/
 
 import numpy as np
 
-from ase.calculators.genericfileio import (CalculatorTemplate,
-                                           GenericFileIOCalculator,
-                                           BaseProfile)
+from ase.calculators.genericfileio import (BaseProfile, CalculatorTemplate,
+                                           GenericFileIOCalculator)
 from ase.io.octopus.input import generate_input, process_special_kwargs
 from ase.io.octopus.output import read_eigenvalues_file, read_static_info
 

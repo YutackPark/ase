@@ -6,7 +6,6 @@ import pytest
 from ase import Atoms
 from ase.calculators.calculator import CalculatorSetupError
 
-
 """
 These tests monkeypatch Popen so as to abort execution and verify that
 a particular command as executed.
@@ -73,8 +72,8 @@ calculators = {
 @pytest.fixture(autouse=True)
 def miscellaneous_hacks(monkeypatch, tmp_path):
     from ase.calculators.calculator import FileIOCalculator
-    from ase.calculators.demon import Demon
     from ase.calculators.crystal import CRYSTAL
+    from ase.calculators.demon import Demon
     from ase.calculators.dftb import Dftb
     from ase.calculators.gamess_us import GAMESSUS
     from ase.calculators.gulp import GULP

@@ -3,8 +3,8 @@ from unittest import mock
 
 import pytest
 
-from ase.calculators.vasp.create_input import GenerateVaspInput
 from ase.atoms import Atoms
+from ase.calculators.vasp.create_input import GenerateVaspInput
 
 
 @pytest.fixture

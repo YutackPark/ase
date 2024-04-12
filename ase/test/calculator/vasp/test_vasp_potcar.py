@@ -1,9 +1,9 @@
-import pytest
 import os
 
-from ase.calculators.vasp import Vasp
+import pytest
 
 from ase.build import bulk, molecule
+from ase.calculators.vasp import Vasp
 
 
 @pytest.fixture

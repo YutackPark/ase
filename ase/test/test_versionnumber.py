@@ -1,6 +1,6 @@
-from importlib.metadata import version, PackageNotFoundError
-
 import os
+from importlib.metadata import PackageNotFoundError, version
+
 import ase
 
 

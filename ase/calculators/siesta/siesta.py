@@ -10,19 +10,18 @@ http://www.uam.es/departamentos/ciencias/fismateriac/siesta
 
 """
 
-from dataclasses import dataclass
 import os
-from pathlib import Path
 import re
 import shutil
 import tempfile
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Dict, List
 
 import numpy as np
 
 from ase import Atoms
-from ase.calculators.calculator import (
-    FileIOCalculator, Parameters, ReadError)
+from ase.calculators.calculator import FileIOCalculator, Parameters, ReadError
 from ase.calculators.siesta.import_ion_xml import get_ion
 from ase.calculators.siesta.parameters import PAOBasisBlock, format_fdf
 from ase.data import atomic_numbers

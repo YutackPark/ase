@@ -1,10 +1,9 @@
 import copy
-from dataclasses import dataclass
 import os
 import subprocess
 import warnings
-
 from abc import abstractmethod
+from dataclasses import dataclass
 from math import pi, sqrt
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Set, Union
@@ -1085,6 +1084,7 @@ class FileIOCalculator(Calculator):
     @classmethod
     def load_argv_profile(cls, cfg, section_name):
         import shlex
+
         # Helper method to load configuration.
         # This is used by the tests, do not rely on this as it will change.
         section = cfg.parser[section_name]

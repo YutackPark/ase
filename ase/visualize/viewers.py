@@ -31,12 +31,10 @@ import sys
 import tempfile
 import warnings
 from contextlib import contextmanager
+from importlib import import_module
+from importlib.metadata import entry_points
 from io import BytesIO
 from pathlib import Path
-
-from importlib.metadata import entry_points
-
-from importlib import import_module
 
 from ase.io import write
 from ase.io.formats import ioformats

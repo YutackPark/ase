@@ -1,6 +1,8 @@
 import numpy as np
+
 from ase.build import fcc111
-from ase.ga.particle_mutations import Rich2poorPermutation, Poor2richPermutation
+from ase.ga.particle_mutations import (Poor2richPermutation,
+                                       Rich2poorPermutation)
 
 
 def test_rich2poor_permutations():

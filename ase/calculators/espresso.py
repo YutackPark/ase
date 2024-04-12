@@ -5,8 +5,8 @@ Run pw.x jobs.
 
 
 import os
-from pathlib import Path
 import warnings
+from pathlib import Path
 
 from ase.calculators.genericfileio import (BaseProfile, CalculatorTemplate,
                                            GenericFileIOCalculator,

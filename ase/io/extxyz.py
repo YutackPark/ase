@@ -8,10 +8,10 @@ comment line, and additional per-atom properties as extra columns.
 Contributed by James Kermode <james.kermode@gmail.com>
 """
 import json
-from io import StringIO, UnsupportedOperation
 import numbers
 import re
 import warnings
+from io import StringIO, UnsupportedOperation
 
 import numpy as np
 
@@ -20,10 +20,10 @@ from ase.calculators.singlepoint import SinglePointCalculator
 from ase.constraints import FixAtoms, FixCartesian
 from ase.io.formats import index2range
 from ase.io.utils import ImageIterator
+from ase.outputs import ArrayProperty, all_outputs
 from ase.spacegroup.spacegroup import Spacegroup
-from ase.utils import reader, writer
-from ase.outputs import all_outputs, ArrayProperty
 from ase.stress import voigt_6_to_full_3x3_stress
+from ase.utils import reader, writer
 
 __all__ = ['read_xyz', 'write_xyz', 'iread_xyz']
 
