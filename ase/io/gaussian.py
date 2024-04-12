@@ -896,7 +896,7 @@ def _update_readiso_params(parameters, symbols):
     parameters = _delete_readiso_param(parameters)
     if parameters.get('isolist') is not None:
         if len(parameters['isolist']) < len(symbols):
-            for i in range(0, len(symbols) - len(parameters['isolist'])):
+            for i in range(len(symbols) - len(parameters['isolist'])):
                 parameters['isolist'].append(None)
         if all(m is None for m in parameters['isolist']):
             parameters['isolist'] = None

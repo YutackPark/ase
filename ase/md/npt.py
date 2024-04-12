@@ -674,7 +674,7 @@ class NPT(MolecularDynamics):
 
         In a serial simulation, do nothing.
         """
-        pass  # This is a serial simulation object.  Do nothing.
+        # This is a serial simulation object.  Do nothing.
 
     def _getnatoms(self):
         """Get the number of atoms.

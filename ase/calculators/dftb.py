@@ -379,7 +379,7 @@ class Dftb(FileIOCalculator):
         gradients = []
         for j in range(index_force_begin, index_force_end):
             word = self.lines[j].split()
-            gradients.append([float(word[k]) for k in range(0, 3)])
+            gradients.append([float(word[k]) for k in range(3)])
 
         return np.array(gradients) * Hartree / Bohr
 
