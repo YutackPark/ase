@@ -16,7 +16,7 @@ from ase.thermochemistry import IdealGasThermo
 from ase.vibrations import Vibrations, VibrationsData
 
 
-@pytest.fixture
+@pytest.fixture()
 def random_dimer():
     rng = np.random.RandomState(42)
 
@@ -299,7 +299,7 @@ class TestVibrationsDataStaticMethods:
                     assert image.info[key] == value
 
 
-@pytest.fixture
+@pytest.fixture()
 def n2_data():
     return {'atoms': Atoms('N2', positions=[[0., 0., 0.05095057],
                                             [0., 0., 1.04904943]]),
@@ -332,7 +332,7 @@ def n2_data():
             }
 
 
-@pytest.fixture
+@pytest.fixture()
 def n2_unstable_data():
     return {'atoms': Atoms('N2', positions=[[0., 0., 0.45],
                                             [0., 0., -0.45]]),
@@ -351,7 +351,7 @@ def n2_unstable_data():
             }
 
 
-@pytest.fixture
+@pytest.fixture()
 def n2_vibdata(n2_data):
     return VibrationsData(n2_data['atoms'], n2_data['hessian'])
 

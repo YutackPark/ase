@@ -9,7 +9,7 @@ from ase.ga.slab_operators import (CutSpliceSlabCrossover,
                                    RandomSlabPermutation)
 
 
-@pytest.fixture
+@pytest.fixture()
 def cu_slab():
     a = 1
     size = (2, 4, 3)

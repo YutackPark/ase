@@ -42,7 +42,7 @@ def eulang_rotm(a, b, c, mode='zyz'):
     return np.dot(rotc, np.dot(rotb, rota))
 
 
-@pytest.fixture
+@pytest.fixture()
 def rng():
     return np.random.RandomState(0)
 

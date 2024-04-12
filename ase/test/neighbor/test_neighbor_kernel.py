@@ -8,7 +8,7 @@ from ase.neighborlist import (first_neighbors, mic, neighbor_list,
                               primitive_neighbor_list)
 
 
-@pytest.mark.slow
+@pytest.mark.slow()
 def test_neighbor_kernel():
     tol = 1e-7
 

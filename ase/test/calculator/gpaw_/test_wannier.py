@@ -103,7 +103,7 @@ def ti_calculator(_ti_calculator_gpwfile):
     return gpaw.GPAW(_ti_calculator_gpwfile, txt=None)
 
 
-@pytest.fixture
+@pytest.fixture()
 def wan(rng, h2_calculator):
     def _wan(
         atoms=None,
@@ -293,7 +293,7 @@ def test_rotation_from_projection(rng):
     assert normalization_error(U_ww) < 1e-10, 'U_ww not normalized'
 
 
-@pytest.mark.calculator_lite
+@pytest.mark.calculator_lite()
 def test_save(tmpdir, wan):
     wanf = wan(nwannier=4, fixedstates=2, initialwannier='bloch')
     jsonfile = tmpdir.join('wanf.json')
@@ -339,7 +339,7 @@ def test_get_functional_value(fun, wan):
     assert f1 < f2
 
 
-@pytest.mark.calculator_lite
+@pytest.mark.calculator_lite()
 @calc('gpaw')
 def test_get_centers(factory):
     # Rough test on the position of the Wannier functions' centers
@@ -431,7 +431,7 @@ def test_get_spectral_weight_random(wan, rng):
         assert wanf.get_spectral_weight(i).sum() == pytest.approx(1)
 
 
-@pytest.mark.calculator_lite
+@pytest.mark.calculator_lite()
 def test_get_pdos(wan):
     nwannier = 4
     gpaw = pytest.importorskip('gpaw')
@@ -746,7 +746,7 @@ def test_scdm(ti_calculator):
         assert normalization_error(C_kul[k]) < 1e-10, 'C_ul not normalized'
 
 
-@pytest.mark.xfail
+@pytest.mark.xfail()
 def test_get_optimal_nwannier(wan, si_calculator):
     """ Test method to compute the optimal 'nwannier' value. """
 
@@ -777,7 +777,7 @@ def test_get_optimal_nwannier(wan, si_calculator):
     assert opt_nw >= 0
 
 
-@pytest.mark.xfail
+@pytest.mark.xfail()
 def test_spread_contributions(wan):
     # Only a test on a constant value to make sure it does not deviate too much
     wan1 = wan()

@@ -17,12 +17,12 @@ format = "aims"
 file = "geometry.in"
 
 
-@pytest.fixture
+@pytest.fixture()
 def Si():
     return bulk("Si")
 
 
-@pytest.fixture
+@pytest.fixture()
 def H2O():
     return Atoms("H2O", [(0.9584, 0.0, 0.0),
                  (-0.2400, 0.9279, 0.0), (0.0, 0.0, 0.0)])

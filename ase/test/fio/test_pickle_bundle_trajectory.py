@@ -22,7 +22,7 @@ def test_raises():
         PickleTrajectory(trajname, 'w')
 
 
-@pytest.fixture
+@pytest.fixture()
 def images():
     atoms = bulk('Ti') * (1, 2, 1)
     atoms.symbols = 'Au'
@@ -54,7 +54,7 @@ def read_images(filename):
         return list(traj)
 
 
-@pytest.fixture
+@pytest.fixture()
 def trajfile(images):
     ptraj = PickleTrajectory(trajname, 'w', _warn=False)
     for image in images:
@@ -116,7 +116,7 @@ def test_old_trajectory_conversion_utility(images, trajfile):
     assert_images_equal(images, new_images)
 
 
-@pytest.fixture
+@pytest.fixture()
 def bundletraj(images):
     fname = 'traj.bundle'
     write(fname, images, format='bundletrajectory')

@@ -5,7 +5,7 @@ from ase.build import molecule
 from ase.geometry.analysis import Analysis, get_max_volume_estimate
 
 
-@pytest.fixture
+@pytest.fixture()
 def images_without_cell():
     atoms1 = molecule('CH3CH2OH')
     atoms2 = molecule('CH3CH2OH')

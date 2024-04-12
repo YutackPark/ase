@@ -15,7 +15,7 @@ from ase.ga.utilities import (CellBounds, atoms_too_close,
                               closest_distances_generator)
 
 
-@pytest.mark.slow
+@pytest.mark.slow()
 def test_bulk_operators(seed, tmp_path):
     # set up the random number generator
     rng = np.random.RandomState(seed)

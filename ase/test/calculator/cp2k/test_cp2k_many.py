@@ -15,7 +15,7 @@ from ase.md.verlet import VelocityVerlet
 from ase.optimize import BFGS
 
 
-@pytest.fixture
+@pytest.fixture()
 def atoms():
     return molecule('H2', vacuum=2.0)
 

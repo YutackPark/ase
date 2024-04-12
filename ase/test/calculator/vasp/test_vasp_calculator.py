@@ -23,7 +23,7 @@ def fixture_atoms():
 @pytest.fixture(autouse=True)
 def always_mock_calculate(mock_vasp_calculate):
     """No tests in this module may execute VASP"""
-    yield
+    return
 
 
 def test_verify_no_run():

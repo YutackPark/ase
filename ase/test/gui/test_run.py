@@ -24,14 +24,14 @@ def mock_gui_error(title, text=None):
     raise GUIError(title, text)
 
 
-@pytest.fixture
+@pytest.fixture()
 def display():
     pytest.importorskip('tkinter')
     if not os.environ.get('DISPLAY'):
         raise pytest.skip('no display')
 
 
-@pytest.fixture
+@pytest.fixture()
 def gui(guifactory):
     return guifactory(None)
 
@@ -51,7 +51,7 @@ def no_blocking_errors_monkeypatch(monkeypatch):
     # ui.error = orig_ui_error
 
 
-@pytest.fixture
+@pytest.fixture()
 def guifactory(display):
     guis = []
 
@@ -65,14 +65,14 @@ def guifactory(display):
         gui.exit()
 
 
-@pytest.fixture
+@pytest.fixture()
 def atoms(gui):
     atoms = bulk('Ti') * (2, 2, 2)
     gui.new_atoms(atoms)
     return atoms
 
 
-@pytest.fixture
+@pytest.fixture()
 def animation(guifactory):
     images = [bulk(sym) for sym in ['Cu', 'Ag', 'Au']]
     gui = guifactory(images)
@@ -209,13 +209,13 @@ def test_povray(gui, testdir):
         assert 'atom' in _
 
 
-@pytest.fixture
+@pytest.fixture()
 def with_bulk_ti(gui):
     atoms = bulk('Ti') * (2, 2, 2)
     gui.new_atoms(atoms)
 
 
-@pytest.fixture
+@pytest.fixture()
 def modify(gui, with_bulk_ti):
     gui.images.selected[:4] = True
     return gui.modify_atoms()

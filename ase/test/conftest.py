@@ -168,13 +168,13 @@ def testdir(tmp_path):
         yield tmp_path
 
 
-@pytest.fixture
+@pytest.fixture()
 def allraise():
     with seterr(all='raise'):
         yield
 
 
-@pytest.fixture
+@pytest.fixture()
 def KIM():
     pytest.importorskip('kimpy')
     from ase.calculators.kim import KIM as _KIM
@@ -222,7 +222,7 @@ def plt(_plt_use_agg):
     return plt
 
 
-@pytest.fixture
+@pytest.fixture()
 def figure(plt):
     fig = plt.figure()
     yield fig
@@ -276,7 +276,7 @@ for name in legacy_factory_calculator_names:
     make_dummy_factory(name)
 
 
-@pytest.fixture
+@pytest.fixture()
 def factory(request, factories):
     name, kwargs = request.param
     if not factories.installed(name):
@@ -306,14 +306,14 @@ def pytest_generate_tests(metafunc):
         metafunc.parametrize('seed', seeds)
 
 
-@pytest.fixture
+@pytest.fixture()
 def override_config(monkeypatch):
     parser = Config().parser
     monkeypatch.setattr(cfg, 'parser', parser)
     return cfg
 
 
-@pytest.fixture
+@pytest.fixture()
 def config_file(tmp_path, monkeypatch, override_config):
     dummy_config = """\
 [parallel]

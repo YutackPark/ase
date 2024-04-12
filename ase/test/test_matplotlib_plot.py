@@ -27,7 +27,7 @@ def test_matplotlib_plot(plt):
 
 
 class TestPlotManager:
-    @pytest.fixture
+    @pytest.fixture()
     def xy_data(self):
         return ([1, 2], [3, 4])
 

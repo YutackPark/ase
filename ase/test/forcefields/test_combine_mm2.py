@@ -30,7 +30,7 @@ def make_4mer():
     return atoms
 
 
-@pytest.mark.slow
+@pytest.mark.slow()
 def test_combine_mm2(testdir):
     # More biased initial positions for faster test. Set
     # to false for a slower, harder test.

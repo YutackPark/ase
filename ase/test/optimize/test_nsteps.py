@@ -5,7 +5,7 @@ from ase.calculators.emt import EMT
 from ase.optimize import BFGS
 
 
-@pytest.fixture
+@pytest.fixture()
 def opt():
     atoms = bulk('Au', cubic=True)
     atoms.rattle(stdev=0.12345, seed=42)

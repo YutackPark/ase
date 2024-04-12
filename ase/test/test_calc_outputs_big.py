@@ -8,12 +8,12 @@ from ase.calculators.singlepoint import (SinglePointDFTCalculator,
 from ase.outputs import Properties, all_outputs
 
 
-@pytest.fixture
+@pytest.fixture()
 def rng():
     return np.random.RandomState(17)
 
 
-@pytest.fixture
+@pytest.fixture()
 def props(rng):
     nspins, nkpts, nbands = 2, 3, 5
     natoms = 4

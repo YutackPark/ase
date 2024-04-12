@@ -22,12 +22,12 @@ from ase.io.extxyz import escape, save_calc_results
 # in commit r4541
 
 
-@pytest.fixture
+@pytest.fixture()
 def atoms():
     return bulk('Si')
 
 
-@pytest.fixture
+@pytest.fixture()
 def images(atoms):
     images = [atoms, atoms * (2, 1, 1), atoms * (3, 1, 1)]
     images[1].set_pbc([True, True, False])

@@ -368,7 +368,7 @@ def test_cif_icsd():
     assert 'occupancy' in atoms.info
 
 
-@pytest.fixture
+@pytest.fixture()
 def cif_atoms():
     cif_file = io.StringIO(content)
     return read_cif(cif_file)
@@ -491,7 +491,7 @@ _symmetry_space_group_name_H-M         'R-3m'
     assert spg.setting == ref_setting
 
 
-@pytest.fixture
+@pytest.fixture()
 def atoms():
     return Atoms('CO', cell=[2., 3., 4., 50., 60., 70.], pbc=True,
                  scaled_positions=[[0.1, 0.2, 0.3], [0.4, 0.5, 0.6]])
