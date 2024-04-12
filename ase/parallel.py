@@ -191,7 +191,7 @@ class MPI4PY:
         if self.rank == root:
             if np.isscalar(a):
                 return a
-            return
+            return None
         return self._returnval(a, b)
 
 

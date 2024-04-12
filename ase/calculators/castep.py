@@ -857,7 +857,7 @@ End CASTEP Interface Documentation
         if record_starts == []:
             warnings.warn('Could not find CASTEP label in result file: %s.'
                           ' Are you sure this is a .castep file?' % castep_file)
-            return
+            return None
 
         # search for regular end of file
         end_found = False
@@ -1783,7 +1783,7 @@ End CASTEP Interface Documentation
         # interface
         if not os.path.isfile(os.path.join(temp_dir, f'{seed}.cell')):
             warnings.warn(f'{seed}.cell not written - aborting dryrun')
-            return
+            return None
         write_param(os.path.join(temp_dir, f'{seed}.param'), self.param, )
 
         stdout, stderr = shell_stdouterr(('{} {} {}'.format(
@@ -2826,7 +2826,7 @@ class CastepCell(CastepInputFile):
            or not value[1].shape[1:] == (3,) \
            or not value[0].shape[0] == value[1].shape[0]:
             warnings.warn('Invalid symmetry_ops block, skipping')
-            return
+            return None
         # Now on to print...
         text_block = ''
         for op_i, (op_rot, op_tranls) in enumerate(zip(*value)):
