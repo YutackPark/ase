@@ -530,7 +530,7 @@ def write_lammps_data(
                 raise TypeError(
                     f'If "atoms" object has "mol-id" array, then '
                     f'mol-id dtype must be subtype of np.integer, and '
-                    f'not {str(molecules.dtype):s}.')
+                    f'not {molecules.dtype!s:s}.')
             if (len(molecules) != len(atoms)) or (molecules.ndim != 1):
                 raise TypeError(
                     'If "atoms" object has "mol-id" array, then '

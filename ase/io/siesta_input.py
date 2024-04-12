@@ -126,5 +126,5 @@ class SiestaInput:
             elif isinstance(const, FixCartesian):
                 moved[const.get_indices()] = 1 - const.mask.astype(int)
             else:
-                warnings.warn(f'Constraint {str(const)} is ignored')
+                warnings.warn(f'Constraint {const!s} is ignored')
         return moved

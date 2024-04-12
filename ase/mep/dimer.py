@@ -326,7 +326,7 @@ class MinModeControl(IOContext):
         for key in kwargs:
             if key not in self.parameters:
                 e = (f'Invalid parameter >>{key}<< with value >>'
-                     f'{str(kwargs[key])}<< in {self.__class__.__name__}')
+                     f'{kwargs[key]!s}<< in {self.__class__.__name__}')
                 raise ValueError(e)
             else:
                 self.set_parameter(key, kwargs[key], log=False)
@@ -345,7 +345,7 @@ class MinModeControl(IOContext):
     def set_parameter(self, parameter, value, log=True):
         """Change a parameter's value."""
         if parameter not in self.parameters:
-            e = f'Invalid parameter >>{parameter}<< with value >>{str(value)}<<'
+            e = f'Invalid parameter >>{parameter}<< with value >>{value!s}<<'
             raise ValueError(e)
         self.parameters[parameter] = value
         if log:
@@ -834,11 +834,11 @@ class MinModeAtoms:
         # Check for conflicts
         if displacement_vector is not None and method.lower() != 'vector':
             e = 'displacement_vector was supplied but a different method ' + \
-                f'(\'{str(method)}\') was chosen.\n'
+                f'(\'{method!s}\') was chosen.\n'
             raise ValueError(e)
         elif displacement_vector is None and method.lower() == 'vector':
             e = 'A displacement_vector must be supplied when using ' + \
-                f'method = \'{str(method)}\'.\n'
+                f'method = \'{method!s}\'.\n'
             raise ValueError(e)
         elif displacement_center is not None and radius is None and \
                 number_of_atoms is None:
@@ -912,7 +912,7 @@ class MinModeAtoms:
                                     self.control.get_parameter('gauss_std')
                             diff = self.random_state.normal(0.0, gauss_std)
                         else:
-                            e = f'Invalid displacement method >>{str(method)}<<'
+                            e = f'Invalid displacement method >>{method!s}<<'
                             raise ValueError(e)
                         diff_line.append(diff)
                     displacement_vector.append(diff_line)
