@@ -647,11 +647,9 @@ class RankFitnessPopulation(Population):
                 ntr.sort(key=lambda x: x[1].info['key_value_pairs'][key],
                          reverse=True)
                 start_rank = -1
-                cor = 0
-                for on, cn in ntr:
+                for cor, (on, cn) in enumerate(ntr):
                     rank = start_rank - cor
                     rank_fit.append([on, cn, rank])
-                    cor += 1
         # The original order is reformed
         rank_fit.sort(key=itemgetter(0), reverse=False)
         return np.array(list(zip(*rank_fit))[2])

@@ -211,9 +211,9 @@ class RDA:
         """
         component_dim = {e: self.ranks[e] for e in self.roots}
         relabelled_components = self.graph.find_all(relabel=True)
-        relabelled_dim = {}
-        for k, v in component_dim.items():
-            relabelled_dim[relabelled_components[k]] = v
+        relabelled_dim = {
+            relabelled_components[k]: v for k, v in component_dim.items()
+        }
         self.cdim_cached = relabelled_dim
         self.components_cached = relabelled_components
 

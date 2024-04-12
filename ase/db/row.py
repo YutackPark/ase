@@ -238,10 +238,7 @@ class AtomsRow:
                       momenta=self.get('momenta'),
                       constraint=self.constraints)
 
-        results = {}
-        for prop in all_properties:
-            if prop in self:
-                results[prop] = self[prop]
+        results = {prop: self[prop] for prop in all_properties if prop in self}
         if results:
             atoms.calc = SinglePointCalculator(atoms, **results)
             atoms.calc.name = self.get('calculator', 'unknown')

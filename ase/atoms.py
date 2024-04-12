@@ -955,10 +955,8 @@ class Atoms:
     def fromdict(cls, dct):
         """Rebuild atoms object from dictionary representation (todict)."""
         dct = dct.copy()
-        kw = {}
-        for name in ['numbers', 'positions', 'cell', 'pbc']:
-            kw[name] = dct.pop(name)
-
+        kw = {name: dct.pop(name)
+              for name in ['numbers', 'positions', 'cell', 'pbc']}
         constraints = dct.pop('constraints', None)
         if constraints:
             from ase.constraints import dict2constraint

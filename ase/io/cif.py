@@ -492,10 +492,10 @@ class CIFBlock(collections.abc.Mapping):
             if kwargs.get('info') is not None:
                 atoms.info.update(kwargs['info'])
             if occupancies is not None:
-                # Compile an occupancies dictionary
-                occ_dict = {}
-                for i, sym in enumerate(atoms.symbols):
-                    occ_dict[str(i)] = {sym: occupancies[i]}
+                occ_dict = {
+                    str(i): {sym: occupancies[i]}
+                    for i, sym in enumerate(atoms.symbols)
+                }
                 atoms.info['occupancy'] = occ_dict
 
         return atoms

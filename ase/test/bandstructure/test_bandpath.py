@@ -45,9 +45,7 @@ def test_zero_npoints(lat):
 @pytest.fixture()
 def custom_points():
     rng = np.random.RandomState(0)
-    dct = {}
-    for name in ['K', 'K1', 'Kpoint', 'Kpoint1']:
-        dct[name] = rng.random(3)
+    dct = {name: rng.random(3) for name in ['K', 'K1', 'Kpoint', 'Kpoint1']}
     return dct
 
 

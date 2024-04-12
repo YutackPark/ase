@@ -967,10 +967,7 @@ class TRI(BravaisLattice):
 
 
 def get_subset_points(names, points):
-    newpoints = {}
-    for name in names:
-        newpoints[name] = points[name]
-
+    newpoints = {name: points[name] for name in names}
     return newpoints
 
 
