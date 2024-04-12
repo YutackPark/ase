@@ -448,7 +448,7 @@ Please remove them and recalculate or run \
 
     def get_zero_point_energy(self, freq=None):
         if freq:
-            raise NotImplementedError()
+            raise NotImplementedError
         return self.get_vibrations().get_zero_point_energy()
 
     def get_mode(self, n):

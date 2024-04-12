@@ -54,7 +54,7 @@ class IPIProtocol:
             chunk = self.socket.recv(remaining)
             if len(chunk) == 0:
                 # (If socket is still open, recv returns at least one byte)
-                raise SocketClosed()
+                raise SocketClosed
             chunks.append(chunk)
             remaining -= len(chunk)
         msg = b''.join(chunks)
@@ -64,7 +64,7 @@ class IPIProtocol:
     def recvmsg(self):
         msg = self._recvall(12)
         if not msg:
-            raise SocketClosed()
+            raise SocketClosed
 
         assert len(msg) == 12, msg
         msg = msg.rstrip().decode('ascii')

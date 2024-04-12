@@ -2447,7 +2447,7 @@ class CastepOption:
         try:
             value = _tf_table[str(value).strip().title()]
         except (KeyError, ValueError):
-            raise ValueError()
+            raise ValueError
         return value
 
     @staticmethod
@@ -2476,7 +2476,7 @@ class CastepOption:
         value = np.array(value)
 
         if value.shape != (3,) or value.dtype != int:
-            raise ValueError()
+            raise ValueError
 
         return list(value)
 
@@ -2491,7 +2491,7 @@ class CastepOption:
         value = np.array(value) * 1.0
 
         if value.shape != (3,) or value.dtype != float:
-            raise ValueError()
+            raise ValueError
 
         return list(value)
 
@@ -2511,14 +2511,14 @@ class CastepOption:
             try:
                 value = (float(value[0]), '')
             except (TypeError, ValueError):
-                raise ValueError()
+                raise ValueError
         elif l == 2:
             try:
                 value = (float(value[0]), value[1])
             except (TypeError, ValueError, IndexError):
-                raise ValueError()
+                raise ValueError
         else:
-            raise ValueError()
+            raise ValueError
 
         return value
 
@@ -2530,7 +2530,7 @@ class CastepOption:
         elif hasattr(value, '__getitem__'):
             return '\n'.join(value)  # Arrays of lines
         else:
-            raise ValueError()
+            raise ValueError
 
     def __repr__(self):
         if self._value:
@@ -2667,7 +2667,7 @@ class CastepInputFile:
 
     def __getattr__(self, name):
         if name[0] == '_' or self._perm == 0:
-            raise AttributeError()
+            raise AttributeError
 
         if self._perm == 1:
             warnings.warn(f'Option {(name)} is not known, returning None')
