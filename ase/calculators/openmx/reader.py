@@ -430,11 +430,11 @@ def rn(line='\n', n=1):
 
 
 def read_tuple_integer(line):
-    return tuple([int(x) for x in line.split()[-3:]])
+    return tuple(int(x) for x in line.split()[-3:])
 
 
 def read_tuple_float(line):
-    return tuple([float(x) for x in line.split()[-3:]])
+    return tuple(float(x) for x in line.split()[-3:])
 
 
 def read_integer(line):

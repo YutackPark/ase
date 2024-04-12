@@ -211,7 +211,7 @@ class StartGenerator:
 
         if splits is None:
             splits = {(1,): 1}
-        tot = sum([v for v in splits.values()])  # normalization
+        tot = sum(v for v in splits.values())
         self.splits = {k: v * 1. / tot for k, v in splits.items()}
 
         self.cellbounds = cellbounds

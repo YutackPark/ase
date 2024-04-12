@@ -184,12 +184,10 @@ def test_header_initial_atoms(header_chunk, initial_cell, initial_positions):
     assert np.allclose(header_chunk.initial_atoms.positions, initial_positions)
     assert np.all(["Na", "Cl"] == header_chunk.initial_atoms.symbols)
     assert all(
-        [
-            str(const_1) == str(const_2)
-            for const_1, const_2 in zip(
-                header_chunk.constraints, header_chunk.initial_atoms.constraints
-            )
-        ]
+        str(const_1) == str(const_2)
+        for const_1, const_2 in zip(
+            header_chunk.constraints, header_chunk.initial_atoms.constraints
+        )
     )
 
 
@@ -310,12 +308,11 @@ def test_header_transfer_initial_atoms(
         initial_positions)
     assert np.all(["Na", "Cl"] == empty_calc_chunk.initial_atoms.symbols)
     assert all(
-        [
-            str(const_1) == str(const_2)
-            for const_1, const_2 in zip(
-                empty_calc_chunk.constraints, empty_calc_chunk.initial_atoms.constraints
-            )
-        ]
+        str(const_1) == str(const_2)
+        for const_1, const_2 in zip(
+            empty_calc_chunk.constraints,
+            empty_calc_chunk.initial_atoms.constraints,
+        )
     )
 
 
@@ -822,12 +819,10 @@ def test_calc_atoms(calc_chunk, initial_cell, initial_positions):
     assert np.allclose(calc_chunk.atoms.positions, initial_positions)
     assert np.all(["Na", "Cl"] == calc_chunk.atoms.symbols)
     assert all(
-        [
-            str(const_1) == str(const_2)
-            for const_1, const_2 in zip(
-                calc_chunk.constraints, calc_chunk.atoms.constraints
-            )
-        ]
+        str(const_1) == str(const_2)
+        for const_1, const_2 in zip(
+            calc_chunk.constraints, calc_chunk.atoms.constraints
+        )
     )
 
 

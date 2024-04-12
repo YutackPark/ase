@@ -2947,8 +2947,9 @@ def import_castep_keywords(castep_command='',
     searchpaths = [path] + [os.path.expanduser(config_path)
                             for config_path in config_paths]
     try:
-        keywords_file = sum([glob.glob(os.path.join(sp, filename))
-                             for sp in searchpaths], [])[0]
+        keywords_file = sum(
+            (glob.glob(os.path.join(sp, filename)) for sp in searchpaths), []
+        )[0]
     except IndexError:
         warnings.warn("""Generating CASTEP keywords JSON file... hang on.
     The CASTEP keywords JSON file contains abstractions for CASTEP input

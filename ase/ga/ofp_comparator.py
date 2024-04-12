@@ -424,7 +424,7 @@ class OFPComparator:
         :doi:`10.1016/j.cpc.2010.06.007`"""
 
         # total number of atoms:
-        n_tot = sum([len(typedic[key]) for key in typedic])
+        n_tot = sum(len(typedic[key]) for key in typedic)
         inv_n_tot = 1. / n_tot
 
         local_orders = []
