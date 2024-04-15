@@ -19,11 +19,8 @@ import ase.io.exciting
 from ase.calculators.calculator import PropertyNotImplementedError
 from ase.calculators.exciting.runner import (SimpleBinaryRunner,
                                              SubprocessRunResults)
-from ase.calculators.genericfileio import (
-    BaseProfile,
-    CalculatorTemplate,
-    GenericFileIOCalculator,
-)
+from ase.calculators.genericfileio import (BaseProfile, CalculatorTemplate,
+                                           GenericFileIOCalculator)
 
 
 class ExcitingProfile(BaseProfile):
@@ -44,7 +41,7 @@ class ExcitingProfile(BaseProfile):
     def version(self):
         """Return exciting version."""
         # TARP No way to get the version for the binary in use
-        return None
+        return
 
     # Machine specific config files in the config
     # species_file goes in the config

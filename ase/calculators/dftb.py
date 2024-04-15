@@ -113,12 +113,14 @@ class Dftb(FileIOCalculator):
                 Options_='',
                 Options_WriteResultsTag='Yes',
                 ParserOptions_='',
+                ParserOptions_ParserVersion=1,
                 ParserOptions_IgnoreUnprocessedNodes='Yes')
         else:
             self.default_parameters = dict(
                 Options_='',
                 Options_WriteResultsTag='Yes',
                 ParserOptions_='',
+                ParserOptions_ParserVersion=1,
                 ParserOptions_IgnoreUnprocessedNodes='Yes')
 
         self.pcpot = None
@@ -377,7 +379,7 @@ class Dftb(FileIOCalculator):
         gradients = []
         for j in range(index_force_begin, index_force_end):
             word = self.lines[j].split()
-            gradients.append([float(word[k]) for k in range(0, 3)])
+            gradients.append([float(word[k]) for k in range(3)])
 
         return np.array(gradients) * Hartree / Bohr
 

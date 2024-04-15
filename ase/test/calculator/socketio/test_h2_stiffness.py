@@ -46,7 +46,7 @@ calc = pytest.mark.calculator
 
 
 @pytest.mark.filterwarnings('ignore:Subprocess exited')
-@pytest.mark.calculator_lite
+@pytest.mark.calculator_lite()
 @calc('abinit')
 @calc('espresso', input_data={"system": {"ecutwfc": 30}})
 @calc('nwchem')

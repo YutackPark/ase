@@ -10,19 +10,18 @@ http://www.uam.es/departamentos/ciencias/fismateriac/siesta
 
 """
 
-from dataclasses import dataclass
 import os
-from pathlib import Path
 import re
 import shutil
 import tempfile
+from dataclasses import dataclass
+from pathlib import Path
 from typing import Any, Dict, List
 
 import numpy as np
 
 from ase import Atoms
-from ase.calculators.calculator import (
-    FileIOCalculator, Parameters, ReadError)
+from ase.calculators.calculator import FileIOCalculator, Parameters, ReadError
 from ase.calculators.siesta.import_ion_xml import get_ion
 from ase.calculators.siesta.parameters import PAOBasisBlock, format_fdf
 from ase.data import atomic_numbers
@@ -490,11 +489,6 @@ class Siesta(FileIOCalculator):
                 fname = Path(fname)
                 if fname.is_file():
                     ion_results[label] = get_ion(fname)
-                else:
-                    fname = self.getpath(label, 'psml')
-                    fname = Path(fname)
-                    if fname.is_file():
-                        ion_results[label] = get_ion(fname)
 
         return ion_results
 
@@ -505,10 +499,16 @@ class Siesta(FileIOCalculator):
         return self.results['fermi_energy']
 
     def get_k_point_weights(self):
-        return self.results['kweights']
+        return self.results['kpoint_weights']
 
     def get_ibz_k_points(self):
         return self.results['kpoints']
+
+    def get_eigenvalues(self, kpt=0, spin=0):
+        return self.results['eigenvalues'][spin, kpt]
+
+    def get_number_of_spins(self):
+        return self.results['eigenvalues'].shape[0]
 
 
 def generate_atomic_coordinates(atoms: Atoms, species_numbers,

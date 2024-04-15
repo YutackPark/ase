@@ -628,9 +628,12 @@ def _read_datafile_entry(spg, no, symbol, setting, f):
     # primitive vectors
     f.readline()
     spg._scaled_primitive_cell = np.array(
-        [[float(floats.get(s, s)) for s in f.readline().split()]
-         for i in range(3)],
-        dtype=float)
+        [
+            [float(floats.get(s, s)) for s in f.readline().split()]
+            for _ in range(3)
+        ],
+        dtype=float,
+    )
     # primitive reciprocal vectors
     f.readline()
     spg._reciprocal_cell = np.array([[int(i) for i in f.readline().split()]
@@ -639,14 +642,21 @@ def _read_datafile_entry(spg, no, symbol, setting, f):
     # subtranslations
     spg._nsubtrans = int(f.readline().split()[0])
     spg._subtrans = np.array(
-        [[float(floats.get(t, t)) for t in f.readline().split()]
-         for i in range(spg._nsubtrans)],
-        dtype=float)
+        [
+            [float(floats.get(t, t)) for t in f.readline().split()]
+            for _ in range(spg._nsubtrans)
+        ],
+        dtype=float,
+    )
     # symmetry operations
     nsym = int(f.readline().split()[0])
-    symop = np.array([[float(floats.get(s, s)) for s in f.readline().split()]
-                      for i in range(nsym)],
-                     dtype=float)
+    symop = np.array(
+        [
+            [float(floats.get(s, s)) for s in f.readline().split()]
+            for _ in range(nsym)
+        ],
+        dtype=float,
+    )
     spg._nsymop = nsym
     spg._rotations = np.array(symop[:, :9].reshape((nsym, 3, 3)), dtype=int)
     spg._translations = symop[:, 9:]

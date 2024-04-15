@@ -15,8 +15,9 @@ def fcut(r, r0, r1):
     r1 - outder cutoff radius
     """""
     s = 1.0 - (r - r0) / (r1 - r0)
-    return (s >= 1.0) + (((0.0 < s) & (s < 1.0)) *
-                         (6.0 * s**5 - 15.0 * s**4 + 10.0 * s**3))
+    return (s >= 1.0) + ((s > 0.0) & (s < 1.0)) * (
+        6.0 * s**5 - 15.0 * s**4 + 10.0 * s**3
+    )
 
 
 def fcut_d(r, r0, r1):
@@ -24,8 +25,11 @@ def fcut_d(r, r0, r1):
     Derivative of fcut() function defined above
     """
     s = 1 - (r - r0) / (r1 - r0)
-    return -(((0.0 < s) & (s < 1.0)) *
-             ((30 * s**4 - 60 * s**3 + 30 * s**2) / (r1 - r0)))
+    return -(
+        ((s > 0.0) & (s < 1.0))
+        * (30 * s**4 - 60 * s**3 + 30 * s**2)
+        / (r1 - r0)
+    )
 
 
 class MorsePotential(Calculator):

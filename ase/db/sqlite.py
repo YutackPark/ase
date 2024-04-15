@@ -627,14 +627,14 @@ class SQLite3Database(Database):
                 limit=None, offset=0, sort=None, include_data=True,
                 columns='all'):
 
-        values = np.array([None for i in range(27)])
+        values = np.array([None for _ in range(27)])
         values[25] = '{}'
         values[26] = 'null'
 
         if columns == 'all':
             columnindex = list(range(26))
         else:
-            columnindex = [c for c in range(0, 26)
+            columnindex = [c for c in range(26)
                            if self.columnnames[c] in columns]
         if include_data:
             columnindex.append(26)
@@ -751,7 +751,7 @@ class SQLite3Database(Database):
                         format(table, ', '.join([str(id) for id in ids])))
 
     def vacuum(self):
-        if not self.type == 'db':
+        if self.type != 'db':
             return
 
         with self.managed_connection() as con:

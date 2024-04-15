@@ -49,12 +49,12 @@ def test_deprecated(testdir):
         write_pov('tmp.pov', molecule('H2'), run_povray=True)
 
 
-@pytest.fixture
+@pytest.fixture()
 def skimage():
     return pytest.importorskip('skimage')
 
 
-@pytest.fixture
+@pytest.fixture()
 def isosurface_things(skimage):
     rng = np.random.RandomState(42)
     cell = Cell(rng.random((3, 3)))

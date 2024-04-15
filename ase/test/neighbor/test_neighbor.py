@@ -64,7 +64,7 @@ def count(nl: NeighborList, atoms: Atoms):
 
 # scipy sparse uses matrix subclass internally
 @pytest.mark.filterwarnings('ignore:the matrix subclass')
-@pytest.mark.slow
+@pytest.mark.slow()
 @pytest.mark.parametrize('sorted', [False, True])
 def test_supercell(sorted):
     """Test if NeighborList works for a supercell as expected"""

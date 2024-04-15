@@ -20,6 +20,7 @@ from copy import deepcopy
 from pathlib import Path
 
 import numpy as np
+
 from ase.atoms import Atoms
 from ase.calculators.calculator import kpts2ndarray, kpts2sizeandoffsets
 from ase.calculators.singlepoint import (SinglePointDFTCalculator,
@@ -608,8 +609,7 @@ def get_atomic_positions(lines, n_atoms, cell=None, alat=None):
 
     positions = None
     # no blanks or comment lines, can the consume n_atoms lines for positions
-    trimmed_lines = (line for line in lines
-                     if line.strip() and not line[0] == '#')
+    trimmed_lines = (line for line in lines if line.strip() and line[0] != '#')
 
     for line in trimmed_lines:
         if line.strip().startswith('ATOMIC_POSITIONS'):
@@ -723,8 +723,7 @@ def get_cell_parameters(lines, alat=None):
     cell = None
     cell_alat = None
     # no blanks or comment lines, can take three lines for cell
-    trimmed_lines = (line for line in lines
-                     if line.strip() and not line[0] == '#')
+    trimmed_lines = (line for line in lines if line.strip() and line[0] != '#')
 
     for line in trimmed_lines:
         if line.strip().startswith('CELL_PARAMETERS'):

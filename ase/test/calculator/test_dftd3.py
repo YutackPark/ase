@@ -26,7 +26,7 @@ def array_close(val, reference, releps=releps, abseps=abseps):
         close(vali, refflat[i], releps, abseps)
 
 
-@pytest.fixture
+@pytest.fixture()
 def system():
     return create_s22_system('Adenine-thymine_complex_stack')
 

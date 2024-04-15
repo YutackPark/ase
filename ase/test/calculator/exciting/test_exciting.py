@@ -172,7 +172,7 @@ LDA_VWN_AR_INFO_OUT = """
 """
 
 
-@pytest.fixture
+@pytest.fixture()
 def nitrogen_trioxide_atoms():
     """Pytest fixture that creates ASE Atoms cell for other tests."""
     return ase.Atoms('NO3',
@@ -204,8 +204,8 @@ def test_ground_state_template_write_input(
         nitrogen_trioxide_atoms: pytest fixture to create ASE Atoms
             unit cell composed of NO3.
     """
-    from excitingtools.input.bandstructure import (
-        band_structure_input_from_ase_atoms_obj)
+    from excitingtools.input.bandstructure import \
+        band_structure_input_from_ase_atoms_obj
     expected_path = tmp_path / 'input.xml'
     # Expected number of points in the bandstructure.
     expected_number_of_special_points = 12

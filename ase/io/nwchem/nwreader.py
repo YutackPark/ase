@@ -44,9 +44,8 @@ def read_nwchem_out(fobj, index=-1):
                 return [parse_gto_chunk(''.join(lines))]
             if _pw_block.match(line):
                 return [parse_pw_chunk(''.join(lines))]
-        else:
-            raise ValueError('This does not appear to be a valid NWChem '
-                             'output file.')
+        raise ValueError('This does not appear to be a valid NWChem '
+                         'output file.')
 
     # First, find each SCF block
     group = []
@@ -79,11 +78,10 @@ def read_nwchem_out(fobj, index=-1):
                 lastparser = parser
             group = []
         parser = next_parser
-    else:
-        if not header:
-            atoms = parser(''.join(group))
-            if atoms is not None:
-                atomslist.append(atoms)
+    if not header:
+        atoms = parser(''.join(group))
+        if atoms is not None:
+            atomslist.append(atoms)
 
     return atomslist[index]
 
@@ -243,7 +241,7 @@ def parse_gto_chunk(chunk):
         atoms = _parse_geomblock(chunk)
 
     if atoms is None:
-        return
+        return None
 
     # SinglePointDFTCalculator doesn't support quadrupole moment currently
     calc = SinglePointDFTCalculator(atoms=atoms,
@@ -418,7 +416,7 @@ _fermi_energy = _define_pattern(
 def parse_pw_chunk(chunk):
     atoms = _parse_geomblock(chunk)
     if atoms is None:
-        return
+        return None
 
     energy = None
     efermi = None

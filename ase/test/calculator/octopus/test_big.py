@@ -17,7 +17,7 @@ calc = pytest.mark.calculator
 
 
 @calc('octopus', Spacing='0.25 * angstrom')
-@pytest.mark.xfail
+@pytest.mark.xfail()
 def test_h2o(factory):
     calc = calculate(factory,
                      g2['H2O'],

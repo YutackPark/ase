@@ -6,13 +6,12 @@ from subprocess import PIPE, Popen
 import numpy as np
 
 import ase.units as units
-from ase.parallel import world
-from ase.calculators.calculator import (Calculator,
+from ase.calculators.calculator import (ArgvProfile, Calculator,
+                                        OldShellProfile,
                                         PropertyNotImplementedError,
-                                        all_changes,
-                                        ArgvProfile,
-                                        OldShellProfile)
+                                        all_changes)
 from ase.calculators.genericfileio import GenericFileIOCalculator
+from ase.parallel import world
 from ase.stress import full_3x3_to_voigt_6_stress
 from ase.utils import IOContext
 
@@ -56,7 +55,7 @@ class IPIProtocol:
             chunk = self.socket.recv(remaining)
             if len(chunk) == 0:
                 # (If socket is still open, recv returns at least one byte)
-                raise SocketClosed()
+                raise SocketClosed
             chunks.append(chunk)
             remaining -= len(chunk)
         msg = b''.join(chunks)
@@ -66,7 +65,7 @@ class IPIProtocol:
     def recvmsg(self):
         msg = self._recvall(12)
         if not msg:
-            raise SocketClosed()
+            raise SocketClosed
 
         assert len(msg) == 12, msg
         msg = msg.rstrip().decode('ascii')
@@ -202,7 +201,7 @@ def bind_unixsocket(socketfile):
     try:
         serversocket.bind(socketfile)
     except OSError as err:
-        raise OSError(f'{err}: {repr(socketfile)}')
+        raise OSError(f'{err}: {socketfile!r}')
 
     try:
         with serversocket:
@@ -238,7 +237,6 @@ class FileIOSocketClientLauncher:
                 argv = profile.socketio_argv_unix(socket=unixsocket)
             else:
                 argv = profile.socketio_argv_inet(port=port)
-            import os
             return Popen(argv, cwd=cwd, env=os.environ)
         else:
             # Old FileIOCalculator:
@@ -249,9 +247,7 @@ class FileIOSocketClientLauncher:
                 cmd = self.calc.command.replace('PREFIX', self.calc.prefix)
                 cmd = cmd.format(port=port, unixsocket=unixsocket)
             elif isinstance(profile, OldShellProfile):
-                cmd = profile.command
-                if "PREFIX" in cmd:
-                    cmd = cmd.replace("PREFIX", profile.prefix)
+                cmd = profile.command.replace("PREFIX", self.calc.prefix)
                 return Popen(cmd, shell=True, cwd=cwd)
             elif isinstance(profile, ArgvProfile):
                 return profile.execute_nonblocking(self.calc)

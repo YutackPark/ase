@@ -7,8 +7,8 @@ Author: Ole Schuett <ole.schuett@mat.ethz.ch>
 import os
 import os.path
 import subprocess
-from warnings import warn
 from contextlib import AbstractContextManager
+from warnings import warn
 
 import numpy as np
 

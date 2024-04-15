@@ -1,6 +1,8 @@
-from ase.io.vasp_parsers.incar_writer import write_incar
 from unittest.mock import mock_open, patch
+
 import numpy as np
+
+from ase.io.vasp_parsers.incar_writer import write_incar
 
 
 def test_write_string_to_incar():

@@ -6,7 +6,7 @@ from ase.cell import Cell
 testcellpar = (2, 3, 4, 50, 60, 70)
 
 
-@pytest.fixture
+@pytest.fixture()
 def cell():
     return Cell.new(testcellpar)
 
@@ -35,7 +35,7 @@ def test_handedness(cell):
     assert cell.handedness == 0
 
 
-@pytest.fixture
+@pytest.fixture()
 def randcell():
     rng = np.random.RandomState(42)
     return Cell(rng.random((3, 3)))

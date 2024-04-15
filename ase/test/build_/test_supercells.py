@@ -5,7 +5,7 @@ from ase.build import bulk
 from ase.build.supercells import make_supercell
 
 
-@pytest.fixture
+@pytest.fixture()
 def rng():
     return np.random.RandomState(seed=42)
 

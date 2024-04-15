@@ -219,9 +219,9 @@ class HarmonicForceField:
         hessian_x = 0.5 * (hessian_x + hessian_x.T)  # guarantee symmetry
         w, v = eigh(hessian_x)  # rot. and trans. degrees of freedom are removed
         w[np.abs(w) < self.parameters['zero_thresh']] = 0.0  # noise-cancelling
-        w[(0.0 < w) &  # substitute small eigenvalues by lower limit
-          (w < self.parameters['hessian_limit'])] = \
-            self.parameters['hessian_limit']
+        w[(w > 0.0) & (w < self.parameters['hessian_limit'])] = self.parameters[
+            'hessian_limit'
+        ]
         # reconstruct Hessian from new eigenvalues and preserved eigenvectors
         hessian_x = v @ np.diagflat(w) @ v.T  # v.T == inv(v) due to symmetry
         self._hessian_x = 0.5 * (hessian_x + hessian_x.T)  # guarantee symmetry

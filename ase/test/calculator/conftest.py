@@ -1,6 +1,6 @@
 import pytest
 
-from ase.calculators.genericfileio import CalculatorTemplate, BaseProfile
+from ase.calculators.genericfileio import BaseProfile, CalculatorTemplate
 
 
 @pytest.fixture(autouse=True)
@@ -44,6 +44,6 @@ class DummyTemplate(CalculatorTemplate):
         pass
 
 
-@pytest.fixture
+@pytest.fixture()
 def dummy_template():
     return DummyTemplate()
