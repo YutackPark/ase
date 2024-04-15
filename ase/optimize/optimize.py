@@ -9,7 +9,7 @@ from typing import IO, Any, Dict, List, Optional, Tuple, Union
 from ase import Atoms
 from ase.calculators.calculator import PropertyNotImplementedError
 from ase.filters import UnitCellFilter
-from ase.parallel import barrier, world
+from ase.parallel import world
 from ase.utils import IOContext, lazyproperty
 from ase.utils.abc import Optimizable
 
@@ -76,6 +76,7 @@ class Dynamics(IOContext):
         trajectory: Optional[str] = None,
         append_trajectory: bool = False,
         master: Optional[bool] = None,
+        comm=world,
     ):
         """Dynamics object.
 
@@ -100,23 +101,27 @@ class Dynamics(IOContext):
             file instead.
 
         master: boolean
-            Defaults to None, which causes only rank 0 to save files.  If
-            set to true,  this rank will save files.
+            Defaults to None, which causes only rank 0 to save files. If set to
+            true, this rank will save files.
+
+        comm: Communicator object
+            Communicator to handle parallel file reading and writing.
         """
 
         self.atoms = atoms
         self.optimizable = atoms.__ase_optimizable__()
-        self.logfile = self.openfile(logfile, mode='a', comm=world)
+        self.logfile = self.openfile(file=logfile, comm=comm, mode='a')
         self.observers: List[Tuple[Callable, int, Tuple, Dict[str, Any]]] = []
         self.nsteps = 0
         self.max_steps = 0  # to be updated in run or irun
+        self.comm = comm
 
         if trajectory is not None:
             if isinstance(trajectory, str):
                 from ase.io.trajectory import Trajectory
                 mode = "a" if append_trajectory else "w"
                 trajectory = self.closelater(Trajectory(
-                    trajectory, mode=mode, master=master
+                    trajectory, mode=mode, master=master, comm=comm
                 ))
             self.attach(trajectory, atoms=self.optimizable)
 
@@ -300,6 +305,7 @@ class Optimizer(Dynamics):
         logfile: Optional[Union[IO, str]] = None,
         trajectory: Optional[str] = None,
         master: Optional[bool] = None,
+        comm=world,
         append_trajectory: bool = False,
         force_consistent=_deprecated,
     ):
@@ -311,27 +317,30 @@ class Optimizer(Dynamics):
             The Atoms object to relax.
 
         restart: str
-            Filename for restart file.  Default value is *None*.
+            Filename for restart file. Default value is *None*.
 
         logfile: file object or str
             If *logfile* is a string, a file with that name will be opened.
             Use '-' for stdout.
 
         trajectory: Trajectory object or str
-            Attach trajectory object.  If *trajectory* is a string a
-            Trajectory will be constructed.  Use *None* for no
+            Attach trajectory object. If *trajectory* is a string a
+            Trajectory will be constructed. Use *None* for no
             trajectory.
 
         master: boolean
-            Defaults to None, which causes only rank 0 to save files.  If
-            set to true,  this rank will save files.
+            Defaults to None, which causes only rank 0 to save files. If
+            set to true, this rank will save files.
+
+        comm: Communicator object
+            Communicator to handle parallel file reading and writing.
 
         append_trajectory: boolean
             Appended to the trajectory file instead of overwriting it.
 
         force_consistent: boolean or None
             Use force-consistent energy calls (as opposed to the energy
-            extrapolated to 0 K).  If force_consistent=None, uses
+            extrapolated to 0 K). If force_consistent=None, uses
             force-consistent energies if available in the calculator, but
             falls back to force_consistent=False if not.
         """
@@ -342,7 +351,8 @@ class Optimizer(Dynamics):
             logfile=logfile,
             trajectory=trajectory,
             append_trajectory=append_trajectory,
-            master=master)
+            master=master,
+            comm=comm)
 
         self.restart = restart
 
@@ -352,7 +362,7 @@ class Optimizer(Dynamics):
             self.initialize()
         else:
             self.read()
-            barrier()
+            self.comm.barrier()
 
     @classmethod
     def check_deprecated(cls, force_consistent):
@@ -444,7 +454,7 @@ class Optimizer(Dynamics):
 
     def dump(self, data):
         from ase.io.jsonio import write_json
-        if world.rank == 0 and self.restart is not None:
+        if self.comm.rank == 0 and self.restart is not None:
             with open(self.restart, 'w') as fd:
                 write_json(fd, data)
 

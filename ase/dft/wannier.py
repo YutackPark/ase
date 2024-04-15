@@ -449,7 +449,7 @@ def get_calcdata(calc):
     # Make sure there is no symmetry reduction
     assert len(calc.get_ibz_k_points()) == len(kpt_kc)
     lumo = calc.get_homo_lumo()[1]
-    gap = bandgap(calc=calc, output=None)[0]
+    gap = bandgap(calc=calc)[0]
     return CalcData(
         kpt_kc=kpt_kc,
         atoms=calc.get_atoms(),
