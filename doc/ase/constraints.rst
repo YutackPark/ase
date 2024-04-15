@@ -274,8 +274,7 @@ This class allows to fix an arbitrary number of bond lengths, angles
 and dihedral angles as well as linear combinations of bond lengths
 ('bondcombos').
 A fixed linear combination of bond lengths fulfils
-:math:`\sum_i \text{coef}_i \times \text{bond_length}_i
-= \text{constant}`.
+:math:`\sum_i \mathrm{coef}_i \times \mathrm{bond_length}_i = \mathrm{constant}`.
 The defined constraints are satisfied self consistently.
 To define the constraints one needs to specify the
 atoms object on which the constraint works (needed for atomic

@@ -722,7 +722,7 @@ class CIFLoop:
 @iofunction('wb')
 def write_cif(fd, images, cif_format=None,
               wrap=True, labels=None, loop_keys=None) -> None:
-    """Write *images* to CIF file.
+    r"""Write *images* to CIF file.
 
     wrap: bool
         Wrap atoms into unit cell.
@@ -733,8 +733,8 @@ def write_cif(fd, images, cif_format=None,
         it from the element symbol.
 
     loop_keys: dict
-        Add the information from this dictionary to the `loop_`
-        section.  Keys are printed to the `loop_` section preceeded by
+        Add the information from this dictionary to the `loop\_`
+        section.  Keys are printed to the `loop\_` section preceeded by
         ' _'. dict[key] should contain the data printed for each atom,
         so it needs to have the setup `dict[key][i_frame][i_atom] =
         string`. The strings are printed as they are, so take care of
