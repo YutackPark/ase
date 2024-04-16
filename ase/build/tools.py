@@ -429,8 +429,10 @@ def minimize_tilt(atoms, order=range(3), fold_atoms=True):
 def update_cell_and_positions(atoms, new_cell, op):
     """Helper method for transforming cell and positions of atoms object."""
     scpos = np.linalg.solve(op, atoms.get_scaled_positions().T).T
-    scpos %= 1.0
-    scpos %= 1.0
+
+    # We do this twice because -1e-20 % 1 == 1:
+    scpos[:, atoms.pbc] %= 1.0
+    scpos[:, atoms.pbc] %= 1.0
 
     atoms.set_cell(new_cell)
     atoms.set_scaled_positions(scpos)
@@ -454,10 +456,34 @@ def niggli_reduce(atoms):
     stable algorithms for the computation of reduced unit cells", Acta Cryst.
     2004, A60, 1-6.
     """
+    from ase.geometry.geometry import permute_axes
 
-    assert all(atoms.pbc), 'Can only reduce 3d periodic unit cells!'
-    new_cell, op = niggli_reduce_cell(atoms.cell)
+    # Make sure non-periodic cell vectors are orthogonal
+    non_periodic_cv = atoms.cell[~atoms.pbc]
+    periodic_cv = atoms.cell[atoms.pbc]
+    if not np.isclose(np.dot(non_periodic_cv, periodic_cv.T), 0).all():
+        raise ValueError('Non-orthogonal cell along non-periodic dimensions')
+
+    input_atoms = atoms
+
+    # Permute axes, such that the non-periodic are along the last dimensions,
+    # since niggli_reduce_cell will change the order of axes.
+    permutation = np.argsort(~atoms.pbc)
+    ipermutation = np.empty_like(permutation)
+    ipermutation[permutation] = np.arange(len(permutation))
+    atoms = permute_axes(atoms, permutation)
+
+    # Perform the Niggli reduction on the cell
+    nonpbc = ~atoms.pbc
+    uncompleted_cell = atoms.cell.uncomplete(atoms.pbc)
+    new_cell, op = niggli_reduce_cell(uncompleted_cell)
+    new_cell[nonpbc] = atoms.cell[nonpbc]
     update_cell_and_positions(atoms, new_cell, op)
+
+    # Undo the prior permutation.
+    atoms = permute_axes(atoms, ipermutation)
+    input_atoms.cell[:] = atoms.cell
+    input_atoms.positions[:] = atoms.positions
 
 
 def reduce_lattice(atoms, eps=2e-4):
