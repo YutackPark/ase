@@ -461,7 +461,7 @@ def niggli_reduce(atoms):
     # Make sure non-periodic cell vectors are orthogonal
     non_periodic_cv = atoms.cell[~atoms.pbc]
     periodic_cv = atoms.cell[atoms.pbc]
-    if ~np.isclose(np.dot(non_periodic_cv, periodic_cv.T), 0).all():
+    if not np.isclose(np.dot(non_periodic_cv, periodic_cv.T), 0).all():
         raise ValueError('Non-orthogonal cell along non-periodic dimensions')
 
     input_atoms = atoms
