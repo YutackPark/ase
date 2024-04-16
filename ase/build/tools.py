@@ -429,8 +429,10 @@ def minimize_tilt(atoms, order=range(3), fold_atoms=True):
 def update_cell_and_positions(atoms, new_cell, op):
     """Helper method for transforming cell and positions of atoms object."""
     scpos = np.linalg.solve(op, atoms.get_scaled_positions().T).T
-    scpos %= 1.0
-    scpos %= 1.0
+
+    # We do this twice because -1e-20 % 1 == 1:
+    scpos[:, atoms.pbc] %= 1.0
+    scpos[:, atoms.pbc] %= 1.0
 
     atoms.set_cell(new_cell)
     atoms.set_scaled_positions(scpos)
@@ -454,10 +456,17 @@ def niggli_reduce(atoms):
     stable algorithms for the computation of reduced unit cells", Acta Cryst.
     2004, A60, 1-6.
     """
+    # from ase.geometry.geometry import permute_axes
+    # permutation = np.argsort(~atoms.pbc)
+    # atoms = permute_axes(atoms, permutation)
 
-    assert all(atoms.pbc), 'Can only reduce 3d periodic unit cells!'
-    new_cell, op = niggli_reduce_cell(atoms.cell)
+    nonpbc = ~atoms.pbc
+    uncompleted_cell = atoms.cell.uncomplete(atoms.pbc)
+    new_cell, op = niggli_reduce_cell(uncompleted_cell)
+    new_cell[nonpbc] = atoms.cell[nonpbc]
     update_cell_and_positions(atoms, new_cell, op)
+
+    # atoms = permute_axes(atoms, permutation)
 
 
 def reduce_lattice(atoms, eps=2e-4):
