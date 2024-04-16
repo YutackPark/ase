@@ -456,9 +456,21 @@ def niggli_reduce(atoms):
     stable algorithms for the computation of reduced unit cells", Acta Cryst.
     2004, A60, 1-6.
     """
-    # from ase.geometry.geometry import permute_axes
-    # permutation = np.argsort(~atoms.pbc)
-    # atoms = permute_axes(atoms, permutation)
+    from ase.geometry.geometry import permute_axes
+
+    # Make sure non-periodic cell vectors are orthogonal
+    non_periodic_cv = atoms.cell[~atoms.pbc]
+    periodic_cv = atoms.cell[atoms.pbc]
+    if np.dot(non_periodic_cv, periodic_cv.T).any():
+        raise ValueError('Non-orthogonal cell along non-periodic dimensions')
+
+    input_atoms = atoms
+
+    permutation = np.argsort(~atoms.pbc)
+    ipermutation = np.empty_like(permutation)
+    ipermutation[permutation] = np.arange(len(permutation))
+
+    atoms = permute_axes(atoms, permutation)
 
     nonpbc = ~atoms.pbc
     uncompleted_cell = atoms.cell.uncomplete(atoms.pbc)
@@ -466,7 +478,9 @@ def niggli_reduce(atoms):
     new_cell[nonpbc] = atoms.cell[nonpbc]
     update_cell_and_positions(atoms, new_cell, op)
 
-    # atoms = permute_axes(atoms, permutation)
+    atoms = permute_axes(atoms, ipermutation)
+    input_atoms.cell[:] = atoms.cell
+    input_atoms.positions[:] = atoms.positions
 
 
 def reduce_lattice(atoms, eps=2e-4):

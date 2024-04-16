@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+import itertools
 
 from ase.cell import Cell
 
@@ -29,25 +30,32 @@ def test_niggli_2d():
     assert rcell.lengths()[2] == 0
     assert Cell(op.T @ cell).cellpar() == pytest.approx(rcell.cellpar())
 
-
-def test_niggli_2d_atoms():
+@pytest.mark.parametrize('npbc', [0, 1, 2, 3])
+@pytest.mark.parametrize('perm', itertools.permutations(range(3)))
+def test_niggli_atoms_ndim(npbc, perm):
+    from ase.geometry.geometry import permute_axes
     from ase.build import fcc111
     from ase.build import niggli_reduce
     from ase.calculators.emt import EMT
     from ase.visualize import view
 
-    atoms = fcc111('Au', (2, 2, 1), vacuum=2.0)
-    atoms.cell[2] = [0, 0, 1e-3]
+    perm = np.array(perm)
+    print(perm)
+
+    atoms = fcc111('Au', (2, 3, 1), vacuum=2.0)
+    atoms.pbc = False
+    atoms.pbc[:npbc] = True
+    atoms.cell[2] = [0, 0, 1]
+    if npbc == 1:
+        atoms.cell[1] = [0, 0, 0]
     atoms.rattle(stdev=0.1)
-    print()
-    print(atoms.cell[:])
-    # xxx
+    atoms = permute_axes(atoms, perm)
     atoms.calc = EMT()
-    atoms1 = atoms.copy()
     e1 = atoms.get_potential_energy()
+    print(atoms.cell.lengths())
     niggli_reduce(atoms)
     e2 = atoms.get_potential_energy()
-
-    # view([atoms1, atoms])
+    print(atoms.cell.lengths())
 
     assert e2 == pytest.approx(e1, abs=1e-10)
+    #assert e2 == e1
