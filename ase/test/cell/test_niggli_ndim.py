@@ -30,6 +30,7 @@ def test_niggli_2d():
     assert rcell.lengths()[2] == 0
     assert Cell(op.T @ cell).cellpar() == pytest.approx(rcell.cellpar())
 
+
 @pytest.mark.parametrize('npbc', [0, 1, 2, 3])
 @pytest.mark.parametrize('perm', itertools.permutations(range(3)))
 def test_niggli_atoms_ndim(npbc, perm):
@@ -37,7 +38,6 @@ def test_niggli_atoms_ndim(npbc, perm):
     from ase.build import fcc111
     from ase.build import niggli_reduce
     from ase.calculators.emt import EMT
-    from ase.visualize import view
 
     perm = np.array(perm)
     print(perm)
@@ -52,10 +52,7 @@ def test_niggli_atoms_ndim(npbc, perm):
     atoms = permute_axes(atoms, perm)
     atoms.calc = EMT()
     e1 = atoms.get_potential_energy()
-    print(atoms.cell.lengths())
     niggli_reduce(atoms)
     e2 = atoms.get_potential_energy()
-    print(atoms.cell.lengths())
 
     assert e2 == pytest.approx(e1, abs=1e-10)
-    #assert e2 == e1
