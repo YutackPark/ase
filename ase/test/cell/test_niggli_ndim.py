@@ -40,7 +40,6 @@ def test_niggli_atoms_ndim(npbc, perm):
     from ase.calculators.emt import EMT
 
     perm = np.array(perm)
-    print(perm)
 
     atoms = fcc111('Au', (2, 3, 1), vacuum=2.0)
     atoms.pbc = False
@@ -56,6 +55,7 @@ def test_niggli_atoms_ndim(npbc, perm):
     e2 = atoms.get_potential_energy()
 
     assert e2 == pytest.approx(e1, abs=1e-10)
+
 
 def test_no_nonorthogonal_niggli():
     from ase.build import bulk
