@@ -461,23 +461,26 @@ def niggli_reduce(atoms):
     # Make sure non-periodic cell vectors are orthogonal
     non_periodic_cv = atoms.cell[~atoms.pbc]
     periodic_cv = atoms.cell[atoms.pbc]
-    if np.dot(non_periodic_cv, periodic_cv.T).any():
+    if ~np.isclose(np.dot(non_periodic_cv, periodic_cv.T), 0).all():
         raise ValueError('Non-orthogonal cell along non-periodic dimensions')
 
     input_atoms = atoms
 
+    # Permute axes, such that the non-periodic are along the last dimensions,
+    # since niggli_reduce_cell will change the order of axes.
     permutation = np.argsort(~atoms.pbc)
     ipermutation = np.empty_like(permutation)
     ipermutation[permutation] = np.arange(len(permutation))
-
     atoms = permute_axes(atoms, permutation)
 
+    # Perform the Niggli reduction on the cell
     nonpbc = ~atoms.pbc
     uncompleted_cell = atoms.cell.uncomplete(atoms.pbc)
     new_cell, op = niggli_reduce_cell(uncompleted_cell)
     new_cell[nonpbc] = atoms.cell[nonpbc]
     update_cell_and_positions(atoms, new_cell, op)
 
+    # Undo the prior permutation.
     atoms = permute_axes(atoms, ipermutation)
     input_atoms.cell[:] = atoms.cell
     input_atoms.positions[:] = atoms.positions
