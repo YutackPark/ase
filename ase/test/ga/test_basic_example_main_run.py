@@ -20,7 +20,7 @@ from ase.optimize import BFGS
 db_file = 'gadb.db'
 
 
-@pytest.mark.slow
+@pytest.mark.slow()
 def test_basic_example_main_run(seed, testdir):
     # set up the random number generator
     rng = np.random.RandomState(seed)
@@ -59,7 +59,7 @@ def test_basic_example_main_run(seed, testdir):
     # generate the starting population
     population_size = 5
     starting_population = [sg.get_new_candidate()
-                           for i in range(population_size)]
+                           for _ in range(population_size)]
 
     # from ase.visualize import view   # uncomment these lines
     # view(starting_population)        # to see the starting population

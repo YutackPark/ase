@@ -1,9 +1,8 @@
 import re
 
 import ase.io.orca as io
-from ase.calculators.genericfileio import (CalculatorTemplate,
-                                           GenericFileIOCalculator,
-                                           BaseProfile)
+from ase.calculators.genericfileio import (BaseProfile, CalculatorTemplate,
+                                           GenericFileIOCalculator)
 
 
 def get_version_from_orca_header(orca_header):

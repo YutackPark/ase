@@ -286,7 +286,7 @@ class PreconLBFGS(Optimizer):
         f0 = None
         # The last element is not added, as we get that for free when taking
         # the first qn-step after the replay
-        for i in range(0, len(traj) - 1):
+        for i in range(len(traj) - 1):
             r = traj[i].get_positions()
             f = traj[i].get_forces()
             self.update(r, f, r0, f0)

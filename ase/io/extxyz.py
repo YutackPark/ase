@@ -8,10 +8,10 @@ comment line, and additional per-atom properties as extra columns.
 Contributed by James Kermode <james.kermode@gmail.com>
 """
 import json
-from io import StringIO, UnsupportedOperation
 import numbers
 import re
 import warnings
+from io import StringIO, UnsupportedOperation
 
 import numpy as np
 
@@ -20,10 +20,10 @@ from ase.calculators.singlepoint import SinglePointCalculator
 from ase.constraints import FixAtoms, FixCartesian
 from ase.io.formats import index2range
 from ase.io.utils import ImageIterator
+from ase.outputs import ArrayProperty, all_outputs
 from ase.spacegroup.spacegroup import Spacegroup
-from ase.utils import reader, writer
-from ase.outputs import all_outputs, ArrayProperty
 from ase.stress import voigt_6_to_full_3x3_stress
+from ase.utils import reader, writer
 
 __all__ = ['read_xyz', 'write_xyz', 'iread_xyz']
 
@@ -410,14 +410,14 @@ def _read_xyz_frame(lines, natoms, properties_parser=key_val_str_to_dict,
     del info['Properties']
 
     data = []
-    for ln in range(natoms):
+    for _ in range(natoms):
         try:
             line = next(lines)
         except StopIteration:
             raise XYZError('ase.io.extxyz: Frame has {} atoms, expected {}'
                            .format(len(data), natoms))
         vals = line.split()
-        row = tuple([conv(val) for conv, val in zip(convs, vals)])
+        row = tuple(conv(val) for conv, val in zip(convs, vals))
         data.append(row)
 
     try:
@@ -694,7 +694,7 @@ def read_xyz(fileobj, index=-1, properties_parser=key_val_str_to_dict):
             raise XYZError('ase.io.extxyz: Expected xyz header but got: {}'
                            .format(err))
         fileobj.readline()  # read comment line
-        for i in range(natoms):
+        for _ in range(natoms):
             fileobj.readline()
         # check for VEC
         nvec = 0
@@ -979,9 +979,9 @@ def save_calc_results(atoms, calc=None, calc_prefix=None,
             per_atom_results[calc_prefix + prop] = value
 
     if not force:
-        if any([key in atoms.info for key in per_config_results]):
+        if any(key in atoms.info for key in per_config_results):
             raise KeyError("key from calculator already exists in atoms.info")
-        if any([key in atoms.arrays for key in per_atom_results]):
+        if any(key in atoms.arrays for key in per_atom_results):
             raise KeyError("key from calculator already exists in atoms.arrays")
 
     atoms.info.update(per_config_results)

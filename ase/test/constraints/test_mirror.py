@@ -7,7 +7,7 @@ from ase.constraints import (ExternalForce, FixBondLength, MirrorForce,
 from ase.optimize import FIRE
 
 
-@pytest.mark.optimize
+@pytest.mark.optimize()
 def test_mirror():
     atoms = molecule('cyclobutene')
     dist = atoms.get_distance(0, 1)

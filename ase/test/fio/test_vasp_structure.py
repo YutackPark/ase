@@ -42,7 +42,7 @@ class TestXdatcarRoundtrip(unittest.TestCase):
 
     def test_roundtrip(self):
         # Create a series of translated cells
-        trajectory = [self.NaCl.copy() for i in range(5)]
+        trajectory = [self.NaCl.copy() for _ in range(5)]
         for i, atoms in enumerate(trajectory):
             atoms.set_scaled_positions(
                 atoms.get_scaled_positions() + i * np.array([0.05, 0, 0.02])

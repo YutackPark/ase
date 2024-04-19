@@ -22,10 +22,10 @@
 import os
 import shlex
 import shutil
+import subprocess
 import warnings
 from re import IGNORECASE
 from re import compile as re_compile
-import subprocess
 from tempfile import NamedTemporaryFile, mkdtemp
 from tempfile import mktemp as uns_mktemp
 from threading import Thread

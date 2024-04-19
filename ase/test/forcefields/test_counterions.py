@@ -18,7 +18,7 @@ def test_counterions():
     atoms.calc = ACI(1, epsilon, sigma, rc=4.5)
     points = np.arange(-15., 15., 0.2)
 
-    for p in points:
+    for _ in points:
         f = atoms.get_forces()
         fn = atoms.calc.calculate_numerical_forces(atoms, 1e-5)
         df = (f - fn)

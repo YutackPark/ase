@@ -11,7 +11,7 @@ from ase.io.trajectory import Trajectory
 from ase.md.verlet import VelocityVerlet
 
 
-@pytest.mark.calculator_lite
+@pytest.mark.calculator_lite()
 @pytest.mark.calculator('plumed')
 def test_units(factory):
     """
@@ -90,7 +90,7 @@ def test_units(factory):
         "error in charges units"
 
 
-@pytest.mark.calculator_lite
+@pytest.mark.calculator_lite()
 @pytest.mark.calculator('plumed')
 def test_CVs(factory):
     """ This test calls plumed-ASE calculator for computing some CVs.
@@ -140,7 +140,7 @@ def test_CVs(factory):
     assert centersASE == approx(centersPlumed)
 
 
-@pytest.mark.calculator_lite
+@pytest.mark.calculator_lite()
 @pytest.mark.calculator('plumed')
 def test_metadyn(factory):
     """This test computes a Metadynamics calculation,
@@ -159,7 +159,7 @@ def test_metadyn(factory):
         "Error in the computation of Bias-forces"
 
 
-@pytest.mark.calculator_lite
+@pytest.mark.calculator_lite()
 @pytest.mark.calculator('plumed')
 def test_restart(factory):
     ins = setups()
@@ -189,7 +189,7 @@ def test_restart(factory):
         "Error in the restart of metadynamics simulation"
 
 
-@pytest.mark.calculator_lite
+@pytest.mark.calculator_lite()
 @pytest.mark.calculator('plumed')
 def test_postpro(factory):
     # Metadynamics simulation
@@ -208,7 +208,7 @@ def test_postpro(factory):
     assert postpr == approx(direct['HILLS_direct'])
 
 
-@pytest.mark.calculator_lite
+@pytest.mark.calculator_lite()
 @pytest.mark.calculator('plumed')
 def test_pbc(factory):
     atoms = Atoms('H2')

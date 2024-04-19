@@ -6,7 +6,7 @@ from ase.build import molecule
 
 @pytest.mark.skip(reason='we do not know how to compile psi4')
 @pytest.mark.filterwarnings('once::DeprecationWarning')
-@pytest.mark.calculator_lite
+@pytest.mark.calculator_lite()
 @pytest.mark.calculator('psi4')
 def test_main(factory):
     atoms = molecule('H2O')

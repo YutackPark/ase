@@ -1,18 +1,17 @@
 """Structure optimization. """
 import time
+import warnings
 from collections.abc import Callable
 from math import sqrt
 from os.path import isfile
 from typing import IO, Any, Dict, List, Optional, Tuple, Union
-import warnings
 
 from ase import Atoms
-from ase.filters import UnitCellFilter
 from ase.calculators.calculator import PropertyNotImplementedError
+from ase.filters import UnitCellFilter
 from ase.parallel import barrier, world
 from ase.utils import IOContext, lazyproperty
 from ase.utils.abc import Optimizable
-
 
 DEFAULT_MAX_STEPS = 100_000_000
 

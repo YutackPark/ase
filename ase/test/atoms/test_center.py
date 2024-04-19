@@ -17,7 +17,7 @@ def checkang(a, b, phi):
     assert np.abs(cosphi - cos(phi)) < 1e-10
 
 
-@pytest.fixture
+@pytest.fixture()
 def atoms():
     # (100) oriented block
     atoms = FaceCenteredCubic(size=(5, 5, 5), symbol=symb, pbc=(1, 1, 0))
@@ -52,7 +52,7 @@ def test_vacuum_all_directions(atoms):
     assert np.abs(4.5 * a0 + 2 * vac - c[2, 2]) < 1e-10
 
 
-@pytest.fixture
+@pytest.fixture()
 def atoms_guc():
     return FaceCenteredCubic(size=(5, 5, 5),
                              directions=[[1, 0, 0], [0, 1, 0], [1, 0, 1]],

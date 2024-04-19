@@ -7,7 +7,7 @@ from ase.filters import FrechetCellFilter
 from ase.optimize import BFGS
 
 
-@pytest.mark.calculator_lite
+@pytest.mark.calculator_lite()
 @pytest.mark.calculator('lammpsrun')
 def test_Pt_stress_cellopt(factory):
     params = {}

@@ -401,13 +401,13 @@ class CIFBlock(collections.abc.Mapping):
                     setting = 2
                 else:
                     warnings.warn(
-                        f'unexpected crystal system {repr(setting_name)} '
-                        f'for space group {repr(spacegroup)}')
+                        f'unexpected crystal system {setting_name!r} '
+                        f'for space group {spacegroup!r}')
             # FIXME - check for more crystal systems...
             else:
                 warnings.warn(
-                    f'crystal system {repr(setting_name)} is not '
-                    f'interpreted for space group {repr(spacegroup)}. '
+                    f'crystal system {setting_name!r} is not '
+                    f'interpreted for space group {spacegroup!r}. '
                     'This may result in wrong setting!')
 
         spg = Spacegroup(spacegroup, setting)
@@ -492,10 +492,10 @@ class CIFBlock(collections.abc.Mapping):
             if kwargs.get('info') is not None:
                 atoms.info.update(kwargs['info'])
             if occupancies is not None:
-                # Compile an occupancies dictionary
-                occ_dict = {}
-                for i, sym in enumerate(atoms.symbols):
-                    occ_dict[str(i)] = {sym: occupancies[i]}
+                occ_dict = {
+                    str(i): {sym: occupancies[i]}
+                    for i, sym in enumerate(atoms.symbols)
+                }
                 atoms.info['occupancy'] = occ_dict
 
         return atoms

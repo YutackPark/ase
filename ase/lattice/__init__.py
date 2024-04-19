@@ -670,7 +670,7 @@ class RHL(BravaisLattice):
 
 
 def check_mcl(a, b, c, alpha):
-    if not (b <= c and alpha < 90):
+    if b > c or alpha >= 90:
         raise UnconventionalLattice('Expected b <= c, alpha < 90; '
                                     'got a={}, b={}, c={}, alpha={}'
                                     .format(a, b, c, alpha))
@@ -967,10 +967,7 @@ class TRI(BravaisLattice):
 
 
 def get_subset_points(names, points):
-    newpoints = {}
-    for name in names:
-        newpoints[name] = points[name]
-
+    newpoints = {name: points[name] for name in names}
     return newpoints
 
 
@@ -1266,10 +1263,9 @@ class LatticeChecker:
             lat = self.query(name)
             if lat:
                 return lat
-        else:
-            raise RuntimeError('Could not find lattice type for cell '
-                               'with lengths and angles {}'
-                               .format(self.cell.cellpar().tolist()))
+        raise RuntimeError('Could not find lattice type for cell '
+                           'with lengths and angles {}'
+                           .format(self.cell.cellpar().tolist()))
 
     def query(self, latname):
         """Match cell against named Bravais lattice.

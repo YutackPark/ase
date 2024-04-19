@@ -2,18 +2,14 @@
 from io import StringIO
 
 import numpy as np
-from ase.calculators.castep import (
-    _read_header,
-    _read_unit_cell,
-    _read_fractional_coordinates,
-    _read_forces,
-    _read_stress,
-    _read_mulliken_charges,
-    _read_hirshfeld_details,
-    _read_hirshfeld_charges,
-    _get_indices_to_sort_back,
-    _set_energy_and_free_energy,
-)
+
+from ase.calculators.castep import (_get_indices_to_sort_back, _read_forces,
+                                    _read_fractional_coordinates, _read_header,
+                                    _read_hirshfeld_charges,
+                                    _read_hirshfeld_details,
+                                    _read_mulliken_charges, _read_stress,
+                                    _read_unit_cell,
+                                    _set_energy_and_free_energy)
 from ase.constraints import FixAtoms, FixCartesian
 from ase.units import GPa
 

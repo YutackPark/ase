@@ -6,11 +6,10 @@ from subprocess import PIPE, Popen
 import numpy as np
 
 import ase.units as units
-from ase.calculators.calculator import (Calculator,
+from ase.calculators.calculator import (ArgvProfile, Calculator,
+                                        OldShellProfile,
                                         PropertyNotImplementedError,
-                                        all_changes,
-                                        ArgvProfile,
-                                        OldShellProfile)
+                                        all_changes)
 from ase.calculators.genericfileio import GenericFileIOCalculator
 from ase.stress import full_3x3_to_voigt_6_stress
 from ase.utils import IOContext
@@ -55,7 +54,7 @@ class IPIProtocol:
             chunk = self.socket.recv(remaining)
             if len(chunk) == 0:
                 # (If socket is still open, recv returns at least one byte)
-                raise SocketClosed()
+                raise SocketClosed
             chunks.append(chunk)
             remaining -= len(chunk)
         msg = b''.join(chunks)
@@ -65,7 +64,7 @@ class IPIProtocol:
     def recvmsg(self):
         msg = self._recvall(12)
         if not msg:
-            raise SocketClosed()
+            raise SocketClosed
 
         assert len(msg) == 12, msg
         msg = msg.rstrip().decode('ascii')
@@ -201,7 +200,7 @@ def bind_unixsocket(socketfile):
     try:
         serversocket.bind(socketfile)
     except OSError as err:
-        raise OSError(f'{err}: {repr(socketfile)}')
+        raise OSError(f'{err}: {socketfile!r}')
 
     try:
         with serversocket:

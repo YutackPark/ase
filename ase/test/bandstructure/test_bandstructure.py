@@ -25,7 +25,7 @@ def test_bandstructure(testdir, plt):
     bs.plot(emax=10, filename='bs.png')
 
 
-@pytest.fixture
+@pytest.fixture()
 def bs():
     rhl = RHL(4.0, 65.0)
     path = rhl.bandpath()

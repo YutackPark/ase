@@ -9,7 +9,7 @@ from ase.optimize import FIRE
 from ase.phonons import Phonons
 
 
-@pytest.mark.slow
+@pytest.mark.slow()
 def test_phonon_md_init(asap3, testdir):
     # Tests the phonon-based perturbation and velocity distribution
     # for thermal equilibration in MD.

@@ -101,7 +101,7 @@ class Psi4(Calculator):
 
         if atoms is None:
             if self.atoms is None:
-                return None
+                return
             else:
                 atoms = self.atoms
         if self.atoms is None:

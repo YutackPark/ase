@@ -1,9 +1,9 @@
 import os
+import shutil
+import tempfile
 import zlib
 from pathlib import Path
-import shutil
 from subprocess import PIPE, Popen, check_output
-import tempfile
 
 import numpy as np
 import pytest
@@ -11,10 +11,11 @@ import pytest
 import ase
 from ase.config import Config, cfg
 from ase.dependencies import all_dependencies
-from ase.test.factories import (CalculatorInputs, NoSuchCalculator,
-                                factory_classes, get_factories,
-                                make_factory_fixture, factory as factory_deco,
+from ase.test.factories import CalculatorInputs, NoSuchCalculator
+from ase.test.factories import factory as factory_deco
+from ase.test.factories import (factory_classes, get_factories,
                                 legacy_factory_calculator_names,
+                                make_factory_fixture,
                                 parametrize_calculator_tests)
 from ase.utils import get_python_package_path_description, seterr, workdir
 
@@ -167,13 +168,13 @@ def testdir(tmp_path):
         yield tmp_path
 
 
-@pytest.fixture
+@pytest.fixture()
 def allraise():
     with seterr(all='raise'):
         yield
 
 
-@pytest.fixture
+@pytest.fixture()
 def KIM():
     pytest.importorskip('kimpy')
     from ase.calculators.kim import KIM as _KIM
@@ -221,7 +222,7 @@ def plt(_plt_use_agg):
     return plt
 
 
-@pytest.fixture
+@pytest.fixture()
 def figure(plt):
     fig = plt.figure()
     yield fig
@@ -275,7 +276,7 @@ for name in legacy_factory_calculator_names:
     make_dummy_factory(name)
 
 
-@pytest.fixture
+@pytest.fixture()
 def factory(request, factories):
     name, kwargs = request.param
     if not factories.installed(name):
@@ -305,14 +306,14 @@ def pytest_generate_tests(metafunc):
         metafunc.parametrize('seed', seeds)
 
 
-@pytest.fixture
+@pytest.fixture()
 def override_config(monkeypatch):
     parser = Config().parser
     monkeypatch.setattr(cfg, 'parser', parser)
     return cfg
 
 
-@pytest.fixture
+@pytest.fixture()
 def config_file(tmp_path, monkeypatch, override_config):
     dummy_config = """\
 [parallel]

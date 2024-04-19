@@ -4,13 +4,9 @@ import pytest
 from ase.build import fcc111
 from ase.calculators.calculator import CalculatorSetupError
 from ase.calculators.emt import EMT
-from ase.calculators.mixing import (
-    Mixer,
-    AverageCalculator,
-    LinearCombinationCalculator,
-    MixedCalculator,
-    SumCalculator,
-)
+from ase.calculators.mixing import (AverageCalculator,
+                                    LinearCombinationCalculator,
+                                    MixedCalculator, Mixer, SumCalculator)
 from ase.constraints import FixAtoms
 
 

@@ -278,8 +278,7 @@ class MOPAC(FileIOCalculator):
             match = version_regex.match(line)
             if match:
                 return match.groups()[0]
-        else:
-            return ValueError('Version number was not found in MOPAC output')
+        return ValueError('Version number was not found in MOPAC output')
 
     def get_eigenvalues(self, kpt=0, spin=0):
         return self.eigenvalues[spin, kpt]

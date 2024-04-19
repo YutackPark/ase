@@ -6,8 +6,8 @@ from ase.calculators.emt import EMT
 from ase.optimize import FIRE
 
 
-@pytest.mark.optimize
-@pytest.mark.slow
+@pytest.mark.optimize()
+@pytest.mark.slow()
 def test_fire():
     a = bulk('Au')
     a *= (2, 2, 2)

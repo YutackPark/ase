@@ -6,12 +6,12 @@ from ase.vibrations.albrecht import Albrecht
 from ase.vibrations.resonant_raman import ResonantRamanCalculator
 
 
-@pytest.fixture
+@pytest.fixture()
 def atoms():
     return H2Morse()
 
 
-@pytest.fixture
+@pytest.fixture()
 def rrname(atoms):
     """Prepare the Resonant Raman calculation"""
     name = 'rrmorse'
