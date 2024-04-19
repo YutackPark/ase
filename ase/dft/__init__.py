@@ -19,9 +19,9 @@ def get_distribution_moment(x, y, order=0):
     y = np.asarray(y)
 
     if order == 0:
-        return np.trapezoid(y, x)
+        return np.trapz(y, x)
     elif isinstance(order, int):
-        return np.trapezoid(x**order * y, x) / np.trapezoid(y, x)
+        return np.trapz(x**order * y, x) / np.trapz(y, x)
     elif hasattr(order, '__iter__'):
         return [get_distribution_moment(x, y, n) for n in order]
     else:

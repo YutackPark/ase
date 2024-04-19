@@ -204,4 +204,4 @@ class STM:
             step = -1
 
         return np.sign(bias) * \
-            np.trapezoid(x=energies[i1:i2:step], y=T_e[i1:i2:step])
+            np.trapz(x=energies[i1:i2:step], y=T_e[i1:i2:step])

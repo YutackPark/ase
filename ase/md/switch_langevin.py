@@ -117,7 +117,7 @@ class SwitchLangevin(Langevin):
         lambdas = self.path_data[:, 1]
         U1 = self.path_data[:, 2]
         U2 = self.path_data[:, 3]
-        delta_F = np.trapezoid(U2 - U1, lambdas)
+        delta_F = np.trapz(U2 - U1, lambdas)
         return delta_F
 
 
