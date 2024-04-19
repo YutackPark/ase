@@ -20,6 +20,6 @@ def test_pourbaix():
     d, names, text = pb.diagram(U, pH, plot=False)
     print(d, names, text)
     assert d.shape == (3, 11)
-    assert d.ptp() == 6
+    assert np.ptp(d) == 6
     assert names == ['Zn', 'ZnO2(aq)', 'Zn++(aq)', 'HZnO2-(aq)',
                      'ZnOH+(aq)', 'ZnO', 'ZnO2--(aq)']

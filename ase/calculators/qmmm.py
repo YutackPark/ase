@@ -353,7 +353,7 @@ class LJInteractionsGeneral:
 
     def __init__(self, sigmaqm, epsilonqm, sigmamm, epsilonmm,
                  qm_molecule_size, mm_molecule_size=3,
-                 rc=np.Inf, width=1.0):
+                 rc=np.inf, width=1.0):
         """General Lennard-Jones type explicit interaction.
 
         sigmaqm: array
