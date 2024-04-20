@@ -1226,13 +1226,25 @@ def _compare_merge_configs(configs, new):
     oldres.update(newres)
 
 
+def _read_charges(fd):
+    fd.readline()
+    qs = []
+    ms = []
+    for line in fd:
+        if not line.strip()[0].isdigit():
+            break
+        qs.append(float(line.split()[2]))
+        if len(line.split()) > 3:
+            ms.append(float(line.split()[3]))
+    return {'charges': qs, 'magmoms': ms} if ms else {'charges': qs}
+
+
 def read_gaussian_out(fd, index=-1):
     """Reads a gaussian output file and returns an Atoms object."""
     configs = []
     atoms = None
     energy = None
-    dipole = None
-    forces = None
+    results = {}
     orientation = None  # Orientation of the coordinates stored in atoms
     for line in fd:
         line = line.strip()
@@ -1254,18 +1266,16 @@ def read_gaussian_out(fd, index=-1):
                 #  which is the orientation for forces.
                 #  If there are forces and the orientation of atoms is not
                 #  the input coordinate system, warn the user
-                if orientation != "Input" and forces is not None:
+                if orientation != "Input" and 'forces' in results:
                     logger.warning('Configuration geometry is not in the input'
                                    f'orientation. It is {orientation}')
-                atoms.calc = SinglePointCalculator(
-                    atoms, energy=energy, dipole=dipole, forces=forces,
-                )
+                calc = SinglePointCalculator(atoms, energy=energy, **results)
+                atoms.calc = calc
                 _compare_merge_configs(configs, atoms)
             atoms = None
             orientation = line.split()[0]  # Store the orientation
             energy = None
-            dipole = None
-            forces = None
+            results = {}
 
             numbers = []
             positions = []
@@ -1310,6 +1320,14 @@ def read_gaussian_out(fd, index=-1):
             # CCSD(T) energy
             energy = float(line.split('=')[-1].strip().replace('D', 'e'))
             energy *= Hartree
+        elif (
+            line.startswith('Mulliken charges')
+            or line.startswith('Lowdin Atomic Charges')
+            or line.startswith('Hirshfeld charges, spin densities,')
+        ):
+            # Löwdin is printed after Mulliken and overwrites `charges`.
+            # Hirshfeld is printed after Mulliken and overwrites `charges`.
+            results.update(_read_charges(fd))
         elif line.startswith('Dipole moment') and energy is not None:
             # dipole moment in `l601.exe`, printed unless `Pop=None`
             # Skipped if energy is not printed in the same section.
@@ -1319,6 +1337,7 @@ def read_gaussian_out(fd, index=-1):
             # from `l601` conflicts with the previous record from `l716`.
             line = fd.readline().strip()
             dipole = np.array([float(_) for _ in line.split()[1:6:2]]) * Debye
+            results['dipole'] = dipole
         elif _re_l716.match(line):
             # Sometimes Gaussian will print "Rotating derivatives to
             # standard orientation" after the matched line (which looks like
@@ -1349,7 +1368,7 @@ def read_gaussian_out(fd, index=-1):
                 continue
             # this dipole moment is printed in atomic units, e-Bohr
             # ASE uses e-Angstrom for dipole moments.
-            dipole = np.array(dipole) * Bohr
+            results['dipole'] = np.array(dipole) * Bohr
         elif _re_forceblock.match(line):
             # skip 2 irrelevant lines
             fd.readline()
@@ -1360,10 +1379,8 @@ def read_gaussian_out(fd, index=-1):
                 if match is None:
                     break
                 forces.append(list(map(float, match.group(2, 3, 4))))
-            forces = np.array(forces) * Hartree / Bohr
+            results['forces'] = np.array(forces) * Hartree / Bohr
     if atoms is not None:
-        atoms.calc = SinglePointCalculator(
-            atoms, energy=energy, dipole=dipole, forces=forces,
-        )
+        atoms.calc = SinglePointCalculator(atoms, energy=energy, **results)
         _compare_merge_configs(configs, atoms)
     return configs[index]
