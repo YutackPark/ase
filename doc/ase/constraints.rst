@@ -400,9 +400,9 @@ will be ignored if missing:
 The FixSymmetry class
 =====================
 
-.. autoclass:: ase.spacegroup.symmetrize.FixSymmetry
+.. autoclass:: ase.constraints.FixSymmetry
 
-The module also provides some utility functions to prepare
+The following are some utility functions to prepare
 symmetrized configurations and to check symmetry.
 
 .. autofunction:: ase.spacegroup.symmetrize.refine_symmetry
