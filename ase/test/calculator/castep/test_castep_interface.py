@@ -5,10 +5,19 @@ import pytest
 
 import ase.lattice.cubic
 from ase.build import bulk
-from ase.calculators.castep import (Castep, CastepCell, CastepKeywords,
-                                    CastepOption, CastepParam, make_cell_dict,
-                                    make_param_dict)
 from ase.dft.kpoints import BandPath
+from ase.calculators.castep import (
+    Castep,
+    CastepKeywords,
+    make_cell_dict,
+    make_param_dict,
+)
+from ase.io.castep.castep_input_file import (
+    CastepCell,
+    CastepOption,
+    CastepParam,
+)
+
 
 calc = pytest.mark.calculator
 

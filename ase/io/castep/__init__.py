@@ -386,7 +386,7 @@ def read_freeform(fd):
     keywords and lists of strings for blocks).
     """
 
-    from ase.calculators.castep import CastepInputFile
+    from ase.io.castep.castep_input_file import CastepInputFile
 
     inputobj = CastepInputFile(keyword_tolerance=2)
 
