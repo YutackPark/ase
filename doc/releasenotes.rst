@@ -265,6 +265,9 @@ Thermochemistry:
 
 I/O:
 
+* Add support for reading Mulliken, Löwdin, or Hirshfeld atomic charges in
+  :func:`ase.io.gaussian.read_gaussian_out` (:mr:`3332`)
+
 * Add support for reading POSCAR files with negative and multiple scaling
   factors in :func:`ase.io.vasp.read_vasp` (:mr:`3029`)
 
