@@ -353,6 +353,21 @@ float_keys = [
     'nc_k',  # Cavity turn-on density (VASPsol)
     'lambda_d_k',  # Debye screening length (VASPsol)
     'ediffsol',  # Tolerance for solvation convergence (VASPsol)
+    'soltemp',  # Solvent temperature for isol 2 in Vaspsol++
+    'a_k',  # Smoothing length for FFT for isol 2 in Vaspsol++
+    'r_cav',  # Offset for solute surface area for isol 2 in Vaspsol++
+    'epsilon_inf',  # Bulk optical dielectric for isol 2 in Vaspsol++
+    'n_mol',  # Solvent density for isol 2 in Vaspsol++
+    'p_mol',  # Solvent dipole moment for isol 2 in Vaspsol++
+    'r_solv',  # Solvent radius for isol 2 in Vaspsol++
+    'r_diel',  # Dielectric radius for isol 2 in Vaspsol++
+    'r_b',  # Bound charge smearing length for isol 2 in Vaspsol++
+    'c_molar',  # Electrolyte concentration for isol 2 in Vaspsol++
+    'zion',  # Electrolyte ion valency for isol 2 in Vaspsol++
+    'd_ion',  # Packing diameter of electrolyte ions for isol 2 in Vaspsol++
+    'r_ion',  # Ionic radius of electrolyte ions for isol 2 in Vaspsol++
+    'efermi_ref',  # Potential vs vacuum for isol 2 in Vaspsol++
+    'capacitance_init',  # Initial guess for isol 2 in Vaspsol++
     'deg_threshold',  # Degeneracy threshold
     'omegamin',  # Minimum frequency for dense freq. grid
     'omegamax',  # Maximum frequency for dense freq. grid
@@ -625,6 +640,7 @@ int_keys = [
     'ch_nedos',  # Number dielectric function calculation grid points for XAS
     'plevel',  # No timings for routines with "level" higher than this
     'qnl',  # Lanczos matrix size (instanton)
+    'isol',  # vaspsol++ flag 1 linear, 2 nonlinear
 ]
 
 bool_keys = [
@@ -681,6 +697,9 @@ bool_keys = [
     'lwannier90',  # Switches on the interface between VASP and WANNIER90
     'lsorbit',  # Enable spin-orbit coupling
     'lsol',  # turn on solvation for Vaspsol
+    'lnldiel',  # turn on nonlinear dielectric in Vaspsol++
+    'lnlion',  # turn on nonlinear ionic in Vaspsol++
+    'lsol_scf',  # turn on solvation in SCF cycle in Vaspsol++
     'lautoscale',  # automatically calculate inverse curvature for VTST LBFGS
     'interactive',  # Enables interactive calculation for VaspInteractive
     'lauger',  # Perform Auger calculation (Auger)
