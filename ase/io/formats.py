@@ -746,7 +746,7 @@ def _write(filename, fd, format, io, images, parallel=None, append=False,
 def read(
         filename: NameOrFile,
         index: Any = None,
-        format: str = None,
+        format: Optional[str] = None,
         parallel: bool = True,
         do_not_split_by_at_sign: bool = False,
         **kwargs
