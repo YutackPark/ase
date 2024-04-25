@@ -126,10 +126,7 @@ class Espresso(GenericFileIOCalculator):
         """
         All options for pw.x are copied verbatim to the input file, and put
         into the correct section. Use ``input_data`` for parameters that are
-        already in a dict, all other ``kwargs`` are passed as parameters.
-
-        Accepts all the options for pw.x as given in the QE docs, plus some
-        additional options:
+        already in a dict.
 
         input_data: dict
             A flat or nested dictionary with input parameters for pw.x
@@ -157,43 +154,6 @@ class Espresso(GenericFileIOCalculator):
         koffset: (int, int, int)
             Offset of kpoints in each direction. Must be 0 (no offset) or
             1 (half grid offset). Setting to True is equivalent to (1, 1, 1).
-
-
-        .. note::
-           Set ``tprnfor=True`` and ``tstress=True`` to calculate forces and
-           stresses.
-
-        .. note::
-           Band structure plots can be made as follows:
-
-
-           1. Perform a regular self-consistent calculation,
-              saving the wave functions at the end, as well as
-              getting the Fermi energy:
-
-              >>> input_data = {<your input data>}
-              >>> calc = Espresso(input_data=input_data, ...)
-              >>> atoms.calc = calc
-              >>> atoms.get_potential_energy()
-              >>> fermi_level = calc.get_fermi_level()
-
-           2. Perform a non-self-consistent 'band structure' run
-              after updating your input_data and kpts keywords:
-
-              >>> input_data['control'].update({'calculation':'bands',
-              >>>                               'restart_mode':'restart',
-              >>>                               'verbosity':'high'})
-              >>> calc.set(kpts={<your Brillouin zone path>},
-              >>>          input_data=input_data)
-              >>> calc.calculate(atoms)
-
-           3. Make the plot using the BandStructure functionality,
-              after setting the Fermi level to that of the prior
-              self-consistent calculation:
-
-              >>> bs = calc.band_structure()
-              >>> bs.reference = fermi_energy
-              >>> bs.plot()
 
         """
 

@@ -8,6 +8,17 @@ from ase.io.espresso_namelist.keys import ALL_KEYS
 
 
 class Namelist(UserDict):
+    """A case-insensitive dictionary for storing Quantum Espresso namelists.
+    This class is a subclass of UserDict, which is a wrapper around a regular
+    dictionary. This allows us to define custom behavior for the dictionary
+    methods, while still having access to the full dictionary API.
+
+    to_string() have been added to handle the conversion of the dictionary
+    to a string for writing to a file or quick lookup using print().
+
+    to_nested() have been added to convert the dictionary to a nested
+    dictionary with the correct structure for the specified binary.
+    """
     def __getitem__(self, key):
         return super().__getitem__(key.lower())
 
