@@ -44,19 +44,20 @@ def write_orca(fd, atoms, params):
     fd.write(f"! {params['orcasimpleinput']} \n")
     fd.write(f"{params['orcablocks']} \n")
 
-    fd.write('*xyz')
-    fd.write(" %d" % params['charge'])
-    fd.write(" %d \n" % params['mult'])
-    for atom in atoms:
-        if atom.tag == 71:  # 71 is ascii G (Ghost)
-            symbol = atom.symbol + ' : '
-        else:
-            symbol = atom.symbol + '   '
-        fd.write(symbol +
-                 str(atom.position[0]) + ' ' +
-                 str(atom.position[1]) + ' ' +
-                 str(atom.position[2]) + '\n')
-    fd.write('*\n')
+    if 'coords' not in params['orcablocks']:
+        fd.write('*xyz')
+        fd.write(" %d" % params['charge'])
+        fd.write(" %d \n" % params['mult'])
+        for atom in atoms:
+            if atom.tag == 71:  # 71 is ascii G (Ghost)
+                symbol = atom.symbol + ' : '
+            else:
+                symbol = atom.symbol + '   '
+            fd.write(symbol +
+                str(atom.position[0]) + ' ' +
+                str(atom.position[1]) + ' ' +
+                str(atom.position[2]) + '\n')
+        fd.write('*\n')
 
 
 @reader
