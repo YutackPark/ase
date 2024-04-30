@@ -53,10 +53,15 @@ def write_orca(fd, atoms, params):
                 symbol = atom.symbol + ' : '
             else:
                 symbol = atom.symbol + '   '
-            fd.write(symbol +
-                str(atom.position[0]) + ' ' +
-                str(atom.position[1]) + ' ' +
-                str(atom.position[2]) + '\n')
+            fd.write(
+                symbol
+                + str(atom.position[0])
+                + " "
+                + str(atom.position[1])
+                + " "
+                + str(atom.position[2])
+                + "\n"
+            )
         fd.write('*\n')
 
 
