@@ -167,7 +167,7 @@ class CP2K(Calculator, AbstractContextManager):
         Send updated positions to the CP2K shell via file instead of
         via stdin, which can bypass limitations for sending large
         structures via stdin for CP2K built with some MPI libraries.
-        Requires CP2K 2024.X
+        Requires CP2K 2024.2
     """
 
     implemented_properties = ['energy', 'free_energy', 'forces', 'stress']
@@ -306,7 +306,7 @@ class CP2K(Calculator, AbstractContextManager):
             if self.parameters.set_pos_file:
                 # TODO: Update version number when released
                 if self._shell.version < 7:
-                    raise ValueError('SET_POS_FILE requires > CP2K 2024.X')
+                    raise ValueError('SET_POS_FILE requires > CP2K 2024.2')
                 pos: np.ndarray = self.atoms.get_positions()
                 fn = self.label + '.pos'
                 with open(fn, 'w') as fp:
@@ -542,7 +542,7 @@ class Cp2kShell:
             raise RuntimeError('Cannot determine version of CP2K shell.  '
                                'Probably the shell version is too old.  '
                                'Please update to CP2K 3.0 or newer.  '
-                               'Received: {line}')
+                               f'Received: {line}')
 
         shell_version = line.rsplit(":", 1)[1]
         self.version = float(shell_version)
