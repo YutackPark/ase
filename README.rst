@@ -27,15 +27,15 @@ Installation
 
 To install the latest release:
 
-```
-pip install ase
-```
+::
+
+  pip install ase
 
 To install the development version:
 
-```
-pip install git+https://gitlab.com/ase/ase.git
-```
+::
+
+  pip install git+https://gitlab.com/ase/ase.git
 
 Testing
 -------
