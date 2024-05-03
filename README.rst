@@ -25,9 +25,17 @@ Optional:
 Installation
 ------------
 
-Add ``~/ase`` to your $PYTHONPATH environment variable and add
-``~/ase/bin`` to $PATH (assuming ``~/ase`` is where your ASE folder is).
+To install the latest release:
 
+```
+pip install ase
+```
+
+To install the development version:
+
+```
+pip install git+https://gitlab.com/ase/ase.git
+```
 
 Testing
 -------
