@@ -184,3 +184,14 @@ def test_numerical_stress(testdir):
     ]
 
     assert np.allclose(stress, stress_actual)
+
+
+def test_spin_collinear_w_md_light(testdir):
+    """Issue 3345"""
+    outfile = parent / "testdata/aims/issue_3345_spin_md_light.out"
+    atoms = read(outfile, format="aims-output")
+
+    e0 = -13.0174218930995
+    ee = atoms.get_potential_energy()
+
+    assert np.allclose(e0, ee)

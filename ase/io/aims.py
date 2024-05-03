@@ -1586,6 +1586,8 @@ def get_header_chunk(fd):
     while (
         "Convergence:    q app. |  density  | eigen (eV) | Etot (eV)"
             not in line
+            and "Convergence:    q app. |  density,  spin     | eigen (eV) |"
+            not in line
             and "Begin self-consistency iteration #" not in line
     ):
         try:
