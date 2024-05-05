@@ -39,7 +39,7 @@ ase = 'ase.cli.main:main'
 
 [project.optional-dependencies]
 docs = ['sphinx', 'sphinx_rtd_theme', 'pillow']
-test = ['pytest>=6.2.5', 'pytest-xdist>=2.1.0']
+test = ['pytest>=7.0.0', 'pytest-xdist>=2.1.0']
 spglib = ['spglib>=1.9']
 
 [tool.setuptools.package-data]

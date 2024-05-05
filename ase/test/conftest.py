@@ -37,7 +37,7 @@ def testconfig():
     return MachineInformation().cfg
 
 
-def pytest_report_header(config, startdir):
+def pytest_report_header(config, start_path):
     yield from library_header()
     yield ''
     yield from calculators_header(config)
