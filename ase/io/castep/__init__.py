@@ -23,7 +23,7 @@ from ase.constraints import FixAtoms, FixCartesian, FixedLine, FixedPlane
 from ase.geometry.cell import cellpar_to_cell
 from ase.parallel import paropen
 from ase.spacegroup import Spacegroup
-from ase.utils import atoms_to_spglib_cell
+from ase.utils import atoms_to_spglib_cell, reader
 
 units_ase = {
     'hbar': ase.units._hbar * ase.units.J,
@@ -1439,53 +1439,55 @@ def read_seed(seed, new_seed=None, ignore_internal_keys=False):
     return atoms
 
 
-def read_bands(filename='', fd=None, units=units_CODATA2002):
-    """Read Castep.bands file to kpoints, weights and eigenvalues
+@reader
+def read_bands(fd, units=units_CODATA2002):
+    """Read Castep.bands file to kpoints, weights and eigenvalues.
 
-    Args:
-        filename (str):
-            path to seedname.bands file
-        fd (fd):
-            file descriptor for open bands file
-        units (dict):
-            Conversion factors for atomic units
+    Parameters
+    ----------
+    fd : str | io.TextIOBase
+        Path to the `.bands` file or file descriptor for open `.bands` file.
+    units : dict
+        Conversion factors for atomic units.
 
-    Returns:
-        (tuple):
-            (kpts, weights, eigenvalues, efermi)
+    Returns
+    -------
+    kpts : np.ndarray
+        1d NumPy array for k-point coordinates.
+    weights : np.ndarray
+        1d NumPy array for k-point weights.
+    eigenvalues : np.ndarray
+        NumPy array for eigenvalues with shape (spin, kpts, nbands).
+    efermi : float
+        Fermi energy.
 
-            Where ``kpts`` and ``weights`` are 1d numpy arrays, eigenvalues
-            is an array of shape (spin, kpts, nbands) and efermi is a float
     """
-
     Hartree = units['Eh']
 
-    if fd is None:
-        if filename == '':
-            raise ValueError('One between filename and fd must be provided')
-        fd = open(filename)
-    elif filename:
-        warnings.warn('Filestream used to read param, file name will be '
-                      'ignored')
+    nkpts = int(fd.readline().split()[-1])
+    nspin = int(fd.readline().split()[-1])
+    _ = float(fd.readline().split()[-1])
+    nbands = int(fd.readline().split()[-1])
+    efermi = float(fd.readline().split()[-1])
 
-    nkpts, nspin, _, nbands, efermi = (t(fd.readline().split()[-1]) for t in
-                                       [int, int, float, int, float])
-
-    kpts, weights = np.zeros((nkpts, 3)), np.zeros(nkpts)
+    kpts = np.zeros((nkpts, 3))
+    weights = np.zeros(nkpts)
     eigenvalues = np.zeros((nspin, nkpts, nbands))
 
     # Skip unit cell
     for _ in range(4):
         fd.readline()
 
-    def _kptline_to_i_k_wt(line):
-        line = line.split()
-        line = [int(line[1])] + list(map(float, line[2:]))
-        return (line[0] - 1, line[1:4], line[4])
+    def _kptline_to_i_k_wt(line: str) -> Tuple[int, List[float], float]:
+        split_line = line.split()
+        i_kpt = int(split_line[1]) - 1
+        kpt = list(map(float, split_line[2:5]))
+        wt = float(split_line[5])
+        return i_kpt, kpt, wt
 
     # CASTEP often writes these out-of-order, so check index and write directly
     # to the correct row
-    for kpt_line in range(nkpts):
+    for _ in range(nkpts):
         i_kpt, kpt, wt = _kptline_to_i_k_wt(fd.readline())
         kpts[i_kpt, :], weights[i_kpt] = kpt, wt
         for spin in range(nspin):
