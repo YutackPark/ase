@@ -13,7 +13,7 @@ from .filecmp_ignore_whitespace import filecmp_ignore_whitespace
 calc = pytest.mark.calculator
 
 
-@pytest.fixture
+@pytest.fixture()
 def atoms():
     return bulk('Al', 'fcc', a=4.5, cubic=True)
 
@@ -25,7 +25,7 @@ def check_kpoints_line(n, contents):
     assert lines[n].strip() == contents
 
 
-@pytest.fixture
+@pytest.fixture()
 def write_kpoints(atoms):
     """Helper fixture to write the input kpoints file"""
     def _write_kpoints(factory, **kwargs):

@@ -387,8 +387,18 @@ def test_pw_input_write():
         'lda_plus_u': True,
         'Hubbard_U(1)': 4.0,
         'Hubbard_U(2)': 0.0}}
-    write_espresso_in(fh, bulk, sections, pseudopotentials=pseudos)
+    write_espresso_in(fh, bulk, sections, pseudopotentials=pseudos,
+                      additional_cards=["test1", "test2", "test3"])
+
     readback = read_espresso_in('espresso_test.pwi')
+
+    with open('espresso_test.pwi') as f:
+        _, cards = read_fortran_namelist(f)
+
+        assert "K_POINTS gamma" in cards
+        assert cards[-3] == "test1"
+        assert cards[-1] == "test3"
+
     assert np.allclose(bulk.positions, readback.positions)
 
 
@@ -423,6 +433,51 @@ def test_pw_input_write_nested_flat():
     assert "&USED_SECTIONS\n" in read_string
     assert "   used_keyword1    = 'used_value1'\n" in read_string
     assert np.allclose(bulk.positions, new_atoms.positions)
+
+
+def test_write_fortran_namelist_any():
+    fd = io.StringIO()
+    input_data = {
+        "environ": {"environ_type": "vacuum"},
+        "electrostatic": {"tol": 1e-10, "mix": 0.5},
+        "boundary": {"solvent_mode": "full"}
+    }
+
+    additional_cards = [
+        "EXTERNAL_CHARGES (bohr)",
+        "-0.5 0. 0. 25.697 1.0 2 3",
+        "-0.5 0. 0. 20.697 1.0 2 3"
+    ]
+
+    write_fortran_namelist(fd, input_data, additional_cards=additional_cards)
+    result = fd.getvalue()
+
+    expected = (
+        "&ENVIRON\n"
+        "   environ_type     = 'vacuum'\n"
+        "/\n"
+        "&ELECTROSTATIC\n"
+        "   tol              = 1e-10\n"
+        "   mix              = 0.5\n"
+        "/\n"
+        "&BOUNDARY\n"
+        "   solvent_mode     = 'full'\n"
+        "/\n"
+        "EXTERNAL_CHARGES (bohr)\n"
+        "-0.5 0. 0. 25.697 1.0 2 3\n"
+        "-0.5 0. 0. 20.697 1.0 2 3\n"
+        "EOF"
+    )
+
+    assert result == expected
+    assert "ENVIRON" in result
+    assert "ELECTROSTATIC" in result
+    assert "BOUNDARY" in result
+    assert result.endswith("EOF")
+    fd.seek(0)
+    reread = read_fortran_namelist(fd)
+    assert reread[1][:-1] == additional_cards
+    assert reread[0] == input_data
 
 
 def test_write_fortran_namelist_pw():

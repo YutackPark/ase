@@ -1,9 +1,6 @@
-from ase.calculators.calculator import (
-    BaseCalculator,
-    CalculatorSetupError,
-    PropertyNotImplementedError,
-    all_changes,
-)
+from ase.calculators.calculator import (BaseCalculator, CalculatorSetupError,
+                                        PropertyNotImplementedError,
+                                        all_changes)
 from ase.stress import full_3x3_to_voigt_6_stress
 
 

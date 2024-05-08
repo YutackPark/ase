@@ -27,7 +27,7 @@ classifiers = [
 requires-python = '>=3.8'
 dependencies = [
     'numpy>=1.18.5',  # June 2020
-    'scipy>=1.4.1',  # December 2019
+    'scipy>=1.6.0',  # December 2020
     'matplotlib>=3.3.4'  # January 2021 (3.3.0 is July 2020)
 ]
 
@@ -39,7 +39,7 @@ ase = 'ase.cli.main:main'
 
 [project.optional-dependencies]
 docs = ['sphinx', 'sphinx_rtd_theme', 'pillow']
-test = ['pytest>=6.2.5', 'pytest-xdist>=2.1.0']
+test = ['pytest>=7.0.0', 'pytest-xdist>=2.1.0']
 spglib = ['spglib>=1.9']
 
 [tool.setuptools.package-data]
@@ -55,6 +55,12 @@ ase = [
 
 [tool.pytest.ini_options]
 testpaths = ['ase/test']
+markers = [
+    "calculator: parametrizes calculator tests with calculator factories",
+    "calculator_lite: for calculator tests; include in calculators-lite job",
+    "optimize: tests of optimizers",
+    "slow: test takes longer than a few seconds",
+]
 
 [tool.mypy]
 ignore_missing_imports = true

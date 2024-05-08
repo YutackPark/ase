@@ -8,9 +8,8 @@ http://tddft.org/programs/octopus/
 
 import numpy as np
 
-from ase.calculators.genericfileio import (CalculatorTemplate,
-                                           GenericFileIOCalculator,
-                                           BaseProfile)
+from ase.calculators.genericfileio import (BaseProfile, CalculatorTemplate,
+                                           GenericFileIOCalculator)
 from ase.io.octopus.input import generate_input, process_special_kwargs
 from ase.io.octopus.output import read_eigenvalues_file, read_static_info
 
@@ -30,7 +29,7 @@ class OctopusProfile(BaseProfile):
     def version(self):
         import re
         from subprocess import check_output
-        txt = check_output(self.argv + ['--version']).decode('ascii')
+        txt = check_output([self.binary, '--version'], encoding='ascii')
         match = re.match(r'octopus\s*(.+)', txt)
         # With MPI it prints the line for each rank, but we just match
         # the first line.
@@ -38,11 +37,15 @@ class OctopusProfile(BaseProfile):
 
 
 class OctopusTemplate(CalculatorTemplate):
+    _label = 'octopus'
+
     def __init__(self):
         super().__init__(
-            name='octopus',
+            'octopus',
             implemented_properties=['energy', 'forces', 'dipole', 'stress'],
         )
+        self.outputname = f'{self._label}.out'
+        self.errorname = f'{self._label}.err'
 
     def read_results(self, directory):
         """Read octopus output files and extract data."""
@@ -66,7 +69,8 @@ class OctopusTemplate(CalculatorTemplate):
         return results
 
     def execute(self, directory, profile):
-        profile.run(directory, inputfile=None, outputfile='octopus.out')
+        profile.run(directory, None, self.outputname,
+                    errorfile=self.errorname)
 
     def write_input(self, profile, directory, atoms, parameters, properties):
         txt = generate_input(atoms, process_special_kwargs(atoms, parameters))

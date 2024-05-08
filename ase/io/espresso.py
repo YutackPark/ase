@@ -20,6 +20,7 @@ from copy import deepcopy
 from pathlib import Path
 
 import numpy as np
+
 from ase.atoms import Atoms
 from ase.calculators.calculator import kpts2ndarray, kpts2sizeandoffsets
 from ase.calculators.singlepoint import (SinglePointDFTCalculator,
@@ -608,8 +609,7 @@ def get_atomic_positions(lines, n_atoms, cell=None, alat=None):
 
     positions = None
     # no blanks or comment lines, can the consume n_atoms lines for positions
-    trimmed_lines = (line for line in lines
-                     if line.strip() and not line[0] == '#')
+    trimmed_lines = (line for line in lines if line.strip() and line[0] != '#')
 
     for line in trimmed_lines:
         if line.strip().startswith('ATOMIC_POSITIONS'):
@@ -723,8 +723,7 @@ def get_cell_parameters(lines, alat=None):
     cell = None
     cell_alat = None
     # no blanks or comment lines, can take three lines for cell
-    trimmed_lines = (line for line in lines
-                     if line.strip() and not line[0] == '#')
+    trimmed_lines = (line for line in lines if line.strip() and line[0] != '#')
 
     for line in trimmed_lines:
         if line.strip().startswith('CELL_PARAMETERS'):
@@ -844,7 +843,6 @@ def str_to_value(string):
     value : any
         Parsed string as the most appropriate datatype of int, float,
         bool or string.
-
     """
 
     # Just an integer
@@ -876,15 +874,13 @@ def read_fortran_namelist(fileobj):
     """Takes a fortran-namelist formatted file and returns nested
     dictionaries of sections and key-value data, followed by a list
     of lines of text that do not fit the specifications.
-
     Behaviour is taken from Quantum ESPRESSO 5.3. Parses fairly
     convoluted files the same way that QE should, but may not get
-    all the MANDATORY rules and edge cases for very non-standard files:
-        Ignores anything after '!' in a namelist, split pairs on ','
-        to include multiple key=values on a line, read values on section
-        start and end lines, section terminating character, '/', can appear
-        anywhere on a line.
-        All of these are ignored if the value is in 'quotes'.
+    all the MANDATORY rules and edge cases for very non-standard files
+    Ignores anything after '!' in a namelist, split pairs on ','
+    to include multiple key=values on a line, read values on section
+    start and end lines, section terminating character, '/', can appear
+    anywhere on a line. All of these are ignored if the value is in 'quotes'.
 
     Parameters
     ----------
@@ -893,13 +889,12 @@ def read_fortran_namelist(fileobj):
 
     Returns
     -------
-    data : dict of dict
-        Dictionary for each section in the namelist with key = value
-        pairs of data.
-    card_lines : list of str
-        Any lines not used to create the data, assumed to belong to 'cards'
-        in the input file.
-
+    data : dict[str, dict]
+        Dictionary for each section in the namelist with
+        key = value pairs of data.
+    additional_cards : list[str]
+        Any lines not used to create the data,
+        assumed to belong to 'cards' in the input file.
     """
 
     data = {}
@@ -1188,11 +1183,12 @@ def format_atom_position(atom, crystal_coordinates, mask='', tidx=None):
 @writer
 def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
                       kspacing=None, kpts=None, koffset=(0, 0, 0),
-                      crystal_coordinates=False, **kwargs):
+                      crystal_coordinates=False, additional_cards=None,
+                      **kwargs):
     """
     Create an input file for pw.x.
 
-    Use set_initial_magnetic_moments to turn on spin, if ispin is set to 2
+    Use set_initial_magnetic_moments to turn on spin, if nspin is set to 2
     with no magnetic moments, they will all be set to 0.0. Magnetic moments
     will be converted to the QE units (fraction of valence electrons) using
     any pseudopotential files found, or a best guess for the number of
@@ -1207,9 +1203,9 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
     Implemented features:
 
     - Conversion of :class:`ase.constraints.FixAtoms` and
-                    :class:`ase.constraints.FixCartesian`.
-    - `starting_magnetization` derived from the `mgmoms` and pseudopotentials
-      (searches default paths for pseudo files.)
+      :class:`ase.constraints.FixCartesian`.
+    - ``starting_magnetization`` derived from the ``magmoms`` and
+      pseudopotentials (searches default paths for pseudo files.)
     - Automatic assignment of options to their correct sections.
 
     Not implemented:
@@ -1226,7 +1222,7 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
     fd: file | str
         A file to which the input is written.
     atoms: Atoms
-        A single atomistic configuration to write to `fd`.
+        A single atomistic configuration to write to ``fd``.
     input_data: dict
         A flat or nested dictionary with input parameters for pw.x
     pseudopotentials: dict
@@ -1433,6 +1429,13 @@ def write_espresso_in(fd, atoms, input_data=None, pseudopotentials=None,
     # DONE!
     fd.write(''.join(pwi))
 
+    if additional_cards:
+        if isinstance(additional_cards, list):
+            additional_cards = "\n".join(additional_cards)
+            additional_cards += "\n"
+
+        fd.write(additional_cards)
+
 
 def write_espresso_ph(
         fd,
@@ -1507,7 +1510,7 @@ def write_espresso_ph(
 def read_espresso_ph(fileobj):
     """
     Function that reads the output of a ph.x calculation.
-    It returns a dictionary where each q-point is a key and
+    It returns a dictionary where each q-point number is a key and
     the value is a dictionary with the following keys if available:
 
     - qpoints: The q-point in cartesian coordinates.
@@ -1525,12 +1528,12 @@ def read_espresso_ph(fileobj):
     Some notes:
 
         - For some reason, the cell is not defined to high level of
-        precision with ph.x. Be careful when using the atoms object
-        retrieved from this function.
+          precision in ph.x outputs. Be careful when using the atoms object
+          retrieved from this function.
         - This function can be called on incomplete calculations i.e.
-        if the calculation couldn't diagonalize the dynamical matrix
-        for some q-points, the results for the other q-points will
-        still be returned.
+          if the calculation couldn't diagonalize the dynamical matrix
+          for some q-points, the results for the other q-points will
+          still be returned.
 
     Parameters
     ----------
@@ -1837,7 +1840,7 @@ def read_espresso_ph(fileobj):
 
     for qnum, (past, future) in enumerate(zip(iblocks[:-1], iblocks[1:])):
         qpoint = _read_qpoints(past)
-        results[qpoint] = {"qnum": qnum + 1}
+        results[qnum + 1] = curr_result = {"qpoint": qpoint}
         for prop in properties:
             p = (past < output[prop]) & (output[prop] < future)
             selected = output[prop][p]
@@ -1845,20 +1848,20 @@ def read_espresso_ph(fileobj):
                 continue
             if unique[prop]:
                 idx = output[prop][p][-1]
-                results[qpoint][names[prop]] = properties[prop](idx)
+                curr_result[names[prop]] = properties[prop](idx)
             else:
                 tmp = {k + 1: 0 for k in range(len(selected))}
                 for k, idx in enumerate(selected):
                     tmp[k + 1] = properties[prop](idx)
-                results[qpoint][names[prop]] = tmp
-        alat = results[qpoint].pop("alat", 1.0)
-        atoms = results[qpoint].pop("positions", None)
-        cell = results[qpoint].pop("cell", np.eye(3))
+                curr_result[names[prop]] = tmp
+        alat = curr_result.pop("alat", 1.0)
+        atoms = curr_result.pop("positions", None)
+        cell = curr_result.pop("cell", np.eye(3))
         if atoms:
             atoms.positions *= alat * units["Bohr"]
             atoms.cell = cell * alat * units["Bohr"]
             atoms.wrap()
-            results[qpoint]["atoms"] = atoms
+            curr_result["atoms"] = atoms
 
     return results
 
@@ -1866,7 +1869,7 @@ def read_espresso_ph(fileobj):
 def write_fortran_namelist(
         fd,
         input_data=None,
-        binary='pw',
+        binary=None,
         additional_cards=None,
         **kwargs) -> None:
     """
@@ -1897,7 +1900,9 @@ def write_fortran_namelist(
     None
     """
     input_data = Namelist(input_data)
-    input_data.to_nested(binary, **kwargs)
+
+    if binary:
+        input_data.to_nested(binary, **kwargs)
 
     pwi = input_data.to_string()
 

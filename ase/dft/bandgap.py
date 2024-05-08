@@ -1,22 +1,19 @@
-import functools
 import warnings
 
 import numpy as np
 
-from ase.utils import IOContext
 
-
-def get_band_gap(calc, direct=False, spin=None, output='-'):
+def get_band_gap(calc, direct=False, spin=None):
     warnings.warn('Please use ase.dft.bandgap.bandgap() instead!')
-    gap, (s1, k1, n1), (s2, k2, n2) = bandgap(calc, direct, spin, output)
+    gap, (s1, k1, n1), (s2, k2, n2) = bandgap(calc, direct, spin)
     ns = calc.get_number_of_spins()
     if ns == 2 and spin is None:
         return gap, (s1, k1), (s2, k2)
     return gap, k1, k2
 
 
-def bandgap(calc=None, direct=False, spin=None, output='-',
-            eigenvalues=None, efermi=None, kpts=None):
+def bandgap(calc=None, direct=False, spin=None, eigenvalues=None, efermi=None,
+            output=None, kpts=None):
     """Calculates the band-gap.
 
     Parameters:
@@ -28,14 +25,10 @@ def bandgap(calc=None, direct=False, spin=None, output='-',
     spin: int or None
         For spin-polarized systems, you can use spin=0 or spin=1 to look only
         at a single spin-channel.
-    output: file descriptor
-        Use output=None for no text output or '-' for stdout (default).
     eigenvalues: ndarray of shape (nspin, nkpt, nband) or (nkpt, nband)
         Eigenvalues.
     efermi: float
         Fermi level (defaults to 0.0).
-    kpts: ndarray of shape (nkpt, 3)
-        For pretty text output only.
 
     Returns a (gap, p1, p2) tuple where p1 and p2 are tuples of indices of the
     valence and conduction points (s, k, n).
@@ -76,32 +69,6 @@ def bandgap(calc=None, direct=False, spin=None, output='-',
 
     gap, (s1, k1, n1), (s2, k2, n2) = _bandgap(e_skn, spin, direct)
 
-    with IOContext() as iocontext:
-        fd = iocontext.openfile(output)
-        p = functools.partial(print, file=fd)
-
-        def skn(s, k, n):
-            """Convert k or (s, k) to string."""
-            if kpts is None:
-                return f'(s={s}, k={k}, n={n})'
-            return '(s={}, k={}, n={}, [{:.2f}, {:.2f}, {:.2f}])'.format(
-                s, k, n, *kpts[k])
-
-        if spin is not None:
-            p(f'spin={spin}: ', end='')
-        if gap == 0.0:
-            p('No gap')
-        elif direct:
-            p(f'Direct gap: {gap:.3f} eV')
-            if s1 == s2:
-                p('Transition at:', skn(s1, k1, n1))
-            else:
-                p('Transition at:', skn(f'{s1}->{s2}', k1, n1))
-        else:
-            p(f'Gap: {gap:.3f} eV')
-            p('Transition (v -> c):')
-            p(' ', skn(s1, k1, n1), '->', skn(s2, k2, n2))
-
     if eigenvalues.ndim != 3:
         p1 = (k1, n1)
         p2 = (k2, n2)
@@ -121,12 +88,12 @@ def _bandgap(e_skn, spin, direct):
 
     # Check for bands crossing the fermi-level
     if ns == 1:
-        if N_sk[0].ptp() > 0:
+        if np.ptp(N_sk[0]) > 0:
             return 0.0, (None, None, None), (None, None, None)
     elif spin is None:
-        if (N_sk.ptp(axis=1) > 0).any():
+        if (np.ptp(N_sk, axis=1) > 0).any():
             return 0.0, (None, None, None), (None, None, None)
-    elif N_sk[spin].ptp() > 0:
+    elif np.ptp(N_sk[spin]) > 0:
         return 0.0, (None, None, None), (None, None, None)
 
     if (N_sk == 0).any() or (N_sk == nb).any():

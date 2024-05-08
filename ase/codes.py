@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 
-
 # Note: There could be more than one "calculator" for any given code;
 # for example Espresso can work both as GenericFileIOCalculator and
 # SocketIOCalculator, or as part of some DFTD3 combination.
@@ -46,6 +45,7 @@ class CodeMetadata:
 
     def is_generic_fileio(self):
         from ase.calculators.genericfileio import CalculatorTemplate
+
         # It is nicer to check for the template class, since it has the name,
         # but then calculator_class() should be renamed.
         return issubclass(self.calculator_class(), CalculatorTemplate)
@@ -76,15 +76,15 @@ class CodeMetadata:
         return f'BAD: Not a proper calculator (superclasses: {cls.__mro__})'
 
     def profile(self):
+        from ase.calculators.calculator import FileIOCalculator
         from ase.calculators.genericfileio import CalculatorTemplate
-        from ase.calculators.calculator import (FileIOCalculator,
-                                                NewArgvProfile)
         from ase.config import cfg
         cls = self.calculator_class()
         if issubclass(cls, CalculatorTemplate):
             return cls().load_profile(cfg)
-        elif issubclass(cls, FileIOCalculator):
-            return NewArgvProfile.from_config_section(cfg.parser[self.name])
+        elif hasattr(cls, 'fileio_rules'):
+            assert issubclass(cls, FileIOCalculator)
+            return cls.load_argv_profile(cfg, self.name)
         else:
             raise NotImplementedError('profile() not implemented')
 

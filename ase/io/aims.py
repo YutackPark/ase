@@ -522,8 +522,8 @@ def write_control(fd, atoms, parameters, verbose_header=False):
             fd.write(s)
     fd.write(lim + "\n")
 
-    assert not ("kpts" in parameters and "k_grid" in parameters)
-    assert not ("smearing" in parameters and "occupation_type" in parameters)
+    assert "kpts" not in parameters or "k_grid" not in parameters
+    assert "smearing" not in parameters or "occupation_type" not in parameters
 
     for key, value in parameters.items():
         if key == "kpts":
@@ -1154,7 +1154,7 @@ class AimsOutCalcChunk(AimsOutChunk):
             elif "atom   " in line:
                 line_split = line.split()
                 atoms.append(Atom(line_split[4], tuple(
-                    [float(inp) for inp in line_split[1:4]])))
+                    float(inp) for inp in line_split[1:4])))
             elif "velocity   " in line:
                 velocities.append([float(inp) for inp in line.split()[1:]])
 
@@ -1179,7 +1179,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         """Parse the forces from the aims.out file"""
         line_start = self.reverse_search_for(["Total atomic forces"])
         if line_start == LINE_NOT_FOUND:
-            return
+            return None
 
         line_start += 1
 
@@ -1219,7 +1219,7 @@ class AimsOutCalcChunk(AimsOutChunk):
 
         )  # Offest to relevant lines
         if line_start == LINE_NOT_FOUND:
-            return
+            return None
 
         stress = [
             [float(inp) for inp in line.split()[2:5]]
@@ -1255,7 +1255,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         """Parse the electric dipole moment from the aims.out file."""
         line_start = self.reverse_search_for(["Total dipole moment [eAng]"])
         if line_start == LINE_NOT_FOUND:
-            return
+            return None
 
         line = self.lines[line_start]
         return np.array([float(inp) for inp in line.split()[6:9]])
@@ -1265,7 +1265,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         """Parse the dielectric tensor from the aims.out file"""
         line_start = self.reverse_search_for(["PARSE DFPT_dielectric_tensor"])
         if line_start == LINE_NOT_FOUND:
-            return
+            return None
 
         # we should find the tensor in the next three lines:
         lines = self.lines[line_start + 1:line_start + 4]
@@ -1278,7 +1278,7 @@ class AimsOutCalcChunk(AimsOutChunk):
         """ Parse the polarization vector from the aims.out file"""
         line_start = self.reverse_search_for(["| Cartesian Polarization"])
         if line_start == LINE_NOT_FOUND:
-            return
+            return None
         line = self.lines[line_start]
         return np.array([float(s) for s in line.split()[-3:]])
 
@@ -1585,6 +1585,8 @@ def get_header_chunk(fd):
     # Stop the header once the first SCF cycle begins
     while (
         "Convergence:    q app. |  density  | eigen (eV) | Etot (eV)"
+            not in line
+            and "Convergence:    q app. |  density,  spin     | eigen (eV) |"
             not in line
             and "Begin self-consistency iteration #" not in line
     ):

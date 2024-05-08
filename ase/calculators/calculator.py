@@ -2,11 +2,11 @@ import copy
 import os
 import subprocess
 import warnings
-
 from abc import abstractmethod
+from dataclasses import dataclass
 from math import pi, sqrt
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Union
+from typing import Any, Dict, List, Optional, Sequence, Set, Union
 
 import numpy as np
 
@@ -931,10 +931,9 @@ class Calculator(BaseCalculator):
 
 
 class OldShellProfile:
-    def __init__(self, name, command, prefix):
+    def __init__(self, name, command):
         self.name = name
         self.command = command
-        self.prefix = prefix
 
     def execute(self, calc):
         if self.command is None:
@@ -946,7 +945,7 @@ class OldShellProfile:
             )
         command = self.command
         if 'PREFIX' in command:
-            command = command.replace('PREFIX', self.prefix)
+            command = command.replace('PREFIX', calc.prefix)
 
         try:
             proc = subprocess.Popen(command, shell=True, cwd=calc.directory)
@@ -971,33 +970,62 @@ class OldShellProfile:
             raise CalculationFailed(msg)
 
 
+@dataclass
+class FileIORules:
+    """Rules for controlling streams options to external command.
+
+    FileIOCalculator will direct stdin and stdout and append arguments
+    to the calculator command using the specifications on this class.
+
+    Currently names can contain "{prefix}" which will be substituted by
+    calc.prefix.  This will go away if/when we can remove prefix."""
+    extend_argv: Sequence[str] = tuple()
+    stdin_name: Optional[str] = None
+    stdout_name: Optional[str] = None
+
+
 class ArgvProfile:
     def __init__(self, name, argv):
         self.name = name
         self.argv = argv
 
     def execute(self, calc):
-        directory = Path(calc.directory).resolve()
-        if hasattr(calc, 'output_filename'):
-            stdout_path = calc.output_filename()
-        else:
-            stdout_path = directory / f'{self.name}.out'
         try:
-            with open(stdout_path, 'w') as fd:
-                argv = [*self.argv]
-                # XXX FIXME This is too hacky, we need a better way to
-                # combine installation info with programmatic modifications
-                # of argv with ArgvProfile.
-                if hasattr(calc, 'additional_argv'):
-                    argv += calc.additional_argv()
-                subprocess.run(argv, cwd=directory, check=True, stdout=fd)
+            self._call(calc, subprocess.check_call)
         except subprocess.CalledProcessError as err:
-            msg = (
-                f'Calculator {self.name} failed with args {self.argv} '
-                f'in directory {directory}'
-            )
+            directory = Path(calc.directory).resolve()
+            msg = (f'Calculator {self.name} failed with args {err.args} '
+                   f'in directory {directory}')
             raise CalculationFailed(msg) from err
-        return stdout_path
+
+    def execute_nonblocking(self, calc):
+        return self._call(calc, subprocess.Popen)
+
+    def _call(self, calc, subprocess_function):
+        from contextlib import ExitStack
+
+        directory = Path(calc.directory).resolve()
+        fileio_rules = calc.fileio_rules
+
+        with ExitStack() as stack:
+
+            def _maybe_open(name, mode):
+                if name is None:
+                    return None
+
+                name = name.format(prefix=calc.prefix)
+                directory = Path(calc.directory)
+                return stack.enter_context(open(directory / name, mode))
+
+            stdout_fd = _maybe_open(fileio_rules.stdout_name, 'wb')
+            stdin_fd = _maybe_open(fileio_rules.stdin_name, 'rb')
+
+            argv = [*self.argv, *fileio_rules.extend_argv]
+            argv = [arg.format(prefix=calc.prefix) for arg in argv]
+            return subprocess_function(
+                argv, cwd=directory,
+                stdout=stdout_fd,
+                stdin=stdin_fd)
 
 
 class FileIOCalculator(Calculator):
@@ -1012,6 +1040,11 @@ class FileIOCalculator(Calculator):
     _legacy_default_command: Optional[str] = None
 
     cfg = _cfg  # Ensure easy access to config for subclasses
+
+    @classmethod
+    def ruleset(cls, *args, **kwargs):
+        """Helper for subclasses to define FileIORules."""
+        return FileIORules(*args, **kwargs)
 
     def __init__(
         self,
@@ -1048,14 +1081,17 @@ class FileIOCalculator(Calculator):
     def command(self, command):
         self.profile.command = command
 
-    def _initialize_profile(self, command):
-        # XXX Should be able to perform some kind of config lookup here.
-        # if isinstance(command,
-        # if self.name in self.cfg.parser:
-        #    section = self.cfg.parser[self.name]
-        #    # XXX getargv() returns None if missing!
-        #    return ArgvProfile(self.name, section.getargv('argv'))
+    @classmethod
+    def load_argv_profile(cls, cfg, section_name):
+        import shlex
 
+        # Helper method to load configuration.
+        # This is used by the tests, do not rely on this as it will change.
+        section = cfg.parser[section_name]
+        argv = shlex.split(section['binary'])
+        return ArgvProfile(section_name, argv)
+
+    def _initialize_profile(self, command):
         if command is None:
             name = 'ASE_' + self.name.upper() + '_COMMAND'
             command = self.cfg.get(name)
@@ -1066,16 +1102,14 @@ class FileIOCalculator(Calculator):
             command = self._legacy_default_command
 
         if command is None and self.name in self.cfg.parser:
-            section = self.cfg.parser[self.name]
-            # XXX getargv() returns None if missing!
-            return ArgvProfile(self.name, section.getargv('argv'))
+            return self.load_argv_profile(self.cfg, self.name)
 
         if command is None:
             raise EnvironmentError(
                 f'No configuration of {self.name}.  '
                 f'Missing section [{self.name}] in configuration')
 
-        return OldShellProfile(self.name, command, self.prefix)
+        return OldShellProfile(self.name, command)
 
     def calculate(
         self, atoms=None, properties=['energy'], system_changes=all_changes
@@ -1100,36 +1134,3 @@ class FileIOCalculator(Calculator):
 
     def read_results(self):
         """Read energy, forces, ... from output file(s)."""
-
-
-class NewArgvProfile:
-    """Temporary copy of ArgvProfile for refactoring.
-
-    We need to solve a problem where some codes need to append to argv
-    in ways that are not easily supported"""
-    def __init__(self, argv):
-        self.argv = argv
-
-    def execute(self, directory, stdout_name):
-        directory = Path(directory).resolve()
-        # if stdout_name is None:
-        #    stdout_name = f'{self.name}.out'
-        stdout_path = directory / f'{stdout_name}.out'
-        try:
-            with open(stdout_path, 'w') as fd:
-                subprocess.run(self.argv, cwd=directory, check=True, stdout=fd)
-        except subprocess.CalledProcessError as err:
-            msg = (
-                f'Calculator {self.name} failed with args {self.argv} '
-                f'in directory {directory}'
-            )
-            raise CalculationFailed(msg) from err
-        return stdout_path
-
-    @classmethod
-    def from_config_section(cls, section):
-        try:
-            return cls(section['argv'])
-        except KeyError as err:
-            from ase.calculators.genericfileio import BadConfiguration
-            raise BadConfiguration(*err.args)

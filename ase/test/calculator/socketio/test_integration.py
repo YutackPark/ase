@@ -8,7 +8,7 @@ from ase.units import Ry
 
 
 # XXX 2023-08-07: segfaults with ecutwfc=300 / Ry and espresso-7.0 (Ubuntu)
-@pytest.mark.calculator_lite
+@pytest.mark.calculator_lite()
 @pytest.mark.calculator('espresso',
                         input_data={"system": {"ecutwfc": 200 / Ry}})
 @pytest.mark.calculator('abinit')

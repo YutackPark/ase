@@ -12,6 +12,9 @@ class ELK(FileIOCalculator, GetOutputsMixin):
     ignored_changes = {'pbc'}
     discard_results_on_any_change = True
 
+    fileio_rules = FileIOCalculator.ruleset(
+        stdout_name='elk.out')
+
     def __init__(self, **kwargs):
         """Construct ELK calculator.
 

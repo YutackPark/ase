@@ -271,10 +271,7 @@ class MirrorMutation(OffspringCreator):
         top = atoms[len(atoms) - self.n_top: len(atoms)]
         num = top.numbers
         unique_types = list(set(num))
-        nu = {}
-        for u in unique_types:
-            nu[u] = sum(num == u)
-
+        nu = {u: sum(num == u) for u in unique_types}
         n_tries = 1000
         counter = 0
         changed = False

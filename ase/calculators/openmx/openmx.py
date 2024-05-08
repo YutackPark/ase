@@ -397,7 +397,7 @@ class OpenMX(FileIOCalculator):
         version = None
         if label is None:
             label = self.label
-        for line in open(get_file_name('.out', label)):
+        for line in open(get_file_name('.log', label)):
             if line.find('Ver.') != -1:
                 version = line.split()[-1]
                 break
@@ -582,7 +582,7 @@ class OpenMX(FileIOCalculator):
         abc = cellpar[:3]
         angles = cellpar[3:]
         min_lv = min(abc)
-        if abc.ptp() < 0.01 * min_lv:
+        if np.ptp(abc) < 0.01 * min_lv:
             if abs(angles - 90).max() < 1:
                 return 'cubic'
             elif abs(angles - 60).max() < 1:

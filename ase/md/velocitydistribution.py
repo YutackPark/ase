@@ -24,7 +24,7 @@ class UnitError(Exception):
 
 
 def force_temperature(atoms: Atoms, temperature: float, unit: str = "K"):
-    """ force (nucl.) temperature to have a precise value
+    """Force the (nuclear) temperature to a precise value.
 
     Parameters:
     atoms: ase.Atoms
@@ -93,7 +93,7 @@ def MaxwellBoltzmannDistribution(
     force_temp: bool = False,
     rng=None,
 ):
-    """Sets the momenta to a Maxwell-Boltzmann distribution.
+    """Set the atomic momenta to a Maxwell-Boltzmann distribution.
 
     Parameters:
 
@@ -101,7 +101,7 @@ def MaxwellBoltzmannDistribution(
         The atoms.  Their momenta will be modified.
 
     temp: float (deprecated)
-        The temperature in eV.  Deprecated, used temperature_K instead.
+        The temperature in eV.  Deprecated, use temperature_K instead.
 
     temperature_K: float
         The temperature in Kelvin.
@@ -111,13 +111,16 @@ def MaxwellBoltzmannDistribution(
         all tasks.  Set to 'serial' to disable communication.  Leave as None to
         get the default: ase.parallel.world
 
-    force_temp: bool (optinal, default: False)
-        If True, random the momenta are rescaled so the kinetic energy is
+    force_temp: bool (optional, default: False)
+        If True, the random momenta are rescaled so the kinetic energy is
         exactly 3/2 N k T.  This is a slight deviation from the correct
         Maxwell-Boltzmann distribution.
 
     rng: Numpy RNG (optional)
         Random number generator.  Default: numpy.random
+        If you would like to always get the identical distribution, you can
+        supply a random seed like `rng=numpy.random.RandomState(seed)`, where
+        seed is an integer.
     """
     temp = units.kB * process_temperature(temp, temperature_K, 'eV')
     masses = atoms.get_masses()

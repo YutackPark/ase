@@ -16,7 +16,7 @@ def test_info_calculators(cli):
     assert 'gpaw' in cli.ase('info', '--calculators')
 
 
-@pytest.fixture
+@pytest.fixture()
 def fname(testdir):
     atoms = bulk('Au')
     filename = 'file.traj'

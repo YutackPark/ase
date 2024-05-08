@@ -531,8 +531,22 @@ def graphene(formula='C2', a=2.460, thickness=0.0,
 
 def _all_surface_functions():
     # Convenient for debugging.
-    d = {}
-    for func in [fcc100, fcc110, bcc100, bcc110, bcc111, fcc111, hcp0001,
-                 hcp10m10, diamond100, diamond111, fcc111, mx2, graphene]:
-        d[func.__name__] = func
+    d = {
+        func.__name__: func
+        for func in [
+            fcc100,
+            fcc110,
+            bcc100,
+            bcc110,
+            bcc111,
+            fcc111,
+            hcp0001,
+            hcp10m10,
+            diamond100,
+            diamond111,
+            fcc111,
+            mx2,
+            graphene,
+        ]
+    }
     return d

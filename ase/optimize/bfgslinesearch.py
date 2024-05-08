@@ -200,7 +200,7 @@ class BFGSLineSearch(Optimizer):
 
             r0 = None
             g0 = None
-            for i in range(0, len(traj) - 1):
+            for i in range(len(traj) - 1):
                 r = traj[i].get_positions().ravel()
                 g = - traj[i].get_forces().ravel() / self.alpha
                 self.update(r, g, r0, g0, self.p)

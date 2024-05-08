@@ -955,10 +955,8 @@ class Atoms:
     def fromdict(cls, dct):
         """Rebuild atoms object from dictionary representation (todict)."""
         dct = dct.copy()
-        kw = {}
-        for name in ['numbers', 'positions', 'cell', 'pbc']:
-            kw[name] = dct.pop(name)
-
+        kw = {name: dct.pop(name)
+              for name in ['numbers', 'positions', 'cell', 'pbc']}
         constraints = dct.pop('constraints', None)
         if constraints:
             from ase.constraints import dict2constraint
@@ -1043,7 +1041,7 @@ class Atoms:
                 constraint = self.constraints[0]
             else:
                 constraint = self.constraints
-            tokens.append(f'constraint={repr(constraint)}')
+            tokens.append(f'constraint={constraint!r}')
 
         if self._calc is not None:
             tokens.append('calculator={}(...)'
@@ -1749,11 +1747,14 @@ class Atoms:
         """Randomly displace atoms.
 
         This method adds random displacements to the atomic positions,
-        taking a possible constraint into account.  The random numbers are
+        taking a possible constraint into account. The random numbers are
         drawn from a normal distribution of standard deviation stdev.
 
-        For a parallel calculation, it is important to use the same
-        seed on all processors!  """
+        By default, the random number generator always uses the same seed (42)
+        for repeatability. You can provide your own seed (an integer), or if you
+        want the randomness to be different each time you run a script, then
+        provide `rng=numpy.random`. For a parallel calculation, it is important
+        to use the same seed on all processors!  """
 
         if seed is not None and rng is not None:
             raise ValueError('Please do not provide both seed and rng.')

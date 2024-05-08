@@ -18,12 +18,12 @@ def dict_is_subset(d1, d2):
     return all(key in d2 and d1[key] == d2[key] for key in d1)
 
 
-@pytest.fixture
+@pytest.fixture()
 def rng():
     return np.random.RandomState(seed=42)
 
 
-@pytest.fixture
+@pytest.fixture()
 def nacl(rng):
     atoms = bulk('NaCl', crystalstructure='rocksalt', a=4.1,
                  cubic=True) * (3, 3, 3)
@@ -31,7 +31,7 @@ def nacl(rng):
     return atoms
 
 
-@pytest.fixture
+@pytest.fixture()
 def vaspinput_factory(nacl):
     """Factory for GenerateVaspInput class, which mocks the generation of
     pseudopotentials."""
@@ -118,7 +118,7 @@ def read_magmom_from_file(filename) -> np.ndarray:
     return np.array(new_magmom)
 
 
-@pytest.fixture
+@pytest.fixture()
 def assert_magmom_equal_to_incar_value():
     """Fixture to compare a pre-made magmom array to the value
     a GenerateVaspInput.write_incar object writes to a file"""

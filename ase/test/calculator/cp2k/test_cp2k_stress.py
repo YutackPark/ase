@@ -12,7 +12,7 @@ from ase.filters import UnitCellFilter
 from ase.optimize import MDMin
 
 
-@pytest.mark.calculator_lite
+@pytest.mark.calculator_lite()
 def test_cp2k_stress(cp2k_factory):
     """Adopted from ase/test/stress.py"""
 

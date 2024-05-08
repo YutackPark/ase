@@ -90,7 +90,7 @@ def main():
 
     txt = git('status')
     branch = re.match(r'On branch (\S+)', txt).group(1)
-    print(f'Creating new release from branch {repr(branch)}')
+    print(f'Creating new release from branch {branch!r}')
     git(f'checkout -b {branchname}')
 
     def update_version(version):

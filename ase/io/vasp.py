@@ -331,9 +331,7 @@ def read_vasp_xdatcar(filename='XDATCAR', index=-1):
 
             fd.readline()
 
-        coords = [
-            np.array(fd.readline().split(), float) for ii in range(total)
-        ]
+        coords = [np.array(fd.readline().split(), float) for _ in range(total)]
 
         image = Atoms(atomic_formula, cell=cell, pbc=True)
         image.set_scaled_positions(np.array(coords))
@@ -393,10 +391,8 @@ def read_vasp_xml(filename='vasprun.xml', index=-1):
     import xml.etree.ElementTree as ET
     from collections import OrderedDict
 
-    from ase.calculators.singlepoint import (
-        SinglePointDFTCalculator,
-        SinglePointKPoint,
-    )
+    from ase.calculators.singlepoint import (SinglePointDFTCalculator,
+                                             SinglePointKPoint)
     from ase.constraints import FixAtoms, FixScaled
     from ase.units import GPa
 
@@ -906,7 +902,7 @@ def _symbol_count_string(
         Sn_d_GW S_GW/357d
                 4        6
     """
-    symbol_mapping = symbol_mapping or dict()
+    symbol_mapping = symbol_mapping or {}
     out_str = ' '
 
     # Allow for VASP 6 format, i.e., specifying the pseudopotential used

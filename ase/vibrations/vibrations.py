@@ -4,18 +4,17 @@ import sys
 from collections import namedtuple
 from math import log, pi, sqrt
 from pathlib import Path
+from typing import Iterator, Tuple
 
 import numpy as np
 
 import ase.io
 import ase.units as units
+from ase.atoms import Atoms
 from ase.parallel import paropen, world
 from ase.utils.filecache import get_json_cache
 
 from .data import VibrationsData
-from ase.atoms import Atoms
-
-from typing import Tuple, Iterator
 
 
 class AtomicDisplacements:
@@ -449,7 +448,7 @@ Please remove them and recalculate or run \
 
     def get_zero_point_energy(self, freq=None):
         if freq:
-            raise NotImplementedError()
+            raise NotImplementedError
         return self.get_vibrations().get_zero_point_energy()
 
     def get_mode(self, n):

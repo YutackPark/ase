@@ -20,6 +20,9 @@ class Dftb(FileIOCalculator):
                               'stress', 'dipole']
     discard_results_on_any_change = True
 
+    fileio_rules = FileIOCalculator.ruleset(
+        stdout_name='{prefix}.out')
+
     def __init__(self, restart=None,
                  ignore_bad_restart_file=FileIOCalculator._deprecated,
                  label='dftb', atoms=None, kpts=None,
@@ -110,12 +113,14 @@ class Dftb(FileIOCalculator):
                 Options_='',
                 Options_WriteResultsTag='Yes',
                 ParserOptions_='',
+                ParserOptions_ParserVersion=1,
                 ParserOptions_IgnoreUnprocessedNodes='Yes')
         else:
             self.default_parameters = dict(
                 Options_='',
                 Options_WriteResultsTag='Yes',
                 ParserOptions_='',
+                ParserOptions_ParserVersion=1,
                 ParserOptions_IgnoreUnprocessedNodes='Yes')
 
         self.pcpot = None
@@ -123,7 +128,6 @@ class Dftb(FileIOCalculator):
         self.atoms = None
         self.atoms_input = None
         self.do_forces = False
-        self.outfilename = 'dftb.out'
 
         super().__init__(restart, ignore_bad_restart_file,
                          label, atoms, command=command,
@@ -375,7 +379,7 @@ class Dftb(FileIOCalculator):
         gradients = []
         for j in range(index_force_begin, index_force_end):
             word = self.lines[j].split()
-            gradients.append([float(word[k]) for k in range(0, 3)])
+            gradients.append([float(word[k]) for k in range(3)])
 
         return np.array(gradients) * Hartree / Bohr
 

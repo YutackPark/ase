@@ -6,12 +6,12 @@ from subprocess import PIPE, Popen
 import numpy as np
 
 import ase.units as units
-from ase.calculators.calculator import (Calculator,
+from ase.calculators.calculator import (ArgvProfile, Calculator,
+                                        OldShellProfile,
                                         PropertyNotImplementedError,
-                                        all_changes,
-                                        ArgvProfile,
-                                        OldShellProfile)
+                                        all_changes)
 from ase.calculators.genericfileio import GenericFileIOCalculator
+from ase.parallel import world
 from ase.stress import full_3x3_to_voigt_6_stress
 from ase.utils import IOContext
 
@@ -55,7 +55,7 @@ class IPIProtocol:
             chunk = self.socket.recv(remaining)
             if len(chunk) == 0:
                 # (If socket is still open, recv returns at least one byte)
-                raise SocketClosed()
+                raise SocketClosed
             chunks.append(chunk)
             remaining -= len(chunk)
         msg = b''.join(chunks)
@@ -65,7 +65,7 @@ class IPIProtocol:
     def recvmsg(self):
         msg = self._recvall(12)
         if not msg:
-            raise SocketClosed()
+            raise SocketClosed
 
         assert len(msg) == 12, msg
         msg = msg.rstrip().decode('ascii')
@@ -201,7 +201,7 @@ def bind_unixsocket(socketfile):
     try:
         serversocket.bind(socketfile)
     except OSError as err:
-        raise OSError(f'{err}: {repr(socketfile)}')
+        raise OSError(f'{err}: {socketfile!r}')
 
     try:
         with serversocket:
@@ -237,23 +237,20 @@ class FileIOSocketClientLauncher:
                 argv = profile.socketio_argv_unix(socket=unixsocket)
             else:
                 argv = profile.socketio_argv_inet(port=port)
-            import os
             return Popen(argv, cwd=cwd, env=os.environ)
         else:
             # Old FileIOCalculator:
+            self.calc.write_input(atoms, properties=properties,
+                                  system_changes=all_changes)
+
             if profile is None:
                 cmd = self.calc.command.replace('PREFIX', self.calc.prefix)
                 cmd = cmd.format(port=port, unixsocket=unixsocket)
             elif isinstance(profile, OldShellProfile):
-                cmd = profile.command
-                if "PREFIX" in cmd:
-                    cmd = cmd.replace("PREFIX", profile.prefix)
+                cmd = profile.command.replace("PREFIX", self.calc.prefix)
+                return Popen(cmd, shell=True, cwd=cwd)
             elif isinstance(profile, ArgvProfile):
-                cmd = " ".join(profile.argv)
-
-            self.calc.write_input(atoms, properties=properties,
-                                  system_changes=all_changes)
-            return Popen(cmd, shell=True, cwd=cwd)
+                return profile.execute_nonblocking(self.calc)
 
 
 class SocketServer(IOContext):
@@ -401,7 +398,7 @@ class SocketServer(IOContext):
 
 class SocketClient:
     def __init__(self, host='localhost', port=None,
-                 unixsocket=None, timeout=None, log=None, comm=None):
+                 unixsocket=None, timeout=None, log=None, comm=world):
         """Create client and connect to server.
 
         Parameters:
@@ -424,10 +421,6 @@ class SocketClient:
             will then be broadcast on the communicator.  The SocketClient
             must be created on all ranks of world, and will see the same
             Atoms objects."""
-        if comm is None:
-            from ase.parallel import world
-            comm = world
-
         # Only rank0 actually does the socket work.
         # The other ranks only need to follow.
         #
@@ -562,7 +555,7 @@ class SocketIOCalculator(Calculator, IOContext):
 
     def __init__(self, calc=None, port=None,
                  unixsocket=None, timeout=None, log=None, *,
-                 launch_client=None):
+                 launch_client=None, comm=world):
         """Initialize socket I/O calculator.
 
         This calculator launches a server which passes atomic
@@ -630,7 +623,7 @@ class SocketIOCalculator(Calculator, IOContext):
         self.timeout = timeout
         self.server = None
 
-        self.log = self.openfile(log)
+        self.log = self.openfile(file=log, comm=comm)
 
         # We only hold these so we can pass them on to the server.
         # They may both be None as stored here.

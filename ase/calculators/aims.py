@@ -12,12 +12,9 @@ import re
 
 import numpy as np
 
-from ase.calculators.genericfileio import (
-    CalculatorTemplate,
-    GenericFileIOCalculator,
-    BaseProfile,
-    read_stdout,
-)
+from ase.calculators.genericfileio import (BaseProfile, CalculatorTemplate,
+                                           GenericFileIOCalculator,
+                                           read_stdout)
 from ase.io.aims import write_aims, write_control
 
 
@@ -40,6 +37,8 @@ class AimsProfile(BaseProfile):
 
 
 class AimsTemplate(CalculatorTemplate):
+    _label = 'aims'
+
     def __init__(self):
         super().__init__(
             'aims',
@@ -54,7 +53,8 @@ class AimsTemplate(CalculatorTemplate):
             ],
         )
 
-        self.outputname = 'aims.out'
+        self.outputname = f'{self._label}.out'
+        self.errorname = f'{self._label}.err'
 
     def update_parameters(self, properties, parameters):
         """Check and update the parameters to match the desired calculation
@@ -154,7 +154,8 @@ class AimsTemplate(CalculatorTemplate):
         write_control(control, atoms, parameters)
 
     def execute(self, directory, profile):
-        profile.run(directory, inputfile=None, outputfile=self.outputname)
+        profile.run(directory, None, self.outputname,
+                    errorfile=self.errorname)
 
     def read_results(self, directory):
         from ase.io.aims import read_aims_results

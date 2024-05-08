@@ -11,7 +11,7 @@ from ase.lattice.compounds import L1_2
 from ase.optimize.fire import FIRE
 
 
-@pytest.fixture
+@pytest.fixture()
 def atoms_h2():
     return molecule('H2')
 
