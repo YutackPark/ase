@@ -149,3 +149,12 @@ def test_center_about4():
     assert atoms.positions[0, 0] == pytest.approx(0)
     assert atoms.positions[0, 1] == pytest.approx(0)
     assert atoms.positions[0, 2] == pytest.approx(0)
+
+
+def test_center_about_fail():
+    atoms = Atoms('H', positions=[[1., 2., 3.]])
+    atoms.set_cell([10, 10, 10])
+    atoms.center(about=(0, 0, 0), axis=2)
+    assert atoms.positions[0, 0] == pytest.approx(1)
+    assert atoms.positions[0, 1] == pytest.approx(2)
+    assert atoms.positions[0, 2] == pytest.approx(0)
