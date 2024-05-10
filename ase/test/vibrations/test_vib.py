@@ -581,9 +581,11 @@ def test_vibration_on_surface(testdir):
     # Check that FixAtoms works in the same way
     ag_slab_fixed = ag_slab.copy()
     ag_slab_fixed.calc = ForceConstantCalculator(
-        hessian.reshape((34 * 3, 34 * 3)), ref=ag_slab.copy(), f0=np.zeros((34, 3))
+        hessian.reshape((34 * 3, 34 * 3)), ref=ag_slab.copy(),
+        f0=np.zeros((34, 3))
     )
-    ag_slab_fixed.set_constraint(FixAtoms(mask=[True] * (len(ag_slab_fixed) - 2) + [False] * 2))
+    ag_slab_fixed.set_constraint(
+        FixAtoms(mask=[True] * (len(ag_slab_fixed) - 2) + [False] * 2))
     vibs_fixed_atoms = Vibrations(ag_slab_fixed)
     vibs_fixed_atoms.run()
     vibs_fixed_atoms.read()
@@ -592,7 +594,7 @@ def test_vibration_on_surface(testdir):
     assert_array_almost_equal(
         vibs.get_frequencies(), vibs_fixed_atoms.get_frequencies()
     )
-    
+
     # Check that we respect the user
     vibs_fixed_atoms2 = Vibrations(ag_slab_fixed, indices=[0])
     vibs_fixed_atoms2.run()
