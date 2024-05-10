@@ -11,6 +11,7 @@ import numpy as np
 import ase.io
 import ase.units as units
 from ase.atoms import Atoms
+from ase.constraints import FixAtoms
 from ase.parallel import paropen, world
 from ase.utils.filecache import get_json_cache
 
@@ -152,7 +153,12 @@ class Vibrations(AtomicDisplacements):
         self.atoms = atoms
         self.calc = atoms.calc
         if indices is None:
-            indices = range(len(atoms))
+            fixed_indices = []
+            for constr in atoms.constraints:
+                if isinstance(constr, FixAtoms):
+                    fixed_indices.extend(constr.get_indices())
+            fixed_indices = list(set(fixed_indices))
+            indices = [i for i in range(len(atoms)) if i not in fixed_indices]
         if len(indices) != len(set(indices)):
             raise ValueError(
                 'one (or more) indices included more than once')
