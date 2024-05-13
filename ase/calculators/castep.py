@@ -1164,7 +1164,7 @@ End CASTEP Interface Documentation
                 (self._ibz_kpts,
                  self._ibz_weights,
                  self._eigenvalues,
-                 self._efermi) = read_bands(filename=bands_file)
+                 self._efermi) = read_bands(bands_file)
             except FileNotFoundError:
                 warnings.warn('Could not load .bands file, eigenvalues and '
                               'Fermi energy are unknown')
