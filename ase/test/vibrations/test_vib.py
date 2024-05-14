@@ -4,7 +4,8 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from numpy.testing import assert_array_almost_equal
+from numpy.testing import (assert_array_almost_equal,
+                           assert_array_equal)
 
 import ase.io
 from ase import Atoms, units
@@ -561,6 +562,7 @@ def test_vibration_on_surface(testdir):
     vibs = Vibrations(ag_slab, indices=[-2, -1])
     vibs.run()
     vibs.read()
+    assert len(vibs.get_frequencies()) == 6
 
     assert_array_almost_equal(vibs.get_vibrations().get_hessian(),
                               hessian_bottom_corner)
@@ -575,3 +577,27 @@ def test_vibration_on_surface(testdir):
 
         # The N atoms should have finite displacement
         assert np.all(np.any(vibs.get_mode(i)[-2:, :], axis=1))
+
+    # Check that FixAtoms works in the same way
+    ag_slab_fixed = ag_slab.copy()
+    ag_slab_fixed.calc = ForceConstantCalculator(
+        hessian.reshape((34 * 3, 34 * 3)), ref=ag_slab.copy(),
+        f0=np.zeros((34, 3))
+    )
+    ag_slab_fixed.set_constraint(
+        FixAtoms(mask=[True] * (len(ag_slab_fixed) - 2) + [False] * 2))
+    vibs_fixed_atoms = Vibrations(ag_slab_fixed)
+    vibs_fixed_atoms.run()
+    vibs_fixed_atoms.read()
+    assert_array_equal(vibs_fixed_atoms.indices, np.array([32, 33]))
+    assert len(vibs_fixed_atoms.get_frequencies()) == 6
+    assert_array_almost_equal(
+        vibs.get_frequencies(), vibs_fixed_atoms.get_frequencies()
+    )
+
+    # Check that we respect the user
+    vibs_fixed_atoms2 = Vibrations(ag_slab_fixed, indices=[0])
+    vibs_fixed_atoms2.run()
+    vibs_fixed_atoms2.read()
+    assert_array_equal(vibs_fixed_atoms2.indices, np.array([0]))
+    assert len(vibs_fixed_atoms2.get_frequencies()) == 3
