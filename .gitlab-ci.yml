@@ -251,15 +251,9 @@ coverage-combine:
       - coverage-html
     expire_in: 1 week
 
-.shared_windows_runners:
-  tags:
-    - shared-windows
-    - windows
-    - windows-1809
-
 windows_test:
-  extends:
-    - .shared_windows_runners
+  tags:
+    - saas-windows-medium-amd64
   stage: test
   before_script:
     # https://stackoverflow.com/questions/61791108/gitlab-ci-shared-windows-runner-for-python
