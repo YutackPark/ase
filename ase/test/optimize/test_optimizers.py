@@ -90,6 +90,7 @@ def test_unconverged(optcls, atoms, kwargs):
     with optcls(atoms, **kwargs) as opt:
         opt.run(fmax=fmax, steps=1)  # only one step to not get converged
     assert not opt.converged()
+    assert opt.todict()["fmax"] == 1e-9
 
 
 def test_run_twice(optcls, atoms, kwargs):
