@@ -438,13 +438,20 @@ _re_method_basis = re.compile(
 # They will appear in this format if the Gaussian file has been generated
 # by ASE using a calculator with the basis and method keywords set.
 
-_re_chgmult = re.compile(r'^\s*[+-]?\d+(?:,\s*|\s+)[+-]?\d+\s*$')
+_re_chgmult = re.compile(r'^(\s*[+-]?\d+(?:,\s*|\s+)[+-]?\d+\s*){1,}$')
 # This is a bit more complex of a regex than we typically want, but it
 # can be difficult to determine whether a line contains the charge and
 # multiplicity, rather than just another route keyword. By making sure
-# that the line contains exactly two *integers*, separated by either
-# a comma (and possibly whitespace) or some amount of whitespace, we
+# that the line contains exactly an even number of *integers*, separated by
+# either a comma (and possibly whitespace) or some amount of whitespace, we
 # can be more confident that we've actually found the charge and multiplicity.
+# Note that in recent versions of Gaussian, the gjf file can contain fragments,
+# where you can give a charge and multiplicity to each fragment. This pattern
+# will allow ASE to read this line in for the charge and multiplicity, however
+# the _get_charge_mult method will only input the first two integers that
+# always gives the overall charge and multiplcity for the full chemical system.
+# The charge and multiplicity of the fragments will be ignored in the
+# _get_charge_mult method.
 
 _re_nuclear_props = re.compile(r'\(([^\)]+)\)')
 # Matches the nuclear properties, which are contained in parantheses.
@@ -611,9 +618,14 @@ def _get_charge_mult(chgmult_section):
         chgmult = chgmult_match.group(0).split()
         return {'charge': int(chgmult[0]), 'mult': int(chgmult[1])}
     except (IndexError, AttributeError):
-        raise ParseError("ERROR: Could not read the charge and multiplicity "
-                         "from the Gaussian input file. These must be 2 "
-                         "integers separated with whitespace or a comma.")
+        raise ParseError("ERROR: Could not read the charge and "
+                         "multiplicity from the Gaussian input "
+                         "file. There must be an even number of "
+                         "integers separated with whitespace or "
+                         "a comma, where the first two integers "
+                         "must be the overall charge and overall "
+                         "multiplicity of the chemical system, "
+                         "respectively.")
 
 
 def _get_nuclear_props(line):
